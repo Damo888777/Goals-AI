@@ -57,28 +57,68 @@ interface Column {
   height: number;
 }
 
-function MasonryGrid() {
+interface MasonryGridProps {
+  visionImages: VisionItem[];
+}
+
+function MasonryGrid({ visionImages }: MasonryGridProps) {
   const gap = 12;
   const numColumns = 2;
   
-  // Sample vision data with varied aspect ratios like Pinterest
-  const visionItems: VisionItem[] = [
-    { id: 1, aspectRatio: 0.75 }, // Portrait
-    { id: 2, aspectRatio: 1.5 },  // Landscape
-    { id: 3, aspectRatio: 0.6 },  // Tall portrait
-    { id: 4, aspectRatio: 1.2 },  // Wide
-    { id: 5, aspectRatio: 0.8 },  // Square-ish
-    { id: 6, aspectRatio: 1.8 },  // Very wide
-    { id: 7, aspectRatio: 0.5 },  // Very tall
-    { id: 8, aspectRatio: 1.0 },  // Perfect square
-    { id: 9, aspectRatio: 0.9 },  // Almost square
-    { id: 10, aspectRatio: 1.3 }, // Medium wide
-  ];
+  // Show empty state card if no images
+  if (visionImages.length === 0) {
+    return (
+      <View style={{
+        backgroundColor: '#F5EBE0',
+        borderRadius: 12,
+        paddingVertical: 32,
+        paddingHorizontal: 24,
+        alignItems: 'center',
+        marginTop: 16,
+        shadowColor: '#7C7C7C',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.75,
+        shadowRadius: 0,
+        elevation: 8, // For Android
+      }}>
+        <Text style={{
+          fontSize: 18,
+          fontWeight: '600',
+          color: '#3D405B',
+          marginBottom: 8,
+          textAlign: 'center',
+        }}>
+          No vision yet
+        </Text>
+        <Text style={{
+          fontSize: 14,
+          color: '#6B7280',
+          textAlign: 'center',
+          lineHeight: 20,
+        }}>
+          Add your first vision and start your journey
+        </Text>
+      </View>
+    );
+  }
+  
+  return <MasonryLayout items={visionImages} gap={gap} numColumns={numColumns} isEmpty={false} />;
+}
+
+function MasonryLayout({ items, gap, numColumns, isEmpty }: { 
+  items: VisionItem[], 
+  gap: number, 
+  numColumns: number, 
+  isEmpty: boolean 
+}) {
 
   // Distribute items across columns using Pinterest algorithm
   const columns: Column[] = Array.from({ length: numColumns }, () => ({ items: [], height: 0 }));
   
-  visionItems.forEach((item) => {
+  items.forEach((item) => {
     // Find the shortest column
     const shortestColumn = columns.reduce((prev, current) => 
       prev.height < current.height ? prev : current
@@ -108,12 +148,13 @@ function MasonryGrid() {
               style={{
                 width: '100%',
                 height: item.height || 100,
-                backgroundColor: '#E3E3E3',
+                backgroundColor: isEmpty ? '#E3E3E3' : '#F0F0F0',
                 borderRadius: 5,
                 overflow: 'hidden',
+                opacity: isEmpty ? 0.3 : 1,
               }}
             >
-              {item.imageUri ? (
+              {item.imageUri && !isEmpty ? (
                 <Image
                   source={{ uri: item.imageUri }}
                   style={{ width: '100%', height: '100%' }}
@@ -125,10 +166,15 @@ function MasonryGrid() {
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    opacity: 0.2,
+                    opacity: isEmpty ? 0.5 : 0.2,
                   }}
                 >
-                  <Text style={{ fontSize: 12, color: '#999' }}>Vision</Text>
+                  <Text style={{ 
+                    fontSize: isEmpty ? 10 : 12, 
+                    color: isEmpty ? '#AAA' : '#999' 
+                  }}>
+                    {isEmpty ? '' : 'Vision'}
+                  </Text>
                 </View>
               )}
             </View>
@@ -141,15 +187,28 @@ function MasonryGrid() {
 
 export default function VisionBoardScreen() {
   const insets = useSafeAreaInsets();
+  const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
 
   const handleCreateVision = () => {
     console.log('Create Vision with AI');
-    // TODO: Navigate to AI vision creation screen
+    // Simulate adding a new vision image
+    const newVision: VisionItem = {
+      id: Date.now(),
+      aspectRatio: Math.random() * 1.5 + 0.5, // Random aspect ratio between 0.5 and 2.0
+      imageUri: `https://picsum.photos/300/${Math.floor(Math.random() * 200 + 200)}`, // Random placeholder image
+    };
+    setVisionImages(prev => [...prev, newVision]);
   };
 
   const handleUploadVision = () => {
     console.log('Upload Vision from gallery');
-    // TODO: Open image picker
+    // Simulate adding an uploaded vision image
+    const newVision: VisionItem = {
+      id: Date.now() + 1,
+      aspectRatio: Math.random() * 1.5 + 0.5, // Random aspect ratio between 0.5 and 2.0
+      imageUri: `https://picsum.photos/300/${Math.floor(Math.random() * 200 + 200)}`, // Random placeholder image
+    };
+    setVisionImages(prev => [...prev, newVision]);
   };
 
   const handleGoBack = () => {
@@ -302,7 +361,7 @@ export default function VisionBoardScreen() {
         </View>
 
         {/* Masonry Grid */}
-        <MasonryGrid />
+        <MasonryGrid visionImages={visionImages} />
       </ScrollView>
 
     </LinearGradient>

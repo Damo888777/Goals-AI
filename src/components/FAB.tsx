@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 2.8, height: 2.8 }, // Adjusted for 45° rotation: 4 * sin(45°) ≈ 2.8
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
