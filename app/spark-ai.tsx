@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { useState } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
 import { images } from '../src/constants/images';
 
 export default function SparkAIScreen() {
@@ -61,9 +62,9 @@ export default function SparkAIScreen() {
             ]}
           >
             <Image 
-              source={{ uri: images.icons.microphone }} 
-              style={styles.microphoneImage}
-              resizeMode="contain"
+              source={images.icons.sparkAILight} 
+              style={styles.sparkAIImage}
+              contentFit="contain"
             />
           </Pressable>
         </View>
@@ -183,15 +184,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  microphoneImage: {
-    width: 50,
-    height: 50,
-    tintColor: '#FFFFFF',
-  },
   instructionText: {
     fontSize: 18,
     color: '#364958',
     fontWeight: '500',
     textAlign: 'center',
+  },
+  sparkAIImage: {
+    width: 50,
+    height: 50,
   },
 });
