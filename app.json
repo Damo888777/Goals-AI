@@ -26,6 +26,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "goalz-ai",
     "plugins": [
       "expo-router",
       "expo-secure-store"
