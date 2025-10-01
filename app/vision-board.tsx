@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, Pressable, Image } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
@@ -190,14 +191,7 @@ export default function VisionBoardScreen() {
   const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
 
   const handleCreateVision = () => {
-    console.log('Create Vision with AI');
-    // Simulate adding a new vision image
-    const newVision: VisionItem = {
-      id: Date.now(),
-      aspectRatio: Math.random() * 1.5 + 0.5, // Random aspect ratio between 0.5 and 2.0
-      imageUri: `https://picsum.photos/300/${Math.floor(Math.random() * 200 + 200)}`, // Random placeholder image
-    };
-    setVisionImages(prev => [...prev, newVision]);
+    router.push('/spark-generate-img');
   };
 
   const handleUploadVision = () => {
@@ -235,7 +229,10 @@ export default function VisionBoardScreen() {
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
             <Pressable
-              onPress={handleGoBack}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                handleGoBack();
+              }}
               style={{
                 width: 30,
                 height: 30,
@@ -243,7 +240,22 @@ export default function VisionBoardScreen() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 20, color: '#F5EBE0', fontWeight: '300' }}>‹</Text>
+              <View style={{
+                width: 20,
+                height: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <View style={{
+                  width: 12,
+                  height: 12,
+                  borderLeftWidth: 2,
+                  borderBottomWidth: 2,
+                  borderColor: '#F5EBE0',
+                  transform: [{ rotate: '45deg' }],
+                  borderRadius: 1,
+                }} />
+              </View>
             </Pressable>
             <Text
               style={{
@@ -270,23 +282,38 @@ export default function VisionBoardScreen() {
         {/* Action Buttons */}
         <View style={{ flexDirection: 'row', gap: 16, width: '100%' }}>
           {/* Create Vision Button */}
-          <Pressable
-            onPress={handleCreateVision}
-            style={{
-              backgroundColor: '#3D405B',
-              borderWidth: 1,
-              borderColor: '#9B9B9B',
-              borderRadius: 10,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              height: 44,
-              flex: 1,
-            }}
-          >
+          <View style={{
+            shadowColor: '#F5EBE0',
+            shadowOffset: {
+              width: 0,
+              height: 4,
+            },
+            shadowOpacity: 0.75,
+            shadowRadius: 0,
+            elevation: 8, // For Android
+            borderRadius: 10,
+            flex: 1,
+          }}>
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                handleCreateVision();
+              }}
+              style={{
+                backgroundColor: '#3D405B',
+                borderWidth: 1,
+                borderColor: '#9B9B9B',
+                borderRadius: 10,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                height: 44,
+                flex: 1,
+              }}
+            >
             <Image 
               source={{ uri: images.icons.createVision }} 
               style={{ width: 16, height: 16 }}
@@ -301,26 +328,42 @@ export default function VisionBoardScreen() {
             >
               Create Vision
             </Text>
-          </Pressable>
+            </Pressable>
+          </View>
 
           {/* Upload Vision Button */}
-          <Pressable
-            onPress={handleUploadVision}
-            style={{
-              backgroundColor: '#003049',
-              borderWidth: 1,
-              borderColor: '#9B9B9B',
-              borderRadius: 10,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              height: 44,
-              flex: 1,
-            }}
-          >
+          <View style={{
+            shadowColor: '#F5EBE0',
+            shadowOffset: {
+              width: 0,
+              height: 4,
+            },
+            shadowOpacity: 0.75,
+            shadowRadius: 0,
+            elevation: 8, // For Android
+            borderRadius: 10,
+            flex: 1,
+          }}>
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                handleUploadVision();
+              }}
+              style={{
+                backgroundColor: '#003049',
+                borderWidth: 1,
+                borderColor: '#9B9B9B',
+                borderRadius: 10,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                height: 44,
+                flex: 1,
+              }}
+            >
             <View
               style={{
                 width: 16,
@@ -357,7 +400,8 @@ export default function VisionBoardScreen() {
             >
               Upload Vision
             </Text>
-          </Pressable>
+            </Pressable>
+          </View>
         </View>
 
         {/* Masonry Grid */}

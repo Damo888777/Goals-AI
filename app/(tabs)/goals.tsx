@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ export default function GoalsTab() {
   };
 
   const handleVisionPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/vision-board');
   };
 
