@@ -1,0 +1,16 @@
+{
+  "$schema": "vscode://schemas/settings/user",
+  "css.lint.unknownAtRules": "ignore",
+  "css.validate": false,
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["className\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]", "([^\"'`]*)"]
+  ],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "json.schemaDownload.enable": false
+}
