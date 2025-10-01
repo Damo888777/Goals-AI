@@ -2,18 +2,49 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { WeekDayCard } from '../../src/components/WeekDayCard';
+import { TaskCard } from '../../src/components/TaskCard';
 import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
 import type { Task } from '../../src/types';
 
 type ViewMode = 'week' | 'backlog';
-type BacklogFilter = 'ideas' | 'scheduled';
+type BacklogFilter = 'someday' | 'scheduled';
 
 export default function PlanTab() {
   const insets = useSafeAreaInsets();
   const [viewMode, setViewMode] = useState<ViewMode>('week');
-  const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('ideas');
+  const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('someday');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
+  
+  // Sample someday tasks (tasks without timestamps)
+  const [somedayTasks, setSomedayTasks] = useState<Task[]>([
+    {
+      id: '1',
+      title: 'Learn a new programming language',
+      isEatTheFrog: false,
+      isCompleted: false,
+      goalId: undefined,
+      milestoneId: undefined,
+      dueDate: undefined, // No timestamp - someday task
+      notes: 'Maybe Python or Rust',
+      focusSessions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '2', 
+      title: 'Plan a weekend getaway',
+      isEatTheFrog: false,
+      isCompleted: false,
+      goalId: undefined,
+      milestoneId: undefined,
+      dueDate: undefined, // No timestamp - someday task
+      notes: 'Somewhere peaceful and relaxing',
+      focusSessions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ]);
 
   // Get current week dates
   const getCurrentWeekDates = () => {
@@ -179,7 +210,7 @@ export default function PlanTab() {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => setBacklogFilter('ideas')}
+                  onPress={() => setBacklogFilter('someday')}
                   style={{
                     flex: 1,
                     height: 32,
@@ -188,7 +219,7 @@ export default function PlanTab() {
                     borderColor: '#A3B18A',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: backlogFilter === 'ideas' ? '#364958' : '#F5EBE0',
+                    backgroundColor: backlogFilter === 'someday' ? '#364958' : '#F5EBE0',
                     // Drop shadow matching Figma specs
                     shadowColor: '#7C7C7C',
                     shadowOffset: { width: 0, height: 4 },
@@ -201,10 +232,10 @@ export default function PlanTab() {
                     style={{
                       fontSize: 16,
                       fontWeight: '400',
-                      color: backlogFilter === 'ideas' ? '#FFFFFF' : '#757575',
+                      color: backlogFilter === 'someday' ? '#FFFFFF' : '#757575',
                     }}
                   >
-                    Ideas
+                    Someday
                   </Text>
                 </Pressable>
               </View>
@@ -330,19 +361,16 @@ export default function PlanTab() {
           </View>
         )}
 
-        {/* Backlog View - Ideas */}
-        {viewMode === 'backlog' && backlogFilter === 'ideas' && (
+        {/* Backlog View - Someday */}
+        {viewMode === 'backlog' && backlogFilter === 'someday' && (
           <View style={{ gap: 20 }}>
-            {/* Idea Card 1 */}
+            {/* Someday Tasks Container with cream background */}
             <View style={{
               backgroundColor: '#F5EBE0',
               borderWidth: 0.5,
               borderColor: '#A3B18A',
               borderRadius: 15,
-              padding: 15,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              padding: 20,
               // Drop shadow matching Figma specs
               shadowColor: '#7C7C7C',
               shadowOffset: { width: 0, height: 4 },
@@ -350,200 +378,31 @@ export default function PlanTab() {
               shadowRadius: 0,
               elevation: 4,
             }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{
-                  ...typography.title,
-                  fontSize: 16,
-                  marginBottom: 4,
-                }}>
-                  Placeholder Idea Title
-                </Text>
-                <Text style={{
-                  fontSize: 12,
-                  fontWeight: '300',
-                  color: '#364958',
-                }}>
-                  Potential Goal
-                </Text>
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 4,
-                }}>
-                  <View style={{
-                    width: 12,
-                    height: 12,
-                    backgroundColor: '#E9EDC9',
-                    borderRadius: 2,
-                    marginRight: 6,
-                  }} />
-                  <Text style={{
-                    fontSize: 12,
-                    fontWeight: '300',
-                    color: '#364958',
-                  }}>
-                    None
-                  </Text>
-                </View>
-              </View>
-              <Pressable style={{
-                width: 32,
-                height: 32,
-                backgroundColor: '#7FB3D3',
-                borderRadius: 16,
-                alignItems: 'center',
-                justifyContent: 'center',
+              <Text style={{
+                ...typography.title,
+                fontSize: 18,
+                marginBottom: 16,
+                color: '#364958',
               }}>
-                <Text style={{
-                  fontSize: 18,
-                  fontWeight: '400',
-                  color: '#FFFFFF',
-                }}>
-                  +
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Idea Card 2 */}
-            <View style={{
-              backgroundColor: '#F5EBE0',
-              borderWidth: 0.5,
-              borderColor: '#A3B18A',
-              borderRadius: 15,
-              padding: 15,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              // Drop shadow matching Figma specs
-              shadowColor: '#7C7C7C',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.75,
-              shadowRadius: 0,
-              elevation: 4,
-            }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{
-                  ...typography.title,
-                  fontSize: 16,
-                  marginBottom: 4,
-                }}>
-                  Placeholder Idea Title
-                </Text>
-                <Text style={{
-                  fontSize: 12,
-                  fontWeight: '300',
-                  color: '#364958',
-                }}>
-                  Potential Goal
-                </Text>
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 4,
-                }}>
-                  <View style={{
-                    width: 12,
-                    height: 12,
-                    backgroundColor: '#E9EDC9',
-                    borderRadius: 2,
-                    marginRight: 6,
-                  }} />
-                  <Text style={{
-                    fontSize: 12,
-                    fontWeight: '300',
-                    color: '#364958',
-                  }}>
-                    None
-                  </Text>
-                </View>
+                Someday Tasks
+              </Text>
+              
+              <View style={{ gap: 12 }}>
+                {somedayTasks.length > 0 ? (
+                  somedayTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onPress={() => console.log('Someday task pressed:', task.id)}
+                    />
+                  ))
+                ) : (
+                  <TaskCard
+                    isEmpty={true}
+                    onPress={() => console.log('Add someday task')}
+                  />
+                )}
               </View>
-              <Pressable style={{
-                width: 32,
-                height: 32,
-                backgroundColor: '#7FB3D3',
-                borderRadius: 16,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Text style={{
-                  fontSize: 18,
-                  fontWeight: '400',
-                  color: '#FFFFFF',
-                }}>
-                  +
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Idea Card 3 */}
-            <View style={{
-              backgroundColor: '#F5EBE0',
-              borderWidth: 0.5,
-              borderColor: '#A3B18A',
-              borderRadius: 15,
-              padding: 15,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              // Drop shadow matching Figma specs
-              shadowColor: '#7C7C7C',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.75,
-              shadowRadius: 0,
-              elevation: 4,
-            }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{
-                  ...typography.title,
-                  fontSize: 16,
-                  marginBottom: 4,
-                }}>
-                  Placeholder Idea Title
-                </Text>
-                <Text style={{
-                  fontSize: 12,
-                  fontWeight: '300',
-                  color: '#364958',
-                }}>
-                  Potential Goal
-                </Text>
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 4,
-                }}>
-                  <View style={{
-                    width: 12,
-                    height: 12,
-                    backgroundColor: '#E9EDC9',
-                    borderRadius: 2,
-                    marginRight: 6,
-                  }} />
-                  <Text style={{
-                    fontSize: 12,
-                    fontWeight: '300',
-                    color: '#364958',
-                  }}>
-                    None
-                  </Text>
-                </View>
-              </View>
-              <Pressable style={{
-                width: 32,
-                height: 32,
-                backgroundColor: '#7FB3D3',
-                borderRadius: 16,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Text style={{
-                  fontSize: 18,
-                  fontWeight: '400',
-                  color: '#FFFFFF',
-                }}>
-                  +
-                </Text>
-              </Pressable>
             </View>
           </View>
         )}

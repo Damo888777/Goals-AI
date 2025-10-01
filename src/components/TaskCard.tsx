@@ -19,10 +19,10 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
       >
         <View style={styles.emptyContent}>
           <Text style={styles.emptyTitle}>
-            {isEmpty && isFrog ? 'No frog for today' : 'No tasks for today'}
+            {isEmpty && isFrog ? 'No frog for today' : 'No someday tasks'}
           </Text>
           <Text style={styles.emptyDescription}>
-            {isEmpty && isFrog ? 'What is your most important task for today?' : 'Your day looks clear. Add a task to get started.'}
+            {isEmpty && isFrog ? 'What is your most important task for today?' : 'Add tasks for future consideration or when you have time.'}
           </Text>
         </View>
       </Pressable>
@@ -35,39 +35,62 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
       style={styles.card}
     >
       <View style={styles.content}>
-        {/* Left side - Task info */}
-        <View style={styles.taskInfo}>
-          <Text style={styles.title} numberOfLines={2}>
-            {task?.title || 'Placeholder Task Title'}
-          </Text>
-          <Text style={styles.goalInfo}>
-            {task?.goalId ? 'Goal attached' : 'No goal attached'}
-          </Text>
-          <View style={styles.dateRow}>
-            <View style={styles.calendarIcon}>
-              {/* Calendar icon placeholder */}
-              <View style={{ width: 13, height: 13, backgroundColor: '#364958', borderRadius: 2 }} />
-            </View>
-            <Text style={styles.dateText}>
-              {task?.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'None'}
+        {/* Title - Full width at top */}
+        <Text style={styles.title} numberOfLines={3}>
+          {task?.title || 'Placeholder Task Title'}
+        </Text>
+        
+        {/* Bottom row with project info and buttons */}
+        <View style={styles.bottomRow}>
+          {/* Left side - Project info */}
+          <View style={styles.leftContent}>
+            <Text style={styles.goalInfo}>
+              {task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
             </Text>
-          </View>
-        </View>
-
-        {/* Right side - Action buttons */}
-        <View style={styles.actionButtons}>
-          <Pressable style={styles.completeButton}>
-            <View style={styles.checkIcon}>
-              <Text style={styles.checkmark}>✓</Text>
+            <View style={styles.dateRow}>
+              <View style={styles.calendarIcon}>
+                {/* Vector Calendar Icon */}
+                <View style={styles.calendarVector}>
+                  <View style={styles.calendarHeader} />
+                  <View style={styles.calendarRings}>
+                    <View style={styles.calendarRing} />
+                    <View style={styles.calendarRing} />
+                  </View>
+                  <View style={styles.calendarGrid}>
+                    <View style={styles.calendarRow}>
+                      <View style={styles.calendarCell} />
+                      <View style={styles.calendarCell} />
+                      <View style={styles.calendarCell} />
+                    </View>
+                    <View style={styles.calendarRow}>
+                      <View style={styles.calendarCell} />
+                      <View style={[styles.calendarCell, styles.calendarCellActive]} />
+                      <View style={styles.calendarCell} />
+                    </View>
+                  </View>
+                </View>
+              </View>
+              <Text style={styles.dateText}>
+                {task?.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Someday'}
+              </Text>
             </View>
-          </Pressable>
-          <Pressable style={styles.pomodoroButton}>
-            <Image 
-              source={{ uri: images.icons.tomato }}
-              style={styles.tomatoIcon}
-              resizeMode="contain"
-            />
-          </Pressable>
+          </View>
+
+          {/* Right side - Action buttons */}
+          <View style={styles.actionButtons}>
+            <Pressable style={styles.completeButton}>
+              <View style={styles.checkIcon}>
+                <Text style={styles.checkmark}>✓</Text>
+              </View>
+            </Pressable>
+            <Pressable style={styles.pomodoroButton}>
+              <Image 
+                source={{ uri: images.icons.tomato }}
+                style={styles.tomatoIcon}
+                resizeMode="contain"
+              />
+            </Pressable>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -102,17 +125,22 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 20,
-  },
-  taskInfo: {
-    flex: 1,
-    gap: 8,
+    minHeight: 80,
+    gap: 12,
   },
   title: {
     ...typography.body,
     fontWeight: '700',
+    width: '100%',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  leftContent: {
+    flex: 1,
+    gap: 4,
   },
   goalInfo: {
     fontSize: 12,
@@ -125,8 +153,62 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   calendarIcon: {
-    width: 13,
-    height: 13,
+    width: 16,
+    height: 16,
+  },
+  calendarVector: {
+    width: 16,
+    height: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#364958',
+    borderRadius: 2,
+    position: 'relative',
+  },
+  calendarHeader: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    right: 1,
+    height: 3,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+  },
+  calendarRings: {
+    position: 'absolute',
+    top: -2,
+    left: 3,
+    right: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  calendarRing: {
+    width: 2,
+    height: 4,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+  },
+  calendarGrid: {
+    position: 'absolute',
+    top: 6,
+    left: 2,
+    right: 2,
+    bottom: 2,
+    gap: 1,
+  },
+  calendarRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  calendarCell: {
+    width: 2,
+    height: 2,
+    backgroundColor: '#A3B18A',
+    borderRadius: 0.5,
+  },
+  calendarCellActive: {
+    backgroundColor: '#364958',
   },
   dateText: {
     fontSize: 12,
@@ -135,7 +217,7 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 0,
+    gap: 8,
   },
   completeButton: {
     width: 40,
@@ -165,7 +247,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 0,
   },
   tomatoIcon: {
     width: 22,
