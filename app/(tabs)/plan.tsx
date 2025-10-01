@@ -13,6 +13,7 @@ export default function PlanTab() {
   const insets = useSafeAreaInsets();
   const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('ideas');
+  const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
 
   // Get current week dates
   const getCurrentWeekDates = () => {
@@ -20,7 +21,8 @@ export default function PlanTab() {
     const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Adjust for Sunday
     const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset);
+    const weekOffset = (viewMode === 'backlog' && backlogFilter === 'scheduled') ? currentWeekOffset * 7 : 0;
+    monday.setDate(today.getDate() + mondayOffset + weekOffset);
     
     const formatDate = (date: Date) => {
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -48,6 +50,10 @@ export default function PlanTab() {
   };
   
   const { weekDays, startDate, endDate } = getCurrentWeekDates();
+
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    setCurrentWeekOffset(prev => direction === 'prev' ? prev - 1 : prev + 1);
+  };
 
   const handleFABPress = () => {
     console.log('FAB pressed - Open Spark AI');
@@ -238,12 +244,14 @@ export default function PlanTab() {
           {/* Week Indicator - Scheduled */}
           {viewMode === 'backlog' && backlogFilter === 'scheduled' && (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Pressable style={{
-                width: 24,
-                height: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
+              <Pressable
+                onPress={() => navigateWeek('prev')}
+                style={{
+                  width: 44,
+                  height: 44,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
                 <View style={{
                   width: 8,
                   height: 8,
@@ -275,12 +283,14 @@ export default function PlanTab() {
               }}>
                 {endDate}
               </Text>
-              <Pressable style={{
-                width: 24,
-                height: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
+              <Pressable
+                onPress={() => navigateWeek('next')}
+                style={{
+                  width: 44,
+                  height: 44,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
                 <View style={{
                   width: 8,
                   height: 8,
@@ -311,21 +321,15 @@ export default function PlanTab() {
 
         {/* Backlog View - Scheduled */}
         {viewMode === 'backlog' && backlogFilter === 'scheduled' && (
-          <View style={{ gap: 16 }}>
-            <Text style={{
-              ...typography.body,
-              textAlign: 'center',
-            }}>
-              No scheduled tasks yet
-            </Text>
-            <Text style={{
-              fontSize: 14,
-              fontWeight: '300',
-              color: '#757575',
-              textAlign: 'center',
-            }}>
-              Drag here your tasks for a quick note.
-            </Text>
+          <View style={{ gap: 20 }}>
+            {weekDays.map((day) => (
+              <WeekDayCard
+                key={day.name}
+                weekday={day.name}
+                date={day.date}
+                tasks={day.tasks}
+              />
+            ))}
           </View>
         )}
 

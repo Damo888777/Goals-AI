@@ -1,5 +1,6 @@
-import { View, Pressable, StyleSheet, Image } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { images } from '../constants/images';
 
 interface FABProps {

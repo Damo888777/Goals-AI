@@ -1,4 +1,5 @@
-import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';

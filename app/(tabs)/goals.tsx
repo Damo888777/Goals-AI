@@ -1,6 +1,8 @@
-import { View, Text, ScrollView, Pressable, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { images } from '../../src/constants/images';
 import { GoalCard } from '../../src/components/GoalCard';
 import { FAB } from '../../src/components/FAB';
@@ -20,7 +22,7 @@ export default function GoalsTab() {
   };
 
   const handleVisionPress = () => {
-    console.log('Navigate to Vision Board');
+    router.push('/vision-board');
   };
 
   const handleGoalPress = (goal: Goal) => {
