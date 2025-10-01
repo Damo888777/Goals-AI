@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { useState, useEffect, useRef } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { images } from '../src/constants/images';
 
 export default function SparkAIScreen() {
@@ -23,40 +24,50 @@ export default function SparkAIScreen() {
   // Start/stop wave animations based on recording state
   useEffect(() => {
     if (isRecording) {
-      // Start continuous wave animations with different phases
+      // Reset all values to 0 first for consistent start
+      wave1.setValue(0);
+      wave2.setValue(0);
+      wave3.setValue(0);
+      wave4.setValue(0);
+      
+      // Start continuous wave animations - only expanding outward
       const wave1Animation = Animated.loop(
         Animated.timing(wave1, {
           toValue: 1,
-          duration: 2000,
+          duration: 3000,
           useNativeDriver: true,
         })
       );
+      
       const wave2Animation = Animated.loop(
         Animated.timing(wave2, {
           toValue: 1,
-          duration: 2200,
+          duration: 3300,
           useNativeDriver: true,
         })
       );
+      
       const wave3Animation = Animated.loop(
         Animated.timing(wave3, {
           toValue: 1,
-          duration: 1800,
+          duration: 2700,
           useNativeDriver: true,
         })
       );
+      
       const wave4Animation = Animated.loop(
         Animated.timing(wave4, {
           toValue: 1,
-          duration: 2400,
+          duration: 3600,
           useNativeDriver: true,
         })
       );
 
+      // Start animations with slight delays for staggered effect
       wave1Animation.start();
-      wave2Animation.start();
-      wave3Animation.start();
-      wave4Animation.start();
+      setTimeout(() => wave2Animation.start(), 200);
+      setTimeout(() => wave3Animation.start(), 400);
+      setTimeout(() => wave4Animation.start(), 600);
 
       return () => {
         wave1Animation.stop();
@@ -65,27 +76,29 @@ export default function SparkAIScreen() {
         wave4Animation.stop();
       };
     } else {
-      // Stop animations
-      Animated.timing(wave1, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(wave2, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(wave3, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(wave4, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+      // Stop animations smoothly
+      Animated.parallel([
+        Animated.timing(wave1, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wave2, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wave3, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wave4, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [isRecording]);
 
@@ -100,8 +113,8 @@ export default function SparkAIScreen() {
       },
     ],
     opacity: wave1.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [0, 0.6, 0],
+      inputRange: [0, 1],
+      outputRange: [0.6, 0],
     }),
   };
 
@@ -115,8 +128,8 @@ export default function SparkAIScreen() {
       },
     ],
     opacity: wave2.interpolate({
-      inputRange: [0, 0.3, 1],
-      outputRange: [0, 0.4, 0],
+      inputRange: [0, 1],
+      outputRange: [0.4, 0],
     }),
   };
 
@@ -130,8 +143,8 @@ export default function SparkAIScreen() {
       },
     ],
     opacity: wave3.interpolate({
-      inputRange: [0, 0.4, 1],
-      outputRange: [0, 0.5, 0],
+      inputRange: [0, 1],
+      outputRange: [0.5, 0],
     }),
   };
 
@@ -145,8 +158,8 @@ export default function SparkAIScreen() {
       },
     ],
     opacity: wave4.interpolate({
-      inputRange: [0, 0.2, 1],
-      outputRange: [0, 0.3, 0],
+      inputRange: [0, 1],
+      outputRange: [0.3, 0],
     }),
   };
 
@@ -155,6 +168,9 @@ export default function SparkAIScreen() {
   };
 
   const handleMicrophonePress = () => {
+    // Trigger haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
     setIsRecording(!isRecording);
     // Handle voice recording logic here
   };

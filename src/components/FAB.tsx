@@ -1,7 +1,9 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Text, Modal, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
 
 interface FABProps {
@@ -11,39 +13,117 @@ interface FABProps {
 
 export function FAB({ onPress, onLongPress }: FABProps) {
   const insets = useSafeAreaInsets();
+  const [showMenu, setShowMenu] = useState(false);
   
   const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (onPress) {
       onPress();
     } else {
       router.push('/spark-ai');
     }
   };
+
+  const handleLongPress = () => {
+    console.log('Long press triggered!'); // Debug log
+    console.log('Current showMenu state:', showMenu); // Debug state
+    
+    // Always show menu first, then call custom handler if provided
+    setShowMenu(true);
+    console.log('Setting showMenu to true'); // Debug state change
+    
+    // Add haptic feedback when menu opens
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    if (onLongPress) {
+      onLongPress();
+    }
+  };
+
+  const handleMenuItemPress = (action: string) => {
+    setShowMenu(false);
+    // Handle menu item actions
+    switch (action) {
+      case 'task':
+        // Navigate to create task
+        break;
+      case 'goal':
+        // Navigate to create goal
+        break;
+      case 'milestone':
+        // Navigate to create milestone
+        break;
+    }
+  };
   
   return (
-    <View 
-      style={[
-        styles.container,
-        { bottom: 0 + insets.bottom } // Position at absolute bottom above tab bar
-      ]}
-    >
-      <Pressable
-        onPress={handlePress}
-        onLongPress={onLongPress}
+    <>
+      <View 
         style={[
-          styles.fab,
-          { transform: [{ rotate: '45deg' }] }
+          styles.container,
+          { bottom: 0 + insets.bottom } // Position at absolute bottom above tab bar
         ]}
       >
-        <View style={{ transform: [{ rotate: '-45deg' }] }}>
-          <Image 
-            source={{ uri: images.icons.sparkFab }} 
-            style={{ width: 30, height: 30 }}
-            resizeMode="contain"
+        <Pressable
+          onPress={handlePress}
+          onLongPress={handleLongPress}
+          delayLongPress={500}
+          style={[
+            styles.fab,
+            { transform: [{ rotate: '45deg' }] }
+          ]}
+        >
+          <View style={{ transform: [{ rotate: '-45deg' }] }}>
+            <Image 
+              source={{ uri: images.icons.sparkFab }} 
+              style={{ width: 30, height: 30 }}
+              resizeMode="contain"
+            />
+          </View>
+        </Pressable>
+      </View>
+
+      {/* Long Press Menu Modal */}
+      {showMenu && (
+        <View style={styles.menuOverlay}>
+          <TouchableOpacity 
+            style={StyleSheet.absoluteFillObject}
+            onPress={() => setShowMenu(false)}
           />
+          <View 
+            style={[
+              styles.menuContainer,
+              { bottom: 70 + insets.bottom, right: 80 }
+            ]}
+          >
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => handleMenuItemPress('task')}
+            >
+              <Text style={styles.menuText}>Create Task</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.menuDivider} />
+            
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => handleMenuItemPress('goal')}
+            >
+              <Text style={styles.menuText}>Create Goal</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.menuDivider} />
+            
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => handleMenuItemPress('milestone')}
+            >
+              <Text style={styles.menuText}>Create Milestone</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </Pressable>
-    </View>
+      )}
+    </>
   );
 }
 
@@ -67,5 +147,51 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+  },
+  // Menu styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 2000,
+  },
+  menuContainer: {
+    position: 'absolute',
+    backgroundColor: '#364958',
+    borderRadius: 12,
+    paddingVertical: 8,
+    minWidth: 200,
+    borderWidth: 0.5,
+    borderColor: '#9B9B9B',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 8,
+  },
+  menuItem: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  menuText: {
+    color: '#F5EBE0',
+    fontSize: 16,
+    fontWeight: '400',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginHorizontal: 12,
   },
 });
