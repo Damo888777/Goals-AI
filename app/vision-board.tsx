@@ -45,31 +45,96 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
   );
 }
 
+interface VisionItem {
+  id: number;
+  aspectRatio: number;
+  height?: number;
+  imageUri?: string;
+}
+
+interface Column {
+  items: VisionItem[];
+  height: number;
+}
+
 function MasonryGrid() {
-  const gap = 8;
+  const gap = 12;
+  const numColumns = 2;
+  
+  // Sample vision data with varied aspect ratios like Pinterest
+  const visionItems: VisionItem[] = [
+    { id: 1, aspectRatio: 0.75 }, // Portrait
+    { id: 2, aspectRatio: 1.5 },  // Landscape
+    { id: 3, aspectRatio: 0.6 },  // Tall portrait
+    { id: 4, aspectRatio: 1.2 },  // Wide
+    { id: 5, aspectRatio: 0.8 },  // Square-ish
+    { id: 6, aspectRatio: 1.8 },  // Very wide
+    { id: 7, aspectRatio: 0.5 },  // Very tall
+    { id: 8, aspectRatio: 1.0 },  // Perfect square
+    { id: 9, aspectRatio: 0.9 },  // Almost square
+    { id: 10, aspectRatio: 1.3 }, // Medium wide
+  ];
+
+  // Distribute items across columns using Pinterest algorithm
+  const columns: Column[] = Array.from({ length: numColumns }, () => ({ items: [], height: 0 }));
+  
+  visionItems.forEach((item) => {
+    // Find the shortest column
+    const shortestColumn = columns.reduce((prev, current) => 
+      prev.height < current.height ? prev : current
+    );
+    
+    // Calculate item height based on aspect ratio (using base height for layout)
+    const baseHeight = 150;
+    const itemHeight = baseHeight / item.aspectRatio;
+    
+    // Add item to shortest column
+    shortestColumn.items.push({ ...item, height: itemHeight });
+    shortestColumn.height += itemHeight + gap;
+  });
 
   return (
-    <View style={{ flexDirection: 'row', gap, height: 401, justifyContent: 'center' }}>
-      {/* Left Column */}
-      <View style={{ flex: 1, gap, maxWidth: 95 }}>
-        <VisionImageCard width={95} height={120} />
-        <VisionImageCard width={95} height={149} />
-        <VisionImageCard width={95} height={98} />
-      </View>
-      
-      {/* Middle Column */}
-      <View style={{ flex: 1, gap, maxWidth: 95 }}>
-        <VisionImageCard width={95} height={154} />
-        <VisionImageCard width={95} height={120} />
-        <VisionImageCard width={95} height={134} />
-      </View>
-      
-      {/* Right Column */}
-      <View style={{ flex: 1, gap, maxWidth: 95 }}>
-        <VisionImageCard width={95} height={100} />
-        <VisionImageCard width={95} height={199} />
-        <VisionImageCard width={95} height={78} />
-      </View>
+    <View style={{ 
+      flexDirection: 'row', 
+      gap,
+      alignItems: 'flex-start',
+      width: '100%'
+    }}>
+      {columns.map((column, columnIndex) => (
+        <View key={columnIndex} style={{ flex: 1, gap }}>
+          {column.items.map((item) => (
+            <View
+              key={item.id}
+              style={{
+                width: '100%',
+                height: item.height || 100,
+                backgroundColor: '#E3E3E3',
+                borderRadius: 5,
+                overflow: 'hidden',
+              }}
+            >
+              {item.imageUri ? (
+                <Image
+                  source={{ uri: item.imageUri }}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    opacity: 0.2,
+                  }}
+                >
+                  <Text style={{ fontSize: 12, color: '#999' }}>Vision</Text>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ))}
     </View>
   );
 }
@@ -144,7 +209,7 @@ export default function VisionBoardScreen() {
         </View>
 
         {/* Action Buttons */}
-        <View style={{ flexDirection: 'row', gap: 25, justifyContent: 'center' }}>
+        <View style={{ flexDirection: 'row', gap: 16, width: '100%' }}>
           {/* Create Vision Button */}
           <Pressable
             onPress={handleCreateVision}
@@ -161,7 +226,6 @@ export default function VisionBoardScreen() {
               gap: 8,
               height: 44,
               flex: 1,
-              maxWidth: 150,
             }}
           >
             <Image 
@@ -196,7 +260,6 @@ export default function VisionBoardScreen() {
               gap: 8,
               height: 44,
               flex: 1,
-              maxWidth: 150,
             }}
           >
             <View
