@@ -1,15 +1,24 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { images } from '../constants/images';
 
 interface FABProps {
-  onPress: () => void;
+  onPress?: () => void;
   onLongPress?: () => void;
 }
 
 export function FAB({ onPress, onLongPress }: FABProps) {
   const insets = useSafeAreaInsets();
+  
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push('/spark-ai');
+    }
+  };
   
   return (
     <View 
@@ -19,7 +28,7 @@ export function FAB({ onPress, onLongPress }: FABProps) {
       ]}
     >
       <Pressable
-        onPress={onPress}
+        onPress={handlePress}
         onLongPress={onLongPress}
         style={[
           styles.fab,

@@ -13,9 +13,6 @@ export default function GoalsTab() {
   const insets = useSafeAreaInsets();
   const [goals, setGoals] = useState<Goal[]>([]);
 
-  const handleFABPress = () => {
-    console.log('FAB pressed - Open Spark AI');
-  };
 
   const handleTrophyPress = () => {
     console.log('Navigate to Trophy screen');
@@ -121,7 +118,7 @@ export default function GoalsTab() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <FAB onPress={handleFABPress} />
+      <FAB />
     </View>
   );
 }

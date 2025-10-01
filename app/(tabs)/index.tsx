@@ -12,10 +12,6 @@ export default function TodayTab() {
   const [frogTask, setFrogTask] = useState<Task | undefined>(undefined);
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  const handleFABPress = () => {
-    console.log('FAB pressed - Open Spark AI');
-  };
-
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
   };
@@ -62,7 +58,7 @@ export default function TodayTab() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <FAB onPress={handleFABPress} onLongPress={handleFABLongPress} />
+      <FAB onLongPress={handleFABLongPress} />
     </View>
   );
 }

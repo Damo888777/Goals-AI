@@ -55,9 +55,6 @@ export default function PlanTab() {
     setCurrentWeekOffset(prev => direction === 'prev' ? prev - 1 : prev + 1);
   };
 
-  const handleFABPress = () => {
-    console.log('FAB pressed - Open Spark AI');
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
@@ -553,7 +550,7 @@ export default function PlanTab() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <FAB onPress={handleFABPress} />
+      <FAB />
     </View>
   );
 }

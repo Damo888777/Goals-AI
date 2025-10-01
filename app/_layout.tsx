@@ -10,6 +10,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="vision-board" options={{ headerShown: false }} />
+        <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
   );
