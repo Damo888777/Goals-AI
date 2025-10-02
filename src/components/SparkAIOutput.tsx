@@ -110,10 +110,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
           <Text style={styles.datePickerText}>
             {selectedDate ? formatDate(selectedDate) : 'Select date'}
           </Text>
-          <View style={styles.chevronIcon}>
-            <View style={styles.chevronLine1} />
-            <View style={styles.chevronLine2} />
-          </View>
         </View>
       </TouchableOpacity>
 
@@ -276,17 +272,19 @@ const VisionBoardSection: React.FC = () => {
       <Text style={styles.sectionSubtitle}>
         Choose an image from your Vision Board.
       </Text>
-      <TouchableOpacity style={styles.visionButton}>
-        <View style={styles.visionButtonInner}>
-          <Image 
-            source={{ uri: 'https://s3-alpha-sig.figma.com/img/4844/37fc/b6400f851bb8da6b200396353000977b?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=emO69LGo3DduCzqcQi-DRANCkwmyO8wdYjyrRFTWCemUf4qDdF9B8OGLefK60-ttBTup1vwxA8EWo7~gMZ6B3~yFpc2odrjkWt0bE1biSsy4NvPn-9tU295Q3vTY9Q3oR8qe4oMZA0Y2AAcUqZ0ambcru7cCLszPwgAzGW5zX4BHx-L0xaQaGtImA8qXmhKy6ZPw~g63UfjooSwFrwwMASaNPwK~9LnwA0ViFccsEqB6REz4UvTvxpIfQ7KIhPXlemOIsF084F~jgLoxhwE3RKzpFOtUPZ8DMUowCfZkNJ64eBH5GBsBK-huceYr14-o3YXQ9Eifz9NmppxBa5X1CQ__' }} 
-            style={styles.visionImage}
-            contentFit="cover"
-          />
+      <TouchableOpacity style={styles.visionButtonTouchable}>
+        <View style={styles.visionButton}>
+          <View style={styles.visionButtonInner}>
+            <Image 
+              source={{ uri: images.visionPlaceholder }}
+              style={styles.visionImage}
+              contentFit="cover"
+            />
+          </View>
+          <Text style={styles.visionButtonText}>
+            Choose your Vision
+          </Text>
         </View>
-        <Text style={styles.visionButtonText}>
-          Choose your Vision
-        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -711,15 +709,14 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   datePickerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   datePickerText: {
     fontSize: 15,
     color: '#364958',
-    flex: 1,
+    textAlign: 'center',
   },
 
   // Eat the frog styles
@@ -837,24 +834,30 @@ const styles = StyleSheet.create({
   visionContainer: {
     marginBottom: 24,
   },
-  visionButton: {
-    height: 80,
-    borderRadius: 15,
-    borderWidth: 0.5,
-    borderColor: '#a3b18a',
+  visionButtonTouchable: {
     shadowColor: '#7c7c7c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+    borderRadius: 15,
+  },
+  visionButton: {
+    height: 80,
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    backgroundColor: '#f5ebe0',
     position: 'relative',
     overflow: 'hidden',
   },
   visionButtonInner: {
-    width: '100%',
-    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderRadius: 15,
-    overflow: 'hidden',
   },
   visionImage: {
     width: '100%',
@@ -870,12 +873,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
-    textAlignVertical: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
     display: 'flex',
+    lineHeight: 80,
   },
 
   // Goal attachment styles
@@ -1010,13 +1013,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   modalContainer: {
     backgroundColor: '#f5ebe0',
     borderRadius: 20,
-    margin: 20,
-    width: '85%',
+    width: '100%',
     maxWidth: 350,
+    alignSelf: 'center',
     shadowColor: '#7c7c7c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
@@ -1042,9 +1046,13 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#a3b18a',
     paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   nativeDatePicker: {
     height: 200,
+    width: '100%',
+    alignSelf: 'center',
   },
   modalActions: {
     flexDirection: 'row',
