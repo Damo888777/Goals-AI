@@ -40,6 +40,9 @@ export default function SparkAIScreen() {
   // Handle AI processing completion
   useEffect(() => {
     if (recordingState === 'completed' && result) {
+      // Trigger success haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      
       // Navigate to spark-ai-output with the AI processed data
       setTimeout(() => {
         router.push({
@@ -54,6 +57,9 @@ export default function SparkAIScreen() {
         resetRecording();
       }, 1500); // Show completion animation for 1.5 seconds
     } else if (recordingState === 'error') {
+      // Trigger error haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      
       // Auto-reset after showing error for a moment
       setTimeout(() => {
         resetRecording();
@@ -222,9 +228,20 @@ export default function SparkAIScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={handleBackPress} style={[styles.headerButton, styles.backButton]}>
+        <Pressable onPress={handleBackPress} style={styles.headerButton}>
           <View style={styles.chevronLeft}>
             <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
+        </Pressable>
+        
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Spark</Text>
+        </View>
+        
+        <Pressable onPress={handleInfoPress} style={styles.headerButton}>
+          <View style={styles.infoIcon}>
+            <Text style={styles.infoText}>i</Text>
           </View>
         </Pressable>
       </View>
@@ -278,24 +295,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    position: 'relative',
   },
   headerButton: {
     width: 44,
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-  },
-  infoButton: {
-    position: 'absolute',
-    right: 20,
   },
   chevronLeft: {
     width: 24,
@@ -320,9 +328,14 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }, { translateX: 3 }, { translateY: 2 }],
   },
   titleContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    pointerEvents: 'none', // Allow touches to pass through to buttons
   },
   sparkIconImage: {
     width: 20,
@@ -373,7 +386,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#364958', // Keep same blue when recording
   },
   microphoneButtonProcessing: {
-    backgroundColor: '#3b82f6', // Blue for processing state
+    backgroundColor: '#669bbc', // Blue for processing state
   },
   microphoneIcon: {
     alignItems: 'center',
