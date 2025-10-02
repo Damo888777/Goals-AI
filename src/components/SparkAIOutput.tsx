@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Modal,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -390,6 +399,8 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
+        scrollEnabled={false}
+        textAlignVertical="top"
       />
     </View>
   );
@@ -463,10 +474,16 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScrollView 
+      <KeyboardAwareScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        enableResetScrollToCoords={false}
       >
         {/* Header */}
         <View style={styles.headerContainer}>
@@ -575,12 +592,13 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // KeyboardAvoidingView styles
   // Container styles
   container: {
     flex: 1,
@@ -1098,7 +1116,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   actionButton: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
@@ -1125,7 +1142,6 @@ const styles = StyleSheet.create({
     color: '#f5ebe0',
     fontSize: 15,
     fontWeight: '700',
-    marginLeft: 10,
     textAlign: 'center',
   },
 });
