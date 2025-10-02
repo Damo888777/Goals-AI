@@ -3,12 +3,13 @@
 export interface Task {
   id: string;
   title: string;
-  isEatTheFrog: boolean;
-  isCompleted: boolean;
+  isFrog: boolean; // Match database model field name
+  isComplete: boolean; // Match database model field name
   goalId?: string;
   milestoneId?: string;
-  dueDate?: Date;
+  scheduledDate?: string; // ISO 8601 string to match database model
   notes?: string;
+  creationSource?: 'spark' | 'manual'; // Add creation source field
   focusSessions?: FocusSession[];
   createdAt: Date;
   updatedAt: Date;

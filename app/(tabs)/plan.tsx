@@ -5,6 +5,8 @@ import { WeekDayCard } from '../../src/components/WeekDayCard';
 import { TaskCard } from '../../src/components/TaskCard';
 import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
+import { useWeeklyTasks } from '../../src/hooks/useWeeklyTasks';
+import { useSomedayTasks } from '../../src/hooks/useSomedayTasks';
 import type { Task } from '../../src/types';
 
 type ViewMode = 'week' | 'backlog';
@@ -16,71 +18,12 @@ export default function PlanTab() {
   const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('someday');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   
-  // Sample someday tasks (tasks without timestamps)
-  const [somedayTasks, setSomedayTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: 'Learn a new programming language',
-      isEatTheFrog: false,
-      isCompleted: false,
-      goalId: undefined,
-      milestoneId: undefined,
-      dueDate: undefined, // No timestamp - someday task
-      notes: 'Maybe Python or Rust',
-      focusSessions: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: '2', 
-      title: 'Plan a weekend getaway',
-      isEatTheFrog: false,
-      isCompleted: false,
-      goalId: undefined,
-      milestoneId: undefined,
-      dueDate: undefined, // No timestamp - someday task
-      notes: 'Somewhere peaceful and relaxing',
-      focusSessions: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
-
-  // Get current week dates
-  const getCurrentWeekDates = () => {
-    const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Adjust for Sunday
-    const monday = new Date(today);
-    const weekOffset = (viewMode === 'backlog' && backlogFilter === 'scheduled') ? currentWeekOffset * 7 : 0;
-    monday.setDate(today.getDate() + mondayOffset + weekOffset);
-    
-    const formatDate = (date: Date) => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]}.${String(date.getDate()).padStart(2, '0')}.${date.getFullYear()}`;
-    };
-    
-    const weekDays = [];
-    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + i);
-      weekDays.push({
-        name: dayNames[i],
-        date: formatDate(date),
-        tasks: [] as Task[]
-      });
-    }
-    
-    return {
-      weekDays,
-      startDate: formatDate(monday),
-      endDate: formatDate(new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000))
-    };
-  };
+  // Use real data hooks
+  const { weekDays: realWeekDays, isLoading: isWeeklyLoading, getWeekRange } = useWeeklyTasks(currentWeekOffset);
+  const { somedayTasks, isLoading: isSomedayLoading, toggleTaskComplete } = useSomedayTasks();
   
-  const { weekDays, startDate, endDate } = getCurrentWeekDates();
+  // Get week range for display
+  const { startDate, endDate } = getWeekRange();
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeekOffset(prev => direction === 'prev' ? prev - 1 : prev + 1);
@@ -336,7 +279,7 @@ export default function PlanTab() {
         {/* Week Days List */}
         {viewMode === 'week' && (
           <View style={{ gap: 20 }}>
-            {weekDays.map((day) => (
+            {realWeekDays.map((day) => (
               <WeekDayCard
                 key={day.name}
                 weekday={day.name}
@@ -350,7 +293,7 @@ export default function PlanTab() {
         {/* Backlog View - Scheduled */}
         {viewMode === 'backlog' && backlogFilter === 'scheduled' && (
           <View style={{ gap: 20 }}>
-            {weekDays.map((day) => (
+            {realWeekDays.map((day) => (
               <WeekDayCard
                 key={day.name}
                 weekday={day.name}
@@ -394,6 +337,7 @@ export default function PlanTab() {
                       key={task.id}
                       task={task}
                       onPress={() => console.log('Someday task pressed:', task.id)}
+                      onToggleComplete={toggleTaskComplete}
                     />
                   ))
                 ) : (
