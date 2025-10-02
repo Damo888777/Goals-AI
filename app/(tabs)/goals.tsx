@@ -16,7 +16,8 @@ export default function GoalsTab() {
 
 
   const handleTrophyPress = () => {
-    console.log('Navigate to Trophy screen');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/trophy');
   };
 
   const handleVisionPress = () => {
