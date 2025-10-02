@@ -1,22 +1,26 @@
 import { Model, Query } from '@nozbe/watermelondb'
-import { field, json, children, date } from '@nozbe/watermelondb/decorators'
+import { field, json, children, date, relation } from '@nozbe/watermelondb/decorators'
 import { Associations } from '@nozbe/watermelondb/Model'
 
 export default class Goal extends Model {
   static table = 'goals'
   static associations: Associations = {
+    profile: { type: 'belongs_to', key: 'user_id' },
     milestones: { type: 'has_many', foreignKey: 'goal_id' },
     tasks: { type: 'has_many', foreignKey: 'goal_id' },
   }
 
+  @field('user_id') userId!: string
   @field('title') title!: string
   @json('feelings', (json) => json) feelings?: string[] // Array of feeling strings
   @field('vision_image_url') visionImageUrl?: string
   @field('notes') notes?: string
   @field('is_completed') isCompleted!: boolean
+  @field('completed_at') completedAt?: number // Unix timestamp
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 
+  @relation('profiles', 'user_id') profile!: any
   @children('milestones') milestones!: Query<any>
   @children('tasks') tasks!: Query<any>
 
@@ -28,5 +32,18 @@ export default class Goal extends Model {
   // Helper method to set feelings
   setFeelings(feelings: string[]): void {
     this.feelings = feelings
+  }
+
+  // Helper method to get completion date
+  get completionDate(): Date | null {
+    return this.completedAt ? new Date(this.completedAt) : null
+  }
+
+  // Helper method to mark as completed
+  async markCompleted(): Promise<void> {
+    await this.update(() => {
+      this.isCompleted = true
+      this.completedAt = Date.now()
+    })
   }
 }

@@ -1,9 +1,18 @@
+import { apiKeyService } from '../../src/services/apiKeyService';
+
 export async function POST(request: Request) {
   try {
     const { transcription } = await request.json();
     
     if (!transcription) {
       return Response.json({ error: 'No transcription provided' }, { status: 400 });
+    }
+
+    // Get Google API key from Supabase
+    const googleApiKey = await apiKeyService.getGoogleApiKey();
+    if (!googleApiKey) {
+      console.error('🤖 [Gemini API] Missing GOOGLE_API_KEY');
+      return Response.json({ error: 'Missing API key' }, { status: 500 });
     }
 
     const currentDate = new Date().toISOString();
@@ -64,7 +73,7 @@ Current date for reference: ${currentDate}`;
     console.log('🤖 [Gemini API] Sending request to Gemini API');
     console.log('🤖 [Gemini API] Request body:', JSON.stringify(requestBody, null, 2));
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GOOGLE_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

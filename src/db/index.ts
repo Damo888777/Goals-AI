@@ -2,6 +2,7 @@ import { Database } from '@nozbe/watermelondb'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
 import schema from './schema'
+import Profile from './models/Profile'
 import Goal from './models/Goal'
 import Milestone from './models/Milestone'
 import Task from './models/Task'
@@ -16,6 +17,7 @@ const adapter = new SQLiteAdapter({
 const database = new Database({
   adapter,
   modelClasses: [
+    Profile,
     Goal,
     Milestone,
     Task,

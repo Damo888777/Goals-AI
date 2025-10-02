@@ -1,3 +1,5 @@
+import { apiKeyService } from '../../src/services/apiKeyService';
+
 export async function POST(request: Request) {
   try {
     console.log('🤖 [Whisper API] Received POST request');
@@ -17,8 +19,9 @@ export async function POST(request: Request) {
       return Response.json({ error: 'No audio file provided' }, { status: 400 });
     }
 
-    // Check if we have the API key
-    if (!process.env.OPENAI_API_KEY) {
+    // Get OpenAI API key from Supabase
+    const openaiApiKey = await apiKeyService.getOpenAIApiKey();
+    if (!openaiApiKey) {
       console.error('🤖 [Whisper API] Missing OPENAI_API_KEY');
       return Response.json({ error: 'Missing API key' }, { status: 500 });
     }
@@ -37,7 +40,7 @@ export async function POST(request: Request) {
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
       },
       body: whisperFormData,
     });

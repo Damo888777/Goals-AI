@@ -6,16 +6,26 @@ const path = require('path')
 
 // Define the schema (same as in src/db/schema.ts but in CommonJS format)
 const schema = appSchema({
-  version: 1,
+  version: 2,
   tables: [
+    tableSchema({
+      name: 'profiles',
+      columns: [
+        { name: 'email', type: 'string', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
     tableSchema({
       name: 'goals',
       columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
         { name: 'title', type: 'string' },
         { name: 'feelings', type: 'string', isOptional: true },
         { name: 'vision_image_url', type: 'string', isOptional: true },
         { name: 'notes', type: 'string', isOptional: true },
         { name: 'is_completed', type: 'boolean' },
+        { name: 'completed_at', type: 'number', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]
@@ -23,9 +33,10 @@ const schema = appSchema({
     tableSchema({
       name: 'milestones',
       columns: [
-        { name: 'title', type: 'string' },
+        { name: 'user_id', type: 'string', isIndexed: true },
         { name: 'goal_id', type: 'string', isIndexed: true },
-        { name: 'target_date', type: 'number', isOptional: true },
+        { name: 'title', type: 'string' },
+        { name: 'target_date', type: 'string', isOptional: true },
         { name: 'is_complete', type: 'boolean' },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
@@ -34,13 +45,14 @@ const schema = appSchema({
     tableSchema({
       name: 'tasks',
       columns: [
-        { name: 'title', type: 'string' },
-        { name: 'is_complete', type: 'boolean' },
+        { name: 'user_id', type: 'string', isIndexed: true },
         { name: 'goal_id', type: 'string', isOptional: true, isIndexed: true },
         { name: 'milestone_id', type: 'string', isOptional: true, isIndexed: true },
-        { name: 'scheduled_date', type: 'number', isOptional: true },
-        { name: 'is_frog', type: 'boolean' },
+        { name: 'title', type: 'string' },
         { name: 'notes', type: 'string', isOptional: true },
+        { name: 'scheduled_date', type: 'string', isOptional: true },
+        { name: 'is_frog', type: 'boolean' },
+        { name: 'is_complete', type: 'boolean' },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]
@@ -80,7 +92,7 @@ async function generateDatabase() {
     })
 
     console.log('✅ Database created successfully at:', dbPath)
-    console.log('📊 Schema applied with tables: goals, milestones, tasks')
+    console.log('📊 Schema applied with tables: profiles, goals, milestones, tasks')
     
     // Close the database connection if method exists
     if (database.adapter.close) {
