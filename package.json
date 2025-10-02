@@ -9,11 +9,15 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "generate-db": "node generate-db.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@hookform/resolvers": "^5.2.2",
+    "@modelcontextprotocol/sdk": "^1.18.2",
+    "@nozbe/sqlite": "^3.46.0",
+    "@nozbe/watermelondb": "^0.28.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "^8.4.5",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -51,6 +55,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "better-sqlite3": "^12.4.1",
     "typescript": "~5.9.2"
   },
   "private": true

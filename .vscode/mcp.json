@@ -1,0 +1,13 @@
+{
+  "mcp": {
+    "servers": {
+      "sqlite": {
+        "command": "node",
+        "args": [
+          "/Users/60minuteapps/Desktop/Goalz-AI/mcp-sqlite-server.js",
+          "/Users/60minuteapps/Desktop/Goalz-AI/db/GoalzAI.db"
+        ]
+      }
+    }
+  }
+}
