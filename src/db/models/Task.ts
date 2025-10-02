@@ -20,6 +20,7 @@ export default class Task extends Model {
   @field('scheduled_date') scheduledDate?: string // ISO 8601 string
   @field('is_frog') isFrog!: boolean // "Eat the frog" - most important task
   @field('is_complete') isComplete!: boolean
+  @field('creation_source') creationSource!: 'spark' | 'manual'
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 
@@ -47,5 +48,15 @@ export default class Task extends Model {
       today.getMonth() === scheduledDate.getMonth() &&
       today.getDate() === scheduledDate.getDate()
     )
+  }
+
+  // Helper method to check if created by Spark AI
+  get isCreatedBySpark(): boolean {
+    return this.creationSource === 'spark'
+  }
+
+  // Helper method to check if created manually
+  get isCreatedManually(): boolean {
+    return this.creationSource === 'manual'
   }
 }

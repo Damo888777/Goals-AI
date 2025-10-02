@@ -1,17 +1,14 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Image } from 'expo-image';
-import { images } from '../constants/images';
 import { typography } from '../constants/typography';
-import type { Task } from '../types';
+import type { Milestone } from '../types';
 
-interface TaskCardProps {
-  task?: Task & { creationSource?: 'spark' | 'manual' };
+interface MilestoneCardProps {
+  milestone?: Milestone & { creationSource?: 'spark' | 'manual' };
   isEmpty?: boolean;
-  isFrog?: boolean;
   onPress?: () => void;
 }
 
-export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: TaskCardProps) {
+export function MilestoneCard({ milestone, isEmpty = false, onPress }: MilestoneCardProps) {
   if (isEmpty) {
     return (
       <Pressable
@@ -20,28 +17,35 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
       >
         <View style={styles.emptyContent}>
           <Text style={styles.emptyTitle}>
-            {isEmpty && isFrog ? 'No frog for today' : 'No someday tasks'}
+            No milestones yet
           </Text>
           <Text style={styles.emptyDescription}>
-            {isEmpty && isFrog ? 'What is your most important task for today?' : 'Add tasks for future consideration or when you have time.'}
+            Break down your goals into achievable milestones
           </Text>
         </View>
       </Pressable>
     );
   }
 
+  const isOverdue = milestone?.targetDate && new Date(milestone.targetDate) < new Date();
+  const isCompleted = milestone?.isComplete;
+
   return (
     <Pressable
       onPress={onPress}
-      style={styles.card}
+      style={[
+        styles.card,
+        isCompleted && styles.completedCard,
+        isOverdue && !isCompleted && styles.overdueCard
+      ]}
     >
       <View style={styles.content}>
         {/* Title with creation source badge */}
         <View style={styles.titleRow}>
-          <Text style={[styles.title, { flex: 1 }]} numberOfLines={3}>
-            {task?.title || 'Placeholder Task Title'}
+          <Text style={[styles.title, { flex: 1 }, isCompleted && styles.completedText]} numberOfLines={2}>
+            {milestone?.title || 'Placeholder Milestone'}
           </Text>
-          {task?.creationSource === 'spark' && (
+          {milestone?.creationSource === 'spark' && (
             <View style={styles.sparkBadge}>
               <Text style={styles.sparkBadgeText}>
                 ✨ AI
@@ -50,13 +54,10 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
           )}
         </View>
         
-        {/* Bottom row with project info and buttons */}
+        {/* Bottom row with date and completion status */}
         <View style={styles.bottomRow}>
-          {/* Left side - Project info */}
+          {/* Left side - Target date */}
           <View style={styles.leftContent}>
-            <Text style={styles.goalInfo}>
-              {task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
-            </Text>
             <View style={styles.dateRow}>
               <View style={styles.calendarIcon}>
                 {/* Vector Calendar Icon */}
@@ -80,26 +81,28 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
                   </View>
                 </View>
               </View>
-              <Text style={styles.dateText}>
-                {task?.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Someday'}
+              <Text style={[
+                styles.dateText,
+                isOverdue && !isCompleted && styles.overdueText,
+                isCompleted && styles.completedText
+              ]}>
+                {milestone?.targetDate ? new Date(milestone.targetDate).toLocaleDateString() : 'No target date'}
               </Text>
             </View>
           </View>
 
-          {/* Right side - Action buttons */}
-          <View style={styles.actionButtons}>
-            <Pressable style={styles.completeButton}>
-              <View style={styles.checkIcon}>
+          {/* Right side - Status indicator */}
+          <View style={styles.statusIndicator}>
+            {isCompleted ? (
+              <View style={styles.completedIndicator}>
                 <Text style={styles.checkmark}>✓</Text>
               </View>
-            </Pressable>
-            <Pressable style={styles.pomodoroButton}>
-              <Image 
-                source={{ uri: images.icons.tomato }}
-                style={styles.tomatoIcon}
-                contentFit="contain"
-              />
-            </Pressable>
+            ) : (
+              <View style={[
+                styles.progressIndicator,
+                isOverdue && styles.overdueIndicator
+              ]} />
+            )}
           </View>
         </View>
       </View>
@@ -121,6 +124,14 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 4,
   },
+  completedCard: {
+    backgroundColor: '#F0F8E8',
+    borderColor: '#8FBC8F',
+  },
+  overdueCard: {
+    backgroundColor: '#FFF0F0',
+    borderColor: '#FFB6C1',
+  },
   emptyCard: {
     backgroundColor: '#E9EDC9',
     borderWidth: 0.5,
@@ -135,27 +146,30 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   content: {
-    minHeight: 80,
+    minHeight: 60,
     gap: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
   },
   title: {
     ...typography.body,
     fontWeight: '700',
     width: '100%',
   },
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#8FBC8F',
+  },
   bottomRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   leftContent: {
     flex: 1,
-    gap: 4,
-  },
-  goalInfo: {
-    fontSize: 12,
-    fontWeight: '300',
-    color: '#364958',
   },
   dateRow: {
     flexDirection: 'row',
@@ -225,61 +239,35 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#364958',
   },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
+  overdueText: {
+    color: '#DC143C',
+    fontWeight: '500',
   },
-  completeButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#A3B18A',
-    borderWidth: 1,
-    borderColor: '#9B9B9B',
-    borderRadius: 10,
+  statusIndicator: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkIcon: {
-    width: 20,
-    height: 20,
+  completedIndicator: {
+    width: 24,
+    height: 24,
+    backgroundColor: '#8FBC8F',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkmark: {
-    fontSize: 16,
-    color: '#F5EBE0',
+    fontSize: 14,
+    color: '#FFFFFF',
     fontWeight: '700',
   },
-  pomodoroButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#F2CCC3',
-    borderWidth: 1,
-    borderColor: '#9B9B9B',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+  progressIndicator: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#A3B18A',
+    borderRadius: 6,
   },
-  tomatoIcon: {
-    width: 22,
-    height: 22,
-  },
-  emptyContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyTitle: {
-    ...typography.body,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  emptyDescription: {
-    ...typography.small,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
+  overdueIndicator: {
+    backgroundColor: '#DC143C',
   },
   sparkBadge: {
     backgroundColor: '#FFE066',
@@ -295,5 +283,19 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: '600',
     color: '#E76F51',
+  },
+  emptyContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    ...typography.body,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    ...typography.small,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

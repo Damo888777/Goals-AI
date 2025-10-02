@@ -254,12 +254,24 @@ class SyncService {
     }
   }
 
-  // Transform Supabase data to WatermelonDB format
-  private transformSupabaseToLocal(record: any): any {
+  // Transform Supabase row to local format
+  private transformSupabaseToLocal(row: any): any {
     return {
-      ...record,
-      created_at: new Date(record.created_at).getTime(),
-      updated_at: new Date(record.updated_at).getTime(),
+      ...row,
+      // Convert snake_case to camelCase for local models
+      userId: row.user_id,
+      goalId: row.goal_id,
+      milestoneId: row.milestone_id,
+      visionImageUrl: row.vision_image_url,
+      isCompleted: row.is_completed,
+      completedAt: row.completed_at ? new Date(row.completed_at) : null,
+      targetDate: row.target_date,
+      isComplete: row.is_complete,
+      scheduledDate: row.scheduled_date,
+      isFrog: row.is_frog,
+      creationSource: row.creation_source,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at)
     }
   }
 
@@ -267,8 +279,19 @@ class SyncService {
   private transformLocalToSupabase(record: any): any {
     return {
       ...record,
-      created_at: new Date(record.created_at).toISOString(),
-      updated_at: new Date(record.updated_at).toISOString(),
+      user_id: record.userId,
+      goal_id: record.goalId,
+      milestone_id: record.milestoneId,
+      vision_image_url: record.visionImageUrl,
+      is_completed: record.isCompleted,
+      completed_at: record.completedAt?.toISOString(),
+      target_date: record.targetDate,
+      is_complete: record.isComplete,
+      scheduled_date: record.scheduledDate,
+      is_frog: record.isFrog,
+      creation_source: record.creationSource || 'manual',
+      created_at: new Date(record.createdAt).toISOString(),
+      updated_at: new Date(record.updatedAt).toISOString(),
     }
   }
 

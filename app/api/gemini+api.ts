@@ -1,4 +1,4 @@
-import { apiKeyService } from '../../src/services/apiKeyService';
+import { serverApiKeyService } from '../../src/services/apiKeyService-server';
 
 export async function POST(request: Request) {
   try {
@@ -8,11 +8,14 @@ export async function POST(request: Request) {
       return Response.json({ error: 'No transcription provided' }, { status: 400 });
     }
 
-    // Get Google API key from Supabase
-    const googleApiKey = await apiKeyService.getGoogleApiKey();
+    // Get Google API key from Supabase Edge Function
+    const googleApiKey = await serverApiKeyService.getGoogleApiKey()
+    
     if (!googleApiKey) {
-      console.error('🤖 [Gemini API] Missing GOOGLE_API_KEY');
-      return Response.json({ error: 'Missing API key' }, { status: 500 });
+      return Response.json(
+        { error: 'Google API key not configured' },
+        { status: 500 }
+      )
     }
 
     const currentDate = new Date().toISOString();

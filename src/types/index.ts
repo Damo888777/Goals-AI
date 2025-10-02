@@ -31,9 +31,9 @@ export interface Milestone {
   id: string;
   title: string;
   goalId: string;
-  dueDate?: Date;
+  targetDate?: string; // ISO 8601 string to match database model
   notes?: string;
-  isCompleted: boolean;
+  isComplete: boolean; // Match database model field name
   createdAt: Date;
   updatedAt: Date;
 }

@@ -3,7 +3,7 @@ import type { Goal } from '../types';
 import { typography } from '../constants/typography';
 
 interface GoalCardProps {
-  goal?: Goal;
+  goal?: Goal & { creationSource?: 'spark' | 'manual' };
   isEmpty?: boolean;
   onPress?: () => void;
 }
@@ -104,12 +104,35 @@ export function GoalCard({ goal, isEmpty = false, onPress }: GoalCardProps) {
       }}>
         {/* Left side - Title and Progress */}
         <View style={{ flex: 1, gap: 9 }}>
-          <Text style={{
-            ...typography.cardTitle,
-            lineHeight: 20,
-          }} numberOfLines={2}>
-            {goal?.title || 'Placeholder Title'}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+            <Text style={{
+              ...typography.cardTitle,
+              lineHeight: 20,
+              flex: 1,
+            }} numberOfLines={2}>
+              {goal?.title || 'Placeholder Title'}
+            </Text>
+            {goal?.creationSource === 'spark' && (
+              <View style={{
+                backgroundColor: '#FFE066',
+                borderWidth: 0.5,
+                borderColor: '#F4A261',
+                borderRadius: 8,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 8,
+                  fontWeight: '600',
+                  color: '#E76F51',
+                }}>
+                  ✨ AI
+                </Text>
+              </View>
+            )}
+          </View>
 
           {/* Progress Bar */}
           <View style={{ height: 17, justifyContent: 'center' }}>

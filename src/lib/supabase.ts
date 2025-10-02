@@ -20,19 +20,23 @@ export interface Database {
       profiles: {
         Row: {
           id: string
+          user_id: string
           email: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
-          id: string
+          id?: string
+          user_id: string
           email?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
+          user_id?: string
           email?: string | null
+          created_at?: string
           updated_at?: string
         }
       }
@@ -41,23 +45,25 @@ export interface Database {
           id: string
           user_id: string
           title: string
-          feelings: string | null
+          feelings: string[] | null
           vision_image_url: string | null
           notes: string | null
           is_completed: boolean
-          completed_at: number | null
+          completed_at: string | null
+          creation_source: 'spark' | 'manual'
           created_at: string
           updated_at: string
         }
         Insert: {
-          id: string
+          id?: string
           user_id: string
           title: string
-          feelings?: string | null
+          feelings?: string[] | null
           vision_image_url?: string | null
           notes?: string | null
           is_completed?: boolean
-          completed_at?: number | null
+          completed_at?: string | null
+          creation_source?: 'spark' | 'manual'
           created_at?: string
           updated_at?: string
         }
@@ -65,11 +71,13 @@ export interface Database {
           id?: string
           user_id?: string
           title?: string
-          feelings?: string | null
+          feelings?: string[] | null
           vision_image_url?: string | null
           notes?: string | null
           is_completed?: boolean
-          completed_at?: number | null
+          completed_at?: string | null
+          creation_source?: 'spark' | 'manual'
+          created_at?: string
           updated_at?: string
         }
       }
@@ -81,16 +89,18 @@ export interface Database {
           title: string
           target_date: string | null
           is_complete: boolean
+          creation_source: 'spark' | 'manual'
           created_at: string
           updated_at: string
         }
         Insert: {
-          id: string
+          id?: string
           user_id: string
           goal_id: string
           title: string
           target_date?: string | null
           is_complete?: boolean
+          creation_source?: 'spark' | 'manual'
           created_at?: string
           updated_at?: string
         }
@@ -101,6 +111,8 @@ export interface Database {
           title?: string
           target_date?: string | null
           is_complete?: boolean
+          creation_source?: 'spark' | 'manual'
+          created_at?: string
           updated_at?: string
         }
       }
@@ -115,11 +127,12 @@ export interface Database {
           scheduled_date: string | null
           is_frog: boolean
           is_complete: boolean
+          creation_source: 'spark' | 'manual'
           created_at: string
           updated_at: string
         }
         Insert: {
-          id: string
+          id?: string
           user_id: string
           goal_id?: string | null
           milestone_id?: string | null
@@ -128,6 +141,7 @@ export interface Database {
           scheduled_date?: string | null
           is_frog?: boolean
           is_complete?: boolean
+          creation_source?: 'spark' | 'manual'
           created_at?: string
           updated_at?: string
         }
@@ -141,6 +155,8 @@ export interface Database {
           scheduled_date?: string | null
           is_frog?: boolean
           is_complete?: boolean
+          creation_source?: 'spark' | 'manual'
+          created_at?: string
           updated_at?: string
         }
       }

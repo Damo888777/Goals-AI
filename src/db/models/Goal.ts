@@ -17,6 +17,7 @@ export default class Goal extends Model {
   @field('notes') notes?: string
   @field('is_completed') isCompleted!: boolean
   @field('completed_at') completedAt?: number // Unix timestamp
+  @field('creation_source') creationSource!: 'spark' | 'manual'
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 
@@ -45,5 +46,15 @@ export default class Goal extends Model {
       this.isCompleted = true
       this.completedAt = Date.now()
     })
+  }
+
+  // Helper method to check if created by Spark AI
+  get isCreatedBySpark(): boolean {
+    return this.creationSource === 'spark'
+  }
+
+  // Helper method to check if created manually
+  get isCreatedManually(): boolean {
+    return this.creationSource === 'manual'
   }
 }

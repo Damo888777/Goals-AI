@@ -16,6 +16,7 @@ export default class Milestone extends Model {
   @field('title') title!: string
   @field('target_date') targetDate?: string // ISO 8601 string
   @field('is_complete') isComplete!: boolean
+  @field('creation_source') creationSource!: 'spark' | 'manual'
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 
@@ -31,5 +32,15 @@ export default class Milestone extends Model {
   // Helper method to set target date from Date object
   setTargetDate(date: Date | null): void {
     this.targetDate = date ? date.toISOString() : undefined
+  }
+
+  // Helper method to check if created by Spark AI
+  get isCreatedBySpark(): boolean {
+    return this.creationSource === 'spark'
+  }
+
+  // Helper method to check if created manually
+  get isCreatedManually(): boolean {
+    return this.creationSource === 'manual'
   }
 }

@@ -1,4 +1,4 @@
-import { apiKeyService } from '../../src/services/apiKeyService';
+import { serverApiKeyService } from '../../src/services/apiKeyService-server';
 
 export async function POST(request: Request) {
   try {
@@ -15,18 +15,22 @@ export async function POST(request: Request) {
     console.log('🤖 [Whisper API] Audio file type:', audioFile?.constructor.name);
     
     if (!audioFile) {
-      console.error('🤖 [Whisper API] No audio file in request');
+      console.error(' [Whisper API] No audio file in request');
       return Response.json({ error: 'No audio file provided' }, { status: 400 });
     }
 
-    // Get OpenAI API key from Supabase
-    const openaiApiKey = await apiKeyService.getOpenAIApiKey();
+    // Get OpenAI API key from Supabase Edge Function
+    const openaiApiKey = await serverApiKeyService.getOpenAIApiKey()
+    
     if (!openaiApiKey) {
-      console.error('🤖 [Whisper API] Missing OPENAI_API_KEY');
-      return Response.json({ error: 'Missing API key' }, { status: 500 });
+      console.log(' [Whisper API] Missing OPENAI_API_KEY')
+      return Response.json(
+        { error: 'OpenAI API key not configured' },
+        { status: 500 }
+      )
     }
-
-    console.log('🤖 [Whisper API] Forwarding to OpenAI Whisper API');
+    
+    console.log(' [Whisper API] Forwarding to OpenAI Whisper API');
     
     // Forward to OpenAI Whisper API with optimized settings
     const whisperFormData = new FormData();

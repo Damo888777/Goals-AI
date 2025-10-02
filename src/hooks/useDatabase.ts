@@ -115,6 +115,7 @@ export const useGoals = () => {
     feelings?: string[]
     visionImageUrl?: string
     notes?: string
+    creationSource?: 'spark' | 'manual'
   }) => {
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
@@ -128,6 +129,7 @@ export const useGoals = () => {
         goal.visionImageUrl = goalData.visionImageUrl
         goal.notes = goalData.notes
         goal.isCompleted = false
+        goal.creationSource = goalData.creationSource || 'manual'
       })
     })
   }
@@ -200,6 +202,7 @@ export const useMilestones = (goalId?: string) => {
     goalId: string
     title: string
     targetDate?: Date
+    creationSource?: 'spark' | 'manual'
   }) => {
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
@@ -212,6 +215,7 @@ export const useMilestones = (goalId?: string) => {
         milestone.title = milestoneData.title
         milestone.setTargetDate(milestoneData.targetDate || null)
         milestone.isComplete = false
+        milestone.creationSource = milestoneData.creationSource || 'manual'
       })
     })
   }
@@ -293,6 +297,7 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
     notes?: string
     scheduledDate?: Date
     isFrog?: boolean
+    creationSource?: 'spark' | 'manual'
   }) => {
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
@@ -308,6 +313,7 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
         task.setScheduledDate(taskData.scheduledDate || null)
         task.isFrog = taskData.isFrog || false
         task.isComplete = false
+        task.creationSource = taskData.creationSource || 'manual'
       })
     })
   }
