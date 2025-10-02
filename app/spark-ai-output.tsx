@@ -7,7 +7,9 @@ export default function SparkAIOutputScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     type: SparkOutputType;
-    userInput: string;
+    title: string;
+    timestamp: string;
+    transcription: string;
   }>();
 
   const handleSave = (data: any) => {
@@ -24,13 +26,13 @@ export default function SparkAIOutputScreen() {
   };
 
   return (
-    <View className="flex-1">
-      <SparkAIOutput
-        type={params.type || 'task'}
-        userVoiceInput={params.userInput || ''}
-        onSave={handleSave}
-        onCancel={handleCancel}
-      />
-    </View>
+    <SparkAIOutput
+      type={params.type || 'task'}
+      userVoiceInput={params.transcription || ''}
+      aiTitle={params.title || ''}
+      aiTimestamp={params.timestamp || ''}
+      onSave={handleSave}
+      onCancel={handleCancel}
+    />
   );
 }

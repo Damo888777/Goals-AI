@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SaveIcon, CancelIcon, ChevronDownIcon, FrogIcon, CheckIcon } from './SparkAIIcons';
 
@@ -9,6 +9,8 @@ export type SparkOutputType = 'task' | 'goal' | 'milestone';
 interface SparkAIOutputProps {
   type: SparkOutputType;
   userVoiceInput: string;
+  aiTitle?: string;
+  aiTimestamp?: string;
   onSave: (data: any) => void;
   onCancel: () => void;
 }
@@ -27,17 +29,18 @@ const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChang
   ];
 
   return (
-    <View className="bg-bg-secondary border border-border-primary rounded-card p-5">
-      {options.map((option) => (
+    <View style={styles.selectionCard}>
+      {options.map((option, index) => (
         <TouchableOpacity
           key={option.type}
-          className="flex-row items-center mb-4 last:mb-0"
+          style={[styles.selectionOption, index === options.length - 1 && { marginBottom: 0 }]}
           onPress={() => onTypeChange(option.type)}
         >
-          <View className={`w-7 h-7 rounded-small border border-border-primary mr-3 ${
-            selectedType === option.type ? 'bg-bg-primary' : 'bg-gray-300'
-          }`} />
-          <Text className="text-text-primary font-helvetica-bold text-lg flex-1">
+          <View style={[
+            styles.radioButton,
+            selectedType === option.type ? styles.radioButtonSelected : styles.radioButtonUnselected
+          ]} />
+          <Text style={styles.selectionLabel}>
             {option.label}
           </Text>
         </TouchableOpacity>
@@ -49,9 +52,9 @@ const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChang
 // Date Picker Component
 const DatePicker: React.FC = () => {
   return (
-    <View className="bg-bg-secondary border border-border-primary rounded-2xl">
-      <View className="flex-row items-center justify-between p-4 border-b border-border-primary">
-        <Text className="text-text-primary font-helvetica text-xl flex-1">
+    <View style={styles.datePickerContainer}>
+      <View style={styles.datePickerContent}>
+        <Text style={styles.datePickerText}>
           Select date
         </Text>
         <ChevronDownIcon />
@@ -66,21 +69,22 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
   onToggle 
 }) => {
   return (
-    <View className="bg-bg-secondary border border-border-primary rounded-2xl p-4">
-      <View className="flex-row items-center">
-        <View className="flex-1 mr-2">
-          <Text className="text-text-primary font-helvetica-bold text-lg mb-2">
+    <View style={styles.eatFrogContainer}>
+      <View style={styles.eatFrogContent}>
+        <View style={styles.eatFrogTextContainer}>
+          <Text style={styles.eatFrogTitle}>
             Eat the frog
           </Text>
-          <Text className="text-text-primary font-helvetica text-sm">
+          <Text style={styles.eatFrogDescription}>
             Choose this task if completing it will make your day a success.
           </Text>
         </View>
         <TouchableOpacity
           onPress={onToggle}
-          className={`w-10 h-10 rounded-button border border-border-secondary items-center justify-center ${
-            isSelected ? 'bg-accent-frog' : 'bg-gray-300'
-          }`}
+          style={[
+            styles.frogButton,
+            isSelected ? styles.frogButtonSelected : styles.frogButtonUnselected
+          ]}
         >
           <FrogIcon />
         </TouchableOpacity>
@@ -104,25 +108,26 @@ const EmotionSelection: React.FC = () => {
   ];
 
   return (
-    <View className="mb-6">
-      <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
         How do you feel after you achieved your goal?
       </Text>
-      <Text className="text-text-primary font-helvetica text-sm mb-4">
+      <Text style={styles.sectionSubtitle}>
         Choose up to 3 emotions
       </Text>
-      <View className="flex-row flex-wrap gap-2">
+      <View style={styles.emotionGrid}>
         {emotions.map((emotion, index) => (
           <TouchableOpacity
             key={index}
-            className="px-2 py-1 rounded-small border"
-            style={{ 
-              backgroundColor: emotion.color,
-              borderColor: emotion.textColor,
-              borderWidth: 0.3
-            }}
+            style={[
+              styles.emotionButton,
+              {
+                backgroundColor: emotion.color,
+                borderColor: emotion.textColor,
+              }
+            ]}
           >
-            <Text style={{ color: emotion.textColor }} className="text-sm font-helvetica">
+            <Text style={[styles.emotionText, { color: emotion.textColor }]}>
               {emotion.label}
             </Text>
           </TouchableOpacity>
@@ -135,15 +140,15 @@ const EmotionSelection: React.FC = () => {
 // Vision Board Section (for goals only)
 const VisionBoardSection: React.FC = () => {
   return (
-    <View className="mb-6">
-      <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
         Visualize your goal
       </Text>
-      <Text className="text-text-primary font-helvetica text-sm mb-4">
+      <Text style={styles.sectionSubtitle}>
         Choose an image from your Vision Board.
       </Text>
-      <TouchableOpacity className="h-20 bg-bg-secondary border border-bg-secondary rounded-2xl items-center justify-center">
-        <Text className="text-bg-secondary font-helvetica-bold text-center">
+      <TouchableOpacity style={styles.visionButton}>
+        <Text style={styles.visionButtonText}>
           Choose your Vision
         </Text>
       </TouchableOpacity>
@@ -154,19 +159,19 @@ const VisionBoardSection: React.FC = () => {
 // Goal/Milestone Attachment (for tasks and milestones)
 const GoalMilestoneAttachment: React.FC<{ type: SparkOutputType }> = ({ type }) => {
   return (
-    <View className="mb-6">
-      <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
         {type === 'task' ? 'Goal / Milestone' : 'My goal'}
       </Text>
-      <Text className="text-text-primary font-helvetica text-sm mb-4">
+      <Text style={styles.sectionSubtitle}>
         {type === 'task' 
           ? 'Attach either a goal or a milestone to your task.' 
           : 'Attach this milestone to your goal.'
         }
       </Text>
-      <View className="bg-bg-secondary border border-border-primary rounded-2xl p-4">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-text-primary font-helvetica flex-1">
+      <View style={styles.goalAttachmentContainer}>
+        <View style={styles.goalAttachmentContent}>
+          <Text style={styles.goalAttachmentText}>
             Select a main or sub goal
           </Text>
           <ChevronDownIcon />
@@ -182,11 +187,11 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
   onNotesChange 
 }) => {
   return (
-    <View className="mb-6">
-      <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
         Notes & Details
       </Text>
-      <Text className="text-text-primary font-helvetica text-sm mb-4">
+      <Text style={styles.sectionSubtitle}>
         Add any extra thoughts, links, or steps you want to remember.
       </Text>
       <TextInput
@@ -194,9 +199,8 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
         onChangeText={onNotesChange}
         placeholder="Type here your notes and details..."
         placeholderTextColor="rgba(54,73,88,0.5)"
-        className="bg-bg-secondary border border-border-primary rounded-2xl p-4 h-15 font-helvetica text-base"
+        style={[styles.textInput, styles.textInputMultiline]}
         multiline
-        style={{ minHeight: 60 }}
       />
     </View>
   );
@@ -206,12 +210,14 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
 const SparkAIOutput: React.FC<SparkAIOutputProps> = ({ 
   type: initialType, 
   userVoiceInput, 
+  aiTitle = '',
+  aiTimestamp = '',
   onSave, 
   onCancel 
 }) => {
   const insets = useSafeAreaInsets();
   const [selectedType, setSelectedType] = useState<SparkOutputType>(initialType);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(aiTitle);
   const [notes, setNotes] = useState('');
   const [isEatTheFrog, setIsEatTheFrog] = useState(false);
 
@@ -248,38 +254,38 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   };
 
   return (
-    <View className="flex-1 bg-bg-primary" style={{ paddingTop: insets.top }}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView 
-        className="flex-1 px-9"
-        contentContainerStyle={{ paddingBottom: 150 }}
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="mb-11 mt-16">
-          <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>
             Review your Spark
           </Text>
-          <Text className="text-text-primary font-helvetica text-sm">
+          <Text style={styles.headerSubtitle}>
             Here's a draft from Spark. Feel free to adjust it.
           </Text>
         </View>
 
         {/* User Voice Input */}
-        <View className="mb-11">
-          <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
             My voice:
           </Text>
-          <Text className="text-text-primary font-helvetica text-sm">
+          <Text style={styles.sectionSubtitle}>
             {userVoiceInput || '[Placeholder Body Text Voice Input of User]'}
           </Text>
         </View>
 
         {/* Spark's Suggestion */}
-        <View className="mb-11">
-          <Text className="text-text-primary font-helvetica-bold text-xl mb-2">
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
             Spark's Suggestion:
           </Text>
-          <Text className="text-text-primary font-helvetica text-sm mb-4">
+          <Text style={styles.sectionSubtitle}>
             {getSparkSuggestionText()}
           </Text>
           <SelectionCard 
@@ -289,8 +295,8 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         </View>
 
         {/* Title Input */}
-        <View className="mb-11">
-          <Text className="text-text-primary font-helvetica-bold text-xl mb-4">
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
             {selectedType === 'task' ? 'Task Title' : 
              selectedType === 'goal' ? 'Goal Title' : 
              'Milestone Title'}
@@ -300,18 +306,16 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             onChangeText={setTitle}
             placeholder={getTitlePlaceholder()}
             placeholderTextColor="#364958"
-            className="bg-bg-secondary border border-border-primary rounded-2xl p-4 font-helvetica text-base"
+            style={styles.textInput}
           />
         </View>
 
         {/* Conditional Sections based on type */}
         {selectedType === 'task' && (
-          <View className="mb-6">
-            <EatTheFrogSection 
-              isSelected={isEatTheFrog} 
-              onToggle={() => setIsEatTheFrog(!isEatTheFrog)} 
-            />
-          </View>
+          <EatTheFrogSection 
+            isSelected={isEatTheFrog} 
+            onToggle={() => setIsEatTheFrog(!isEatTheFrog)} 
+          />
         )}
 
         {selectedType === 'goal' && (
@@ -326,7 +330,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         )}
 
         {/* Date Picker */}
-        <View className="mb-6">
+        <View style={styles.sectionContainer}>
           <DatePicker />
         </View>
 
@@ -334,25 +338,23 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         <NotesSection notes={notes} onNotesChange={setNotes} />
 
         {/* Action Buttons */}
-        <View className="flex-row justify-between items-center mb-6 gap-4">
+        <View style={styles.actionButtonsContainer}>
           <TouchableOpacity
             onPress={onCancel}
-            className="bg-red-600 border border-border-secondary rounded-button px-4 py-3 flex-row items-center flex-1"
-            style={{ minHeight: 44 }}
+            style={[styles.actionButton, styles.cancelButton]}
           >
             <CancelIcon />
-            <Text className="text-bg-secondary font-helvetica-bold text-sm ml-2 text-center flex-1">
+            <Text style={styles.actionButtonText}>
               Cancel
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleSave}
-            className="bg-accent-frog border border-border-secondary rounded-button px-4 py-3 flex-row items-center flex-1"
-            style={{ minHeight: 44 }}
+            style={[styles.actionButton, styles.saveButton]}
           >
             <SaveIcon />
-            <Text className="text-bg-secondary font-helvetica-bold text-sm ml-2 text-center flex-1">
+            <Text style={styles.actionButtonText}>
               Save changes
             </Text>
           </TouchableOpacity>
@@ -361,5 +363,261 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  // Container styles
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5DC', // Light beige background
+  },
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingBottom: 150,
+  },
+
+  // Header styles
+  headerContainer: {
+    marginBottom: 32,
+    marginTop: 48,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#364958',
+    lineHeight: 22,
+  },
+
+  // Section styles
+  sectionContainer: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#364958',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+
+  // Selection card styles
+  selectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  selectionOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    marginRight: 12,
+  },
+  radioButtonSelected: {
+    backgroundColor: '#8FBC8F',
+    borderColor: '#8FBC8F',
+  },
+  radioButtonUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D0D0D0',
+  },
+  selectionLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+  },
+
+  // Input styles
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    fontSize: 16,
+    color: '#364958',
+    minHeight: 44,
+  },
+  textInputMultiline: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+
+  // Date picker styles
+  datePickerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  datePickerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#364958',
+    flex: 1,
+  },
+
+  // Eat the frog styles
+  eatFrogContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  eatFrogContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  eatFrogTextContainer: {
+    flex: 1,
+    marginRight: 16,
+  },
+  eatFrogTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+  },
+  eatFrogDescription: {
+    fontSize: 14,
+    color: '#364958',
+    lineHeight: 20,
+  },
+  frogButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  frogButtonSelected: {
+    backgroundColor: '#8FBC8F',
+    borderColor: '#8FBC8F',
+  },
+  frogButtonUnselected: {
+    backgroundColor: '#F0F0F0',
+    borderColor: '#D0D0D0',
+  },
+
+  // Emotion selection styles
+  emotionContainer: {
+    marginBottom: 24,
+  },
+  emotionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  emotionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  emotionText: {
+    fontSize: 14,
+  },
+
+  // Vision board styles
+  visionContainer: {
+    marginBottom: 24,
+  },
+  visionButton: {
+    height: 80,
+    backgroundColor: '#8FBC8F',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#8FBC8F',
+  },
+  visionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+
+  // Goal attachment styles
+  goalAttachmentContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  goalAttachmentContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  goalAttachmentText: {
+    fontSize: 16,
+    color: '#364958',
+    flex: 1,
+  },
+
+  // Action button styles
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+    marginBottom: 24,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    minHeight: 44,
+    borderWidth: 1,
+  },
+  cancelButton: {
+    backgroundColor: '#DC3545',
+    borderColor: '#DC3545',
+  },
+  saveButton: {
+    backgroundColor: '#8FBC8F',
+    borderColor: '#8FBC8F',
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+    textAlign: 'center',
+    flex: 1,
+  },
+});
 
 export default SparkAIOutput;

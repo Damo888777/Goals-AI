@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable, Image, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput } from 'react-native';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -47,7 +48,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
           <Image
             source={{ uri: imageUri }}
             style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
+            contentFit="cover"
           />
           {selected && (
             <View style={{
@@ -322,7 +323,7 @@ export default function SparkGenerateIMGScreen() {
                   uri: 'https://s3-alpha-sig.figma.com/img/f3ca/910e/67ed334fefa5709829303118cfda1a07?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=brlfYbH8KyZQB0EbF5VpV5uvxZg0X5rbH--IHFifnrI6ah-13IWHYm4-OJjt2YtCeH1xY4MFLt~smHvxgIRVi8m5BzfWY5xZQx-xVCoY9aL-gG3wOKr37ggVxgb1rc90gz-R3QpO5ZQIxt8hjovDg4KA6S8EZTjAS57Oc8sZW2gL7IDO1JB6nrTDbFCvtofpjUjLdKHkrbZqfg4GFJMlt8jIDTVA5YPY-opiNWDRcZ39LAKmgPvnqcC03JItsZ3IlaVLRvqIRPjB3-2y7nyWGxSqNQlH0AEivG7b~0OLID3dwnhEwe1HikBvooZA7WjD4ywtpKsy-QaanDMg-1wVcQ__'
                 }} 
                 style={{ width: '100%', height: '100%' }}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </View>
             <Text style={{

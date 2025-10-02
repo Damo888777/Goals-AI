@@ -20,7 +20,7 @@ export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionP
           <Image 
             source={{ uri: images.icons.frog }} 
             style={styles.icon}
-            resizeMode="contain"
+            contentFit="contain"
           />
           
           <Text style={styles.title}>

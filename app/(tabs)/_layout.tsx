@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { images } from '../../src/constants/images';
 import '../../global.css';
@@ -12,7 +13,7 @@ const TabIcon = ({ focused, source }: { focused: boolean; source: string }) => (
       height: 24, 
       opacity: focused ? 1 : 0.85 
     }}
-    resizeMode="contain"
+    contentFit="contain"
   />
 );
 

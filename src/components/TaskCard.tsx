@@ -1,4 +1,5 @@
-import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
@@ -87,7 +88,7 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
               <Image 
                 source={{ uri: images.icons.tomato }}
                 style={styles.tomatoIcon}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </Pressable>
           </View>

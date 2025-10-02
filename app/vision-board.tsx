@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -28,7 +29,7 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
         <Image
           source={{ uri: imageUri }}
           style={{ width: '100%', height: '100%' }}
-          resizeMode="cover"
+          contentFit="cover"
         />
       ) : (
         <View
@@ -159,7 +160,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
                 <Image
                   source={{ uri: item.imageUri }}
                   style={{ width: '100%', height: '100%' }}
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
               ) : (
                 <View
@@ -317,7 +318,7 @@ export default function VisionBoardScreen() {
             <Image 
               source={{ uri: images.icons.createVision }} 
               style={{ width: 16, height: 16 }}
-              resizeMode="contain"
+              contentFit="contain"
             />
             <Text
               style={{

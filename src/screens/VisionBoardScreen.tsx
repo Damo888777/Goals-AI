@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +27,7 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
         <Image
           source={{ uri: imageUri }}
           style={{ width: '100%', height: '100%' }}
-          resizeMode="cover"
+          contentFit="cover"
         />
       ) : (
         <View

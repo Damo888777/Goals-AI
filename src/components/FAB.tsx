@@ -77,7 +77,7 @@ export function FAB({ onPress, onLongPress }: FABProps) {
             <Image 
               source={{ uri: images.icons.sparkFab }} 
               style={{ width: 30, height: 30 }}
-              resizeMode="contain"
+              contentFit="contain"
             />
           </View>
         </Pressable>

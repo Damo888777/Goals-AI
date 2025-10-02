@@ -65,7 +65,7 @@ export default function GoalsTab() {
               <Image 
                 source={{ uri: images.icons.trophy }} 
                 style={styles.trophyIcon}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </View>
             <Text style={styles.buttonLabel}>
@@ -83,7 +83,7 @@ export default function GoalsTab() {
                 <Image 
                   source={{ uri: images.visionPlaceholder }} 
                   style={styles.visionImage}
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
               </View>
             </View>
@@ -195,8 +195,6 @@ const styles = StyleSheet.create({
   visionImage: {
     width: '100%',
     height: '100%',
-    // Figma image settings: object-50%-50% object-cover
-    resizeMode: 'cover',
     // Center the image content
     alignSelf: 'center',
   },

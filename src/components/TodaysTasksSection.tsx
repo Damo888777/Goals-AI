@@ -23,7 +23,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask }: TodaysTask
           <Image 
             source={{ uri: images.icons.notes }} 
             style={styles.icon}
-            resizeMode="contain"
+            contentFit="contain"
           />
           
           <Text style={styles.title}>

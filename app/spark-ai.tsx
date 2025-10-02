@@ -6,10 +6,22 @@ import { useState, useEffect, useRef } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { images } from '../src/constants/images';
+import { useAudioRecording } from '../src/hooks/useAudioRecording';
 
 export default function SparkAIScreen() {
   const insets = useSafeAreaInsets();
-  const [isRecording, setIsRecording] = useState(false);
+  
+  // Use the audio recording hook for AI functionality
+  const {
+    recordingState,
+    isRecording,
+    isProcessing,
+    duration,
+    error,
+    result,
+    toggleRecording,
+    resetRecording,
+  } = useAudioRecording();
 
   // Animation values for wave effect using React Native Animated
   const wave1 = useRef(new Animated.Value(0)).current;
@@ -18,23 +30,54 @@ export default function SparkAIScreen() {
   const wave4 = useRef(new Animated.Value(0)).current;
 
   const handleBackPress = () => {
+    // Reset recording state when leaving the screen
+    if (isRecording || isProcessing) {
+      resetRecording();
+    }
     router.back();
   };
 
+  // Handle AI processing completion
+  useEffect(() => {
+    if (recordingState === 'completed' && result) {
+      // Navigate to spark-ai-output with the AI processed data
+      setTimeout(() => {
+        router.push({
+          pathname: '/spark-ai-output',
+          params: {
+            type: result.classification.type,
+            title: result.classification.title,
+            timestamp: result.classification.timestamp || '',
+            transcription: result.transcription,
+          },
+        });
+        resetRecording();
+      }, 1500); // Show completion animation for 1.5 seconds
+    } else if (recordingState === 'error') {
+      // Auto-reset after showing error for a moment
+      setTimeout(() => {
+        resetRecording();
+      }, 3000);
+    }
+  }, [recordingState, result, resetRecording]);
+
   // Start/stop wave animations based on recording state
   useEffect(() => {
-    if (isRecording) {
+    if (isRecording || isProcessing) {
       // Reset all values to 0 first for consistent start
       wave1.setValue(0);
       wave2.setValue(0);
       wave3.setValue(0);
       wave4.setValue(0);
       
+      // Different animation speeds for recording vs processing
+      const baseDuration = isProcessing ? 1500 : 3000; // Faster for processing
+      
       // Start continuous wave animations - only expanding outward
       const wave1Animation = Animated.loop(
         Animated.timing(wave1, {
           toValue: 1,
-          duration: 3000,
+          duration: baseDuration,
           useNativeDriver: true,
         })
       );
@@ -42,7 +85,7 @@ export default function SparkAIScreen() {
       const wave2Animation = Animated.loop(
         Animated.timing(wave2, {
           toValue: 1,
-          duration: 3300,
+          duration: baseDuration + 300,
           useNativeDriver: true,
         })
       );
@@ -50,7 +93,7 @@ export default function SparkAIScreen() {
       const wave3Animation = Animated.loop(
         Animated.timing(wave3, {
           toValue: 1,
-          duration: 2700,
+          duration: baseDuration - 300,
           useNativeDriver: true,
         })
       );
@@ -58,7 +101,7 @@ export default function SparkAIScreen() {
       const wave4Animation = Animated.loop(
         Animated.timing(wave4, {
           toValue: 1,
-          duration: 3600,
+          duration: baseDuration + 600,
           useNativeDriver: true,
         })
       );
@@ -100,7 +143,7 @@ export default function SparkAIScreen() {
         }),
       ]).start();
     }
-  }, [isRecording]);
+  }, [isRecording, isProcessing]);
 
   // Animated styles for wave effects
   const wave1Style = {
@@ -171,8 +214,8 @@ export default function SparkAIScreen() {
     // Trigger haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     
-    setIsRecording(!isRecording);
-    // Handle voice recording logic here
+    // Toggle AI recording workflow
+    toggleRecording();
   };
 
   return (
@@ -182,22 +225,6 @@ export default function SparkAIScreen() {
         <Pressable onPress={handleBackPress} style={[styles.headerButton, styles.backButton]}>
           <View style={styles.chevronLeft}>
             <View style={styles.chevronLine1} />
-            <View style={styles.chevronLine2} />
-          </View>
-        </Pressable>
-        
-        <View style={styles.titleContainer}>
-          <Image 
-            source={images.icons.sparkAI} 
-            style={styles.sparkIconImage}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>Spark</Text>
-        </View>
-        
-        <Pressable onPress={handleInfoPress} style={[styles.headerButton, styles.infoButton]}>
-          <View style={styles.infoIcon}>
-            <Text style={styles.infoText}>?</Text>
           </View>
         </Pressable>
       </View>
@@ -217,7 +244,8 @@ export default function SparkAIScreen() {
             onPress={handleMicrophonePress}
             style={[
               styles.microphoneButton,
-              isRecording && styles.microphoneButtonRecording
+              isRecording && styles.microphoneButtonRecording,
+              isProcessing && styles.microphoneButtonProcessing
             ]}
           >
             <Image 
@@ -230,9 +258,14 @@ export default function SparkAIScreen() {
 
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
-          {isRecording ? 'Recording...' : 'Tap to start recording'}
+          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
+           recordingState === 'processing' ? 'Processing with AI...' :
+           recordingState === 'completed' ? 'Complete!' :
+           recordingState === 'error' ? 'Error occurred - tap to try again' :
+           'Tap to start recording'}
         </Text>
       </View>
+
     </View>
   );
 }
@@ -338,6 +371,9 @@ const styles = StyleSheet.create({
   },
   microphoneButtonRecording: {
     backgroundColor: '#364958', // Keep same blue when recording
+  },
+  microphoneButtonProcessing: {
+    backgroundColor: '#3b82f6', // Blue for processing state
   },
   microphoneIcon: {
     alignItems: 'center',
