@@ -6,7 +6,7 @@ import { typography } from '../constants/typography';
 import type { Task } from '../types';
 
 interface EatTheFrogSectionProps {
-  frogTask?: Task;
+  frogTask?: Task | null;
   onSelectFrog?: () => void;
 }
 

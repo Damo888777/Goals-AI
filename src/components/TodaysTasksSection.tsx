@@ -9,9 +9,11 @@ interface TodaysTasksSectionProps {
   tasks: Task[];
   onTaskPress?: (task: Task) => void;
   onAddTask?: () => void;
+  onToggleComplete?: (taskId: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function TodaysTasksSection({ tasks, onTaskPress, onAddTask }: TodaysTasksSectionProps) {
+export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, isLoading }: TodaysTasksSectionProps) {
   const hasTasks = tasks.length > 0;
 
   return (
@@ -51,6 +53,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask }: TodaysTask
               key={task.id}
               task={task}
               onPress={() => onTaskPress?.(task)}
+              onToggleComplete={onToggleComplete}
             />
           ))}
         </View>

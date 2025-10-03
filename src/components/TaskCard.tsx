@@ -5,13 +5,14 @@ import { typography } from '../constants/typography';
 import type { Task } from '../types';
 
 interface TaskCardProps {
-  task?: Task & { creationSource?: 'spark' | 'manual' };
+  task?: Task | null;
   isEmpty?: boolean;
   isFrog?: boolean;
   onPress?: () => void;
+  onToggleComplete?: (taskId: string) => Promise<void>;
 }
 
-export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: TaskCardProps) {
+export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onToggleComplete }: TaskCardProps) {
   if (isEmpty) {
     return (
       <Pressable
@@ -81,16 +82,19 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress }: Tas
                 </View>
               </View>
               <Text style={styles.dateText}>
-                {task?.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Someday'}
+                {task?.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString() : 'Someday'}
               </Text>
             </View>
           </View>
 
           {/* Right side - Action buttons */}
           <View style={styles.actionButtons}>
-            <Pressable style={styles.completeButton}>
-              <View style={styles.checkIcon}>
-                <Text style={styles.checkmark}>✓</Text>
+            <Pressable 
+              style={styles.completeButton}
+              onPress={() => task?.id && onToggleComplete?.(task.id)}
+            >
+              <View style={[styles.checkIcon, task?.isComplete && styles.checkIconCompleted]}>
+                <Text style={[styles.checkmark, task?.isComplete && styles.checkmarkCompleted]}>✓</Text>
               </View>
             </Pressable>
             <Pressable style={styles.pomodoroButton}>
@@ -294,6 +298,14 @@ const styles = StyleSheet.create({
   sparkBadgeText: {
     fontSize: 8,
     fontWeight: '600',
-    color: '#E76F51',
+    color: '#8B4513',
+  },
+  checkIconCompleted: {
+    backgroundColor: '#A3B18A',
+    borderColor: '#A3B18A',
+  },
+  checkmarkCompleted: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });

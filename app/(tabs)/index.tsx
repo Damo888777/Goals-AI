@@ -1,16 +1,23 @@
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GreetingMessage } from '../../src/components/GreetingMessage';
 import { EatTheFrogSection } from '../../src/components/EatTheFrogSection';
 import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
 import { FAB } from '../../src/components/FAB';
+import { useTodaysTasks } from '../../src/hooks/useTodaysTasks';
 import type { Task } from '../../src/types';
 
 export default function TodayTab() {
   const insets = useSafeAreaInsets();
-  const [frogTask, setFrogTask] = useState<Task | undefined>(undefined);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { 
+    todaysTasks, 
+    frogTask, 
+    setFrogTask: updateFrogTask,
+    toggleTaskComplete,
+    isLoading,
+    refreshTasks 
+  } = useTodaysTasks();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -26,6 +33,15 @@ export default function TodayTab() {
 
   const handleAddTask = () => {
     console.log('Add task');
+  };
+
+  const handleToggleComplete = async (taskId: string) => {
+    try {
+      await toggleTaskComplete(taskId);
+      await refreshTasks();
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+    }
   };
 
   return (
@@ -51,9 +67,11 @@ export default function TodayTab() {
 
         {/* Today's Tasks Section */}
         <TodaysTasksSection
-          tasks={tasks}
+          tasks={todaysTasks}
           onTaskPress={handleTaskPress}
           onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete}
+          isLoading={isLoading}
         />
       </ScrollView>
 
