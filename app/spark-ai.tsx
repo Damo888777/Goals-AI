@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   microphoneContainer: {
-    marginBottom: 40,
+    alignItems: 'center',
   },
   microphoneButton: {
     width: 120,
@@ -397,6 +397,7 @@ const styles = StyleSheet.create({
     color: '#364958',
     fontWeight: '500',
     textAlign: 'center',
+    marginTop: 40,
   },
   sparkAIImage: {
     width: 50,

@@ -1,12 +1,15 @@
-import { View, Text, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
+import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as MediaLibrary from 'expo-media-library';
 
-type StyleOption = 'photorealistic' | 'anime' | 'watercolour' | 'cyberpunk';
 
 interface StyleButtonProps {
   style: StyleOption;
@@ -80,6 +83,9 @@ export default function SparkGenerateIMGScreen() {
   const insets = useSafeAreaInsets();
   const [visionText, setVisionText] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>('photorealistic');
+  const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
+  const [generatedImageUri, setGeneratedImageUri] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const styleOptions = [
     {
@@ -108,20 +114,79 @@ export default function SparkGenerateIMGScreen() {
     router.back();
   };
 
-  const handleCreateVision = () => {
+  const handleCreateVision = async () => {
     if (!visionText.trim()) {
-      // Could add validation feedback here
+      Alert.alert('Missing Vision', 'Please describe your vision before creating an image.');
       return;
     }
+
+    if (isGenerating) {
+      return; // Prevent multiple simultaneous generations
+    }
+
+    // Request media library permissions upfront
+    const { status } = await MediaLibrary.requestPermissionsAsync();
     
-    console.log('Creating vision with:', {
-      text: visionText,
-      style: selectedStyle
-    });
-    
-    // TODO: Implement actual AI image generation
-    // For now, navigate back to vision board
-    router.back();
+    try {
+      setIsGenerating(true);
+      setGenerationState('generating');
+      
+      // Haptic feedback for start
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      const result = await imageGenerationService.generateImage({
+        userText: visionText,
+        style: selectedStyle
+      });
+
+      if (result.success && result.imageBase64) {
+        // Save image to device using legacy FileSystem API
+        const filename = `spark-vision-${Date.now()}.png`;
+        const fileUri = (FileSystem as any).cacheDirectory + filename;
+        
+        await FileSystem.writeAsStringAsync(fileUri, result.imageBase64, {
+          encoding: 'base64',
+        });
+        
+        setGeneratedImageUri(fileUri);
+        setGenerationState('preview');
+        
+        // Success haptic
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        
+      } else {
+        setGenerationState('error');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        
+        Alert.alert(
+          'Generation Failed', 
+          result.error || 'Unable to generate your vision. Please try again.',
+          [
+            {
+              text: 'OK',
+              onPress: () => setGenerationState('idle')
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Image generation error:', error);
+      setGenerationState('error');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      
+      Alert.alert(
+        'Generation Error',
+        'An unexpected error occurred. Please check your internet connection and try again.',
+        [
+          {
+            text: 'OK',
+            onPress: () => setGenerationState('idle')
+          }
+        ]
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -302,7 +367,7 @@ export default function SparkGenerateIMGScreen() {
                 handleCreateVision();
               }}
               style={{
-                backgroundColor: '#3D405B',
+                backgroundColor: isGenerating ? 'rgba(61, 64, 91, 0.6)' : '#3D405B',
                 borderWidth: 1,
                 borderColor: '#9B9B9B',
                 borderRadius: 10,
@@ -314,8 +379,9 @@ export default function SparkGenerateIMGScreen() {
                 gap: 10,
                 height: 40,
                 width: '100%',
-                opacity: 1,
+                opacity: isGenerating ? 0.6 : 1,
               }}
+              disabled={isGenerating}
             >
             <View style={{ width: 20, height: 20 }}>
               <Image 
@@ -332,12 +398,193 @@ export default function SparkGenerateIMGScreen() {
               fontFamily: 'Helvetica-Bold',
               lineHeight: 0,
             }}>
-              Create Vision
+              {isGenerating ? 'Creating...' : 'Create Vision'}
             </Text>
           </Pressable>
         </View>
       </View>
     </ScrollView>
+    
+    {/* Image Generation Animation Overlay */}
+    {generationState !== 'preview' && (
+      <ImageGenerationAnimation 
+        state={generationState}
+        progress={0.5} // You can implement actual progress tracking if needed
+      />
+    )}
+    
+    {/* Image Preview Overlay */}
+    {generationState === 'preview' && generatedImageUri && (
+      <View style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: insets.top + 20,
+        paddingBottom: insets.bottom + 20,
+      }}>
+        {/* Generated Image */}
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          maxHeight: '70%',
+        }}>
+          <Image
+            source={{ uri: generatedImageUri }}
+            style={{
+              width: '100%',
+              aspectRatio: 1,
+              borderRadius: 15,
+              backgroundColor: '#2A2D3A',
+            }}
+            contentFit="contain"
+          />
+        </View>
+        
+        {/* Action Buttons */}
+        <View style={{
+          width: '100%',
+          gap: 15,
+          marginTop: 30,
+        }}>
+          {/* Save Button */}
+          <View style={{
+            shadowColor: '#F5EBE0',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.75,
+            shadowRadius: 0,
+            elevation: 8,
+            borderRadius: 10,
+          }}>
+            <Pressable
+              onPress={async () => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                if (status === 'granted' && generatedImageUri) {
+                  try {
+                    await MediaLibrary.saveToLibraryAsync(generatedImageUri);
+                    Alert.alert('Saved!', 'Your vision has been saved to your photo library.');
+                  } catch (error) {
+                    Alert.alert('Error', 'Failed to save image to photo library.');
+                  }
+                } else {
+                  Alert.alert('Permission Required', 'Please grant photo library access to save images.');
+                }
+              }}
+              style={{
+                backgroundColor: '#A3B18A',
+                borderRadius: 10,
+                paddingVertical: 15,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                color: '#2A2D3A',
+                fontSize: 16,
+                fontFamily: 'Helvetica-Bold',
+              }}>
+                Save to Vision Board
+              </Text>
+            </Pressable>
+          </View>
+          
+          {/* Bottom Row: Delete (left) and Try Again (right) */}
+          <View style={{
+            flexDirection: 'row',
+            gap: 15,
+          }}>
+            {/* Delete Button */}
+            <View style={{
+              flex: 1,
+              shadowColor: '#F5EBE0',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8,
+              borderRadius: 10,
+            }}>
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  Alert.alert(
+                    'Delete Image',
+                    'Are you sure you want to delete this generated image?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: () => {
+                          setGenerationState('idle');
+                          setGeneratedImageUri(null);
+                          router.back();
+                        }
+                      }
+                    ]
+                  );
+                }}
+                style={{
+                  backgroundColor: '#ffa69e',
+                  borderWidth: 1,
+                  borderColor: '#BC4B51',
+                  borderRadius: 10,
+                  paddingVertical: 15,
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{
+                  color: '#BC4B51',
+                  fontSize: 16,
+                  fontFamily: 'Helvetica-Bold',
+                }}>
+                  Delete
+                </Text>
+              </Pressable>
+            </View>
+            
+            {/* Try Again Button */}
+            <View style={{
+              flex: 1,
+              shadowColor: '#F5EBE0',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8,
+              borderRadius: 10,
+            }}>
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setGenerationState('idle');
+                  setGeneratedImageUri(null);
+                }}
+                style={{
+                  backgroundColor: '#3D405B',
+                  borderWidth: 1,
+                  borderColor: '#9B9B9B',
+                  borderRadius: 10,
+                  paddingVertical: 15,
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{
+                  color: '#F5EBE0',
+                  fontSize: 16,
+                  fontFamily: 'Helvetica-Bold',
+                }}>
+                  Try Again
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </View>
+    )}
   </LinearGradient>
   );
 }

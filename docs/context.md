@@ -142,7 +142,7 @@
 - Platform: Nano Banana
 - Model: gemini-2.5-flash-image-preview
 - Implementation: Pre-defined JSON prompt templates
-- Storage: `docs/prompt_library.md`
+- Storage: `docs/library_prompt_img.md`
 
 ---
 

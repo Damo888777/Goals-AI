@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@modelcontextprotocol/sdk": "^1.18.2",
     "@nozbe/sqlite": "^3.46.0",
@@ -34,6 +35,7 @@
     "expo-haptics": "~15.0.7",
     "expo-image": "~3.0.8",
     "expo-linear-gradient": "~15.0.7",
+    "expo-media-library": "^18.2.0",
     "expo-notifications": "~0.32.12",
     "expo-router": "~6.0.10",
     "expo-secure-store": "~15.0.7",
