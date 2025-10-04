@@ -219,7 +219,7 @@ export default function VisionBoardScreen() {
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
-          paddingTop: insets.top + 40,
+          paddingTop: insets.top + 20,
           paddingHorizontal: 24,
           paddingBottom: 120,
           gap: 32,

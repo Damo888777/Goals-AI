@@ -35,7 +35,7 @@ export default function PlanTab() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
-          paddingTop: insets.top + 63,
+          paddingTop: insets.top + 20,
           paddingHorizontal: 36,
           paddingBottom: 150,
           gap: 43,

@@ -198,7 +198,7 @@ export default function SparkGenerateIMGScreen() {
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
-          paddingTop: insets.top + 63,
+          paddingTop: insets.top + 20,
           paddingLeft: 36,
           paddingRight: 36,
           paddingBottom: 150,

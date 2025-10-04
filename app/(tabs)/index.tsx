@@ -100,7 +100,7 @@ export default function TodayTab() {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{
-          paddingTop: insets.top + 63,
+          paddingTop: insets.top + 20,
           paddingHorizontal: 36,
           paddingBottom: 150,
           gap: 45,
