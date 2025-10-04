@@ -1,6 +1,6 @@
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GreetingMessage } from '../../src/components/GreetingMessage';
 import { EatTheFrogSection } from '../../src/components/EatTheFrogSection';
 import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
@@ -44,6 +44,57 @@ export default function TodayTab() {
     }
   };
 
+  // Mock tasks for demo purposes
+  const mockTasks: Task[] = useMemo(() => [
+    {
+      id: 'mock-1',
+      title: 'Complete project presentation slides',
+      notes: 'Focus on key metrics and visual design',
+      scheduledDate: new Date().toISOString(),
+      isFrog: false,
+      isComplete: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 'demo-user',
+      goalId: undefined,
+      milestoneId: undefined,
+      creationSource: 'manual'
+    },
+    {
+      id: 'mock-2', 
+      title: 'Review quarterly goals and adjust priorities',
+      notes: 'Check progress on all active goals',
+      scheduledDate: new Date().toISOString(),
+      isFrog: false,
+      isComplete: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 'demo-user',
+      goalId: undefined,
+      milestoneId: undefined,
+      creationSource: 'spark'
+    }
+  ], []);
+
+  const mockFrogTask: Task = useMemo(() => ({
+    id: 'mock-frog',
+    title: 'Write first chapter of book',
+    notes: 'The most important task that will move me closer to my dreams',
+    scheduledDate: new Date().toISOString(),
+    isFrog: true,
+    isComplete: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: 'demo-user',
+    goalId: undefined,
+    milestoneId: undefined,
+    creationSource: 'manual'
+  }), []);
+
+  // Use mock data if no real tasks exist
+  const displayTasks = todaysTasks.length > 0 ? todaysTasks : mockTasks;
+  const displayFrogTask = frogTask || mockFrogTask;
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -61,13 +112,13 @@ export default function TodayTab() {
 
         {/* Eat the Frog Section */}
         <EatTheFrogSection 
-          frogTask={frogTask}
+          frogTask={displayFrogTask}
           onSelectFrog={handleSelectFrog}
         />
 
         {/* Today's Tasks Section */}
         <TodaysTasksSection
-          tasks={todaysTasks}
+          tasks={displayTasks}
           onTaskPress={handleTaskPress}
           onAddTask={handleAddTask}
           onToggleComplete={handleToggleComplete}

@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
@@ -97,7 +98,10 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
                 <Text style={[styles.checkmark, task?.isComplete && styles.checkmarkCompleted]}>✓</Text>
               </View>
             </Pressable>
-            <Pressable style={styles.pomodoroButton}>
+            <Pressable 
+              style={styles.pomodoroButton}
+              onPress={() => router.push('/pomodoro')}
+            >
               <Image 
                 source={{ uri: images.icons.tomato }}
                 style={styles.tomatoIcon}
@@ -242,10 +246,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
   checkIcon: {
     width: 20,
     height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkmark: {
     fontSize: 16,
@@ -261,6 +272,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
   tomatoIcon: {
     width: 22,

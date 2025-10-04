@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { DB_CONFIG } from '../db/config'
 import { mockDatabase, MockTask } from '../db/mockDatabase'
+import type { Task } from '../types'
 
 export const useTodaysTasks = () => {
-  const [todaysTasks, setTodaysTasks] = useState<MockTask[]>([])
-  const [frogTask, setFrogTask] = useState<MockTask | null>(null)
+  const [todaysTasks, setTodaysTasks] = useState<Task[]>([])
+  const [frogTask, setFrogTask] = useState<Task | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchTodaysTasks = async () => {
@@ -13,9 +14,25 @@ export const useTodaysTasks = () => {
       
       if (!DB_CONFIG.USE_WATERMELON) {
         // Use mock database for Expo Go
-        const tasks = await mockDatabase.getTodaysTasks()
-        setTodaysTasks(tasks)
-        setFrogTask(tasks.find(task => task.is_frog && !task.is_complete) || null)
+        const mockTasks = await mockDatabase.getTodaysTasks()
+        
+        // Convert MockTask to Task
+        const convertedTasks: Task[] = mockTasks.map((task: MockTask) => ({
+          id: task.id,
+          title: task.title,
+          isFrog: task.is_frog,
+          isComplete: task.is_complete,
+          goalId: task.goal_id,
+          milestoneId: task.milestone_id,
+          scheduledDate: task.scheduled_date,
+          notes: task.notes,
+          creationSource: 'manual' as const,
+          createdAt: new Date(task.created_at),
+          updatedAt: new Date(task.updated_at),
+        }))
+        
+        setTodaysTasks(convertedTasks)
+        setFrogTask(convertedTasks.find(task => task.isFrog && !task.isComplete) || null)
       } else {
         // TODO: WatermelonDB implementation when enabled
         console.log('WatermelonDB not implemented yet')
@@ -30,11 +47,28 @@ export const useTodaysTasks = () => {
   const toggleTaskComplete = async (taskId: string) => {
     try {
       if (!DB_CONFIG.USE_WATERMELON) {
-        const task = await mockDatabase.updateTask(taskId, { 
-          is_complete: !todaysTasks.find(t => t.id === taskId)?.is_complete 
-        })
-        if (task) {
-          setTodaysTasks(prev => prev.map(t => t.id === taskId ? task : t))
+        const currentTask = todaysTasks.find(t => t.id === taskId)
+        if (currentTask) {
+          const updatedMockTask = await mockDatabase.updateTask(taskId, { 
+            is_complete: !currentTask.isComplete 
+          })
+          if (updatedMockTask) {
+            // Convert MockTask back to Task
+            const convertedTask: Task = {
+              id: updatedMockTask.id,
+              title: updatedMockTask.title,
+              isFrog: updatedMockTask.is_frog,
+              isComplete: updatedMockTask.is_complete,
+              goalId: updatedMockTask.goal_id,
+              milestoneId: updatedMockTask.milestone_id,
+              scheduledDate: updatedMockTask.scheduled_date,
+              notes: updatedMockTask.notes,
+              creationSource: 'manual' as const,
+              createdAt: new Date(updatedMockTask.created_at),
+              updatedAt: new Date(updatedMockTask.updated_at),
+            }
+            setTodaysTasks(prev => prev.map(t => t.id === taskId ? convertedTask : t))
+          }
         }
       }
     } catch (error) {

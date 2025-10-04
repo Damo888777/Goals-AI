@@ -276,7 +276,7 @@ export default function SparkAIScreen() {
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
           {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
-           recordingState === 'processing' ? 'Processing with AI...' :
+           recordingState === 'processing' ? 'Spark is processing...' :
            recordingState === 'completed' ? 'Complete!' :
            recordingState === 'error' ? 'Error occurred - tap to try again' :
            'Tap to start recording'}

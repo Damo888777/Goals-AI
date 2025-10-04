@@ -95,7 +95,7 @@ export function AIProcessingAnimation({ state, duration = 0 }: AIProcessingAnima
       case 'recording':
         return 'Recording...';
       case 'processing':
-        return 'Processing with AI...';
+        return 'Spark is processing...';
       case 'completed':
         return 'Complete!';
       case 'error':
