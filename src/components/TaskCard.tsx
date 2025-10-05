@@ -1,9 +1,12 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
+import { useRef } from 'react';
 
 interface TaskCardProps {
   task?: Task | null;
@@ -11,9 +14,42 @@ interface TaskCardProps {
   isFrog?: boolean;
   onPress?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
+  onDelete?: (taskId: string) => Promise<void>;
 }
 
-export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onToggleComplete }: TaskCardProps) {
+export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onToggleComplete, onDelete }: TaskCardProps) {
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isDeleting = useRef(false);
+
+  const handleGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: translateX } }],
+    { useNativeDriver: true }
+  );
+
+  const handleStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX } = event.nativeEvent;
+      
+      if (translationX < -20 && !isDeleting.current) {
+        Animated.spring(translateX, {
+          toValue: -80,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  };
+
+  const handleDelete = () => {
+    if (task?.id && onDelete) {
+      isDeleting.current = true;
+      onDelete(task.id);
+    }
+  };
   if (isEmpty) {
     return (
       <Pressable
@@ -33,11 +69,18 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
   }
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={styles.card}
-    >
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <PanGestureHandler
+        onGestureEvent={handleGestureEvent}
+        onHandlerStateChange={handleStateChange}
+        activeOffsetX={[-10, 10]}
+      >
+        <Animated.View style={[styles.cardWrapper, { transform: [{ translateX }] }]}>
+          <Pressable
+            onPress={onPress}
+            style={styles.card}
+          >
+            <View style={styles.content}>
         {/* Title with creation source badge */}
         <View style={styles.titleRow}>
           <Text style={[styles.title, { flex: 1 }]} numberOfLines={3}>
@@ -109,13 +152,40 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
               />
             </Pressable>
           </View>
-        </View>
-      </View>
-    </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Animated.View>
+      </PanGestureHandler>
+      
+      {/* Delete State - Full Card Transform */}
+      <Animated.View style={[
+        styles.deleteState,
+        {
+          opacity: translateX.interpolate({
+            inputRange: [-80, -40, 0],
+            outputRange: [1, 0.5, 0],
+            extrapolate: 'clamp',
+          }),
+        }
+      ]}>
+        <Pressable onPress={handleDelete} style={styles.deleteButton}>
+          <Icon name="delete" size={32} color="#B23A48" />
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    overflow: 'visible',
+    marginBottom: 8,
+  },
+  cardWrapper: {
+    zIndex: 1,
+  },
   card: {
     backgroundColor: '#E9EDC9',
     borderWidth: 0.5,
@@ -323,5 +393,32 @@ const styles = StyleSheet.create({
   checkmarkCompleted: {
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  deleteState: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F2CCC3',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  deleteButton: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    borderRadius: 12,
+    paddingRight: 25,
   },
 });

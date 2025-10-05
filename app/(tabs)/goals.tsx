@@ -10,9 +10,57 @@ import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
 import type { Goal } from '../../src/types';
 
+// Mock data for testing GoalCard states
+const mockGoals: Goal[] = [
+  {
+    id: '1',
+    title: 'Learn React Native Development',
+    description: 'Master mobile app development with React Native and Expo',
+    emotions: ['excited', 'confident', 'grateful', 'happy', 'proud'],
+    visionImages: ['mock-image-url'],
+    milestones: [
+      {
+        id: 'm1',
+        title: 'Complete React Native Tutorial',
+        goalId: '1',
+        targetDate: '2024-12-15T00:00:00.000Z',
+        isComplete: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'm2', 
+        title: 'Build First Mobile App',
+        goalId: '1',
+        targetDate: '2024-12-30T00:00:00.000Z',
+        isComplete: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    ],
+    progress: 65,
+    isCompleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: '2',
+    title: 'Start Fitness Journey',
+    description: 'Get healthy and build sustainable fitness habits',
+    emotions: ['motivated', 'determined'],
+    visionImages: [],
+    milestones: [],
+    progress: 25,
+    isCompleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+];
+
 export default function GoalsTab() {
   const insets = useSafeAreaInsets();
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goals, setGoals] = useState<Goal[]>(mockGoals);
+  const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
 
 
   const handleTrophyPress = () => {
@@ -27,6 +75,29 @@ export default function GoalsTab() {
 
   const handleGoalPress = (goal: Goal) => {
     console.log('Goal pressed:', goal.id);
+  };
+
+  const handleToggleExpand = (goalId: string) => {
+    setExpandedGoals(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(goalId)) {
+        newSet.delete(goalId);
+      } else {
+        newSet.add(goalId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleMilestoneComplete = (milestoneId: string) => {
+    setGoals(prev => prev.map(goal => ({
+      ...goal,
+      milestones: goal.milestones.map(milestone => 
+        milestone.id === milestoneId 
+          ? { ...milestone, isComplete: !milestone.isComplete }
+          : milestone
+      )
+    })));
   };
 
   const handleAddGoal = () => {
@@ -111,7 +182,10 @@ export default function GoalsTab() {
               <GoalCard
                 key={goal.id}
                 goal={goal}
+                expanded={expandedGoals.has(goal.id)}
                 onPress={() => handleGoalPress(goal)}
+                onToggleExpand={() => handleToggleExpand(goal.id)}
+                onMilestoneComplete={handleMilestoneComplete}
               />
             ))
           ) : (
