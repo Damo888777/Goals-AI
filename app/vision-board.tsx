@@ -79,7 +79,7 @@ function MasonryGrid({ visionImages }: MasonryGridProps) {
         paddingHorizontal: 24,
         alignItems: 'center',
         marginTop: 16,
-        shadowColor: '#7C7C7C',
+        shadowColor: '#F5EBE0',
         shadowOffset: {
           width: 0,
           height: 4,

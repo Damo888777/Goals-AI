@@ -350,7 +350,7 @@ const GoalMilestoneAttachment: React.FC<GoalMilestoneAttachmentProps> = ({ type,
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal || 'Select a main or sub goal'}
+            {selectedGoal || 'Select your goal'}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -374,7 +374,7 @@ const GoalMilestoneAttachment: React.FC<GoalMilestoneAttachmentProps> = ({ type,
             ) : (
               <View style={styles.emptyStateDropdownItem}>
                 <Text style={styles.emptyStateTitle}>
-                  No goals or milestones yet
+                  No goals yet
                 </Text>
                 <Text style={styles.emptyStateDescription}>
                   Create your first goal and start your journey

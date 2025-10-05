@@ -42,16 +42,18 @@ export function FAB({ onPress, onLongPress }: FABProps) {
 
   const handleMenuItemPress = (action: string) => {
     setShowMenu(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
     // Handle menu item actions
     switch (action) {
       case 'task':
-        // Navigate to create task
+        router.push('/manual-task');
         break;
       case 'goal':
-        // Navigate to create goal
+        router.push('/manual-goal');
         break;
       case 'milestone':
-        // Navigate to create milestone
+        router.push('/manual-milestone');
         break;
     }
   };
