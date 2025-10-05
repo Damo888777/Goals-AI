@@ -96,13 +96,6 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
           <Text style={[styles.title, { flex: 1 }]} numberOfLines={3}>
             {task?.title || 'Placeholder Task Title'}
           </Text>
-          {task?.creationSource === 'spark' && (
-            <View style={styles.sparkBadge}>
-              <Text style={styles.sparkBadgeText}>
-                ✨ AI
-              </Text>
-            </View>
-          )}
         </View>
         
         {/* Bottom row with project info and buttons */}

@@ -167,26 +167,6 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
               }} numberOfLines={2}>
                 {goal?.title || 'Placeholder Title'}
               </Text>
-              {goal?.creationSource === 'spark' && (
-                <View style={{
-                  backgroundColor: '#FFE066',
-                  borderWidth: 0.5,
-                  borderColor: '#F4A261',
-                  borderRadius: 8,
-                  paddingHorizontal: 6,
-                  paddingVertical: 2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <Text style={{
-                    fontSize: 8,
-                    fontWeight: '600',
-                    color: '#E76F51',
-                  }}>
-                    ✨ AI
-                  </Text>
-                </View>
-              )}
             </View>
 
               {/* Progress Bar */}

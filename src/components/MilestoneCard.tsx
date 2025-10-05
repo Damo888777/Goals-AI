@@ -45,13 +45,6 @@ export function MilestoneCard({ milestone, isEmpty = false, onPress }: Milestone
           <Text style={[styles.title, { flex: 1 }, isCompleted && styles.completedText]} numberOfLines={2}>
             {milestone?.title || 'Placeholder Milestone'}
           </Text>
-          {milestone?.creationSource === 'spark' && (
-            <View style={styles.sparkBadge}>
-              <Text style={styles.sparkBadgeText}>
-                ✨ AI
-              </Text>
-            </View>
-          )}
         </View>
         
         {/* Bottom row with date and completion status */}
