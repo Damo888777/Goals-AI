@@ -7,9 +7,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { images } from '../src/constants/images';
 import { useAudioRecording } from '../src/hooks/useAudioRecording';
+import { InfoPopup } from '../src/components/InfoPopup';
+import { INFO_CONTENT } from '../src/constants/infoContent';
 
 export default function SparkAIScreen() {
   const insets = useSafeAreaInsets();
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
   
   // Use the audio recording hook for AI functionality
   const {
@@ -213,7 +216,7 @@ export default function SparkAIScreen() {
   };
 
   const handleInfoPress = () => {
-    // Handle info button press
+    setShowInfoPopup(true);
   };
 
   const handleMicrophonePress = () => {
@@ -283,6 +286,13 @@ export default function SparkAIScreen() {
         </Text>
       </View>
 
+      {/* Info Popup */}
+      <InfoPopup
+        visible={showInfoPopup}
+        title={INFO_CONTENT.SPARK_AI.title}
+        content={INFO_CONTENT.SPARK_AI.content}
+        onClose={() => setShowInfoPopup(false)}
+      />
     </View>
   );
 }

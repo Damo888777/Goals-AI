@@ -8,6 +8,16 @@ import { typography } from '../constants/typography';
 import type { Task } from '../types';
 import { useRef } from 'react';
 
+// Format date as Dec.05.2025
+const formatDate = (date: Date): string => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[date.getMonth()];
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}.${day}.${year}`;
+};
+
 interface TaskCardProps {
   task?: Task | null;
   isEmpty?: boolean;
@@ -103,30 +113,9 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
               {task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
             </Text>
             <View style={styles.dateRow}>
-              <View style={styles.calendarIcon}>
-                {/* Vector Calendar Icon */}
-                <View style={styles.calendarVector}>
-                  <View style={styles.calendarHeader} />
-                  <View style={styles.calendarRings}>
-                    <View style={styles.calendarRing} />
-                    <View style={styles.calendarRing} />
-                  </View>
-                  <View style={styles.calendarGrid}>
-                    <View style={styles.calendarRow}>
-                      <View style={styles.calendarCell} />
-                      <View style={styles.calendarCell} />
-                      <View style={styles.calendarCell} />
-                    </View>
-                    <View style={styles.calendarRow}>
-                      <View style={styles.calendarCell} />
-                      <View style={[styles.calendarCell, styles.calendarCellActive]} />
-                      <View style={styles.calendarCell} />
-                    </View>
-                  </View>
-                </View>
-              </View>
+              <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
               <Text style={styles.dateText}>
-                {task?.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString() : 'Someday'}
+                {task?.scheduledDate ? formatDate(new Date(task.scheduledDate)) : 'Someday'}
               </Text>
             </View>
           </View>

@@ -1,9 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
+import { InfoPopup } from './InfoPopup';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
+import { INFO_CONTENT } from '../constants/infoContent';
 import type { Task } from '../types';
+import { useState } from 'react';
 
 interface TodaysTasksSectionProps {
   tasks: Task[];
@@ -14,6 +17,7 @@ interface TodaysTasksSectionProps {
 }
 
 export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, isLoading }: TodaysTasksSectionProps) {
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
 
   return (
@@ -33,7 +37,10 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
           </Text>
           
           {/* Info Button */}
-          <Pressable style={styles.infoButton}>
+          <Pressable 
+            style={styles.infoButton}
+            onPress={() => setShowInfoPopup(true)}
+          >
             <View style={styles.infoCircle}>
               <Text style={styles.infoText}>i</Text>
             </View>
@@ -60,6 +67,14 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
       ) : (
         <TaskCard isEmpty={true} onPress={onAddTask} />
       )}
+      
+      {/* Info Popup */}
+      <InfoPopup
+        visible={showInfoPopup}
+        title={INFO_CONTENT.TODAYS_TASKS.title}
+        content={INFO_CONTENT.TODAYS_TASKS.content}
+        onClose={() => setShowInfoPopup(false)}
+      />
     </View>
   );
 }

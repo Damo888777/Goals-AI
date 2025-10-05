@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 36,
-    paddingTop: 63,
+    paddingTop: 20,
   },
   headerSection: {
     marginBottom: 16,

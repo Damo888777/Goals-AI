@@ -1,9 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
+import { InfoPopup } from './InfoPopup';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
+import { INFO_CONTENT } from '../constants/infoContent';
 import type { Task } from '../types';
+import { useState } from 'react';
 
 interface EatTheFrogSectionProps {
   frogTask?: Task | null;
@@ -11,6 +14,7 @@ interface EatTheFrogSectionProps {
 }
 
 export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionProps) {
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -28,7 +32,10 @@ export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionP
           </Text>
           
           {/* Info Button */}
-          <Pressable style={styles.infoButton}>
+          <Pressable 
+            style={styles.infoButton}
+            onPress={() => setShowInfoPopup(true)}
+          >
             <View style={styles.infoCircle}>
               <Text style={styles.infoText}>i</Text>
             </View>
@@ -47,6 +54,14 @@ export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionP
         isEmpty={!frogTask}
         isFrog={true}
         onPress={onSelectFrog}
+      />
+      
+      {/* Info Popup */}
+      <InfoPopup
+        visible={showInfoPopup}
+        title={INFO_CONTENT.EAT_THE_FROG.title}
+        content={INFO_CONTENT.EAT_THE_FROG.content}
+        onClose={() => setShowInfoPopup(false)}
       />
     </View>
   );

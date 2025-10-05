@@ -7,6 +7,8 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { typography } from '../src/constants/typography';
 import { images } from '../src/constants/images';
+import { InfoPopup } from '../src/components/InfoPopup';
+import { INFO_CONTENT } from '../src/constants/infoContent';
 
 interface VisionImageProps {
   width: number;
@@ -190,6 +192,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
 export default function VisionBoardScreen() {
   const insets = useSafeAreaInsets();
   const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
 
   const handleCreateVision = () => {
     router.push('/spark-generate-img');
@@ -228,45 +231,76 @@ export default function VisionBoardScreen() {
       >
         {/* Header */}
         <View style={{ gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-            <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                handleGoBack();
-              }}
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  handleGoBack();
+                }}
+                style={{
+                  width: 30,
+                  height: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <View style={{
+                  width: 20,
+                  height: 20,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                  <View style={{
+                    width: 12,
+                    height: 12,
+                    borderLeftWidth: 2,
+                    borderBottomWidth: 2,
+                    borderColor: '#F5EBE0',
+                    transform: [{ rotate: '45deg' }],
+                    borderRadius: 1,
+                  }} />
+                </View>
+              </Pressable>
+              <Text
+                style={{
+                  ...typography.title,
+                  fontSize: 20,
+                  color: '#F5EBE0',
+                }}
+              >
+                Vision Board
+              </Text>
+            </View>
+            
+            {/* Info Button */}
+            <Pressable 
+              onPress={() => setShowInfoPopup(true)}
               style={{
-                width: 30,
-                height: 30,
-                justifyContent: 'center',
+                width: 44,
+                height: 44,
                 alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <View style={{
-                width: 20,
-                height: 20,
-                justifyContent: 'center',
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                borderWidth: 1.5,
+                borderColor: '#F5EBE0',
                 alignItems: 'center',
+                justifyContent: 'center',
               }}>
-                <View style={{
-                  width: 12,
-                  height: 12,
-                  borderLeftWidth: 2,
-                  borderBottomWidth: 2,
-                  borderColor: '#F5EBE0',
-                  transform: [{ rotate: '45deg' }],
-                  borderRadius: 1,
-                }} />
+                <Text style={{
+                  fontSize: 14,
+                  color: '#F5EBE0',
+                  fontWeight: '600',
+                }}>
+                  i
+                </Text>
               </View>
             </Pressable>
-            <Text
-              style={{
-                ...typography.title,
-                fontSize: 20,
-                color: '#F5EBE0',
-              }}
-            >
-              Vision Board
-            </Text>
           </View>
           <Text
             style={{
@@ -409,6 +443,13 @@ export default function VisionBoardScreen() {
         <MasonryGrid visionImages={visionImages} />
       </ScrollView>
 
+      {/* Info Popup */}
+      <InfoPopup
+        visible={showInfoPopup}
+        title={INFO_CONTENT.VISION_BOARD.title}
+        content={INFO_CONTENT.VISION_BOARD.content}
+        onClose={() => setShowInfoPopup(false)}
+      />
     </LinearGradient>
   );
 }
