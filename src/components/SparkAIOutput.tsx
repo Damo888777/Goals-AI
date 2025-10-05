@@ -71,8 +71,17 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(selectedDate || new Date());
 
+  // Update tempDate when selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      setTempDate(selectedDate);
+    }
+  }, [selectedDate]);
+
   const handleDatePickerPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Set tempDate to selectedDate when opening picker
+    setTempDate(selectedDate || new Date());
     setIsDateModalVisible(true);
   };
 
@@ -95,12 +104,12 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}.${day}.${year}`;
   };
 
   return (
@@ -424,6 +433,20 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [selectedGoal, setSelectedGoal] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
+  // Parse AI timestamp on component mount
+  useEffect(() => {
+    if (aiTimestamp && aiTimestamp !== 'null' && aiTimestamp !== '') {
+      try {
+        const parsedDate = new Date(aiTimestamp);
+        if (!isNaN(parsedDate.getTime())) {
+          setSelectedDate(parsedDate);
+        }
+      } catch (error) {
+        console.log('Failed to parse AI timestamp:', aiTimestamp);
+      }
+    }
+  }, [aiTimestamp]);
+
   const handleEmotionToggle = (emotion: string) => {
     setSelectedEmotions(prev => 
       prev.includes(emotion) 
@@ -728,13 +751,13 @@ const styles = StyleSheet.create({
   },
   datePickerContent: {
     padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   datePickerText: {
     fontSize: 15,
     color: '#364958',
-    textAlign: 'center',
+    textAlign: 'left',
   },
 
   // Eat the frog styles

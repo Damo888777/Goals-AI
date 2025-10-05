@@ -32,21 +32,27 @@ export async function POST(request: Request) {
 
 ## Date/Time Extraction Rules:
 
+CRITICAL: Extract the EXACT date mentioned by the user. Do NOT add or subtract days.
+
 - Extract dates ONLY if explicitly mentioned in the transcribed text
 - Convert relative time expressions to ISO 8601 format:
-  - "today" → current date
+  - "today" → current date (${new Date().toISOString().split('T')[0]})
   - "tomorrow" → current date + 1 day
+  - "in X days" → current date + X days (e.g., "in 5 days" → current date + 5 days)
   - "Friday", "Monday", etc. → next occurrence of that weekday
-  - Specific dates like "October 15" or "15th October" → proper date with current year
+  - Specific dates like "October 9", "9th October", "5 December", "December 5th" → EXACT date as mentioned with current year if not specified
+  - Full dates like "December 5, 2025" or "05.12.2025" → EXACT date as specified
+- IMPORTANT: If user says "9th October", return October 9th, NOT October 10th
 - If NO date/time is mentioned in the text, return null for timestamp
-- All timestamps should be set to end of day (23:59:59.999Z) unless specific time is mentioned
+- All timestamps should be set to start of day (00:00:00.000Z) unless specific time is mentioned
+- For dates in the past (same year), assume next year unless context suggests otherwise
 
 ## Response Format:
 Always respond with valid JSON in this exact format:
 {
   "type": "task" | "goal" | "milestone",
   "title": "Clean, concise title without filler words",
-  "timestamp": "2025-10-02T23:59:59.999Z" | null
+  "timestamp": "2025-10-02T00:00:00.000Z" | null
 }
 
 ## Classification Priority:
