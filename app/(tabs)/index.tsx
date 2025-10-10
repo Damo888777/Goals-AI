@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { GreetingMessage } from '../../src/components/GreetingMessage';
 import { EatTheFrogSection } from '../../src/components/EatTheFrogSection';
 import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
+import { CompletedTasksSection } from '../../src/components/CompletedTasksSection';
 import { FAB } from '../../src/components/FAB';
 import { useTodaysTasks } from '../../src/hooks/useTodaysTasks';
 import type { Task } from '../../src/types';
@@ -42,6 +43,10 @@ export default function TodayTab() {
     } catch (error) {
       console.error('Error toggling task completion:', error);
     }
+  };
+
+  const handleViewAllFinished = () => {
+    console.log('View all finished tasks');
   };
 
   // Mock tasks for demo purposes
@@ -91,6 +96,52 @@ export default function TodayTab() {
     creationSource: 'manual'
   }), []);
 
+  // Mock completed tasks for demo purposes
+  const mockCompletedTasks: Task[] = useMemo(() => [
+    {
+      id: 'completed-1',
+      title: 'Morning workout routine',
+      notes: 'Completed 30-minute cardio session',
+      scheduledDate: new Date().toISOString(),
+      isFrog: false,
+      isComplete: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 'demo-user',
+      goalId: undefined,
+      milestoneId: undefined,
+      creationSource: 'manual'
+    },
+    {
+      id: 'completed-2',
+      title: 'Read 20 pages of personal development book',
+      notes: 'Finished chapter 3 on goal setting',
+      scheduledDate: new Date().toISOString(),
+      isFrog: false,
+      isComplete: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 'demo-user',
+      goalId: undefined,
+      milestoneId: undefined,
+      creationSource: 'spark'
+    },
+    {
+      id: 'completed-3',
+      title: 'Meal prep for the week',
+      notes: 'Prepared healthy lunches and snacks',
+      scheduledDate: new Date().toISOString(),
+      isFrog: false,
+      isComplete: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: 'demo-user',
+      goalId: undefined,
+      milestoneId: undefined,
+      creationSource: 'manual'
+    }
+  ], []);
+
   // Use mock data if no real tasks exist
   const displayTasks = todaysTasks.length > 0 ? todaysTasks : mockTasks;
   const displayFrogTask = frogTask || mockFrogTask;
@@ -121,6 +172,15 @@ export default function TodayTab() {
           tasks={displayTasks}
           onTaskPress={handleTaskPress}
           onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete}
+          isLoading={isLoading}
+        />
+
+        {/* Completed Tasks Section */}
+        <CompletedTasksSection
+          tasks={mockCompletedTasks}
+          onTaskPress={handleTaskPress}
+          onViewAllFinished={handleViewAllFinished}
           onToggleComplete={handleToggleComplete}
           isLoading={isLoading}
         />

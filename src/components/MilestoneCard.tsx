@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { typography } from '../constants/typography';
 import type { Milestone } from '../types';
+import { useState } from 'react';
 
 interface MilestoneCardProps {
   milestone?: Milestone & { creationSource?: 'spark' | 'manual' };
@@ -9,11 +10,16 @@ interface MilestoneCardProps {
 }
 
 export function MilestoneCard({ milestone, isEmpty = false, onPress }: MilestoneCardProps) {
+  const [isPressed, setIsPressed] = useState(false);
+  const [isEmptyPressed, setIsEmptyPressed] = useState(false);
+  
   if (isEmpty) {
     return (
       <Pressable
         onPress={onPress}
-        style={styles.emptyCard}
+        onPressIn={() => setIsEmptyPressed(true)}
+        onPressOut={() => setIsEmptyPressed(false)}
+        style={[styles.emptyCard, isEmptyPressed && styles.emptyCardPressed]}
       >
         <View style={styles.emptyContent}>
           <Text style={styles.emptyTitle}>
@@ -33,10 +39,13 @@ export function MilestoneCard({ milestone, isEmpty = false, onPress }: Milestone
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
       style={[
         styles.card,
         isCompleted && styles.completedCard,
-        isOverdue && !isCompleted && styles.overdueCard
+        isOverdue && !isCompleted && styles.overdueCard,
+        isPressed && styles.cardPressed
       ]}
     >
       <View style={styles.content}>
@@ -117,6 +126,9 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 4,
   },
+  cardPressed: {
+    shadowOffset: { width: 0, height: 2 },
+  },
   completedCard: {
     backgroundColor: '#F0F8E8',
     borderColor: '#8FBC8F',
@@ -137,6 +149,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+  },
+  emptyCardPressed: {
+    shadowOffset: { width: 0, height: 2 },
   },
   content: {
     minHeight: 60,

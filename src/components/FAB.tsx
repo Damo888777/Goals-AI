@@ -14,6 +14,7 @@ interface FABProps {
 export function FAB({ onPress, onLongPress }: FABProps) {
   const insets = useSafeAreaInsets();
   const [showMenu, setShowMenu] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -70,9 +71,12 @@ export function FAB({ onPress, onLongPress }: FABProps) {
           onPress={handlePress}
           onLongPress={handleLongPress}
           delayLongPress={500}
+          onPressIn={() => setIsPressed(true)}
+          onPressOut={() => setIsPressed(false)}
           style={[
             styles.fab,
-            { transform: [{ rotate: '45deg' }] }
+            { transform: [{ rotate: '45deg' }] },
+            isPressed && styles.fabPressed
           ]}
         >
           <View style={{ transform: [{ rotate: '-45deg' }] }}>
@@ -149,6 +153,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+  },
+  fabPressed: {
+    shadowOffset: { width: 1.4, height: 1.4 }, // Pressed state: 2 * sin(45°) ≈ 1.4
   },
   // Menu styles
   modalOverlay: {

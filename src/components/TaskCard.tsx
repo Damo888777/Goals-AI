@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 // Format date as Dec.05.2025
 const formatDate = (date: Date): string => {
@@ -30,6 +30,9 @@ interface TaskCardProps {
 export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onToggleComplete, onDelete }: TaskCardProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const [isCompletePressed, setIsCompletePressed] = useState(false);
+  const [isPomodoroPressed, setIsPomodoroPressed] = useState(false);
 
   const handleGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -88,7 +91,9 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
         <Animated.View style={[styles.cardWrapper, { transform: [{ translateX }] }]}>
           <Pressable
             onPress={onPress}
-            style={styles.card}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
+            style={[styles.card, isPressed && styles.cardPressed]}
           >
             <View style={styles.content}>
         {/* Title with creation source badge */}
@@ -116,16 +121,20 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
           {/* Right side - Action buttons */}
           <View style={styles.actionButtons}>
             <Pressable 
-              style={styles.completeButton}
+              style={[styles.completeButton, isCompletePressed && styles.completeButtonPressed]}
               onPress={() => task?.id && onToggleComplete?.(task.id)}
+              onPressIn={() => setIsCompletePressed(true)}
+              onPressOut={() => setIsCompletePressed(false)}
             >
               <View style={[styles.checkIcon, task?.isComplete && styles.checkIconCompleted]}>
                 <Text style={[styles.checkmark, task?.isComplete && styles.checkmarkCompleted]}>✓</Text>
               </View>
             </Pressable>
             <Pressable 
-              style={styles.pomodoroButton}
+              style={[styles.pomodoroButton, isPomodoroPressed && styles.pomodoroButtonPressed]}
               onPress={() => router.push('/pomodoro')}
+              onPressIn={() => setIsPomodoroPressed(true)}
+              onPressOut={() => setIsPomodoroPressed(false)}
             >
               <Image 
                 source={{ uri: images.icons.tomato }}
@@ -180,6 +189,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+  },
+  cardPressed: {
+    shadowOffset: { width: 0, height: 2 },
   },
   emptyCard: {
     backgroundColor: '#E9EDC9',
@@ -304,6 +316,9 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 4,
   },
+  completeButtonPressed: {
+    shadowOffset: { width: 0, height: 2 },
+  },
   checkIcon: {
     width: 20,
     height: 20,
@@ -329,6 +344,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
+  },
+  pomodoroButtonPressed: {
+    shadowOffset: { width: 0, height: 2 },
   },
   tomatoIcon: {
     width: 22,

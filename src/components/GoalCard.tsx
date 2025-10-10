@@ -16,11 +16,16 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete }: GoalCardProps) {
+  const [isPressed, setIsPressed] = useState(false);
+  const [isEmptyPressed, setIsEmptyPressed] = useState(false);
+  
   if (isEmpty) {
     return (
       <Pressable
         onPress={onPress}
-        style={{
+        onPressIn={() => setIsEmptyPressed(true)}
+        onPressOut={() => setIsEmptyPressed(false)}
+        style={[{
           backgroundColor: '#F5EBE0',
           borderWidth: 0.5,
           borderColor: '#A3B18A',
@@ -33,7 +38,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
           shadowOpacity: 0.75,
           shadowRadius: 0,
           elevation: 4,
-        }}
+        }, isEmptyPressed && { shadowOffset: { width: 0, height: 2 } }]}
       >
         <View style={{
           backgroundColor: '#E9EDC9',
@@ -106,8 +111,11 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
   };
 
   return (
-    <View
-      style={{
+    <Pressable
+      onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      style={[{
         backgroundColor: '#F5EBE0',
         borderWidth: 0.5,
         borderColor: '#A3B18A',
@@ -120,7 +128,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
         shadowOpacity: 0.75,
         shadowRadius: 0,
         elevation: 4,
-      }}
+      }, isPressed && { shadowOffset: { width: 0, height: 2 } }]}
     >
       {/* Goal Card Container */}
       <View style={{
@@ -502,7 +510,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
           </View>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
