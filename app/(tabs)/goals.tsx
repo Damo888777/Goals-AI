@@ -1,68 +1,33 @@
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { images } from '../../src/constants/images';
 import { GoalCard } from '../../src/components/GoalCard';
 import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
+import { useAuth, useGoals } from '../../src/hooks/useDatabase';
 import type { Goal } from '../../src/types';
 
-// Mock data for testing GoalCard states
-const mockGoals: Goal[] = [
-  {
-    id: '1',
-    title: 'Learn React Native Development',
-    description: 'Master mobile app development with React Native and Expo',
-    emotions: ['excited', 'confident', 'grateful', 'happy', 'proud'],
-    visionImages: ['mock-image-url'],
-    milestones: [
-      {
-        id: 'm1',
-        title: 'Complete React Native Tutorial',
-        goalId: '1',
-        targetDate: '2024-12-15T00:00:00.000Z',
-        isComplete: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'm2', 
-        title: 'Build First Mobile App',
-        goalId: '1',
-        targetDate: '2024-12-30T00:00:00.000Z',
-        isComplete: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-    ],
-    progress: 65,
-    isCompleted: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    title: 'Start Fitness Journey',
-    description: 'Get healthy and build sustainable fitness habits',
-    emotions: ['motivated', 'determined'],
-    visionImages: [],
-    milestones: [],
-    progress: 25,
-    isCompleted: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
-];
 
 export default function GoalsScreen() {
   const insets = useSafeAreaInsets();
-  const [goals, setGoals] = useState<Goal[]>(mockGoals);
   const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
   const [isTrophyPressed, setIsTrophyPressed] = useState(false);
   const [isVisionPressed, setIsVisionPressed] = useState(false);
+  
+  // Database hooks
+  const { user, isLoading: authLoading, signInAnonymously } = useAuth();
+  const { goals, isLoading: goalsLoading, createGoal, completeGoal } = useGoals();
+
+  // Auto sign-in anonymously if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      signInAnonymously();
+    }
+  }, [authLoading, user, signInAnonymously]);
 
 
   const handleTrophyPress = () => {
@@ -103,19 +68,46 @@ export default function GoalsScreen() {
   };
 
   const handleMilestoneComplete = (milestoneId: string) => {
-    setGoals(prev => prev.map(goal => ({
-      ...goal,
-      milestones: goal.milestones.map(milestone => 
-        milestone.id === milestoneId 
-          ? { ...milestone, isComplete: !milestone.isComplete }
-          : milestone
-      )
-    })));
+    // TODO: Implement milestone completion with database hooks
+    console.log('Complete milestone:', milestoneId);
   };
 
-  const handleAddGoal = () => {
-    console.log('Add new goal');
+  const handleAddGoal = async () => {
+    try {
+      await createGoal({
+        title: 'New Goal',
+        creationSource: 'manual'
+      });
+    } catch (error) {
+      console.error('Error creating goal:', error);
+    }
   };
+
+  // Remove loading state - show UI immediately with empty state if needed
+  // if (authLoading || goalsLoading) {
+  //   return (
+  //     <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+  //       <ActivityIndicator size="large" color="#A3B18A" />
+  //       <Text style={[typography.body, { marginTop: 16, color: '#588157' }]}>
+  //         Loading your goals...
+  //       </Text>
+  //     </View>
+  //   );
+  // }
+
+  // Transform database goals to UI format
+  const transformedGoals: Goal[] = goals.map(dbGoal => ({
+    id: dbGoal.id,
+    title: dbGoal.title,
+    description: dbGoal.notes || '',
+    emotions: dbGoal.feelingsArray || [],
+    visionImages: dbGoal.visionImageUrl ? [dbGoal.visionImageUrl] : [],
+    milestones: [], // TODO: Load milestones separately
+    progress: 0, // TODO: Calculate progress from milestones
+    isCompleted: dbGoal.isCompleted,
+    createdAt: dbGoal.createdAt,
+    updatedAt: dbGoal.updatedAt,
+  }));
 
   return (
     <View style={styles.container}>
@@ -203,8 +195,8 @@ export default function GoalsScreen() {
           </View>
 
           {/* Goals List */}
-          {goals.length > 0 ? (
-            goals.map((goal) => (
+          {transformedGoals.length > 0 ? (
+            transformedGoals.map((goal) => (
               <GoalCard
                 key={goal.id}
                 goal={goal}

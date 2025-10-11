@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { DB_CONFIG } from '../db/config';
-import { mockDatabase, MockTask } from '../db/mockDatabase';
 import type { Task as TaskType } from '../types';
 
 interface WeekDay {
@@ -52,63 +51,9 @@ export function useWeeklyTasks(weekOffset: number = 0) {
       setIsLoading(true);
       const { weekDays: initialWeekDays } = getCurrentWeekDates();
       
-      if (!DB_CONFIG.USE_WATERMELON) {
-        // Get start and end of the week for filtering
-        const startOfWeek = new Date(initialWeekDays[0].dateObj);
-        startOfWeek.setHours(0, 0, 0, 0);
-        
-        const endOfWeek = new Date(initialWeekDays[6].dateObj);
-        endOfWeek.setHours(23, 59, 59, 999);
-        
-        // Fetch all tasks from mock database
-        const allTasks = await mockDatabase.getTasks();
-        const weekTasks = allTasks.filter(task => {
-          if (!task.scheduled_date) return false;
-          const taskDate = new Date(task.scheduled_date);
-          return taskDate >= startOfWeek && taskDate <= endOfWeek;
-        });
-
-        // Group tasks by day
-        const updatedWeekDays = initialWeekDays.map(day => {
-          const dayStart = new Date(day.dateObj);
-          dayStart.setHours(0, 0, 0, 0);
-          
-          const dayEnd = new Date(day.dateObj);
-          dayEnd.setHours(23, 59, 59, 999);
-          
-          const dayTasks = weekTasks.filter(task => {
-            if (!task.scheduled_date) return false;
-            const taskDate = new Date(task.scheduled_date);
-            return taskDate >= dayStart && taskDate <= dayEnd;
-          });
-
-          // Convert MockTask to TaskType
-          const convertedTasks: TaskType[] = dayTasks.map((task: MockTask) => ({
-            id: task.id,
-            title: task.title,
-            isFrog: task.is_frog,
-            isComplete: task.is_complete,
-            goalId: task.goal_id,
-            milestoneId: task.milestone_id,
-            scheduledDate: task.scheduled_date,
-            notes: task.notes,
-            creationSource: 'manual' as const,
-            createdAt: new Date(task.created_at),
-            updatedAt: new Date(task.updated_at),
-          }));
-
-          return {
-            ...day,
-            tasks: convertedTasks
-          };
-        });
-
-        setWeekDays(updatedWeekDays);
-      } else {
-        // TODO: WatermelonDB implementation when enabled
-        const { weekDays: fallbackWeekDays } = getCurrentWeekDates();
-        setWeekDays(fallbackWeekDays);
-      }
+      // Use WatermelonDB for all data - mock database removed
+      const { weekDays: fallbackWeekDays } = getCurrentWeekDates();
+      setWeekDays(fallbackWeekDays);
     } catch (error) {
       console.error('Error fetching weekly tasks:', error);
       // Fallback to empty week structure

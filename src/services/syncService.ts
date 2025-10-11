@@ -1,6 +1,6 @@
 import { Database } from '@nozbe/watermelondb'
 import { synchronize } from '@nozbe/watermelondb/sync'
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import database from '../db'
 
 interface SyncPullResult {
@@ -47,19 +47,25 @@ class SyncService {
 
   // Check if user is authenticated
   private async isAuthenticated(): Promise<boolean> {
+    if (!isSupabaseConfigured || !supabase) return false
     const { data: { user } } = await supabase.auth.getUser()
     return !!user
   }
 
   // Get current user ID
   private async getCurrentUserId(): Promise<string | null> {
+    if (!isSupabaseConfigured || !supabase) return null
     const { data: { user } } = await supabase.auth.getUser()
     return user?.id || null
   }
 
   // Pull changes from Supabase
   private async pullChanges(lastPulledAt?: number): Promise<SyncPullResult> {
-    const userId = await getCurrentUserId()
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase not configured')
+    }
+
+    const userId = await this.getCurrentUserId()
     if (!userId) {
       throw new Error('User not authenticated')
     }
@@ -146,21 +152,25 @@ class SyncService {
 
   // Push changes to Supabase
   private async pushChanges(changes: SyncPushChanges): Promise<void> {
-    const userId = await getCurrentUserId()
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase not configured')
+    }
+
+    const userId = await this.getCurrentUserId()
     if (!userId) {
       throw new Error('User not authenticated')
     }
 
     try {
       // Push profiles
-      if (changes.profiles.created.length > 0) {
+      if (changes.profiles?.created?.length > 0) {
         const { error } = await supabase
           .from('profiles')
           .upsert(changes.profiles.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.profiles.updated.length > 0) {
+      if (changes.profiles?.updated?.length > 0) {
         for (const profile of changes.profiles.updated) {
           const { error } = await supabase
             .from('profiles')
@@ -171,14 +181,14 @@ class SyncService {
       }
 
       // Push goals
-      if (changes.goals.created.length > 0) {
+      if (changes.goals?.created?.length > 0) {
         const { error } = await supabase
           .from('goals')
           .upsert(changes.goals.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.goals.updated.length > 0) {
+      if (changes.goals?.updated?.length > 0) {
         for (const goal of changes.goals.updated) {
           const { error } = await supabase
             .from('goals')
@@ -188,7 +198,7 @@ class SyncService {
         }
       }
 
-      if (changes.goals.deleted.length > 0) {
+      if (changes.goals?.deleted?.length > 0) {
         const { error } = await supabase
           .from('goals')
           .delete()
@@ -197,14 +207,14 @@ class SyncService {
       }
 
       // Push milestones
-      if (changes.milestones.created.length > 0) {
+      if (changes.milestones?.created?.length > 0) {
         const { error } = await supabase
           .from('milestones')
           .upsert(changes.milestones.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.milestones.updated.length > 0) {
+      if (changes.milestones?.updated?.length > 0) {
         for (const milestone of changes.milestones.updated) {
           const { error } = await supabase
             .from('milestones')
@@ -214,7 +224,7 @@ class SyncService {
         }
       }
 
-      if (changes.milestones.deleted.length > 0) {
+      if (changes.milestones?.deleted?.length > 0) {
         const { error } = await supabase
           .from('milestones')
           .delete()
@@ -223,14 +233,14 @@ class SyncService {
       }
 
       // Push tasks
-      if (changes.tasks.created.length > 0) {
+      if (changes.tasks?.created?.length > 0) {
         const { error } = await supabase
           .from('tasks')
           .upsert(changes.tasks.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.tasks.updated.length > 0) {
+      if (changes.tasks?.updated?.length > 0) {
         for (const task of changes.tasks.updated) {
           const { error } = await supabase
             .from('tasks')
@@ -240,7 +250,7 @@ class SyncService {
         }
       }
 
-      if (changes.tasks.deleted.length > 0) {
+      if (changes.tasks?.deleted?.length > 0) {
         const { error } = await supabase
           .from('tasks')
           .delete()
@@ -295,7 +305,7 @@ class SyncService {
     }
   }
 
-  // Main sync function
+  // Push-only sync for offline-first architecture
   async sync(): Promise<void> {
     if (this.syncInProgress) {
       console.log('Sync already in progress, skipping...')
@@ -307,6 +317,12 @@ class SyncService {
       return
     }
 
+    // Skip sync if Supabase is not configured
+    if (!isSupabaseConfigured) {
+      console.log('Supabase not configured, skipping sync...')
+      return
+    }
+
     if (!(await this.isAuthenticated())) {
       console.log('User not authenticated, skipping sync...')
       return
@@ -315,26 +331,36 @@ class SyncService {
     this.syncInProgress = true
 
     try {
-      await synchronize({
-        database: this.database,
-        pullChanges: async ({ lastPulledAt }) => {
-          console.log('Pulling changes from Supabase...')
-          return await this.pullChanges(lastPulledAt)
-        },
-        pushChanges: async ({ changes }) => {
-          console.log('Pushing changes to Supabase...')
-          await this.pushChanges(changes as SyncPushChanges)
-        },
-        migrationsEnabledAtVersion: 1,
-      })
-
-      console.log('Sync completed successfully')
+      // Push-only sync - no pulling from server
+      console.log('Pushing local changes to Supabase...')
+      
+      // Get pending changes from WatermelonDB
+      const changes = await this.database.adapter.getLocal('sync_changes') || {
+        profiles: { created: [], updated: [], deleted: [] },
+        goals: { created: [], updated: [], deleted: [] },
+        milestones: { created: [], updated: [], deleted: [] },
+        tasks: { created: [], updated: [], deleted: [] }
+      }
+      
+      if (this.hasChangesToPush(changes)) {
+        await this.pushChanges(changes as SyncPushChanges)
+        console.log('Local changes pushed to Supabase')
+      } else {
+        console.log('No local changes to push')
+      }
     } catch (error) {
-      console.error('Sync failed:', error)
+      console.error('Push sync failed:', error)
       throw error
     } finally {
       this.syncInProgress = false
     }
+  }
+
+  // Check if there are any changes to push
+  private hasChangesToPush(changes: any): boolean {
+    return Object.values(changes).some((table: any) => 
+      table.created?.length > 0 || table.updated?.length > 0 || table.deleted?.length > 0
+    )
   }
 
   // Set online/offline status
@@ -349,10 +375,11 @@ class SyncService {
 }
 
 // Export singleton instance
-export const syncService = new SyncService(database)
+export const syncService = new SyncService(database!)
 
 // Helper function to get current user ID
 export const getCurrentUserId = async (): Promise<string | null> => {
+  if (!isSupabaseConfigured || !supabase) return null
   const { data: { user } } = await supabase.auth.getUser()
   return user?.id || null
 }

@@ -91,20 +91,36 @@ export const useGoals = () => {
 
   useEffect(() => {
     const fetchGoals = async () => {
-      const userId = await getCurrentUserId()
-      if (!userId) return
-
-      const goalsCollection = database.get<Goal>('goals')
-      const userGoals = await goalsCollection
-        .query(Q.where('user_id', userId))
-        .observe()
-
-      const subscription = userGoals.subscribe((goals) => {
-        setGoals(goals)
+      if (!database) {
+        console.log('WatermelonDB not available, using empty goals array')
+        setGoals([])
         setIsLoading(false)
-      })
+        return
+      }
 
-      return () => subscription.unsubscribe()
+      const userId = await getCurrentUserId()
+      if (!userId) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const goalsCollection = database.get<Goal>('goals')
+        const userGoals = await goalsCollection
+          .query(Q.where('user_id', userId))
+          .observe()
+
+        const subscription = userGoals.subscribe((goals) => {
+          setGoals(goals)
+          setIsLoading(false)
+        })
+
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Error fetching goals:', error)
+        setGoals([])
+        setIsLoading(false)
+      }
     }
 
     fetchGoals()
@@ -117,42 +133,83 @@ export const useGoals = () => {
     notes?: string
     creationSource?: 'spark' | 'manual'
   }) => {
-    const userId = await getCurrentUserId()
-    if (!userId) throw new Error('User not authenticated')
+    if (!database) {
+      console.error('Database not available')
+      return
+    }
 
-    await database.write(async () => {
-      const goalsCollection = database.get<Goal>('goals')
-      await goalsCollection.create((goal) => {
-        goal.userId = userId
-        goal.title = goalData.title
-        goal.feelings = goalData.feelings || []
-        goal.visionImageUrl = goalData.visionImageUrl
-        goal.notes = goalData.notes
-        goal.isCompleted = false
-        goal.creationSource = goalData.creationSource || 'manual'
+    const userId = await getCurrentUserId()
+    if (!userId) {
+      console.error('No user ID available')
+      return
+    }
+
+    try {
+      await database!.write(async () => {
+        const goalsCollection = database!.get<Goal>('goals')
+        const newGoal = await goalsCollection.create((goal) => {
+          goal.userId = userId
+          goal.title = goalData.title
+          goal.feelings = goalData.feelings || []
+          goal.visionImageUrl = goalData.visionImageUrl
+          goal.notes = goalData.notes
+          goal.isCompleted = false
+          goal.creationSource = goalData.creationSource || 'manual'
+        })
+        console.log('Goal created:', newGoal.id)
+        
+        // Trigger background sync after action
+        setTimeout(() => {
+          import('../services/syncService').then(({ syncService }) => {
+            syncService.sync().catch(error => {
+              console.log('Background sync after goal creation failed (non-critical):', error.message)
+            })
+          })
+        }, 500)
       })
-    })
+    } catch (error) {
+      console.error('Error creating goal:', error)
+    }
   }
 
   const updateGoal = async (goalId: string, updates: Partial<Goal>) => {
-    await database.write(async () => {
-      const goal = await database.get<Goal>('goals').find(goalId)
-      await goal.update(() => {
-        Object.assign(goal, updates)
+    if (!database) {
+      console.error('Database not available')
+      return
+    }
+
+    const userId = await getCurrentUserId()
+    if (!userId) {
+      console.error('No user ID available')
+      return
+    }
+
+    try {
+      await database.write(async () => {
+        const goal = await database!.get<Goal>('goals').find(goalId)
+        await goal.update(() => {
+          Object.assign(goal, updates)
+        })
       })
-    })
+    } catch (error) {
+      console.error('Error updating goal:', error)
+    }
   }
 
   const deleteGoal = async (goalId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const goal = await database.get<Goal>('goals').find(goalId)
+      const goal = await database!.get<Goal>('goals').find(goalId)
       await goal.markAsDeleted()
     })
   }
 
   const completeGoal = async (goalId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const goal = await database.get<Goal>('goals').find(goalId)
+      const goal = await database!.get<Goal>('goals').find(goalId)
       await goal.markCompleted()
     })
   }
@@ -174,25 +231,41 @@ export const useMilestones = (goalId?: string) => {
 
   useEffect(() => {
     const fetchMilestones = async () => {
-      const userId = await getCurrentUserId()
-      if (!userId) return
-
-      const milestonesCollection = database.get<Milestone>('milestones')
-      let query = milestonesCollection.query(Q.where('user_id', userId))
-      
-      if (goalId) {
-        query = milestonesCollection.query(
-          Q.where('user_id', userId),
-          Q.where('goal_id', goalId)
-        )
+      if (!database) {
+        console.log('WatermelonDB not available, using empty milestones array')
+        setMilestones([])
+        setIsLoading(false)
+        return
       }
 
-      const subscription = query.observe().subscribe((milestones) => {
-        setMilestones(milestones)
+      const userId = await getCurrentUserId()
+      if (!userId) {
         setIsLoading(false)
-      })
+        return
+      }
 
-      return () => subscription.unsubscribe()
+      try {
+        const milestonesCollection = database.get<Milestone>('milestones')
+        let query = milestonesCollection.query(Q.where('user_id', userId))
+        
+        if (goalId) {
+          query = milestonesCollection.query(
+            Q.where('user_id', userId),
+            Q.where('goal_id', goalId)
+          )
+        }
+
+        const subscription = query.observe().subscribe((milestones) => {
+          setMilestones(milestones)
+          setIsLoading(false)
+        })
+
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Error fetching milestones:', error)
+        setMilestones([])
+        setIsLoading(false)
+      }
     }
 
     fetchMilestones()
@@ -204,11 +277,13 @@ export const useMilestones = (goalId?: string) => {
     targetDate?: Date
     creationSource?: 'spark' | 'manual'
   }) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
 
     await database.write(async () => {
-      const milestonesCollection = database.get<Milestone>('milestones')
+      const milestonesCollection = database!.get<Milestone>('milestones')
       await milestonesCollection.create((milestone) => {
         milestone.userId = userId
         milestone.goalId = milestoneData.goalId
@@ -221,8 +296,10 @@ export const useMilestones = (goalId?: string) => {
   }
 
   const updateMilestone = async (milestoneId: string, updates: Partial<Milestone>) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const milestone = await database.get<Milestone>('milestones').find(milestoneId)
+      const milestone = await database!.get<Milestone>('milestones').find(milestoneId)
       await milestone.update(() => {
         Object.assign(milestone, updates)
       })
@@ -230,15 +307,19 @@ export const useMilestones = (goalId?: string) => {
   }
 
   const deleteMilestone = async (milestoneId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const milestone = await database.get<Milestone>('milestones').find(milestoneId)
+      const milestone = await database!.get<Milestone>('milestones').find(milestoneId)
       await milestone.markAsDeleted()
     })
   }
 
   const completeMilestone = async (milestoneId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const milestone = await database.get<Milestone>('milestones').find(milestoneId)
+      const milestone = await database!.get<Milestone>('milestones').find(milestoneId)
       await milestone.update(() => {
         milestone.isComplete = true
       })
@@ -262,29 +343,45 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!database) {
+        console.log('WatermelonDB not available, using empty tasks array')
+        setTasks([])
+        setIsLoading(false)
+        return
+      }
+
       const userId = await getCurrentUserId()
-      if (!userId) return
-
-      const tasksCollection = database.get<Task>('tasks')
-      let queryConditions = [Q.where('user_id', userId)]
-      
-      if (goalId) {
-        queryConditions.push(Q.where('goal_id', goalId))
-      }
-      
-      if (milestoneId) {
-        queryConditions.push(Q.where('milestone_id', milestoneId))
+      if (!userId) {
+        setIsLoading(false)
+        return
       }
 
-      const subscription = tasksCollection
-        .query(...queryConditions)
-        .observe()
-        .subscribe((tasks) => {
-          setTasks(tasks)
-          setIsLoading(false)
-        })
+      try {
+        const tasksCollection = database.get<Task>('tasks')
+        let queryConditions = [Q.where('user_id', userId)]
+        
+        if (goalId) {
+          queryConditions.push(Q.where('goal_id', goalId))
+        }
+        
+        if (milestoneId) {
+          queryConditions.push(Q.where('milestone_id', milestoneId))
+        }
 
-      return () => subscription.unsubscribe()
+        const subscription = tasksCollection
+          .query(...queryConditions)
+          .observe()
+          .subscribe((tasks) => {
+            setTasks(tasks)
+            setIsLoading(false)
+          })
+
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Error fetching tasks:', error)
+        setTasks([])
+        setIsLoading(false)
+      }
     }
 
     fetchTasks()
@@ -299,11 +396,13 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
     isFrog?: boolean
     creationSource?: 'spark' | 'manual'
   }) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
 
     await database.write(async () => {
-      const tasksCollection = database.get<Task>('tasks')
+      const tasksCollection = database!.get<Task>('tasks')
       await tasksCollection.create((task) => {
         task.userId = userId
         task.title = taskData.title
@@ -319,8 +418,10 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
   }
 
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const task = await database.get<Task>('tasks').find(taskId)
+      const task = await database!.get<Task>('tasks').find(taskId)
       await task.update(() => {
         Object.assign(task, updates)
       })
@@ -328,15 +429,19 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
   }
 
   const deleteTask = async (taskId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const task = await database.get<Task>('tasks').find(taskId)
+      const task = await database!.get<Task>('tasks').find(taskId)
       await task.markAsDeleted()
     })
   }
 
   const completeTask = async (taskId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     await database.write(async () => {
-      const task = await database.get<Task>('tasks').find(taskId)
+      const task = await database!.get<Task>('tasks').find(taskId)
       await task.update(() => {
         task.isComplete = true
       })
@@ -361,36 +466,56 @@ export const useTodaysTasks = () => {
 
   useEffect(() => {
     const fetchTodaysTasks = async () => {
+      if (!database) {
+        console.log('WatermelonDB not available, using empty tasks array')
+        setTasks([])
+        setFrogTask(null)
+        setIsLoading(false)
+        return
+      }
+
       const userId = await getCurrentUserId()
-      if (!userId) return
+      if (!userId) {
+        setIsLoading(false)
+        return
+      }
 
-      const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
-      const tasksCollection = database.get<Task>('tasks')
-      
-      const subscription = tasksCollection
-        .query(
-          Q.where('user_id', userId),
-          Q.where('scheduled_date', Q.like(`${today}%`))
-        )
-        .observe()
-        .subscribe((todaysTasks) => {
-          setTasks(todaysTasks)
-          setFrogTask(todaysTasks.find(task => task.isFrog) || null)
-          setIsLoading(false)
-        })
+      try {
+        const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+        const tasksCollection = database.get<Task>('tasks')
+        
+        const subscription = tasksCollection
+          .query(
+            Q.where('user_id', userId),
+            Q.where('scheduled_date', Q.like(`${today}%`))
+          )
+          .observe()
+          .subscribe((todaysTasks) => {
+            setTasks(todaysTasks)
+            setFrogTask(todaysTasks.find(task => task.isFrog) || null)
+            setIsLoading(false)
+          })
 
-      return () => subscription.unsubscribe()
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Error fetching today\'s tasks:', error)
+        setTasks([])
+        setFrogTask(null)
+        setIsLoading(false)
+      }
     }
 
     fetchTodaysTasks()
   }, [])
 
   const setFrogTaskForToday = async (taskId: string) => {
+    if (!database) throw new Error('WatermelonDB not available')
+    
     const userId = await getCurrentUserId()
     if (!userId) throw new Error('User not authenticated')
 
     await database.write(async () => {
-      const tasksCollection = database.get<Task>('tasks')
+      const tasksCollection = database!.get<Task>('tasks')
       const today = new Date().toISOString().split('T')[0]
       
       // Clear existing frog task for today
