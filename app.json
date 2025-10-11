@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/Goals AI Logo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -16,7 +15,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "pro.GoalAchieverAI",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for voice input features.",
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images."
       }
     },
     "android": {
@@ -24,8 +26,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
       "package": "pro.GoalAchieverAI"
     },
     "web": {
@@ -42,10 +42,19 @@
           "ios": {
             "useFrameworks": "static",
             "deploymentTarget": "15.1"
+          },
+          "android": {
+            "kotlinVersion": "1.8.10",
+            "packagingOptions": {
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
+            }
           }
         }
       ],
-      "expo-asset"
+      "@morrowdigital/watermelondb-expo-plugin",
+      "expo-font"
     ],
     "extra": {
       "router": {},
