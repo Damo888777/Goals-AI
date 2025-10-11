@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Goals-AI",
-    "slug": "Goals-AI",
+    "name": "Goals AI",
+    "slug": "goals-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Goals AI Logo.png",
@@ -27,7 +27,7 @@
       "favicon": "./assets/favicon.png",
       "output": "server"
     },
-    "scheme": "goalz-ai",
+    "scheme": "goals-ai",
     "plugins": [
       "expo-router",
       "expo-secure-store"
