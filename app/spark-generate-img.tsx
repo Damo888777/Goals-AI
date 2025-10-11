@@ -86,6 +86,11 @@ export default function SparkGenerateIMGScreen() {
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
   const [generatedImageUri, setGeneratedImageUri] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isBackPressed, setIsBackPressed] = useState(false);
+  const [isCreatePressed, setIsCreatePressed] = useState(false);
+  const [isSavePressed, setIsSavePressed] = useState(false);
+  const [isDeletePressed, setIsDeletePressed] = useState(false);
+  const [isTryAgainPressed, setIsTryAgainPressed] = useState(false);
 
   const styleOptions = [
     {
@@ -217,12 +222,17 @@ export default function SparkGenerateIMGScreen() {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     handleGoBack();
                   }}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  onPressIn={() => setIsBackPressed(true)}
+                  onPressOut={() => setIsBackPressed(false)}
+                  style={[
+                    {
+                      width: 30,
+                      height: 30,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    },
+                    isBackPressed && { opacity: 0.6 }
+                  ]}
                 >
                   <View style={{
                     width: 20,
@@ -350,22 +360,29 @@ export default function SparkGenerateIMGScreen() {
           </View>
 
           {/* Create Vision Button */}
-          <View style={{
-            shadowColor: '#F5EBE0',
-            shadowOffset: {
-              width: 0,
-              height: 4,
+          <View style={[
+            {
+              shadowColor: '#F5EBE0',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8, // For Android
+              borderRadius: 10,
             },
-            shadowOpacity: 0.75,
-            shadowRadius: 0,
-            elevation: 8, // For Android
-            borderRadius: 10,
-          }}>
+            isCreatePressed && {
+              shadowOffset: { width: 0, height: 2 },
+            }
+          ]}>
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 handleCreateVision();
               }}
+              onPressIn={() => setIsCreatePressed(true)}
+              onPressOut={() => setIsCreatePressed(false)}
               style={{
                 backgroundColor: isGenerating ? 'rgba(61, 64, 91, 0.6)' : '#3D405B',
                 borderWidth: 1,
@@ -454,14 +471,19 @@ export default function SparkGenerateIMGScreen() {
           marginTop: 30,
         }}>
           {/* Save Button */}
-          <View style={{
-            shadowColor: '#F5EBE0',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.75,
-            shadowRadius: 0,
-            elevation: 8,
-            borderRadius: 10,
-          }}>
+          <View style={[
+            {
+              shadowColor: '#F5EBE0',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8,
+              borderRadius: 10,
+            },
+            isSavePressed && {
+              shadowOffset: { width: 0, height: 2 },
+            }
+          ]}>
             <Pressable
               onPress={async () => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -476,6 +498,8 @@ export default function SparkGenerateIMGScreen() {
                   Alert.alert('Permission Required', 'Please grant photo library access to save images.');
                 }
               }}
+              onPressIn={() => setIsSavePressed(true)}
+              onPressOut={() => setIsSavePressed(false)}
               style={{
                 backgroundColor: '#A3B18A',
                 borderRadius: 10,
@@ -499,15 +523,20 @@ export default function SparkGenerateIMGScreen() {
             gap: 15,
           }}>
             {/* Delete Button */}
-            <View style={{
-              flex: 1,
-              shadowColor: '#F5EBE0',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.75,
-              shadowRadius: 0,
-              elevation: 8,
-              borderRadius: 10,
-            }}>
+            <View style={[
+              {
+                flex: 1,
+                shadowColor: '#F5EBE0',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.75,
+                shadowRadius: 0,
+                elevation: 8,
+                borderRadius: 10,
+              },
+              isDeletePressed && {
+                shadowOffset: { width: 0, height: 2 },
+              }
+            ]}>
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -528,6 +557,8 @@ export default function SparkGenerateIMGScreen() {
                     ]
                   );
                 }}
+                onPressIn={() => setIsDeletePressed(true)}
+                onPressOut={() => setIsDeletePressed(false)}
                 style={{
                   backgroundColor: '#ffa69e',
                   borderWidth: 1,
@@ -548,21 +579,28 @@ export default function SparkGenerateIMGScreen() {
             </View>
             
             {/* Try Again Button */}
-            <View style={{
-              flex: 1,
-              shadowColor: '#F5EBE0',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.75,
-              shadowRadius: 0,
-              elevation: 8,
-              borderRadius: 10,
-            }}>
+            <View style={[
+              {
+                flex: 1,
+                shadowColor: '#F5EBE0',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.75,
+                shadowRadius: 0,
+                elevation: 8,
+                borderRadius: 10,
+              },
+              isTryAgainPressed && {
+                shadowOffset: { width: 0, height: 2 },
+              }
+            ]}>
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setGenerationState('idle');
                   setGeneratedImageUri(null);
                 }}
+                onPressIn={() => setIsTryAgainPressed(true)}
+                onPressOut={() => setIsTryAgainPressed(false)}
                 style={{
                   backgroundColor: '#3D405B',
                   borderWidth: 1,

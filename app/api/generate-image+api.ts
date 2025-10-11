@@ -26,23 +26,19 @@ const PROMPT_LIBRARY = {
     "atmosphere": "futuristic urban environment, speed and movement, cyberpunk aesthetic, neon-lit corridor"
   },
   "watercolour": {
-    "style": {
-      "inspiration": "watercolor portrait painting",
-      "features": [
-        "expressive brush strokes",
-        "soft blending of colors with visible watercolor textures",
-        "splashes and drips adding artistic spontaneity",
-        "rich earthy tones mixed with vibrant highlights",
-        "high contrast lighting on the face",
-        "realistic yet painterly rendering"
-      ],
-      "overall_mood": "powerful, dignified, expressive, artistic"
-    },
-    "composition": {
-      "focus": "single subject portrait",
-      "framing": "centered, shoulders-up view",
-      "background": "minimal, mostly white with watercolor splashes"
-    }
+    "style": "artistic watercolor painting",
+    "technique": [
+      "expressive brush strokes",
+      "soft blending of colors with visible watercolor textures",
+      "splashes and drips adding artistic spontaneity",
+      "rich earthy tones mixed with vibrant highlights",
+      "dynamic contrasts that emphasize depth and emotion",
+      "realistic yet painterly rendering with organic flow"
+    ],
+    "mood": "powerful, dignified, expressive, artistic",
+    "composition": "natural composition that suits the subject, rule of thirds when appropriate",
+    "background": "complementary watercolor washes and organic textures that enhance the main subject",
+    "lighting": "soft, natural lighting that creates gentle shadows and highlights"
   },
   "anime": {
     "style": {
@@ -154,12 +150,12 @@ High quality, detailed, professional rendering.`;
       const config = styleConfig as typeof PROMPT_LIBRARY.watercolour;
       return `Create an image of: ${userText}
 
-Style inspiration: ${config.style.inspiration}
-Features: ${config.style.features.join(', ')}
-Overall mood: ${config.style.overall_mood}
-Composition focus: ${config.composition.focus}
-Framing: ${config.composition.framing}
-Background: ${config.composition.background}
+Style: ${config.style}
+Technique: ${config.technique.join(', ')}
+Mood: ${config.mood}
+Composition: ${config.composition}
+Background: ${config.background}
+Lighting: ${config.lighting}
 
 High quality watercolor painting style.`;
     }

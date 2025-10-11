@@ -57,10 +57,12 @@ const mockGoals: Goal[] = [
   }
 ];
 
-export default function GoalsTab() {
+export default function GoalsScreen() {
   const insets = useSafeAreaInsets();
   const [goals, setGoals] = useState<Goal[]>(mockGoals);
   const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
+  const [isTrophyPressed, setIsTrophyPressed] = useState(false);
+  const [isVisionPressed, setIsVisionPressed] = useState(false);
 
 
   const handleTrophyPress = () => {
@@ -131,9 +133,11 @@ export default function GoalsTab() {
           {/* Trophy Button */}
           <Pressable 
             onPress={handleTrophyPress}
+            onPressIn={() => setIsTrophyPressed(true)}
+            onPressOut={() => setIsTrophyPressed(false)}
             style={styles.buttonContainer}
           >
-            <View style={styles.trophyButton}>
+            <View style={[styles.trophyButton, isTrophyPressed && styles.trophyButtonPressed]}>
               <Image 
                 source={{ uri: images.icons.trophy }} 
                 style={styles.trophyIcon}
@@ -148,9 +152,11 @@ export default function GoalsTab() {
           {/* Vision Button */}
           <Pressable 
             onPress={handleVisionPress}
+            onPressIn={() => setIsVisionPressed(true)}
+            onPressOut={() => setIsVisionPressed(false)}
             style={styles.buttonContainer}
           >
-            <View style={styles.visionButton}>
+            <View style={[styles.visionButton, isVisionPressed && styles.visionButtonPressed]}>
               <View style={styles.visionButtonInner}>
                 <Image 
                   source={{ uri: images.visionPlaceholder }} 
@@ -241,6 +247,9 @@ const styles = StyleSheet.create({
     // Drop shadow for Android
     elevation: 4,
   },
+  trophyButtonPressed: {
+    shadowOffset: { width: 0, height: 2 },
+  },
   trophyIcon: {
     width: 30,
     height: 30,
@@ -260,6 +269,9 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     // Drop shadow for Android
     elevation: 4,
+  },
+  visionButtonPressed: {
+    shadowOffset: { width: 0, height: 2 },
   },
   visionButtonInner: {
     width: '100%',

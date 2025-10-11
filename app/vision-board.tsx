@@ -193,6 +193,10 @@ export default function VisionBoardScreen() {
   const insets = useSafeAreaInsets();
   const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [isBackPressed, setIsBackPressed] = useState(false);
+  const [isInfoPressed, setIsInfoPressed] = useState(false);
+  const [isCreatePressed, setIsCreatePressed] = useState(false);
+  const [isUploadPressed, setIsUploadPressed] = useState(false);
 
   const handleCreateVision = () => {
     router.push('/spark-generate-img');
@@ -238,12 +242,17 @@ export default function VisionBoardScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   handleGoBack();
                 }}
-                style={{
-                  width: 30,
-                  height: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                onPressIn={() => setIsBackPressed(true)}
+                onPressOut={() => setIsBackPressed(false)}
+                style={[
+                  {
+                    width: 30,
+                    height: 30,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                  isBackPressed && { opacity: 0.6 }
+                ]}
               >
                 <View style={{
                   width: 20,
@@ -276,12 +285,17 @@ export default function VisionBoardScreen() {
             {/* Info Button */}
             <Pressable 
               onPress={() => setShowInfoPopup(true)}
-              style={{
-                width: 44,
-                height: 44,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              onPressIn={() => setIsInfoPressed(true)}
+              onPressOut={() => setIsInfoPressed(false)}
+              style={[
+                {
+                  width: 44,
+                  height: 44,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                },
+                isInfoPressed && { opacity: 0.6 }
+              ]}
             >
               <View style={{
                 width: 24,
@@ -317,23 +331,30 @@ export default function VisionBoardScreen() {
         {/* Action Buttons */}
         <View style={{ flexDirection: 'row', gap: 16, width: '100%' }}>
           {/* Create Vision Button */}
-          <View style={{
-            shadowColor: '#F5EBE0',
-            shadowOffset: {
-              width: 0,
-              height: 4,
+          <View style={[
+            {
+              shadowColor: '#F5EBE0',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8, // For Android
+              borderRadius: 10,
+              flex: 1,
             },
-            shadowOpacity: 0.75,
-            shadowRadius: 0,
-            elevation: 8, // For Android
-            borderRadius: 10,
-            flex: 1,
-          }}>
+            isCreatePressed && {
+              shadowOffset: { width: 0, height: 2 },
+            }
+          ]}>
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 handleCreateVision();
               }}
+              onPressIn={() => setIsCreatePressed(true)}
+              onPressOut={() => setIsCreatePressed(false)}
               style={{
                 backgroundColor: '#3D405B',
                 borderWidth: 1,
@@ -367,23 +388,30 @@ export default function VisionBoardScreen() {
           </View>
 
           {/* Upload Vision Button */}
-          <View style={{
-            shadowColor: '#F5EBE0',
-            shadowOffset: {
-              width: 0,
-              height: 4,
+          <View style={[
+            {
+              shadowColor: '#F5EBE0',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 8, // For Android
+              borderRadius: 10,
+              flex: 1,
             },
-            shadowOpacity: 0.75,
-            shadowRadius: 0,
-            elevation: 8, // For Android
-            borderRadius: 10,
-            flex: 1,
-          }}>
+            isUploadPressed && {
+              shadowOffset: { width: 0, height: 2 },
+            }
+          ]}>
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 handleUploadVision();
               }}
+              onPressIn={() => setIsUploadPressed(true)}
+              onPressOut={() => setIsUploadPressed(false)}
               style={{
                 backgroundColor: '#003049',
                 borderWidth: 1,
