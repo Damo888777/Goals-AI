@@ -72,15 +72,8 @@ export default function GoalsScreen() {
     console.log('Complete milestone:', milestoneId);
   };
 
-  const handleAddGoal = async () => {
-    try {
-      await createGoal({
-        title: 'New Goal',
-        creationSource: 'manual'
-      });
-    } catch (error) {
-      console.error('Error creating goal:', error);
-    }
+  const handleAddGoal = () => {
+    router.push('/manual-goal');
   };
 
   // Remove loading state - show UI immediately with empty state if needed
@@ -207,7 +200,7 @@ export default function GoalsScreen() {
               />
             ))
           ) : (
-            <GoalCard isEmpty={true} onPress={handleAddGoal} />
+            <GoalCard isEmpty={true} />
           )}
         </View>
       </ScrollView>

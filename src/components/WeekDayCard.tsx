@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
 import { typography } from '../constants/typography';
+import { TaskCard } from './TaskCard';
 import type { Task } from '../types';
 
 interface WeekDayCardProps {
@@ -78,24 +79,12 @@ export function WeekDayCard({ weekday, date, tasks, onPress }: WeekDayCardProps)
         <View style={{ paddingHorizontal: 15, paddingBottom: 15, gap: 8 }}>
           {hasTasks ? (
             tasks.map((task) => (
-              <View
+              <TaskCard
                 key={task.id}
-                style={{
-                  backgroundColor: 'rgba(233,237,201,0.4)',
-                  borderWidth: 0.5,
-                  borderColor: '#A3B18A',
-                  borderRadius: 15,
-                  padding: 12,
-                }}
-              >
-                <Text style={{
-                  fontSize: 14,
-                  fontWeight: '400',
-                  color: '#364958',
-                }}>
-                  {task.title}
-                </Text>
-              </View>
+                task={task}
+                onPress={() => console.log('Task pressed:', task.id)}
+                onToggleComplete={async (taskId) => console.log('Toggle complete:', taskId)}
+              />
             ))
           ) : (
             <View

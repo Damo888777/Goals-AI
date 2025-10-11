@@ -145,12 +145,12 @@ export const useGoals = () => {
     }
 
     try {
-      await database!.write(async () => {
+      await database.write(async () => {
         const goalsCollection = database!.get<Goal>('goals')
         const newGoal = await goalsCollection.create((goal) => {
           goal.userId = userId
           goal.title = goalData.title
-          goal.feelings = goalData.feelings || []
+          goal.setFeelings(goalData.feelings || [])
           goal.visionImageUrl = goalData.visionImageUrl
           goal.notes = goalData.notes
           goal.isCompleted = false
@@ -444,6 +444,7 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
       const task = await database!.get<Task>('tasks').find(taskId)
       await task.update(() => {
         task.isComplete = true
+        task.completedAt = new Date()
       })
     })
   }
@@ -459,6 +460,65 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 }
 
 // Hook for today's tasks
+
+// Hook for completed tasks that were completed today AND scheduled for today
+export const useTodaysCompletedTasks = () => {
+  const [completedTasks, setCompletedTasks] = useState<Task[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchTodaysCompletedTasks = async () => {
+      if (!database) {
+        setCompletedTasks([])
+        setIsLoading(false)
+        return
+      }
+
+      const userId = await getCurrentUserId()
+      if (!userId) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const today = new Date()
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+        const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
+        
+        const tasksCollection = database.get<Task>('tasks')
+        
+        const subscription = tasksCollection
+          .query(
+            Q.where('user_id', userId),
+            Q.where('is_complete', true),
+            Q.where('scheduled_date', Q.gte(todayStart.toISOString())),
+            Q.where('scheduled_date', Q.lte(todayEnd.toISOString())),
+            Q.where('completed_at', Q.gte(todayStart.toISOString())),
+            Q.where('completed_at', Q.lte(todayEnd.toISOString()))
+          )
+          .observe()
+          .subscribe((tasks) => {
+            setCompletedTasks(tasks)
+            setIsLoading(false)
+          })
+
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Error fetching today\'s completed tasks:', error)
+        setCompletedTasks([])
+        setIsLoading(false)
+      }
+    }
+
+    fetchTodaysCompletedTasks()
+  }, [])
+
+  return {
+    completedTasks,
+    isLoading
+  }
+}
+
 export const useTodaysTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [frogTask, setFrogTask] = useState<Task | null>(null)
@@ -481,13 +541,17 @@ export const useTodaysTasks = () => {
       }
 
       try {
-        const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+        const today = new Date()
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+        const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
+        
         const tasksCollection = database.get<Task>('tasks')
         
         const subscription = tasksCollection
           .query(
             Q.where('user_id', userId),
-            Q.where('scheduled_date', Q.like(`${today}%`))
+            Q.where('scheduled_date', Q.gte(todayStart.toISOString())),
+            Q.where('scheduled_date', Q.lte(todayEnd.toISOString()))
           )
           .observe()
           .subscribe((todaysTasks) => {

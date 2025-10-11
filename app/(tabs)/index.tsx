@@ -7,7 +7,7 @@ import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
 import { CompletedTasksSection } from '../../src/components/CompletedTasksSection';
 import { FAB } from '../../src/components/FAB';
 import { useTodaysTasks } from '../../src/hooks/useTodaysTasks';
-import { useTasks } from '../../src/hooks/useDatabase';
+import { useTasks, useTodaysCompletedTasks } from '../../src/hooks/useDatabase';
 import type { Task } from '../../src/types';
 
 export default function TodayTab() {
@@ -20,6 +20,7 @@ export default function TodayTab() {
   } = useTodaysTasks();
   
   const { completeTask } = useTasks();
+  const { completedTasks, isLoading: completedTasksLoading } = useTodaysCompletedTasks();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -88,11 +89,11 @@ export default function TodayTab() {
 
         {/* Completed Tasks Section */}
         <CompletedTasksSection
-          tasks={[]}
+          tasks={completedTasks}
           onTaskPress={handleTaskPress}
           onViewAllFinished={handleViewAllFinished}
           onToggleComplete={handleToggleComplete}
-          isLoading={isLoading}
+          isLoading={completedTasksLoading}
         />
       </ScrollView>
 

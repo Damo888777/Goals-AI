@@ -3,6 +3,7 @@ import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
@@ -22,12 +23,13 @@ interface TaskCardProps {
   task?: Task | null;
   isEmpty?: boolean;
   isFrog?: boolean;
+  isSomeday?: boolean;
   onPress?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
   onDelete?: (taskId: string) => Promise<void>;
 }
 
-export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onToggleComplete, onDelete }: TaskCardProps) {
+export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = false, onPress, onToggleComplete, onDelete }: TaskCardProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -71,10 +73,10 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
       >
         <View style={styles.emptyContent}>
           <Text style={styles.emptyTitle}>
-            {isEmpty && isFrog ? 'No frog for today' : 'No someday tasks'}
+            {isEmpty && isFrog ? 'No frog for today' : isEmpty && isSomeday ? 'No someday tasks' : 'No tasks for today'}
           </Text>
           <Text style={styles.emptyDescription}>
-            {isEmpty && isFrog ? 'What is your most important task for today?' : 'Add tasks for future consideration or when you have time.'}
+            {isEmpty && isFrog ? 'What is your most important task for today?' : isEmpty && isSomeday ? 'Add tasks for future consideration or when you have time.' : 'Your day looks clear. Add a task to get started.'}
           </Text>
         </View>
       </Pressable>
@@ -122,7 +124,12 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, onPress, onTog
           <View style={styles.actionButtons}>
             <Pressable 
               style={[styles.completeButton, isCompletePressed && styles.completeButtonPressed]}
-              onPress={() => task?.id && onToggleComplete?.(task.id)}
+              onPress={() => {
+                if (task?.id && onToggleComplete) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  onToggleComplete(task.id);
+                }
+              }}
               onPressIn={() => setIsCompletePressed(true)}
               onPressOut={() => setIsCompletePressed(false)}
             >

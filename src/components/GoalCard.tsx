@@ -21,11 +21,8 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
   
   if (isEmpty) {
     return (
-      <Pressable
-        onPress={onPress}
-        onPressIn={() => setIsEmptyPressed(true)}
-        onPressOut={() => setIsEmptyPressed(false)}
-        style={[{
+      <View
+        style={{
           backgroundColor: '#F5EBE0',
           borderWidth: 0.5,
           borderColor: '#A3B18A',
@@ -38,7 +35,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
           shadowOpacity: 0.75,
           shadowRadius: 0,
           elevation: 4,
-        }, isEmptyPressed && { shadowOffset: { width: 0, height: 2 } }]}
+        }}
       >
         <View style={{
           backgroundColor: '#E9EDC9',
@@ -70,7 +67,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
             Create your first goal and start your journey
           </Text>
         </View>
-      </Pressable>
+      </View>
     );
   }
 

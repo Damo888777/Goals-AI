@@ -343,6 +343,7 @@ export default function PlanTab() {
                 ) : (
                   <TaskCard
                     isEmpty={true}
+                    isSomeday={true}
                     onPress={() => console.log('Add someday task')}
                   />
                 )}

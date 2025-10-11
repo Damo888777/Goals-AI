@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DB_CONFIG } from '../db/config';
+import { Q } from '@nozbe/watermelondb';
+import database from '../db';
+import { getCurrentUserId } from '../services/syncService';
+import Task from '../db/models/Task';
 import type { Task as TaskType } from '../types';
 
 interface WeekDay {
@@ -49,11 +52,70 @@ export function useWeeklyTasks(weekOffset: number = 0) {
   const fetchWeeklyTasks = async () => {
     try {
       setIsLoading(true);
-      const { weekDays: initialWeekDays } = getCurrentWeekDates();
       
-      // Use WatermelonDB for all data - mock database removed
-      const { weekDays: fallbackWeekDays } = getCurrentWeekDates();
-      setWeekDays(fallbackWeekDays);
+      if (!database) {
+        console.log('WatermelonDB not available, using empty week structure');
+        const { weekDays: fallbackWeekDays } = getCurrentWeekDates();
+        setWeekDays(fallbackWeekDays);
+        return;
+      }
+
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        const { weekDays: fallbackWeekDays } = getCurrentWeekDates();
+        setWeekDays(fallbackWeekDays);
+        return;
+      }
+
+      const { weekDays: initialWeekDays } = getCurrentWeekDates();
+      const tasksCollection = database.get<Task>('tasks');
+
+      // Get start and end dates for the week
+      const startDate = initialWeekDays[0].dateObj; // Monday
+      const endDate = initialWeekDays[6].dateObj;   // Sunday
+      endDate.setHours(23, 59, 59, 999); // End of Sunday
+
+      // Query tasks for the entire week
+      const weekTasks = await tasksCollection
+        .query(
+          Q.where('user_id', userId),
+          Q.where('scheduled_date', Q.gte(startDate.toISOString())),
+          Q.where('scheduled_date', Q.lte(endDate.toISOString()))
+        )
+        .fetch();
+
+      // Group tasks by day
+      const updatedWeekDays = initialWeekDays.map(day => {
+        const dayStart = new Date(day.dateObj);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(day.dateObj);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        const dayTasks = weekTasks.filter(task => {
+          if (!task.scheduledDate) return false;
+          const taskDate = new Date(task.scheduledDate);
+          return taskDate >= dayStart && taskDate <= dayEnd;
+        });
+
+        return {
+          ...day,
+          tasks: dayTasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            notes: task.notes || '',
+            isComplete: task.isComplete,
+            isFrog: task.isFrog,
+            scheduledDate: task.scheduledDate,
+            goalId: task.goalId,
+            milestoneId: task.milestoneId,
+            userId: task.userId,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+          }))
+        };
+      });
+
+      setWeekDays(updatedWeekDays);
     } catch (error) {
       console.error('Error fetching weekly tasks:', error);
       // Fallback to empty week structure
@@ -65,7 +127,39 @@ export function useWeeklyTasks(weekOffset: number = 0) {
   };
 
   useEffect(() => {
-    fetchWeeklyTasks();
+    let subscription: any;
+
+    const setupObserver = async () => {
+      if (!database) {
+        fetchWeeklyTasks();
+        return;
+      }
+
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        fetchWeeklyTasks();
+        return;
+      }
+
+      const tasksCollection = database.get<Task>('tasks');
+      
+      // Set up real-time observer for tasks
+      subscription = tasksCollection
+        .query(Q.where('user_id', userId))
+        .observe()
+        .subscribe(() => {
+          // Re-fetch and group tasks whenever they change
+          fetchWeeklyTasks();
+        });
+    };
+
+    setupObserver();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, [weekOffset]);
 
   const getWeekRange = () => {

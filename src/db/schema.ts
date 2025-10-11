@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 3,
+  version: 4,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -50,6 +50,7 @@ export default appSchema({
         { name: 'scheduled_date', type: 'string', isOptional: true }, // ISO 8601 string
         { name: 'is_frog', type: 'boolean' }, // "Eat the frog" - most important task
         { name: 'is_complete', type: 'boolean' },
+        { name: 'completed_at', type: 'number', isOptional: true }, // Unix timestamp
         { name: 'creation_source', type: 'string' }, // 'spark' or 'manual'
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },

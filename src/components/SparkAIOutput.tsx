@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Platform,
   Modal,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -14,6 +15,7 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { images } from '../constants/images';
+import { useTasks, useGoals, useMilestones } from '../hooks/useDatabase';
 
 // Types for the component
 export type SparkOutputType = 'task' | 'goal' | 'milestone';
@@ -409,7 +411,6 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
         scrollEnabled={false}
-        textAlignVertical="top"
       />
     </View>
   );
@@ -432,6 +433,12 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Database hooks
+  const { createTask } = useTasks();
+  const { createGoal } = useGoals();
+  const { createMilestone } = useMilestones();
 
   // Parse AI timestamp on component mount
   useEffect(() => {
@@ -477,22 +484,82 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const getTitlePlaceholder = () => {
     switch (selectedType) {
       case 'task':
-        return 'Placeholder Title Text';
+        return 'Type here your task title...';
       case 'goal':
-        return 'Placeholder Title Text';
+        return 'Type here your goal title...';
       case 'milestone':
-        return 'Placeholder Title Text';
+        return 'Type here your milestone title...';
     }
   };
 
-  const handleSave = () => {
-    const data = {
-      type: selectedType,
-      title,
-      notes,
-      isEatTheFrog: selectedType === 'task' ? isEatTheFrog : undefined,
-    };
-    onSave(data);
+  const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter a title');
+      return;
+    }
+
+    setIsSaving(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      const scheduledDate = selectedDate ? selectedDate.toISOString() : null;
+
+      switch (selectedType) {
+        case 'task':
+          await createTask({
+            title: title.trim(),
+            notes: notes.trim(),
+            scheduledDate: selectedDate,
+            isFrog: isEatTheFrog,
+            goalId: selectedGoal || undefined,
+            milestoneId: undefined, // TODO: Add milestone selection
+          });
+          break;
+
+        case 'goal':
+          await createGoal({
+            title: title.trim(),
+            notes: notes.trim(),
+            feelings: selectedEmotions,
+            visionImageUrl: undefined, // TODO: Add vision board integration
+          });
+          break;
+
+        case 'milestone':
+          await createMilestone({
+            title: title.trim(),
+            goalId: selectedGoal || '',
+            targetDate: selectedDate,
+          });
+          break;
+      }
+
+      // Show success confirmation
+      Alert.alert(
+        'Success!',
+        `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} saved successfully`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              onSave({
+                type: selectedType,
+                title,
+                notes,
+                isEatTheFrog: selectedType === 'task' ? isEatTheFrog : undefined,
+              });
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error saving:', error);
+      Alert.alert('Error', 'Failed to save. Please try again.');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -608,10 +675,11 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
           <TouchableOpacity
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton]}
+            style={[styles.actionButton, styles.saveButton, isSaving && { opacity: 0.6 }]}
+            disabled={isSaving}
           >
             <Text style={styles.actionButtonText}>
-              Save changes
+              {isSaving ? 'Saving...' : 'Save changes'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -734,7 +802,9 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     minHeight: 80,
-    textAlignVertical: 'top',
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
   },
 
   // Date picker styles

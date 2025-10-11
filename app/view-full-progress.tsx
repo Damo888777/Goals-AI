@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import type { Task } from '../src/types';
 import { typography } from '../src/constants/typography';
+import { useTasks } from '../src/hooks/useDatabase';
 
 export default function ViewFullProgressScreen() {
   const insets = useSafeAreaInsets();
@@ -15,80 +16,12 @@ export default function ViewFullProgressScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
+  const { tasks } = useTasks();
 
-  // Mock completed tasks data
-  const mockCompletedTasks: Task[] = useMemo(() => [
-    {
-      id: '1',
-      title: 'Complete morning workout routine',
-      notes: 'Completed 30-minute cardio session',
-      scheduledDate: new Date('2025-10-08').toISOString(),
-      isFrog: false,
-      isComplete: true,
-      createdAt: new Date('2025-10-07'),
-      updatedAt: new Date('2025-10-08'),
-      userId: 'demo-user',
-      goalId: 'goal-1',
-      milestoneId: undefined,
-      creationSource: 'manual'
-    },
-    {
-      id: '2',
-      title: 'Read 20 pages of personal development book',
-      notes: 'Finished chapter 3 on goal setting',
-      scheduledDate: new Date('2025-10-05').toISOString(),
-      isFrog: false,
-      isComplete: true,
-      createdAt: new Date('2025-10-04'),
-      updatedAt: new Date('2025-10-05'),
-      userId: 'demo-user',
-      goalId: undefined,
-      milestoneId: undefined,
-      creationSource: 'spark'
-    },
-    {
-      id: '3',
-      title: 'Meal prep for the week',
-      notes: 'Prepared healthy lunches and snacks',
-      scheduledDate: new Date('2025-09-28').toISOString(),
-      isFrog: false,
-      isComplete: true,
-      createdAt: new Date('2025-09-27'),
-      updatedAt: new Date('2025-09-28'),
-      userId: 'demo-user',
-      goalId: undefined,
-      milestoneId: undefined,
-      creationSource: 'manual'
-    },
-    {
-      id: '4',
-      title: 'Complete project presentation slides',
-      notes: 'Focus on key metrics and visual design',
-      scheduledDate: new Date('2025-10-01').toISOString(),
-      isFrog: true,
-      isComplete: true,
-      createdAt: new Date('2025-09-30'),
-      updatedAt: new Date('2025-10-01'),
-      userId: 'demo-user',
-      goalId: 'goal-2',
-      milestoneId: 'milestone-1',
-      creationSource: 'manual'
-    },
-    {
-      id: '5',
-      title: 'Review quarterly goals and adjust priorities',
-      notes: 'Check progress on all active goals',
-      scheduledDate: new Date('2025-09-25').toISOString(),
-      isFrog: false,
-      isComplete: true,
-      createdAt: new Date('2025-09-24'),
-      updatedAt: new Date('2025-09-25'),
-      userId: 'demo-user',
-      goalId: undefined,
-      milestoneId: undefined,
-      creationSource: 'spark'
-    }
-  ], []);
+  // Get completed tasks from database
+  const completedTasks = useMemo(() => {
+    return tasks.filter((task: Task) => task.isComplete);
+  }, [tasks]);
 
   const handleBack = () => {
     router.back();
@@ -137,13 +70,13 @@ export default function ViewFullProgressScreen() {
 
   // Filter tasks based on search query and date
   const filteredTasks = useMemo(() => {
-    return mockCompletedTasks.filter(task => {
+    return completedTasks.filter((task: Task) => {
       const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
       const taskCompletionDate = formatDate(task.updatedAt || new Date());
       const matchesDate = !selectedDate || taskCompletionDate === formatDate(selectedDate);
       return matchesSearch && matchesDate;
     });
-  }, [mockCompletedTasks, searchQuery, selectedDate]);
+  }, [completedTasks, searchQuery, selectedDate]);
 
   return (
     <View style={styles.container}>
@@ -217,7 +150,7 @@ export default function ViewFullProgressScreen() {
 
         {/* Completed Tasks List */}
         {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => (
+          filteredTasks.map((task: Task) => (
             <CompletedTaskCard
               key={task.id}
               task={task}

@@ -20,6 +20,7 @@ export default class Task extends Model {
   @field('scheduled_date') scheduledDate?: string // ISO 8601 string
   @field('is_frog') isFrog!: boolean // "Eat the frog" - most important task
   @field('is_complete') isComplete!: boolean
+  @date('completed_at') completedAt?: Date
   @field('creation_source') creationSource!: 'spark' | 'manual'
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date

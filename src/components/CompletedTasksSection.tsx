@@ -81,14 +81,26 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
           </Pressable>
         </>
       ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>
-            No completed tasks yet
-          </Text>
-          <Text style={styles.emptyStateDescription}>
-            Complete some tasks to see them here.
-          </Text>
-        </View>
+        <>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateTitle}>
+              No completed tasks today
+            </Text>
+            <Text style={styles.emptyStateDescription}>
+              Complete some tasks to see them here.
+            </Text>
+          </View>
+          
+          {/* View All Finished Tasks Button - Always Show */}
+          <Pressable
+            onPress={handleViewFullProgress}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllButtonText}>
+              All Completed Tasks
+            </Text>
+          </Pressable>
+        </>
       )}
       
       {/* Info Popup */}

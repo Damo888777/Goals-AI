@@ -1,4 +1,5 @@
 import { Audio } from 'expo-av';
+import { getApiUrl } from '../constants/config';
 
 // Types for AI responses
 export interface WhisperResponse {
@@ -34,9 +35,10 @@ export class WhisperService {
       formData.append('model', 'whisper-1');
       formData.append('response_format', 'text');
       
-      console.log('🎤 [Whisper] Sending request to /api/whisper');
+      const apiUrl = getApiUrl('/api/whisper');
+      console.log('🎤 [Whisper] Sending request to:', apiUrl);
       
-      const response = await fetch('/api/whisper', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
@@ -88,7 +90,10 @@ export class GeminiService {
     try {
       console.log('🤖 [Gemini] Starting classification for:', transcription);
       
-      const response = await fetch('/api/gemini', {
+      const apiUrl = getApiUrl('/api/gemini');
+      console.log('🤖 [Gemini] Sending request to:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
