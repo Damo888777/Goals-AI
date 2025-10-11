@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { typography } from '../constants/typography';
 
 interface InfoPopupProps {
@@ -46,7 +46,7 @@ export function InfoPopup({ visible, title, content, onClose }: InfoPopupProps) 
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
-              <Icon name="close" size={24} color="#364958" />
+              <Ionicons name="close" size={24} color="#364958" />
             </Pressable>
           </View>
           

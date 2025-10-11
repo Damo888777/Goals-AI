@@ -71,8 +71,19 @@ export default function GoalsScreen() {
   };
 
   const handleVisionPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/vision-board');
+    console.log('🔵 Vision Board button clicked - starting navigation');
+    console.log('🔵 Current route:', router);
+    
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      console.log('🔵 Haptics triggered successfully');
+      
+      console.log('🔵 Attempting to navigate to ../vision-board');
+      router.push('../vision-board');
+      console.log('🔵 Navigation command executed');
+    } catch (error) {
+      console.error('🔴 Error in handleVisionPress:', error);
+    }
   };
 
   const handleGoalPress = (goal: Goal) => {
@@ -151,9 +162,18 @@ export default function GoalsScreen() {
 
           {/* Vision Button */}
           <Pressable 
-            onPress={handleVisionPress}
-            onPressIn={() => setIsVisionPressed(true)}
-            onPressOut={() => setIsVisionPressed(false)}
+            onPress={() => {
+              console.log('🔵 Vision Button Pressable onPress triggered');
+              handleVisionPress();
+            }}
+            onPressIn={() => {
+              console.log('🔵 Vision Button pressed in');
+              setIsVisionPressed(true);
+            }}
+            onPressOut={() => {
+              console.log('🔵 Vision Button pressed out');
+              setIsVisionPressed(false);
+            }}
             style={styles.buttonContainer}
           >
             <View style={[styles.visionButton, isVisionPressed && styles.visionButtonPressed]}>

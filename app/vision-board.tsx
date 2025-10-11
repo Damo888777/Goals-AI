@@ -118,7 +118,6 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
   numColumns: number, 
   isEmpty: boolean 
 }) {
-
   // Distribute items across columns using Pinterest algorithm
   const columns: Column[] = Array.from({ length: numColumns }, () => ({ items: [], height: 0 }));
   
@@ -190,16 +189,31 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
 }
 
 export default function VisionBoardScreen() {
+  console.log('🟢 VisionBoardScreen component mounting');
+  
+  console.log('🟢 Getting safe area insets...');
   const insets = useSafeAreaInsets();
+  console.log('🟢 Safe area insets:', insets);
+  
+  console.log('🟢 Initializing state...');
   const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isBackPressed, setIsBackPressed] = useState(false);
   const [isInfoPressed, setIsInfoPressed] = useState(false);
   const [isCreatePressed, setIsCreatePressed] = useState(false);
   const [isUploadPressed, setIsUploadPressed] = useState(false);
+  console.log('🟢 State initialized successfully');
 
   const handleCreateVision = () => {
-    router.push('/spark-generate-img');
+    console.log('🟢 Create Vision button clicked in VisionBoardScreen');
+    console.log('🟢 Attempting to navigate to /spark-generate-img');
+    
+    try {
+      router.push('/spark-generate-img');
+      console.log('🟢 Navigation to spark-generate-img executed');
+    } catch (error) {
+      console.error('🔴 Error navigating to spark-generate-img:', error);
+    }
   };
 
   const handleUploadVision = () => {
@@ -214,9 +228,17 @@ export default function VisionBoardScreen() {
   };
 
   const handleGoBack = () => {
-    router.back();
+    console.log('🟢 Back button pressed, attempting to go back');
+    try {
+      router.back();
+      console.log('🟢 router.back() executed');
+    } catch (error) {
+      console.error('🔴 Error in handleGoBack:', error);
+    }
   };
 
+  console.log('🟢 About to render VisionBoardScreen JSX');
+  
   return (
     <LinearGradient
       colors={['#4a4e69', '#9a8c98', '#4a4e69']}
@@ -233,54 +255,52 @@ export default function VisionBoardScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={{ gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-              <Pressable
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  handleGoBack();
-                }}
-                onPressIn={() => setIsBackPressed(true)}
-                onPressOut={() => setIsBackPressed(false)}
-                style={[
-                  {
-                    width: 30,
-                    height: 30,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  },
-                  isBackPressed && { opacity: 0.6 }
-                ]}
-              >
-                <View style={{
-                  width: 20,
-                  height: 20,
+        {/* Header Section */}
+        <View style={{ gap: 11 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                handleGoBack();
+              }}
+              onPressIn={() => setIsBackPressed(true)}
+              onPressOut={() => setIsBackPressed(false)}
+              style={[
+                {
+                  width: 30,
+                  height: 30,
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}>
-                  <View style={{
-                    width: 12,
-                    height: 12,
-                    borderLeftWidth: 2,
-                    borderBottomWidth: 2,
-                    borderColor: '#F5EBE0',
-                    transform: [{ rotate: '45deg' }],
-                    borderRadius: 1,
-                  }} />
-                </View>
-              </Pressable>
-              <Text
-                style={{
-                  ...typography.title,
-                  fontSize: 20,
-                  color: '#F5EBE0',
-                }}
-              >
-                Vision Board
-              </Text>
-            </View>
+                },
+                isBackPressed && { opacity: 0.6 }
+              ]}
+            >
+              <View style={{
+                width: 20,
+                height: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <View style={{
+                  width: 12,
+                  height: 12,
+                  borderLeftWidth: 2,
+                  borderBottomWidth: 2,
+                  borderColor: '#F5EBE0',
+                  transform: [{ rotate: '45deg' }],
+                  borderRadius: 1,
+                }} />
+              </View>
+            </Pressable>
+            <Text style={{
+              flex: 1,
+              color: '#F5EBE0',
+              fontSize: 20,
+              fontFamily: 'Helvetica-Bold',
+              lineHeight: 0,
+            }}>
+              Vision Board
+            </Text>
             
             {/* Info Button */}
             <Pressable 
@@ -316,14 +336,13 @@ export default function VisionBoardScreen() {
               </View>
             </Pressable>
           </View>
-          <Text
-            style={{
-              fontSize: 15,
-              fontWeight: '300',
-              color: '#F5EBE0',
-              lineHeight: 18,
-            }}
-          >
+          <Text style={{
+            color: '#F5EBE0',
+            fontSize: 15,
+            fontFamily: 'Helvetica-Light',
+            lineHeight: 0,
+            width: '100%',
+          }}>
             Your place to visualize your dreams and goals. Upload or generate your vision easily.
           </Text>
         </View>
@@ -466,7 +485,7 @@ export default function VisionBoardScreen() {
             </Pressable>
           </View>
         </View>
-
+        
         {/* Masonry Grid */}
         <MasonryGrid visionImages={visionImages} />
       </ScrollView>

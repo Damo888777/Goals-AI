@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import { AIService, AIProcessingResult } from '../services/aiService';
 
 export type RecordingState = 'idle' | 'recording' | 'processing' | 'completed' | 'error';

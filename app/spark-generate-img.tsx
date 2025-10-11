@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
 
@@ -145,12 +145,12 @@ export default function SparkGenerateIMGScreen() {
       });
 
       if (result.success && result.imageBase64) {
-        // Save image to device using legacy FileSystem API
+        // Save image to device using FileSystem API
         const filename = `spark-vision-${Date.now()}.png`;
-        const fileUri = (FileSystem as any).cacheDirectory + filename;
+        const fileUri = FileSystem.cacheDirectory + filename;
         
         await FileSystem.writeAsStringAsync(fileUri, result.imageBase64, {
-          encoding: 'base64',
+          encoding: FileSystem.EncodingType.Base64,
         });
         
         setGeneratedImageUri(fileUri);
