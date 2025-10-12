@@ -19,11 +19,30 @@ export default function TodayTab() {
     isLoading
   } = useTodaysTasks();
   
-  const { completeTask } = useTasks();
+  const { completeTask, createTask } = useTasks();
   const { completedTasks, isLoading: completedTasksLoading } = useTodaysCompletedTasks();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
+  };
+
+  const handleAddFrogTask = async (taskData: {
+    title: string;
+    scheduledDate: Date;
+    isFrog: boolean;
+    creationSource: 'spark' | 'manual';
+  }) => {
+    try {
+      await createTask({
+        title: taskData.title,
+        scheduledDate: taskData.scheduledDate,
+        isFrog: taskData.isFrog,
+        creationSource: taskData.creationSource
+      });
+      console.log('Frog task created successfully');
+    } catch (error) {
+      console.error('Error creating frog task:', error);
+    }
   };
 
   const handleSelectFrog = () => {
@@ -34,8 +53,19 @@ export default function TodayTab() {
     console.log('Task pressed:', task.id);
   };
 
-  const handleAddTask = () => {
-    console.log('Add task');
+  const handleAddTask = async () => {
+    try {
+      // Create a task scheduled for today
+      const today = new Date();
+      await createTask({
+        title: 'New Task',
+        scheduledDate: today,
+        creationSource: 'manual'
+      });
+      console.log('Task created successfully');
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
 
   const handleToggleComplete = async (taskId: string) => {
@@ -73,8 +103,9 @@ export default function TodayTab() {
         <GreetingMessage username="User" />
 
         {/* Eat the Frog Section */}
-        <EatTheFrogSection 
-          frogTask={displayFrogTask}
+        <EatTheFrogSection
+          frogTask={frogTask}
+          onAddFrogTask={handleAddFrogTask}
           onSelectFrog={handleSelectFrog}
         />
 

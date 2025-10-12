@@ -151,10 +151,6 @@ class AuthService {
     }
   }
 
-  // Get current user
-  getCurrentUser(): AuthUser | null {
-    return this.currentUser
-  }
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
@@ -249,6 +245,11 @@ class AuthService {
     )
 
     return () => subscription.unsubscribe()
+  }
+
+  // Get current user without triggering auth flow
+  getCurrentUser(): AuthUser | null {
+    return this.currentUser
   }
 
   // Future: Upgrade anonymous account to Apple Sign-in

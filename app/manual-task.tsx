@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
 
 // Selection Card Component
 interface SelectionCardProps {
@@ -263,22 +265,57 @@ export default function ManualTaskScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Database hooks
+  const { createTask } = useTasks();
+  const { createGoal } = useGoals();
+  const { createMilestone } = useMilestones();
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
 
-  const handleSave = () => {
-    // Handle saving the manual task
-    console.log('Saving manual task:', {
-      type: selectedType,
-      title,
-      notes,
-      dueDate: selectedDate,
-    });
+  const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter a title');
+      return;
+    }
+
+    setIsLoading(true);
     
-    // Navigate back
-    router.back();
+    try {
+      if (selectedType === 'task') {
+        await createTask({
+          title: title.trim(),
+          notes: notes.trim() || undefined,
+          scheduledDate: selectedDate,
+          creationSource: 'manual'
+        });
+      } else if (selectedType === 'goal') {
+        await createGoal({
+          title: title.trim(),
+          notes: notes.trim() || undefined,
+        });
+      } else if (selectedType === 'milestone') {
+        // For now, skip milestone creation as it requires a goalId
+        Alert.alert('Info', 'Milestone creation requires selecting a goal first. This feature will be added soon.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Show success confirmation
+      Alert.alert(
+        'Success',
+        `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} created successfully!`,
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    } catch (error) {
+      console.error('Error saving:', error);
+      Alert.alert('Error', `Failed to create ${selectedType}. Please try again.`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {

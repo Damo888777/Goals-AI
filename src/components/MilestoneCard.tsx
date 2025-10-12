@@ -3,38 +3,63 @@ import { typography } from '../constants/typography';
 import type { Milestone } from '../types';
 import { useState } from 'react';
 
+type MilestoneCardVariant = 
+  | 'empty'
+  | 'active'
+  | 'active-completed'
+  | 'empty-completed';
+
 interface MilestoneCardProps {
-  milestone?: Milestone & { creationSource?: 'spark' | 'manual' };
-  isEmpty?: boolean;
+  milestone?: Milestone;
+  variant: MilestoneCardVariant;
   onPress?: () => void;
+  creationSource?: 'spark' | 'manual';
 }
 
-export function MilestoneCard({ milestone, isEmpty = false, onPress }: MilestoneCardProps) {
+export function MilestoneCard({ milestone, variant, onPress, creationSource }: MilestoneCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   
-  if (isEmpty) {
+  // Empty state variants
+  if (variant === 'empty' || variant === 'empty-completed') {
+    const isCompletedEmpty = variant === 'empty-completed';
+    const content = isCompletedEmpty 
+      ? { title: 'No completed milestones', description: 'Complete some milestones to see them here.' }
+      : { title: 'No milestones yet', description: 'Break down your goals into achievable milestones' };
+
     return (
       <Pressable
         onPress={onPress}
         onPressIn={() => setIsEmptyPressed(true)}
         onPressOut={() => setIsEmptyPressed(false)}
-        style={[styles.emptyCard, isEmptyPressed && styles.emptyCardPressed]}
+        style={[
+          styles.emptyCard, 
+          isCompletedEmpty && styles.emptyCompletedCard,
+          isEmptyPressed && styles.emptyCardPressed
+        ]}
       >
         <View style={styles.emptyContent}>
-          <Text style={styles.emptyTitle}>
-            No milestones yet
+          <Text style={[
+            styles.emptyTitle,
+            isCompletedEmpty && styles.emptyCompletedTitle
+          ]}>
+            {content.title}
           </Text>
-          <Text style={styles.emptyDescription}>
-            Break down your goals into achievable milestones
+          <Text style={[
+            styles.emptyDescription,
+            isCompletedEmpty && styles.emptyCompletedDescription
+          ]}>
+            {content.description}
           </Text>
         </View>
       </Pressable>
     );
   }
 
-  const isOverdue = milestone?.targetDate && new Date(milestone.targetDate) < new Date();
-  const isCompleted = milestone?.isComplete;
+  // Determine card properties based on variant
+  const isCompleted = variant === 'active-completed' || milestone?.isComplete;
+  const isOverdue = milestone?.targetDate && new Date(milestone.targetDate) < new Date() && !isCompleted;
+  const showSparkBadge = creationSource === 'spark';
 
   return (
     <Pressable
@@ -43,17 +68,22 @@ export function MilestoneCard({ milestone, isEmpty = false, onPress }: Milestone
       onPressOut={() => setIsPressed(false)}
       style={[
         styles.card,
-        isCompleted && styles.completedCard,
-        isOverdue && !isCompleted && styles.overdueCard,
-        isPressed && styles.cardPressed
+        isCompleted ? styles.completedCard : null,
+        isOverdue ? styles.overdueCard : null,
+        isPressed ? styles.cardPressed : null
       ]}
     >
       <View style={styles.content}>
         {/* Title with creation source badge */}
         <View style={styles.titleRow}>
-          <Text style={[styles.title, { flex: 1 }, isCompleted && styles.completedText]} numberOfLines={2}>
+          <Text style={[styles.title, { flex: 1 }, isCompleted ? styles.completedText : null]} numberOfLines={2}>
             {milestone?.title || 'Placeholder Milestone'}
           </Text>
+          {showSparkBadge && (
+            <View style={styles.sparkBadge}>
+              <Text style={styles.sparkBadgeText}>SPARK</Text>
+            </View>
+          )}
         </View>
         
         {/* Bottom row with date and completion status */}
@@ -85,8 +115,8 @@ export function MilestoneCard({ milestone, isEmpty = false, onPress }: Milestone
               </View>
               <Text style={[
                 styles.dateText,
-                isOverdue && !isCompleted && styles.overdueText,
-                isCompleted && styles.completedText
+                isOverdue ? styles.overdueText : null,
+                isCompleted ? styles.completedText : null
               ]}>
                 {milestone?.targetDate ? new Date(milestone.targetDate).toLocaleDateString() : 'No target date'}
               </Text>
@@ -102,7 +132,7 @@ export function MilestoneCard({ milestone, isEmpty = false, onPress }: Milestone
             ) : (
               <View style={[
                 styles.progressIndicator,
-                isOverdue && styles.overdueIndicator
+                isOverdue ? styles.overdueIndicator : null
               ]} />
             )}
           </View>
@@ -290,7 +320,7 @@ const styles = StyleSheet.create({
   sparkBadgeText: {
     fontSize: 8,
     fontWeight: '600',
-    color: '#E76F51',
+    color: '#8B4513',
   },
   emptyContent: {
     alignItems: 'center',
@@ -305,5 +335,16 @@ const styles = StyleSheet.create({
     ...typography.small,
     textAlign: 'center',
     marginTop: 8,
+  },
+  emptyCompletedCard: {
+    backgroundColor: '#EAE2B7',
+    borderColor: '#B69121',
+  },
+  emptyCompletedTitle: {
+    color: '#8B7355',
+  },
+  emptyCompletedDescription: {
+    color: '#8B7355',
+    opacity: 0.8,
   },
 });

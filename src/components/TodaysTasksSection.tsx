@@ -59,13 +59,14 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
             <TaskCard
               key={task.id}
               task={task}
+              variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
               onPress={() => onTaskPress?.(task)}
               onToggleComplete={onToggleComplete}
             />
           ))}
         </View>
       ) : (
-        <TaskCard isEmpty={true} onPress={onAddTask} />
+        <TaskCard variant="empty-today" onPress={onAddTask} />
       )}
       
       {/* Info Popup */}

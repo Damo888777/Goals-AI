@@ -7,6 +7,7 @@ import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
 import { useWeeklyTasks } from '../../src/hooks/useWeeklyTasks';
 import { useSomedayTasks } from '../../src/hooks/useSomedayTasks';
+import { useTasks } from '../../src/hooks/useDatabase';
 import type { Task } from '../../src/types';
 
 type ViewMode = 'week' | 'backlog';
@@ -20,7 +21,8 @@ export default function PlanTab() {
   
   // Use real data hooks
   const { weekDays: realWeekDays, isLoading: isWeeklyLoading, getWeekRange } = useWeeklyTasks(currentWeekOffset);
-  const { somedayTasks, isLoading: isSomedayLoading, toggleTaskComplete } = useSomedayTasks();
+  const { somedayTasks, isLoading: isSomedayLoading, toggleTaskComplete, createSomedayTask } = useSomedayTasks();
+  const { createTask } = useTasks();
   
   // Get week range for display
   const { startDate, endDate } = getWeekRange();
@@ -284,7 +286,21 @@ export default function PlanTab() {
                 key={day.name}
                 weekday={day.name}
                 date={day.date}
+                dateObj={day.dateObj}
                 tasks={day.tasks}
+                onPress={() => console.log(`${day.name} pressed`)}
+                onAddTask={async (taskData) => {
+                  try {
+                    await createTask({
+                      title: taskData.title,
+                      scheduledDate: taskData.scheduledDate,
+                      creationSource: taskData.creationSource
+                    });
+                    console.log('Weekday task created successfully');
+                  } catch (error) {
+                    console.error('Error creating weekday task:', error);
+                  }
+                }}
               />
             ))}
           </View>
@@ -298,7 +314,20 @@ export default function PlanTab() {
                 key={day.name}
                 weekday={day.name}
                 date={day.date}
+                dateObj={day.dateObj}
                 tasks={day.tasks}
+                onAddTask={async (taskData) => {
+                  try {
+                    await createTask({
+                      title: taskData.title,
+                      scheduledDate: taskData.scheduledDate,
+                      creationSource: taskData.creationSource
+                    });
+                    console.log('Scheduled task created successfully');
+                  } catch (error) {
+                    console.error('Error creating scheduled task:', error);
+                  }
+                }}
               />
             ))}
           </View>
@@ -336,15 +365,25 @@ export default function PlanTab() {
                     <TaskCard
                       key={task.id}
                       task={task}
+                      variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
                       onPress={() => console.log('Someday task pressed:', task.id)}
                       onToggleComplete={toggleTaskComplete}
                     />
                   ))
                 ) : (
                   <TaskCard
-                    isEmpty={true}
-                    isSomeday={true}
-                    onPress={() => console.log('Add someday task')}
+                    variant="empty-someday"
+                    onPress={async () => {
+                      try {
+                        await createSomedayTask({
+                          title: 'New Someday Task',
+                          creationSource: 'manual'
+                        });
+                        console.log('Someday task created successfully');
+                      } catch (error) {
+                        console.error('Error creating someday task:', error);
+                      }
+                    }}
                   />
                 )}
               </View>

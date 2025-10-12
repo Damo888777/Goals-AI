@@ -10,11 +10,34 @@ import { useState } from 'react';
 
 interface EatTheFrogSectionProps {
   frogTask?: Task | null;
+  onAddFrogTask?: (taskData: {
+    title: string;
+    scheduledDate: Date;
+    isFrog: boolean;
+    creationSource: 'spark' | 'manual';
+  }) => Promise<void>;
   onSelectFrog?: () => void;
 }
 
-export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionProps) {
+export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog }: EatTheFrogSectionProps) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const handleSelectFrog = async () => {
+    try {
+      // Create a new frog task for today if none exists
+      if (!frogTask) {
+        const today = new Date();
+        await onAddFrogTask?.({
+          title: 'New Frog Task',
+          scheduledDate: today,
+          isFrog: true,
+          creationSource: 'manual'
+        });
+      }
+    } catch (error) {
+      console.error('Error creating frog task:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -51,8 +74,7 @@ export function EatTheFrogSection({ frogTask, onSelectFrog }: EatTheFrogSectionP
       {/* Task Card */}
       <TaskCard 
         task={frogTask}
-        isEmpty={!frogTask}
-        isFrog={true}
+        variant={frogTask ? 'active-frog' : 'empty-frog'}
         onPress={onSelectFrog}
       />
       

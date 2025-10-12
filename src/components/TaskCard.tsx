@@ -19,17 +19,27 @@ const formatDate = (date: Date): string => {
   return `${month}.${day}.${year}`;
 };
 
+type TaskCardVariant = 
+  | 'empty-today'
+  | 'empty-weekday' 
+  | 'empty-someday'
+  | 'empty-frog'
+  | 'active-with-date'
+  | 'active-without-date'
+  | 'active-frog'
+  | 'completed'
+  | 'empty-completed';
+
 interface TaskCardProps {
   task?: Task | null;
-  isEmpty?: boolean;
-  isFrog?: boolean;
-  isSomeday?: boolean;
+  variant: TaskCardVariant;
   onPress?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
   onDelete?: (taskId: string) => Promise<void>;
+  creationSource?: 'spark' | 'manual';
 }
 
-export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = false, onPress, onToggleComplete, onDelete }: TaskCardProps) {
+export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, creationSource }: TaskCardProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -65,23 +75,64 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = fa
       onDelete(task.id);
     }
   };
-  if (isEmpty) {
+  // Empty state variants
+  if (variant.startsWith('empty')) {
+    const getEmptyContent = () => {
+      switch (variant) {
+        case 'empty-frog':
+          return {
+            title: 'No frog for today',
+            description: 'What is your most important task for today?'
+          };
+        case 'empty-someday':
+          return {
+            title: 'No someday tasks',
+            description: 'Add tasks for future consideration or when you have time.'
+          };
+        case 'empty-weekday':
+        case 'empty-today':
+          return {
+            title: 'No tasks for today',
+            description: 'Your day looks clear. Add a task to get started.'
+          };
+        case 'empty-completed':
+          return {
+            title: 'No completed tasks',
+            description: 'Complete some tasks to see them here.'
+          };
+        default:
+          return {
+            title: 'No tasks',
+            description: 'Add a task to get started.'
+          };
+      }
+    };
+
+    const content = getEmptyContent();
+    const isCompletedEmpty = variant === 'empty-completed';
+
     return (
       <Pressable
         onPress={onPress}
-        style={styles.emptyCard}
+        style={[styles.emptyCard, isCompletedEmpty && styles.emptyCompletedCard]}
       >
         <View style={styles.emptyContent}>
-          <Text style={styles.emptyTitle}>
-            {isEmpty && isFrog ? 'No frog for today' : isEmpty && isSomeday ? 'No someday tasks' : 'No tasks for today'}
+          <Text style={[styles.emptyTitle, isCompletedEmpty && styles.emptyCompletedTitle]}>
+            {content.title}
           </Text>
-          <Text style={styles.emptyDescription}>
-            {isEmpty && isFrog ? 'What is your most important task for today?' : isEmpty && isSomeday ? 'Add tasks for future consideration or when you have time.' : 'Your day looks clear. Add a task to get started.'}
+          <Text style={[styles.emptyDescription, isCompletedEmpty && styles.emptyCompletedDescription]}>
+            {content.description}
           </Text>
         </View>
       </Pressable>
     );
   }
+
+  // Determine card styling based on variant
+  const isCompleted = variant === 'completed';
+  const isFrog = variant === 'active-frog';
+  const hasDate = variant === 'active-with-date' || task?.scheduledDate;
+  const showSparkBadge = creationSource === 'spark';
 
   return (
     <View style={styles.container}>
@@ -95,27 +146,57 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = fa
             onPress={onPress}
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
-            style={[styles.card, isPressed && styles.cardPressed]}
+            style={[
+              styles.card,
+              isCompleted && styles.completedCard,
+              isFrog && styles.frogCard,
+              isPressed && styles.cardPressed
+            ]}
           >
             <View style={styles.content}>
         {/* Title with creation source badge */}
         <View style={styles.titleRow}>
-          <Text style={[styles.title, { flex: 1 }]} numberOfLines={3}>
+          <Text style={[
+            styles.title, 
+            { flex: 1 },
+            isCompleted && styles.completedTitle
+          ]} numberOfLines={3}>
             {task?.title || 'Placeholder Task Title'}
           </Text>
+          {showSparkBadge && (
+            <View style={styles.sparkBadge}>
+              <Text style={styles.sparkBadgeText}>SPARK</Text>
+            </View>
+          )}
+          {isFrog && (
+            <View style={styles.frogBadge}>
+              <Text style={styles.frogBadgeText}>🐸</Text>
+            </View>
+          )}
         </View>
         
         {/* Bottom row with project info and buttons */}
         <View style={styles.bottomRow}>
           {/* Left side - Project info */}
           <View style={styles.leftContent}>
-            <Text style={styles.goalInfo}>
+            <Text style={[
+              styles.goalInfo,
+              isCompleted && styles.completedText
+            ]}>
               {task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
             </Text>
             <View style={styles.dateRow}>
               <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
-              <Text style={styles.dateText}>
-                {task?.scheduledDate ? formatDate(new Date(task.scheduledDate)) : 'Someday'}
+              <Text style={[
+                styles.dateText,
+                isCompleted && styles.completedText
+              ]}>
+                {hasDate && task?.scheduledDate 
+                  ? formatDate(new Date(task.scheduledDate)) 
+                  : variant === 'completed' 
+                    ? `Completed: ${task?.updatedAt ? formatDate(new Date(task.updatedAt)) : 'Recently'}` 
+                    : 'Someday'
+                }
               </Text>
             </View>
           </View>
@@ -162,8 +243,14 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = fa
               onPressIn={() => setIsCompletePressed(true)}
               onPressOut={() => setIsCompletePressed(false)}
             >
-              <View style={[styles.checkIcon, task?.isComplete && styles.checkIconCompleted]}>
-                <Text style={[styles.checkmark, task?.isComplete && styles.checkmarkCompleted]}>✓</Text>
+              <View style={[
+                styles.checkIcon, 
+                (task?.isComplete || isCompleted) && styles.checkIconCompleted
+              ]}>
+                <Text style={[
+                  styles.checkmark, 
+                  (task?.isComplete || isCompleted) && styles.checkmarkCompleted
+                ]}>✓</Text>
               </View>
             </Pressable>
             <Pressable 
@@ -421,6 +508,46 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: '600',
     color: '#8B4513',
+  },
+  frogBadge: {
+    backgroundColor: '#90EE90',
+    borderWidth: 0.5,
+    borderColor: '#228B22',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  frogBadgeText: {
+    fontSize: 12,
+  },
+  completedCard: {
+    backgroundColor: '#EAE2B7',
+    borderColor: '#B69121',
+  },
+  frogCard: {
+    backgroundColor: '#F0FFF0',
+    borderColor: '#90EE90',
+  },
+  completedTitle: {
+    textDecorationLine: 'line-through',
+    color: '#8B7355',
+  },
+  completedText: {
+    color: '#8B7355',
+    opacity: 0.8,
+  },
+  emptyCompletedCard: {
+    backgroundColor: '#EAE2B7',
+    borderColor: '#B69121',
+  },
+  emptyCompletedTitle: {
+    color: '#8B7355',
+  },
+  emptyCompletedDescription: {
+    color: '#8B7355',
+    opacity: 0.8,
   },
   checkIconCompleted: {
     backgroundColor: '#A3B18A',

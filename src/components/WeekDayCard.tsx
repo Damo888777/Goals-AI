@@ -7,11 +7,17 @@ import type { Task } from '../types';
 interface WeekDayCardProps {
   weekday: string;
   date: string;
+  dateObj: Date;
   tasks: Task[];
   onPress?: () => void;
+  onAddTask?: (taskData: {
+    title: string;
+    scheduledDate: Date;
+    creationSource: 'spark' | 'manual';
+  }) => Promise<void>;
 }
 
-export function WeekDayCard({ weekday, date, tasks, onPress }: WeekDayCardProps) {
+export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask }: WeekDayCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasTasks = tasks.length > 0;
 
@@ -82,12 +88,13 @@ export function WeekDayCard({ weekday, date, tasks, onPress }: WeekDayCardProps)
               <TaskCard
                 key={task.id}
                 task={task}
+                variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
                 onPress={() => console.log('Task pressed:', task.id)}
                 onToggleComplete={async (taskId) => console.log('Toggle complete:', taskId)}
               />
             ))
           ) : (
-            <View
+            <Pressable
               style={{
                 backgroundColor: '#E9EDC9',
                 borderWidth: 0.5,
@@ -103,21 +110,34 @@ export function WeekDayCard({ weekday, date, tasks, onPress }: WeekDayCardProps)
                 shadowRadius: 0,
                 elevation: 4,
               }}
+              onPress={async () => {
+                if (onAddTask) {
+                  try {
+                    await onAddTask({
+                      title: `New Task for ${weekday}`,
+                      scheduledDate: dateObj,
+                      creationSource: 'manual'
+                    });
+                  } catch (error) {
+                    console.error('Error creating weekday task:', error);
+                  }
+                }
+              }}
             >
               <Text style={{
                 ...typography.cardTitle,
                 textAlign: 'center',
                 marginBottom: 8,
               }}>
-                No tasks for today
+                No tasks for {weekday}
               </Text>
               <Text style={{
                 ...typography.cardDescription,
                 textAlign: 'center',
               }}>
-                Your day looks clear. Add a task to get started.
+                Tap to add a task for this day.
               </Text>
-            </View>
+            </Pressable>
           )}
         </View>
       )}

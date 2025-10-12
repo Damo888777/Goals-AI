@@ -17,7 +17,7 @@ export default class Task extends Model {
   @field('milestone_id') milestoneId?: string
   @field('title') title!: string
   @field('notes') notes?: string
-  @field('scheduled_date') scheduledDate?: string // ISO 8601 string
+  @field('scheduled_date') scheduledDate?: string | null // ISO 8601 string or null for someday tasks
   @field('is_frog') isFrog!: boolean // "Eat the frog" - most important task
   @field('is_complete') isComplete!: boolean
   @date('completed_at') completedAt?: Date
@@ -36,7 +36,7 @@ export default class Task extends Model {
 
   // Helper method to set scheduled date from Date object
   setScheduledDate(date: Date | null): void {
-    this.scheduledDate = date ? date.toISOString() : undefined
+    this.scheduledDate = date ? date.toISOString() : null
   }
 
   // Helper method to check if task is scheduled for today

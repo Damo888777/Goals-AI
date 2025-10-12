@@ -379,7 +379,26 @@ export const syncService = new SyncService(database!)
 
 // Helper function to get current user ID
 export const getCurrentUserId = async (): Promise<string | null> => {
-  if (!isSupabaseConfigured || !supabase) return null
-  const { data: { user } } = await supabase.auth.getUser()
-  return user?.id || null
+  // First check if we have an authenticated user via authService
+  const { authService } = await import('./authService')
+  const currentUser = authService.getCurrentUser()
+  
+  if (currentUser) {
+    return currentUser.id
+  }
+  
+  // Fallback to Supabase if configured
+  if (isSupabaseConfigured && supabase) {
+    const { data: { user } } = await supabase.auth.getUser()
+    return user?.id || null
+  }
+  
+  // If no user found, try to initialize auth
+  try {
+    const user = await authService.initialize()
+    return user?.id || null
+  } catch (error) {
+    console.error('Failed to get user ID:', error)
+    return null
+  }
 }

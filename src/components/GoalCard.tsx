@@ -2,82 +2,75 @@ import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 import type { Goal, Milestone } from '../types';
 import { typography } from '../constants/typography';
 import { useState, useRef } from 'react';
 
+type GoalCardVariant = 
+  | 'empty'
+  | 'active-without-vision'
+  | 'active-with-vision'
+  | 'empty-completed'
+  | 'active-completed';
+
 interface GoalCardProps {
-  goal?: Goal & { creationSource?: 'spark' | 'manual' };
-  isEmpty?: boolean;
+  goal?: Goal;
+  variant: GoalCardVariant;
   expanded?: boolean;
   onPress?: () => void;
   onToggleExpand?: () => void;
   onMilestoneComplete?: (milestoneId: string) => void;
   onMilestoneDelete?: (milestoneId: string) => void;
+  creationSource?: 'spark' | 'manual';
 }
 
-export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete }: GoalCardProps) {
+export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete, creationSource }: GoalCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   
-  if (isEmpty) {
+  // Empty state variants
+  if (variant === 'empty' || variant === 'empty-completed') {
+    const isCompletedEmpty = variant === 'empty-completed';
+    const content = isCompletedEmpty 
+      ? { title: 'No completed goals', description: 'Complete some goals to see them here.' }
+      : { title: 'No goals yet', description: 'Create your first goal and start your journey' };
+
     return (
-      <View
-        style={{
-          backgroundColor: '#F5EBE0',
-          borderWidth: 0.5,
-          borderColor: '#A3B18A',
-          borderRadius: 20,
-          padding: 20,
-          minHeight: 124,
-          // Drop shadow matching Figma specs
-          shadowColor: '#7C7C7C',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.75,
-          shadowRadius: 0,
-          elevation: 4,
-        }}
-      >
-        <View style={{
-          backgroundColor: '#E9EDC9',
-          borderWidth: 0.5,
-          borderColor: '#A3B18A',
-          borderRadius: 20,
-          padding: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flex: 1,
-          // Inner card shadow
-          shadowColor: '#7C7C7C',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.75,
-          shadowRadius: 0,
-          elevation: 4,
-        }}>
-          <Text style={{
-            ...typography.cardTitle,
-            textAlign: 'center',
-            marginBottom: 8,
-          }}>
-            No goals yet
+      <Pressable onPress={onPress} style={[
+        styles.emptyContainer,
+        isCompletedEmpty && styles.emptyCompletedContainer
+      ]}>
+        <View style={[
+          styles.emptyInnerCard,
+          isCompletedEmpty && styles.emptyCompletedInnerCard
+        ]}>
+          <Text style={[
+            styles.emptyTitle,
+            isCompletedEmpty && styles.emptyCompletedTitle
+          ]}>
+            {content.title}
           </Text>
-          <Text style={{
-            ...typography.cardDescription,
-            textAlign: 'center',
-          }}>
-            Create your first goal and start your journey
+          <Text style={[
+            styles.emptyDescription,
+            isCompletedEmpty && styles.emptyCompletedDescription
+          ]}>
+            {content.description}
           </Text>
         </View>
-      </View>
+      </Pressable>
     );
   }
 
+  // Determine card properties based on variant
+  const isCompleted = variant === 'active-completed';
+  const hasVisionImage = variant === 'active-with-vision' && goal?.visionImageUrl;
+  const showSparkBadge = creationSource === 'spark';
   const progress = goal?.progress || 0;
   const emotions = goal?.emotions || [];
   const displayedEmotions = emotions.slice(0, 2);
   const remainingCount = emotions.length - 2;
   const milestones = goal?.milestones || [];
-  const hasVisionImage = goal?.visionImageUrl;
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No date set';
@@ -113,35 +106,17 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
       onPress={onPress}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      style={[{
-        backgroundColor: '#F5EBE0',
-        borderWidth: 0.5,
-        borderColor: '#A3B18A',
-        borderRadius: 20,
-        padding: 20,
-        gap: 10,
-        // Drop shadow matching Figma specs
-        shadowColor: '#7C7C7C',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.75,
-        shadowRadius: 0,
-        elevation: 4,
-      }, isPressed && { shadowOffset: { width: 0, height: 2 } }]}
+      style={[
+        styles.container,
+        isCompleted && styles.completedContainer,
+        isPressed && styles.containerPressed
+      ]}
     >
       {/* Goal Card Container */}
-      <View style={{
-        backgroundColor: '#E9EDC9',
-        borderWidth: 0.5,
-        borderColor: '#A3B18A',
-        borderRadius: 20,
-        padding: 15,
-        // Inner card shadow
-        shadowColor: '#7C7C7C',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.75,
-        shadowRadius: 0,
-        elevation: 4,
-      }}>
+      <View style={[
+        styles.innerCard,
+        isCompleted && styles.completedInnerCard
+      ]}>
         {/* Vision Image */}
         {hasVisionImage && (
           <View style={{
@@ -178,9 +153,16 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
                 ...typography.cardTitle,
                 lineHeight: 20,
                 flex: 1,
+                textDecorationLine: isCompleted ? 'line-through' : 'none',
+                color: isCompleted ? '#8B7355' : '#364958',
               }} numberOfLines={2}>
                 {goal?.title || 'Placeholder Title'}
               </Text>
+              {showSparkBadge && (
+                <View style={styles.sparkBadge}>
+                  <Text style={styles.sparkBadgeText}>SPARK</Text>
+                </View>
+              )}
             </View>
 
               {/* Progress Bar */}
@@ -597,6 +579,111 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
 }
 
 const styles = StyleSheet.create({
+  // Empty state styles
+  emptyContainer: {
+    backgroundColor: '#F5EBE0',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    minHeight: 124,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyCompletedContainer: {
+    backgroundColor: '#EAE2B7',
+    borderColor: '#B69121',
+  },
+  emptyInnerCard: {
+    backgroundColor: '#E9EDC9',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyCompletedInnerCard: {
+    backgroundColor: '#F0E68C',
+    borderColor: '#B69121',
+  },
+  emptyTitle: {
+    ...typography.cardTitle,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptyCompletedTitle: {
+    color: '#8B7355',
+  },
+  emptyDescription: {
+    ...typography.cardDescription,
+    textAlign: 'center',
+  },
+  emptyCompletedDescription: {
+    color: '#8B7355',
+    opacity: 0.8,
+  },
+  // Active state styles
+  container: {
+    backgroundColor: '#F5EBE0',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    gap: 10,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  completedContainer: {
+    backgroundColor: '#EAE2B7',
+    borderColor: '#B69121',
+  },
+  containerPressed: {
+    shadowOffset: { width: 0, height: 2 },
+  },
+  innerCard: {
+    backgroundColor: '#E9EDC9',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 15,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  completedInnerCard: {
+    backgroundColor: '#F0E68C',
+    borderColor: '#B69121',
+  },
+  sparkBadge: {
+    backgroundColor: '#FFE066',
+    borderWidth: 0.5,
+    borderColor: '#F4A261',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sparkBadgeText: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: '#8B4513',
+  },
   milestoneDeleteState: {
     position: 'absolute',
     top: 0,

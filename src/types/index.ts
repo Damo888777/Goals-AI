@@ -7,7 +7,7 @@ export interface Task {
   isComplete: boolean; // Match database model field name
   goalId?: string;
   milestoneId?: string;
-  scheduledDate?: string; // ISO 8601 string to match database model
+  scheduledDate?: string | null; // ISO 8601 string or null for someday tasks
   notes?: string;
   creationSource?: 'spark' | 'manual'; // Add creation source field
   focusSessions?: FocusSession[];
