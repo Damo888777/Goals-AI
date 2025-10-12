@@ -24,7 +24,7 @@
       },
       "entitlements": {
         "aps-environment": "development",
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.onesignal", "group.pro.GoalAchieverAI.widgets"]
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.onesignal"]
       }
     },
     "android": {
@@ -64,15 +64,6 @@
               ]
             }
           }
-        }
-      ],
-      [
-        "react-native-widget-extension",
-        {
-          "frequentUpdates": true,
-          "widgetsFolder": "widgets",
-          "deploymentTarget": "18.0",
-          "groupIdentifier": "group.pro.GoalAchieverAI.widgets"
         }
       ],
       "@morrowdigital/watermelondb-expo-plugin",
