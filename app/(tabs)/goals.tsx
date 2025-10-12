@@ -209,6 +209,7 @@ export default function GoalsScreen() {
                 key={goal.id}
                 goal={goal}
                 variant="active-with-vision"
+                milestones={goal.milestones}
                 expanded={expandedGoals.has(goal.id)}
                 onPress={() => handleGoalPress(goal)}
                 onToggleExpand={() => handleToggleExpand(goal.id)}

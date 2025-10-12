@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
 import { useState } from 'react';
+import { router } from 'expo-router';
 
 interface CompletedTaskCardProps {
   task: Task;
@@ -29,10 +30,22 @@ export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
 
   return (
     <Pressable 
-      onPress={onPress} 
+      onPress={() => {
+        if (task?.id) {
+          router.push(`/task-details?id=${task.id}`);
+        } else if (onPress) {
+          onPress();
+        }
+      }} 
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      style={[styles.container, isPressed && styles.containerPressed]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: isPressed ? '#D4D1A1' : '#EAE2B7',
+          transform: [{ scale: isPressed ? 0.98 : 1 }]
+        }
+      ]}
     >
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={2}>
@@ -68,9 +81,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
-  },
-  containerPressed: {
-    shadowOffset: { width: 0, height: 2 },
   },
   content: {
     gap: 8,

@@ -18,6 +18,8 @@ interface MilestoneCardProps {
 const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilestoneComplete, onMilestoneDelete }) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const router = useRouter();
 
   const handleGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -67,9 +69,16 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
         activeOffsetX={[-10, 10]}
       >
         <Animated.View style={{ transform: [{ translateX }], zIndex: 1 }}>
-          <View
+          <Pressable
+            onPress={() => {
+              if (milestone?.id) {
+                router.push(`/milestone-details?id=${milestone.id}`);
+              }
+            }}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
             style={{
-              backgroundColor: '#E9EDC9',
+              backgroundColor: isPressed ? '#D4E2B8' : '#E9EDC9',
               borderWidth: 0.5,
               borderColor: '#A3B18A',
               borderRadius: 15,
@@ -83,6 +92,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
               shadowOpacity: 0.75,
               shadowRadius: 0,
               elevation: 4,
+              transform: [{ scale: isPressed ? 0.98 : 1 }],
             }}
           >
             {/* Milestone Content */}
@@ -142,7 +152,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                 ✓
               </Text>
             </Pressable>
-          </View>
+          </Pressable>
         </Animated.View>
       </PanGestureHandler>
       
@@ -177,6 +187,7 @@ type GoalCardVariant =
 interface GoalCardProps {
   goal?: Goal;
   variant: GoalCardVariant;
+  milestones?: Milestone[];
   expanded?: boolean;
   onPress?: () => void;
   onToggleExpand?: () => void;
@@ -188,8 +199,22 @@ interface GoalCardProps {
   isAttached?: boolean;
 }
 
-export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete, creationSource, onAttach, onDetach, isAttached = false }: GoalCardProps) {
+export function GoalCard({ 
+  goal, 
+  variant, 
+  milestones = [], 
+  onPress, 
+  onToggleExpand, 
+  expanded = false, 
+  onMilestoneComplete, 
+  onMilestoneDelete,
+  onAttach,
+  onDetach,
+  isAttached = false,
+  creationSource 
+}: GoalCardProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const router = useRouter();
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   
   // Selection compact variant for goal selection dropdowns
@@ -275,7 +300,7 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
   const emotions = goal?.emotions || [];
   const displayedEmotions = emotions.slice(0, 2);
   const remainingCount = emotions.length - 2;
-  const milestones = goal?.milestones || [];
+  const goalMilestones = milestones || goal?.milestones || [];
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No date set';
@@ -307,14 +332,10 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
   };
 
   return (
-    <Pressable
-      onPress={onPress}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
+    <View
       style={[
         styles.container,
-        isCompleted && styles.completedContainer,
-        isPressed && styles.containerPressed
+        isCompleted && styles.completedContainer
       ]}
     >
       {/* Goal Card Container */}
@@ -579,14 +600,25 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
             
             {/* View Complete Goal Button */}
             <Pressable
-              onPress={onPress}
+              onPress={() => {
+                if (goal?.id) {
+                  router.push(`/goal-details?id=${goal.id}`);
+                } else if (onToggleExpand) {
+                  onToggleExpand();
+                }
+              }}
               style={{
-                borderWidth: 0.5,
-                borderColor: '#344E41',
-                borderRadius: 3,
-                paddingVertical: 3,
-                width: 105,
+                width: 80,
+                height: 32,
                 alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-start',
+                marginTop: -4,
+                backgroundColor: '#F5EBE0',
+                borderWidth: 0.5,
+                borderColor: '#A3B18A',
+                borderRadius: 8,
+                shadowColor: '#7C7C7C', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0, elevation: 4,
               }}
             >
               <Text style={{
@@ -594,13 +626,13 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
                 color: '#344E41',
                 fontFamily: 'Helvetica',
               }}>
-                View complete goal
+                View Full Goal
               </Text>
             </Pressable>
 
             {/* Milestones Section */}
-            {milestones.length > 0 ? (
-              milestones.map((milestone) => (
+            {goalMilestones.length > 0 ? (
+              goalMilestones.map((milestone: Milestone) => (
                 <MilestoneCard
                   key={milestone.id}
                   milestone={milestone}
@@ -647,7 +679,7 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
           </View>
         )}
       </View>
-    </Pressable>
+    </View>
   );
 }
 

@@ -143,14 +143,25 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
       >
         <Animated.View style={[styles.cardWrapper, { transform: [{ translateX }] }]}>
           <Pressable
-            onPress={onPress}
+            onPress={() => {
+              if (task?.id) {
+                router.push(`/task-details?id=${task.id}`);
+              } else if (onPress) {
+                onPress();
+              }
+            }}
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             style={[
               styles.card,
               isCompleted && styles.completedCard,
               isFrog && styles.frogCard,
-              isPressed && styles.cardPressed
+              {
+                backgroundColor: isPressed 
+                  ? (isCompleted ? '#D4D1A1' : isFrog ? '#E8FFF8' : '#D4E2B8')
+                  : (isCompleted ? '#EAE2B7' : isFrog ? '#F0FFF0' : '#E9EDC9'),
+                transform: [{ scale: isPressed ? 0.98 : 1 }]
+              }
             ]}
           >
             <View style={styles.content}>
@@ -312,9 +323,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
-  },
-  cardPressed: {
-    shadowOffset: { width: 0, height: 2 },
   },
   emptyCard: {
     backgroundColor: '#E9EDC9',
