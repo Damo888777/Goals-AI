@@ -1,4 +1,5 @@
-import { View, Text, Pressable, Image, Animated, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type { Goal, Milestone } from '../types';
@@ -76,7 +77,7 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
   const displayedEmotions = emotions.slice(0, 2);
   const remainingCount = emotions.length - 2;
   const milestones = goal?.milestones || [];
-  const hasVisionImage = goal?.visionImages && goal.visionImages.length > 0;
+  const hasVisionImage = goal?.visionImageUrl;
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No date set';
@@ -141,11 +142,10 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
         shadowRadius: 0,
         elevation: 4,
       }}>
-        {/* Vision Image Placeholder */}
+        {/* Vision Image */}
         {hasVisionImage && (
           <View style={{
             height: 102,
-            backgroundColor: '#E3E3E3',
             borderWidth: 0.5,
             borderColor: '#A3B18A',
             borderTopLeftRadius: 20,
@@ -153,10 +153,19 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
             borderBottomLeftRadius: 0,
             borderBottomRightRadius: 0,
             marginBottom: 15,
-            opacity: 0.2,
             marginHorizontal: -15,
             marginTop: -15,
-          }} />
+            overflow: 'hidden',
+          }}>
+            <Image
+              source={{ uri: goal?.visionImageUrl }}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+              contentFit="cover"
+            />
+          </View>
         )}
 
         {/* Main Content */}

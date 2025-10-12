@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { InfoPopup } from '../src/components/InfoPopup';
 import { INFO_CONTENT } from '../src/constants/infoContent';
 import { useVisionImages } from '../src/hooks/useDatabase';
 import * as ImagePicker from 'expo-image-picker';
+import VisionImage from '../src/db/models/VisionImage';
 
 interface VisionImageProps {
   width: number;
@@ -52,10 +53,13 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
 }
 
 interface VisionItem {
-  id: number;
+  id: string;
   aspectRatio: number;
   height?: number;
   imageUri?: string;
+  createdAt?: Date;
+  source?: string;
+  visionImage?: VisionImage;
 }
 
 interface Column {
@@ -65,9 +69,10 @@ interface Column {
 
 interface MasonryGridProps {
   visionImages: VisionItem[];
+  onImagePress: (visionItem: VisionItem) => void;
 }
 
-function MasonryGrid({ visionImages }: MasonryGridProps) {
+function MasonryGrid({ visionImages, onImagePress }: MasonryGridProps) {
   const gap = 12;
   const numColumns = 2;
   
@@ -111,14 +116,15 @@ function MasonryGrid({ visionImages }: MasonryGridProps) {
     );
   }
   
-  return <MasonryLayout items={visionImages} gap={gap} numColumns={numColumns} isEmpty={false} />;
+  return <MasonryLayout items={visionImages} gap={gap} numColumns={numColumns} isEmpty={false} onImagePress={onImagePress} />;
 }
 
-function MasonryLayout({ items, gap, numColumns, isEmpty }: { 
+function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: { 
   items: VisionItem[], 
   gap: number, 
   numColumns: number, 
-  isEmpty: boolean 
+  isEmpty: boolean,
+  onImagePress: (visionItem: VisionItem) => void 
 }) {
   // Distribute items across columns using Pinterest algorithm
   const columns: Column[] = Array.from({ length: numColumns }, () => ({ items: [], height: 0 }));
@@ -148,8 +154,9 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
       {columns.map((column, columnIndex) => (
         <View key={columnIndex} style={{ flex: 1, gap }}>
           {column.items.map((item) => (
-            <View
+            <Pressable
               key={item.id}
+              onPress={() => !isEmpty && item.imageUri && onImagePress(item)}
               style={{
                 width: '100%',
                 height: item.height || 100,
@@ -182,7 +189,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty }: {
                   </Text>
                 </View>
               )}
-            </View>
+            </Pressable>
           ))}
         </View>
       ))}
@@ -198,19 +205,24 @@ export default function VisionBoardScreen() {
   console.log('🟢 Safe area insets:', insets);
   
   console.log('🟢 Initializing state...');
-  const { visionImages: dbVisionImages, addVisionImage } = useVisionImages();
+  const { visionImages: dbVisionImages, addVisionImage, deleteVisionImage } = useVisionImages();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isBackPressed, setIsBackPressed] = useState(false);
   const [isInfoPressed, setIsInfoPressed] = useState(false);
   const [isCreatePressed, setIsCreatePressed] = useState(false);
   const [isUploadPressed, setIsUploadPressed] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<VisionItem | null>(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
   console.log('🟢 State initialized successfully');
 
   // Convert database vision images to VisionItem format
-  const visionImages: VisionItem[] = dbVisionImages.map((img, index) => ({
-    id: index + 1,
+  const visionImages: VisionItem[] = dbVisionImages.map((img) => ({
+    id: img.id,
     aspectRatio: img.aspectRatio,
     imageUri: img.imageUri,
+    createdAt: img.createdAt,
+    source: img.source,
+    visionImage: img,
   }));
 
   const handleCreateVision = () => {
@@ -237,7 +249,7 @@ export default function VisionBoardScreen() {
 
     // Launch image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: 'images',
       allowsEditing: true,
       aspect: undefined, // Allow any aspect ratio
       quality: 0.8,
@@ -250,6 +262,47 @@ export default function VisionBoardScreen() {
       // Add to database
       await addVisionImage(asset.uri, aspectRatio, 'uploaded');
     }
+  };
+
+  const handleImagePress = (visionItem: VisionItem) => {
+    setSelectedImage(visionItem);
+    setShowImagePreview(true);
+  };
+
+  const handleDeleteImage = async () => {
+    if (selectedImage?.visionImage) {
+      Alert.alert(
+        'Delete Vision',
+        'Are you sure you want to delete this vision image?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await deleteVisionImage(selectedImage.visionImage!.id);
+                setShowImagePreview(false);
+                setSelectedImage(null);
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              } catch (error) {
+                Alert.alert('Error', 'Failed to delete image.');
+              }
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const handleGoBack = () => {
@@ -512,7 +565,7 @@ export default function VisionBoardScreen() {
         </View>
         
         {/* Masonry Grid */}
-        <MasonryGrid visionImages={visionImages} />
+        <MasonryGrid visionImages={visionImages} onImagePress={handleImagePress} />
       </ScrollView>
 
       {/* Info Popup */}
@@ -522,6 +575,202 @@ export default function VisionBoardScreen() {
         content={INFO_CONTENT.VISION_BOARD.content}
         onClose={() => setShowInfoPopup(false)}
       />
+
+      {/* Image Preview Modal */}
+      <Modal
+        visible={showImagePreview}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowImagePreview(false)}
+      >
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingTop: insets.top + 20,
+          paddingBottom: insets.bottom + 20,
+        }}>
+          {selectedImage && (
+            <>
+              {/* Header with Delete and Close buttons */}
+              <View style={{
+                position: 'absolute',
+                top: insets.top + 20,
+                left: 20,
+                right: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                zIndex: 10,
+              }}>
+                {/* Delete Button */}
+                <Pressable
+                  onPress={handleDeleteImage}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View style={{
+                    width: 24,
+                    height: 24,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    {/* Delete icon - trash can */}
+                    <View style={{
+                      width: 16,
+                      height: 18,
+                      position: 'relative',
+                    }}>
+                      {/* Trash can lid */}
+                      <View style={{
+                        position: 'absolute',
+                        top: 2,
+                        left: 1,
+                        right: 1,
+                        height: 2,
+                        backgroundColor: '#ffb3ba',
+                        borderRadius: 1,
+                      }} />
+                      {/* Trash can body */}
+                      <View style={{
+                        position: 'absolute',
+                        top: 4,
+                        left: 2,
+                        right: 2,
+                        bottom: 0,
+                        backgroundColor: '#ffb3ba',
+                        borderRadius: 2,
+                      }} />
+                      {/* Trash can handle */}
+                      <View style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 5,
+                        right: 5,
+                        height: 2,
+                        borderWidth: 1,
+                        borderColor: '#ffb3ba',
+                        borderRadius: 1,
+                        backgroundColor: 'transparent',
+                      }} />
+                    </View>
+                  </View>
+                </Pressable>
+
+                {/* Close Button */}
+                <Pressable
+                  onPress={() => setShowImagePreview(false)}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View style={{
+                    width: 24,
+                    height: 24,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    {/* X icon */}
+                    <View style={{
+                      width: 18,
+                      height: 18,
+                      position: 'relative',
+                    }}>
+                      {/* First diagonal line */}
+                      <View style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 0,
+                        right: 0,
+                        height: 2,
+                        backgroundColor: '#F5EBE0',
+                        borderRadius: 1,
+                        transform: [{ rotate: '45deg' }],
+                      }} />
+                      {/* Second diagonal line */}
+                      <View style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 0,
+                        right: 0,
+                        height: 2,
+                        backgroundColor: '#F5EBE0',
+                        borderRadius: 1,
+                        transform: [{ rotate: '-45deg' }],
+                      }} />
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
+
+              {/* Image */}
+              <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                maxHeight: '70%',
+              }}>
+                <Image
+                  source={{ uri: selectedImage.imageUri }}
+                  style={{
+                    width: '100%',
+                    aspectRatio: selectedImage.aspectRatio,
+                    borderRadius: 15,
+                    backgroundColor: '#2A2D3A',
+                  }}
+                  contentFit="contain"
+                />
+              </View>
+
+              {/* Image Info */}
+              <View style={{
+                width: '100%',
+                paddingTop: 20,
+                alignItems: 'center',
+                gap: 8,
+              }}>
+                {/* Goal Connection - Since we don't have goal linking yet, show generic info */}
+                <Text style={{
+                  color: '#F5EBE0',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}>
+                  Vision Image
+                </Text>
+                
+                {/* Timestamp */}
+                <Text style={{
+                  color: 'rgba(245, 235, 224, 0.7)',
+                  fontSize: 14,
+                  textAlign: 'center',
+                }}>
+                  {selectedImage.createdAt ? formatTimestamp(selectedImage.createdAt) : 'Unknown date'}
+                </Text>
+                
+                {/* Source */}
+                <Text style={{
+                  color: 'rgba(245, 235, 224, 0.7)',
+                  fontSize: 14,
+                  textAlign: 'center',
+                  textTransform: 'capitalize',
+                }}>
+                  {selectedImage.source || 'Unknown source'}
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }

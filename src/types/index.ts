@@ -20,6 +20,7 @@ export interface Goal {
   title: string;
   description?: string;
   emotions: string[];
+  visionImageUrl?: string;
   visionImages?: string[];
   milestones: Milestone[];
   progress: number;

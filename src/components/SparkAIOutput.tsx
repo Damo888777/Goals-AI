@@ -8,14 +8,17 @@ import {
   Platform,
   Modal,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { LinearGradient } from 'expo-linear-gradient';
 import { images } from '../constants/images';
-import { useTasks, useGoals, useMilestones } from '../hooks/useDatabase';
+import { useTasks, useGoals, useMilestones, useVisionImages } from '../hooks/useDatabase';
+import VisionImage from '../db/models/VisionImage';
 
 // Types for the component
 export type SparkOutputType = 'task' | 'goal' | 'milestone';
@@ -283,7 +286,40 @@ const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, o
 };
 
 // Vision Board Section (for goals only)
-const VisionBoardSection: React.FC = () => {
+interface VisionBoardSectionProps {
+  selectedVisionImage?: VisionImage | null;
+  onVisionImageSelect: (image: VisionImage | null) => void;
+}
+
+const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({ 
+  selectedVisionImage, 
+  onVisionImageSelect 
+}) => {
+  const [showVisionPicker, setShowVisionPicker] = useState(false);
+  const { visionImages } = useVisionImages();
+  const { goals } = useGoals();
+
+  // Filter out vision images that are already attached to goals
+  const availableVisionImages = visionImages.filter(image => {
+    return !goals.some(goal => goal.visionImageUrl === image.imageUri);
+  });
+
+  const handleVisionPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowVisionPicker(true);
+  };
+
+  const handleVisionSelect = (image: VisionImage) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onVisionImageSelect(image);
+    setShowVisionPicker(false);
+  };
+
+  const handleRemoveVision = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onVisionImageSelect(null);
+  };
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
@@ -292,20 +328,103 @@ const VisionBoardSection: React.FC = () => {
       <Text style={styles.sectionSubtitle}>
         Choose an image from your Vision Board.
       </Text>
-      <TouchableOpacity style={styles.visionButtonTouchable}>
+      
+      <TouchableOpacity 
+        style={styles.visionButtonTouchable}
+        onPress={handleVisionPress}
+      >
         <View style={styles.visionButton}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={{ uri: images.visionPlaceholder }}
+              source={{ 
+                uri: selectedVisionImage?.imageUri || images.visionPlaceholder 
+              }}
               style={styles.visionImage}
               contentFit="cover"
             />
           </View>
+          {selectedVisionImage && (
+            <TouchableOpacity 
+              style={styles.removeVisionButton}
+              onPress={handleRemoveVision}
+            >
+              <Text style={styles.removeVisionText}>×</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.visionButtonText}>
-            Choose your Vision
+            {selectedVisionImage ? 'Change Vision' : 'Choose your Vision'}
           </Text>
         </View>
       </TouchableOpacity>
+
+      {/* Vision Picker Modal */}
+      <Modal
+        visible={showVisionPicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowVisionPicker(false)}
+      >
+        <View style={styles.visionModalOverlay}>
+          <LinearGradient
+            colors={['#4a4e69', '#9a8c98', '#4a4e69']}
+            locations={[0, 0.5, 1]}
+            style={styles.visionModalContainer}
+          >
+            {/* Header */}
+            <View style={styles.visionModalHeader}>
+              <Text style={styles.visionModalTitle}>Choose Vision Image</Text>
+              <TouchableOpacity
+                onPress={() => setShowVisionPicker(false)}
+                style={styles.visionModalCloseButton}
+              >
+                <Text style={styles.visionModalCloseText}>×</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Vision Images Grid */}
+            <View style={styles.visionModalContent}>
+              {availableVisionImages.length > 0 ? (
+                <ScrollView 
+                  style={styles.visionScrollView}
+                  contentContainerStyle={styles.visionScrollContent}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={styles.visionGrid}>
+                    {availableVisionImages.map((image) => (
+                      <TouchableOpacity
+                        key={image.id}
+                        style={[
+                          styles.visionGridItem,
+                          selectedVisionImage?.id === image.id && styles.visionGridItemSelected
+                        ]}
+                        onPress={() => handleVisionSelect(image)}
+                      >
+                        <Image
+                          source={{ uri: image.imageUri }}
+                          style={styles.visionGridImage}
+                          contentFit="cover"
+                        />
+                        {selectedVisionImage?.id === image.id && (
+                          <View style={styles.visionGridOverlay}>
+                            <Text style={styles.visionGridCheckmark}>✓</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              ) : (
+                <View style={styles.visionEmptyState}>
+                  <Text style={styles.visionEmptyTitle}>No Available Vision Images</Text>
+                  <Text style={styles.visionEmptySubtitle}>
+                    All vision images are already attached to goals, or create your first vision image to get started
+                  </Text>
+                </View>
+              )}
+            </View>
+          </LinearGradient>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -433,6 +552,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // Database hooks
@@ -468,6 +588,10 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
+  };
+
+  const handleVisionImageSelect = (image: VisionImage | null) => {
+    setSelectedVisionImage(image);
   };
 
   const getSparkSuggestionText = () => {
@@ -521,7 +645,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             title: title.trim(),
             notes: notes.trim(),
             feelings: selectedEmotions,
-            visionImageUrl: undefined, // TODO: Add vision board integration
+            visionImageUrl: selectedVisionImage?.imageUri || undefined,
           });
           break;
 
@@ -641,7 +765,10 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
               selectedEmotions={selectedEmotions}
               onEmotionToggle={handleEmotionToggle}
             />
-            <VisionBoardSection />
+            <VisionBoardSection 
+              selectedVisionImage={selectedVisionImage}
+              onVisionImageSelect={handleVisionImageSelect}
+            />
           </>
         )}
 
@@ -990,6 +1117,148 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     display: 'flex',
     lineHeight: 80,
+  },
+  removeVisionButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(188, 75, 81, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  removeVisionText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  // Vision Modal Styles
+  visionModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 40,
+  },
+  visionModalContainer: {
+    borderRadius: 20,
+    width: '100%',
+    height: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  visionModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(245, 235, 224, 0.2)',
+  },
+  visionModalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F5EBE0',
+  },
+  visionModalCloseButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+    backgroundColor: 'rgba(245, 235, 224, 0.1)',
+  },
+  visionModalCloseText: {
+    fontSize: 24,
+    color: '#F5EBE0',
+    fontWeight: 'bold',
+    lineHeight: 24,
+  },
+  visionModalContent: {
+    flex: 1,
+    padding: 24,
+  },
+  visionScrollView: {
+    flex: 1,
+  },
+  visionScrollContent: {
+    paddingBottom: 20,
+  },
+  visionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    justifyContent: 'space-between',
+  },
+  visionGridItem: {
+    width: '47%',
+    aspectRatio: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: 'transparent',
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  visionGridItemSelected: {
+    borderColor: '#F5EBE0',
+    shadowColor: '#F5EBE0',
+    shadowOpacity: 0.4,
+  },
+  visionGridImage: {
+    width: '100%',
+    height: '100%',
+  },
+  visionGridOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(245, 235, 224, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9,
+  },
+  visionGridCheckmark: {
+    fontSize: 32,
+    color: '#4a4e69',
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  visionEmptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  visionEmptyTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F5EBE0',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  visionEmptySubtitle: {
+    fontSize: 16,
+    color: 'rgba(245, 235, 224, 0.7)',
+    textAlign: 'center',
+    lineHeight: 22,
   },
 
   // Goal attachment styles
