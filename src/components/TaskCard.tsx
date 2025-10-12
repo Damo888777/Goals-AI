@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, Alert } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
@@ -126,8 +126,37 @@ export function TaskCard({ task, isEmpty = false, isFrog = false, isSomeday = fa
               style={[styles.completeButton, isCompletePressed && styles.completeButtonPressed]}
               onPress={() => {
                 if (task?.id && onToggleComplete) {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  onToggleComplete(task.id);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  
+                  Alert.alert(
+                    'Complete Task',
+                    `Did you complete "${task.title}"?`,
+                    [
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                        onPress: () => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        onPress: async () => {
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          await onToggleComplete(task.id);
+                          
+                          // Show completion confirmation
+                          setTimeout(() => {
+                            Alert.alert(
+                              '🎉 Task Completed!',
+                              'Great job! Your task has been marked as complete.',
+                              [{ text: 'OK', onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
+                            );
+                          }, 300);
+                        }
+                      }
+                    ]
+                  );
                 }
               }}
               onPressIn={() => setIsCompletePressed(true)}

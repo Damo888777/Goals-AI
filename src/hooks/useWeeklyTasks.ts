@@ -79,6 +79,7 @@ export function useWeeklyTasks(weekOffset: number = 0) {
       const weekTasks = await tasksCollection
         .query(
           Q.where('user_id', userId),
+          Q.where('is_complete', false),
           Q.where('scheduled_date', Q.gte(startDate.toISOString())),
           Q.where('scheduled_date', Q.lte(endDate.toISOString()))
         )

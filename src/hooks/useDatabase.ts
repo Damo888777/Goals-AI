@@ -491,10 +491,8 @@ export const useTodaysCompletedTasks = () => {
           .query(
             Q.where('user_id', userId),
             Q.where('is_complete', true),
-            Q.where('scheduled_date', Q.gte(todayStart.toISOString())),
-            Q.where('scheduled_date', Q.lte(todayEnd.toISOString())),
-            Q.where('completed_at', Q.gte(todayStart.toISOString())),
-            Q.where('completed_at', Q.lte(todayEnd.toISOString()))
+            Q.where('completed_at', Q.gte(todayStart.getTime())),
+            Q.where('completed_at', Q.lte(todayEnd.getTime()))
           )
           .observe()
           .subscribe((tasks) => {
@@ -550,6 +548,7 @@ export const useTodaysTasks = () => {
         const subscription = tasksCollection
           .query(
             Q.where('user_id', userId),
+            Q.where('is_complete', false),
             Q.where('scheduled_date', Q.gte(todayStart.toISOString())),
             Q.where('scheduled_date', Q.lte(todayEnd.toISOString()))
           )
