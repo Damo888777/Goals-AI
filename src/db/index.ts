@@ -3,11 +3,11 @@ import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import schema from './schema';
 import Profile from './models/Profile';
-import Goal from './models/Goal';
-import Milestone from './models/Milestone';
-import Task from './models/Task';
+import Goal from './models/Goal'
+import Milestone from './models/Milestone'
+import Task from './models/Task'
+import VisionImage from './models/VisionImage'
 
-// Initialize WatermelonDB
 let database: Database | null = null;
 
 if (DB_CONFIG.USE_WATERMELON) {
@@ -28,6 +28,7 @@ if (DB_CONFIG.USE_WATERMELON) {
         Goal,
         Milestone,
         Task,
+        VisionImage,
       ],
     });
     

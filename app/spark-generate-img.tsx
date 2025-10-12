@@ -9,6 +9,7 @@ import { imageGenerationService, StyleOption } from '../src/services/imageGenera
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import { useVisionImages } from '../src/hooks/useDatabase';
 
 
 interface StyleButtonProps {
@@ -81,6 +82,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
 
 export default function SparkGenerateIMGScreen() {
   const insets = useSafeAreaInsets();
+  const { addVisionImage } = useVisionImages();
   const [visionText, setVisionText] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>('photorealistic');
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
@@ -129,9 +131,6 @@ export default function SparkGenerateIMGScreen() {
       return; // Prevent multiple simultaneous generations
     }
 
-    // Request media library permissions upfront
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    
     try {
       setIsGenerating(true);
       setGenerationState('generating');
@@ -487,15 +486,27 @@ export default function SparkGenerateIMGScreen() {
             <Pressable
               onPress={async () => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                if (status === 'granted' && generatedImageUri) {
+                
+                if (generatedImageUri) {
                   try {
-                    await MediaLibrary.saveToLibraryAsync(generatedImageUri);
-                    Alert.alert('Saved!', 'Your vision has been saved to your photo library.');
+                    // Calculate aspect ratio (assume square for generated images)
+                    const aspectRatio = 1.0;
+                    
+                    // Save to vision board database
+                    await addVisionImage(generatedImageUri, aspectRatio, 'generated');
+                    
+                    // Show success and redirect to vision board
+                    Alert.alert('Saved!', 'Your vision has been saved to your Vision Board.', [
+                      {
+                        text: 'View Vision Board',
+                        onPress: () => {
+                          router.replace('/vision-board');
+                        }
+                      }
+                    ]);
                   } catch (error) {
-                    Alert.alert('Error', 'Failed to save image to photo library.');
+                    Alert.alert('Error', 'Failed to save image to Vision Board.');
                   }
-                } else {
-                  Alert.alert('Permission Required', 'Please grant photo library access to save images.');
                 }
               }}
               onPressIn={() => setIsSavePressed(true)}

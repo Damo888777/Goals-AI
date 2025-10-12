@@ -1,9 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-// Get Supabase client
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { getApiUrl } from '../constants/config';
 
 export type StyleOption = 'photorealistic' | 'anime' | 'watercolour' | 'cyberpunk';
 
@@ -21,12 +16,23 @@ export interface ImageGenerationResult {
 class ImageGenerationService {
   async generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResult> {
     try {
-      // Use Expo API route instead of Supabase Edge Function
-      const apiUrl = `/api/generate-image?userText=${encodeURIComponent(request.userText)}&style=${encodeURIComponent(request.style)}`;
+      console.log('🖼️ [ImageGenerationService] Starting image generation...');
+      console.log('🖼️ [ImageGenerationService] Request:', { userText: request.userText, style: request.style });
+      
+      // Use proper API URL for both development and production
+      const apiUrl = getApiUrl(`/api/generate-image?userText=${encodeURIComponent(request.userText)}&style=${encodeURIComponent(request.style)}`);
+      console.log('🖼️ [ImageGenerationService] API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
       });
+      
+      console.log('🖼️ [ImageGenerationService] Response status:', response.status);
+      console.log('🖼️ [ImageGenerationService] Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         return {

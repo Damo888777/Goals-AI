@@ -10,6 +10,7 @@
     "generate-db": "node generate-db.js"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^3.0.5",
     "@expo/vector-icons": "^14.0.0",
     "@google/generative-ai": "^0.19.0",
     "@hookform/resolvers": "^3.3.4",
@@ -47,6 +48,7 @@
     "expo-sqlite": "~13.2.0",
     "expo-status-bar": "~1.11.1",
     "nativewind": "^2.0.11",
+    "onesignal-expo-plugin": "^2.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-error-boundary": "^4.0.12",
@@ -54,6 +56,9 @@
     "react-native": "0.73.6",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-onesignal": "^5.2.13",
+    "react-native-purchases": "^9.5.4",
+    "react-native-purchases-ui": "^9.5.4",
     "react-native-reanimated": "~3.6.2",
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",

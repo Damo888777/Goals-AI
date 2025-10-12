@@ -7,6 +7,7 @@ import Goal from '../db/models/Goal'
 import Milestone from '../db/models/Milestone'
 import Task from '../db/models/Task'
 import Profile from '../db/models/Profile'
+import VisionImage from '../db/models/VisionImage'
 
 // Hook for authentication state
 export const useAuth = () => {
@@ -609,5 +610,87 @@ export const useTodaysTasks = () => {
     frogTask,
     isLoading,
     setFrogTaskForToday,
+  }
+}
+
+// Hook for vision images
+export const useVisionImages = () => {
+  const [visionImages, setVisionImages] = useState<VisionImage[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (!database) {
+      setIsLoading(false)
+      return
+    }
+
+    let subscription: any = null
+
+    const loadVisionImages = async () => {
+      if (!database) {
+        setIsLoading(false)
+        return
+      }
+
+      const visionImagesCollection = database.get<VisionImage>('vision_images')
+      const currentUserId = await getCurrentUserId()
+
+      if (!currentUserId) {
+        setIsLoading(false)
+        return
+      }
+
+      subscription = visionImagesCollection
+        .query(Q.where('user_id', currentUserId))
+        .observe()
+        .subscribe((images) => {
+          setVisionImages(images)
+          setIsLoading(false)
+        })
+    }
+
+    loadVisionImages()
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    }
+  }, [])
+
+  const addVisionImage = async (imageUri: string, aspectRatio: number, source: 'generated' | 'uploaded') => {
+    if (!database) return
+
+    const currentUserId = await getCurrentUserId()
+    if (!currentUserId) return
+
+    const visionImagesCollection = database.get<VisionImage>('vision_images')
+
+    await database.write(async () => {
+      await visionImagesCollection.create((visionImage) => {
+        visionImage.userId = currentUserId
+        visionImage.imageUri = imageUri
+        visionImage.aspectRatio = aspectRatio
+        visionImage.source = source
+      })
+    })
+  }
+
+  const deleteVisionImage = async (imageId: string) => {
+    if (!database) return
+
+    const visionImagesCollection = database.get<VisionImage>('vision_images')
+
+    await database.write(async () => {
+      const visionImage = await visionImagesCollection.find(imageId)
+      await visionImage.destroyPermanently()
+    })
+  }
+
+  return {
+    visionImages,
+    isLoading,
+    addVisionImage,
+    deleteVisionImage,
   }
 }

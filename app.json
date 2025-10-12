@@ -18,7 +18,12 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice input features.",
-        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images."
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images.",
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "entitlements": {
+        "aps-environment": "development",
+        "com.apple.security.application-groups": ["group.${ios.bundleIdentifier}.onesignal"]
       }
     },
     "android": {
@@ -34,8 +39,15 @@
     },
     "scheme": "goals-ai",
     "plugins": [
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "development"
+        }
+      ],
       "expo-router",
       "expo-secure-store",
+      "expo-image-picker",
       [
         "expo-build-properties",
         {
@@ -54,7 +66,8 @@
         }
       ],
       "@morrowdigital/watermelondb-expo-plugin",
-      "expo-font"
+      "expo-font",
+      "@bacons/apple-targets"
     ],
     "extra": {
       "router": {},

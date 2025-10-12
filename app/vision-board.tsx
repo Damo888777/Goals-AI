@@ -9,6 +9,8 @@ import { typography } from '../src/constants/typography';
 import { images } from '../src/constants/images';
 import { InfoPopup } from '../src/components/InfoPopup';
 import { INFO_CONTENT } from '../src/constants/infoContent';
+import { useVisionImages } from '../src/hooks/useDatabase';
+import * as ImagePicker from 'expo-image-picker';
 
 interface VisionImageProps {
   width: number;
@@ -196,13 +198,20 @@ export default function VisionBoardScreen() {
   console.log('🟢 Safe area insets:', insets);
   
   console.log('🟢 Initializing state...');
-  const [visionImages, setVisionImages] = useState<VisionItem[]>([]);
+  const { visionImages: dbVisionImages, addVisionImage } = useVisionImages();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isBackPressed, setIsBackPressed] = useState(false);
   const [isInfoPressed, setIsInfoPressed] = useState(false);
   const [isCreatePressed, setIsCreatePressed] = useState(false);
   const [isUploadPressed, setIsUploadPressed] = useState(false);
   console.log('🟢 State initialized successfully');
+
+  // Convert database vision images to VisionItem format
+  const visionImages: VisionItem[] = dbVisionImages.map((img, index) => ({
+    id: index + 1,
+    aspectRatio: img.aspectRatio,
+    imageUri: img.imageUri,
+  }));
 
   const handleCreateVision = () => {
     console.log('🟢 Create Vision button clicked in VisionBoardScreen');
@@ -216,15 +225,31 @@ export default function VisionBoardScreen() {
     }
   };
 
-  const handleUploadVision = () => {
+  const handleUploadVision = async () => {
     console.log('Upload Vision from gallery');
-    // Simulate adding an uploaded vision image
-    const newVision: VisionItem = {
-      id: Date.now() + 1,
-      aspectRatio: Math.random() * 1.5 + 0.5, // Random aspect ratio between 0.5 and 2.0
-      imageUri: `https://picsum.photos/300/${Math.floor(Math.random() * 200 + 200)}`, // Random placeholder image
-    };
-    setVisionImages(prev => [...prev, newVision]);
+    
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access media library denied');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: undefined, // Allow any aspect ratio
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      const aspectRatio = asset.width / asset.height;
+      
+      // Add to database
+      await addVisionImage(asset.uri, aspectRatio, 'uploaded');
+    }
   };
 
   const handleGoBack = () => {
@@ -425,9 +450,9 @@ export default function VisionBoardScreen() {
             }
           ]}>
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                handleUploadVision();
+                await handleUploadVision();
               }}
               onPressIn={() => setIsUploadPressed(true)}
               onPressOut={() => setIsUploadPressed(false)}

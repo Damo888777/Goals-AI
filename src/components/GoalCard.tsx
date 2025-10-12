@@ -224,87 +224,163 @@ export function GoalCard({ goal, isEmpty = false, expanded = false, onPress, onT
             </View>
           </View>
 
-          {/* Emotion Badges - Always visible, bottom right corner */}
-          <View style={{ 
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            width: 59, 
-            gap: 6, 
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            zIndex: 10,
-          }}>
-            {(expanded ? emotions.slice(0, 5) : displayedEmotions).map((emotion, index) => {
-              const style = getEmotionStyle(emotion, index);
-              return (
-                <View
-                  key={index}
-                  style={{
-                    backgroundColor: style.backgroundColor,
-                    borderWidth: 0.3,
-                    borderColor: style.borderColor,
-                    borderRadius: 5,
-                    paddingHorizontal: 6,
-                    paddingVertical: 3,
-                    height: 21,
-                    width: 59,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    // Drop shadow matching Figma specs
-                    shadowColor: '#7C7C7C',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.75,
-                    shadowRadius: 0,
-                    elevation: 4,
-                  }}
-                >
-                  <Text 
+          {/* Emotion Badges - Collapsed: bottom right corner, Expanded: auto-layout */}
+          {!expanded ? (
+            // Collapsed state - original position
+            <View style={{ 
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              width: 59, 
+              gap: 6, 
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              zIndex: 10,
+            }}>
+              {displayedEmotions.map((emotion, index) => {
+                const style = getEmotionStyle(emotion, index);
+                return (
+                  <View
+                    key={index}
                     style={{
-                      fontSize: 10,
-                      fontWeight: '400',
-                      color: style.textColor,
-                      textAlign: 'center',
+                      backgroundColor: style.backgroundColor,
+                      borderWidth: 0.3,
+                      borderColor: style.borderColor,
+                      borderRadius: 5,
+                      paddingHorizontal: 6,
+                      paddingVertical: 3,
+                      height: 21,
+                      width: 59,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      // Drop shadow matching Figma specs
+                      shadowColor: '#7C7C7C',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.75,
+                      shadowRadius: 0,
+                      elevation: 4,
                     }}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit={true}
-                    minimumFontScale={0.8}
                   >
-                    {emotion}
+                    <Text 
+                      style={{
+                        fontSize: 10,
+                        fontWeight: '400',
+                        color: style.textColor,
+                        textAlign: 'center',
+                      }}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit={true}
+                      minimumFontScale={0.8}
+                    >
+                      {emotion}
+                    </Text>
+                  </View>
+                );
+              })}
+              
+              {/* Plus badge for remaining emotions */}
+              {emotions.length > 2 && (
+                <View style={{
+                  position: 'absolute',
+                  right: -7,
+                  bottom: 0,
+                  backgroundColor: '#FCB9B2',
+                  borderWidth: 0.5,
+                  borderColor: '#BC4749',
+                  borderRadius: 8,
+                  width: 13,
+                  height: 13,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <Text style={{
+                    fontSize: 8,
+                    fontWeight: '400',
+                    color: '#BC4749',
+                  }}>
+                    +{emotions.length - 2}
                   </Text>
                 </View>
-              );
-            })}
-            
-            {!expanded && emotions.length > 2 && (
-            <View style={{
-              position: 'absolute',
-              right: -7,
-              bottom: 0,
-              backgroundColor: '#FCB9B2',
-              borderWidth: 0.5,
-              borderColor: '#BC4749',
-              borderRadius: 8,
-              width: 13,
-              height: 13,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Text style={{
-                fontSize: 8,
-                fontWeight: '400',
-                color: '#BC4749',
-              }}>
-                +{emotions.length - 2}
-              </Text>
-              </View>
-            )}
-          </View>
+              )}
+            </View>
+          ) : null}
         </View>
 
         {/* Expanded Content */}
         {expanded && (
-          <View style={{ gap: 20, marginTop: 15 }}>            
+          <View style={{ gap: 20, marginTop: 15 }}>
+            {/* Emotion Badges - Expanded state with auto-layout */}
+            {emotions.length > 0 && (
+              <View style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 6,
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+              }}>
+                {emotions.slice(0, 5).map((emotion, index) => {
+                  const style = getEmotionStyle(emotion, index);
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        backgroundColor: style.backgroundColor,
+                        borderWidth: 0.3,
+                        borderColor: style.borderColor,
+                        borderRadius: 5,
+                        paddingHorizontal: 6,
+                        paddingVertical: 3,
+                        height: 21,
+                        minWidth: 59,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        // Drop shadow matching Figma specs
+                        shadowColor: '#7C7C7C',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.75,
+                        shadowRadius: 0,
+                        elevation: 4,
+                      }}
+                    >
+                      <Text 
+                        style={{
+                          fontSize: 10,
+                          fontWeight: '400',
+                          color: style.textColor,
+                          textAlign: 'center',
+                        }}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit={true}
+                        minimumFontScale={0.8}
+                      >
+                        {emotion}
+                      </Text>
+                    </View>
+                  );
+                })}
+                {emotions.length > 5 && (
+                  <View style={{
+                    backgroundColor: '#FCB9B2',
+                    borderWidth: 0.5,
+                    borderColor: '#BC4749',
+                    borderRadius: 8,
+                    width: 24,
+                    height: 21,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <Text style={{
+                      fontSize: 8,
+                      fontWeight: '400',
+                      color: '#BC4749',
+                    }}>
+                      +{emotions.length - 5}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+            
             {/* View Complete Goal Button */}
             <Pressable
               onPress={onPress}

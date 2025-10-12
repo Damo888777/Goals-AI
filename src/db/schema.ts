@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 4,
+  version: 5,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -52,6 +52,17 @@ export default appSchema({
         { name: 'is_complete', type: 'boolean' },
         { name: 'completed_at', type: 'number', isOptional: true }, // Unix timestamp
         { name: 'creation_source', type: 'string' }, // 'spark' or 'manual'
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
+    tableSchema({
+      name: 'vision_images',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'image_uri', type: 'string' },
+        { name: 'aspect_ratio', type: 'number' },
+        { name: 'source', type: 'string' }, // 'generated' or 'uploaded'
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]
