@@ -8,7 +8,7 @@ import { images } from '../../src/constants/images';
 import { GoalCard } from '../../src/components/GoalCard';
 import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
-import { useAuth, useGoals } from '../../src/hooks/useDatabase';
+import { useAuth, useGoals, useMilestones } from '../../src/hooks/useDatabase';
 import type { Goal } from '../../src/types';
 
 
@@ -21,6 +21,7 @@ export default function GoalsScreen() {
   // Database hooks
   const { user, isLoading: authLoading, signInAnonymously } = useAuth();
   const { goals, isLoading: goalsLoading, createGoal, completeGoal } = useGoals();
+  const { milestones: allMilestones } = useMilestones();
 
   // Auto sign-in anonymously if not authenticated
   useEffect(() => {
@@ -88,19 +89,33 @@ export default function GoalsScreen() {
   //   );
   // }
 
-  // Transform database goals to UI format
-  const transformedGoals: Goal[] = goals.map(dbGoal => ({
-    id: dbGoal.id,
-    title: dbGoal.title,
-    description: dbGoal.notes || '',
-    emotions: dbGoal.feelingsArray || [],
-    visionImages: dbGoal.visionImageUrl ? [dbGoal.visionImageUrl] : [],
-    milestones: [], // TODO: Load milestones separately
-    progress: 0, // TODO: Calculate progress from milestones
-    isCompleted: dbGoal.isCompleted,
-    createdAt: dbGoal.createdAt,
-    updatedAt: dbGoal.updatedAt,
-  }));
+  // Transform database goals to UI format with milestones
+  const transformedGoals: Goal[] = goals.map(dbGoal => {
+    const goalMilestones = allMilestones.filter(milestone => milestone.goalId === dbGoal.id);
+    const completedMilestones = goalMilestones.filter(m => m.isComplete).length;
+    const progress = goalMilestones.length > 0 ? (completedMilestones / goalMilestones.length) * 100 : 0;
+    
+    return {
+      id: dbGoal.id,
+      title: dbGoal.title,
+      description: dbGoal.notes || '',
+      emotions: dbGoal.feelingsArray || [],
+      visionImages: dbGoal.visionImageUrl ? [dbGoal.visionImageUrl] : [],
+      milestones: goalMilestones.map(milestone => ({
+        id: milestone.id,
+        title: milestone.title,
+        targetDate: milestone.targetDate,
+        isComplete: milestone.isComplete,
+        goalId: milestone.goalId,
+        createdAt: milestone.createdAt,
+        updatedAt: milestone.updatedAt
+      })),
+      progress,
+      isCompleted: dbGoal.isCompleted,
+      createdAt: dbGoal.createdAt,
+      updatedAt: dbGoal.updatedAt,
+    };
+  });
 
   return (
     <View style={styles.container}>
@@ -193,6 +208,7 @@ export default function GoalsScreen() {
               <GoalCard
                 key={goal.id}
                 goal={goal}
+                variant="active-with-vision"
                 expanded={expandedGoals.has(goal.id)}
                 onPress={() => handleGoalPress(goal)}
                 onToggleExpand={() => handleToggleExpand(goal.id)}
@@ -200,7 +216,7 @@ export default function GoalsScreen() {
               />
             ))
           ) : (
-            <GoalCard isEmpty={true} />
+            <GoalCard variant="empty" />
           )}
         </View>
       </ScrollView>

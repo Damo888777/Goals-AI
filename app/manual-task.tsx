@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
+import { GoalCard } from '../src/components/GoalCard';
 
 // Selection Card Component
 interface SelectionCardProps {
@@ -157,21 +158,27 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
 };
 
 // Goal/Milestone Selection Component
-const GoalMilestoneSelection: React.FC = () => {
+interface GoalMilestoneSelectionProps {
+  selectedGoalId: string | undefined;
+  onGoalSelect: (goalId: string | undefined) => void;
+}
+
+const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ selectedGoalId, onGoalSelect }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<string>('');
-  const [availableItems] = useState<string[]>([]); // Empty for now
+  const { goals } = useGoals();
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleItemSelect = (item: string) => {
+  const handleItemSelect = (goalId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedItem(item);
+    onGoalSelect(goalId);
     setIsDropdownOpen(false);
   };
+
+  const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
 
   return (
     <View style={styles.sectionContainer}>
@@ -190,7 +197,7 @@ const GoalMilestoneSelection: React.FC = () => {
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedItem || 'Select a main or milestone'}
+            {selectedGoal ? selectedGoal.title : 'Select a goal'}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -201,14 +208,14 @@ const GoalMilestoneSelection: React.FC = () => {
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {availableItems.length > 0 ? (
-              availableItems.map((item, index) => (
+            {goals.length > 0 ? (
+              goals.map((goal) => (
                 <TouchableOpacity
-                  key={index}
+                  key={goal.id}
                   style={styles.dropdownItem}
-                  onPress={() => handleItemSelect(item)}
+                  onPress={() => handleItemSelect(goal.id)}
                 >
-                  <Text style={styles.dropdownItemText}>{item}</Text>
+                  <Text style={styles.dropdownItemText}>{goal.title}</Text>
                 </TouchableOpacity>
               ))
             ) : (
@@ -265,12 +272,14 @@ export default function ManualTaskScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   // Database hooks
   const { createTask } = useTasks();
   const { createGoal } = useGoals();
   const { createMilestone } = useMilestones();
+  const { goals } = useGoals();
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -298,10 +307,18 @@ export default function ManualTaskScreen() {
           notes: notes.trim() || undefined,
         });
       } else if (selectedType === 'milestone') {
-        // For now, skip milestone creation as it requires a goalId
-        Alert.alert('Info', 'Milestone creation requires selecting a goal first. This feature will be added soon.');
-        setIsLoading(false);
-        return;
+        if (!selectedGoalId) {
+          Alert.alert('Error', 'Please select a goal first to create a milestone.');
+          setIsLoading(false);
+          return;
+        }
+        
+        await createMilestone({
+          goalId: selectedGoalId,
+          title: title.trim(),
+          targetDate: selectedDate,
+          creationSource: 'manual'
+        });
       }
 
       // Show success confirmation
@@ -368,7 +385,20 @@ export default function ManualTaskScreen() {
         </View>
 
         {/* Goal/Milestone Selection */}
-        <GoalMilestoneSelection />
+        <GoalMilestoneSelection 
+          selectedGoalId={selectedGoalId}
+          onGoalSelect={setSelectedGoalId}
+        />
+
+        {/* Goal Card Display */}
+        {selectedGoalId && (
+          <GoalCard
+            goal={goals.find(g => g.id === selectedGoalId) as any}
+            variant="selection-compact"
+            isAttached={true}
+            onDetach={() => setSelectedGoalId(undefined)}
+          />
+        )}
 
 
         {/* Date Picker */}

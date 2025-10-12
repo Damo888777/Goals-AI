@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useGoals, useMilestones } from '../src/hooks/useDatabase';
+import { GoalCard } from '../src/components/GoalCard';
 
 // Selection Card Component
 interface SelectionCardProps {
@@ -155,21 +158,31 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
 };
 
 // Goal Selection Component
-const GoalSelection: React.FC = () => {
+interface GoalSelectionProps {
+  selectedGoalId: string | undefined;
+  onGoalSelect: (goalId: string | undefined) => void;
+  onDropdownToggle?: (isOpen: boolean) => void;
+}
+
+const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSelect, onDropdownToggle }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<string>('');
-  const [availableGoals] = useState<string[]>([]); // Empty for now
+  const { goals } = useGoals();
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsDropdownOpen(!isDropdownOpen);
+    const newState = !isDropdownOpen;
+    setIsDropdownOpen(newState);
+    onDropdownToggle?.(newState);
   };
 
-  const handleGoalSelect = (goal: string) => {
+  const handleGoalSelect = (goalId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedGoal(goal);
+    onGoalSelect(goalId);
     setIsDropdownOpen(false);
+    onDropdownToggle?.(false);
   };
+
+  const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
 
   return (
     <View style={styles.sectionContainer}>
@@ -188,7 +201,7 @@ const GoalSelection: React.FC = () => {
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal || 'Select your goal'}
+            {selectedGoal ? selectedGoal.title : 'Select your goal'}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -199,25 +212,32 @@ const GoalSelection: React.FC = () => {
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {availableGoals.length > 0 ? (
-              availableGoals.map((goal, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownItem}
-                  onPress={() => handleGoalSelect(goal)}
-                >
-                  <Text style={styles.dropdownItemText}>{goal}</Text>
-                </TouchableOpacity>
+            {goals.length > 0 ? (
+              goals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
+                    emotions: goal.feelingsArray || [],
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [],
+                    progress: 0,
+                    isCompleted: goal.isCompleted,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
+                  }}
+                  variant="selection-compact"
+                  isAttached={selectedGoalId === goal.id}
+                  onAttach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => handleGoalSelect(undefined)}
+                />
               ))
             ) : (
-              <View style={styles.emptyStateDropdownItem}>
-                <Text style={styles.emptyStateTitle}>
-                  No goals yet
-                </Text>
-                <Text style={styles.emptyStateDescription}>
-                  Create your first goal and start your journey
-                </Text>
-              </View>
+              <GoalCard
+                variant="selection-empty"
+              />
             )}
           </View>
         )}
@@ -249,7 +269,6 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
         scrollEnabled={false}
-        textAlignVertical="top"
       />
     </View>
   );
@@ -262,22 +281,51 @@ export default function ManualMilestoneScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
 
-  const handleSave = () => {
-    // Handle saving the manual milestone
-    console.log('Saving manual milestone:', {
-      type: selectedType,
-      title,
-      notes,
-      dueDate: selectedDate,
-    });
+  // Database hooks
+  const { createMilestone } = useMilestones();
+  const { goals } = useGoals();
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter a milestone title');
+      return;
+    }
+
+    if (!selectedGoalId) {
+      Alert.alert('Error', 'Please select a goal first to create a milestone.');
+      return;
+    }
+
+    setIsLoading(true);
     
-    // Navigate back
-    router.back();
+    try {
+      await createMilestone({
+        goalId: selectedGoalId,
+        title: title.trim(),
+        targetDate: selectedDate,
+        creationSource: 'manual'
+      });
+
+      // Show success confirmation
+      Alert.alert(
+        'Success',
+        'Milestone created successfully!',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    } catch (error) {
+      console.error('Error saving milestone:', error);
+      Alert.alert('Error', 'Failed to create milestone. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -330,7 +378,12 @@ export default function ManualMilestoneScreen() {
         </View>
 
         {/* Goal Selection */}
-        <GoalSelection />
+        <GoalSelection 
+          selectedGoalId={selectedGoalId}
+          onGoalSelect={setSelectedGoalId}
+          onDropdownToggle={setIsDropdownOpen}
+        />
+
 
         {/* Date Picker */}
         <DatePicker 
@@ -508,7 +561,9 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     minHeight: 80,
-    textAlignVertical: 'top',
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
   },
 
   // Date picker styles

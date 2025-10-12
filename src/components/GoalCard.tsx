@@ -1,18 +1,178 @@
-import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
 import { useRouter } from 'expo-router';
 import type { Goal, Milestone } from '../types';
 import { typography } from '../constants/typography';
 import { useState, useRef } from 'react';
+
+// Separate component for milestone cards to fix hooks order
+interface MilestoneCardProps {
+  milestone: Milestone;
+  goal?: Goal;
+  onMilestoneComplete?: (milestoneId: string) => void;
+  onMilestoneDelete?: (milestoneId: string) => void;
+}
+
+const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilestoneComplete, onMilestoneDelete }) => {
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isDeleting = useRef(false);
+
+  const handleGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: translateX } }],
+    { useNativeDriver: true }
+  );
+
+  const handleStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX } = event.nativeEvent;
+      
+      if (translationX < -20 && !isDeleting.current) {
+        Animated.spring(translateX, {
+          toValue: -80,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  };
+
+  const handleDelete = () => {
+    if (onMilestoneDelete) {
+      isDeleting.current = true;
+      onMilestoneDelete(milestone.id);
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'No date set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: '2-digit', 
+      year: 'numeric' 
+    }).replace(/\s/g, '.');
+  };
+
+  return (
+    <View style={{ position: 'relative', overflow: 'visible', marginBottom: 8 }}>
+      <PanGestureHandler
+        onGestureEvent={handleGestureEvent}
+        onHandlerStateChange={handleStateChange}
+        activeOffsetX={[-10, 10]}
+      >
+        <Animated.View style={{ transform: [{ translateX }], zIndex: 1 }}>
+          <View
+            style={{
+              backgroundColor: '#E9EDC9',
+              borderWidth: 0.5,
+              borderColor: '#A3B18A',
+              borderRadius: 15,
+              padding: 15,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 20,
+              minHeight: 91,
+              shadowColor: '#7C7C7C',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.75,
+              shadowRadius: 0,
+              elevation: 4,
+            }}
+          >
+            {/* Milestone Content */}
+            <View style={{ flex: 1, gap: 8 }}>
+              <Text style={{
+                fontSize: 15,
+                fontWeight: 'bold',
+                color: '#364958',
+                fontFamily: 'Helvetica',
+              }}>
+                {milestone.title}
+              </Text>
+              <Text style={{
+                fontSize: 12,
+                fontWeight: '300',
+                color: '#364958',
+                fontFamily: 'Helvetica',
+              }}>
+                {goal?.title}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
+                <Text style={{
+                  fontSize: 12,
+                  fontWeight: '300',
+                  color: '#364958',
+                  fontFamily: 'Helvetica',
+                }}>
+                  {formatDate(milestone.targetDate)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Complete Button */}
+            <Pressable
+              onPress={() => onMilestoneComplete?.(milestone.id)}
+              style={{
+                backgroundColor: milestone.isComplete ? '#A3B18A' : '#A3B18A',
+                borderWidth: 1,
+                borderColor: '#7C7C7C',
+                borderRadius: 10,
+                width: 40,
+                height: 40,
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: '#7C7C7C',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.75,
+                shadowRadius: 0,
+                elevation: 4,
+              }}
+            >
+              <Text style={{
+                fontSize: 16,
+                color: '#F5EBE0',
+              }}>
+                ✓
+              </Text>
+            </Pressable>
+          </View>
+        </Animated.View>
+      </PanGestureHandler>
+      
+      {/* Delete State - Full Card Transform */}
+      <Animated.View style={[
+        styles.milestoneDeleteState,
+        {
+          opacity: translateX.interpolate({
+            inputRange: [-80, -40, 0],
+            outputRange: [1, 0.5, 0],
+            extrapolate: 'clamp',
+          }),
+        }
+      ]}>
+        <Pressable onPress={handleDelete} style={styles.milestoneDeleteButton}>
+          <Text style={{ fontSize: 24, color: '#B23A48' }}>🗑️</Text>
+        </Pressable>
+      </Animated.View>
+    </View>
+  );
+};
 
 type GoalCardVariant = 
   | 'empty'
   | 'active-without-vision'
   | 'active-with-vision'
   | 'empty-completed'
-  | 'active-completed';
+  | 'active-completed'
+  | 'selection-compact'
+  | 'selection-empty';
 
 interface GoalCardProps {
   goal?: Goal;
@@ -23,12 +183,57 @@ interface GoalCardProps {
   onMilestoneComplete?: (milestoneId: string) => void;
   onMilestoneDelete?: (milestoneId: string) => void;
   creationSource?: 'spark' | 'manual';
+  onAttach?: () => void;
+  onDetach?: () => void;
+  isAttached?: boolean;
 }
 
-export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete, creationSource }: GoalCardProps) {
+export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExpand, onMilestoneComplete, onMilestoneDelete, creationSource, onAttach, onDetach, isAttached = false }: GoalCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   
+  // Selection compact variant for goal selection dropdowns
+  if (variant === 'selection-compact') {
+    if (!goal) return null;
+    
+    return (
+      <View style={styles.goalSelectionCard}>
+        <Text style={styles.goalSelectionTitle}>{goal.title}</Text>
+        <TouchableOpacity
+          style={[
+            styles.goalSelectionButton,
+            {
+              backgroundColor: isAttached ? '#BC4B51' : '#A3B18A',
+            }
+          ]}
+          onPress={isAttached ? onDetach : onAttach}
+        >
+          {isAttached ? (
+            <View style={styles.xIcon}>
+              <View style={styles.xLine1} />
+              <View style={styles.xLine2} />
+            </View>
+          ) : (
+            <View style={styles.plusIcon}>
+              <View style={styles.plusHorizontal} />
+              <View style={styles.plusVertical} />
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Selection empty variant for when no goals exist
+  if (variant === 'selection-empty') {
+    return (
+      <View style={styles.goalSelectionCard}>
+        <Text style={styles.goalSelectionTitle}>No goals yet</Text>
+        <Text style={styles.goalSelectionDescription}>Create your first goal and start your journey</Text>
+      </View>
+    );
+  }
+
   // Empty state variants
   if (variant === 'empty' || variant === 'empty-completed') {
     const isCompletedEmpty = variant === 'empty-completed';
@@ -395,147 +600,15 @@ export function GoalCard({ goal, variant, expanded = false, onPress, onToggleExp
 
             {/* Milestones Section */}
             {milestones.length > 0 ? (
-              milestones.map((milestone) => {
-                const translateX = useRef(new Animated.Value(0)).current;
-                const isDeleting = useRef(false);
-
-                const handleGestureEvent = Animated.event(
-                  [{ nativeEvent: { translationX: translateX } }],
-                  { useNativeDriver: true }
-                );
-
-                const handleStateChange = (event: any) => {
-                  if (event.nativeEvent.oldState === State.ACTIVE) {
-                    const { translationX } = event.nativeEvent;
-                    
-                    if (translationX < -20 && !isDeleting.current) {
-                      Animated.spring(translateX, {
-                        toValue: -80,
-                        useNativeDriver: true,
-                      }).start();
-                    } else {
-                      Animated.spring(translateX, {
-                        toValue: 0,
-                        useNativeDriver: true,
-                      }).start();
-                    }
-                  }
-                };
-
-                const handleDelete = () => {
-                  if (onMilestoneDelete) {
-                    isDeleting.current = true;
-                    onMilestoneDelete(milestone.id);
-                  }
-                };
-
-                return (
-                  <View key={milestone.id} style={{ position: 'relative', overflow: 'visible', marginBottom: 8 }}>
-                    <PanGestureHandler
-                      onGestureEvent={handleGestureEvent}
-                      onHandlerStateChange={handleStateChange}
-                      activeOffsetX={[-10, 10]}
-                    >
-                      <Animated.View style={{ transform: [{ translateX }], zIndex: 1 }}>
-                        <View
-                          style={{
-                            backgroundColor: '#E9EDC9',
-                            borderWidth: 0.5,
-                            borderColor: '#A3B18A',
-                            borderRadius: 15,
-                            padding: 15,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: 20,
-                            minHeight: 91,
-                            // Drop shadow for milestone cards (3 layers)
-                            shadowColor: '#7C7C7C',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.75,
-                            shadowRadius: 0,
-                            elevation: 4,
-                          }}
-                        >
-                          {/* Milestone Content */}
-                          <View style={{ flex: 1, gap: 8 }}>
-                            <Text style={{
-                              fontSize: 15,
-                              fontWeight: 'bold',
-                              color: '#364958',
-                              fontFamily: 'Helvetica',
-                            }}>
-                              {milestone.title}
-                            </Text>
-                            <Text style={{
-                              fontSize: 12,
-                              fontWeight: '300',
-                              color: '#364958',
-                              fontFamily: 'Helvetica',
-                            }}>
-                              {goal?.title}
-                            </Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                              <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
-                              <Text style={{
-                                fontSize: 12,
-                                fontWeight: '300',
-                                color: '#364958',
-                                fontFamily: 'Helvetica',
-                              }}>
-                                {formatDate(milestone.targetDate)}
-                              </Text>
-                            </View>
-                          </View>
-
-                          {/* Complete Button */}
-                          <Pressable
-                            onPress={() => onMilestoneComplete?.(milestone.id)}
-                            style={{
-                              backgroundColor: milestone.isComplete ? '#A3B18A' : '#A3B18A',
-                              borderWidth: 1,
-                              borderColor: '#7C7C7C',
-                              borderRadius: 10,
-                              width: 40,
-                              height: 40,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              // Drop shadow matching Figma specs
-                              shadowColor: '#7C7C7C',
-                              shadowOffset: { width: 0, height: 4 },
-                              shadowOpacity: 0.75,
-                              shadowRadius: 0,
-                              elevation: 4,
-                            }}
-                          >
-                            <Text style={{
-                              fontSize: 16,
-                              color: '#F5EBE0',
-                            }}>
-                              ✓
-                            </Text>
-                          </Pressable>
-                        </View>
-                      </Animated.View>
-                    </PanGestureHandler>
-                    
-                    {/* Delete State - Full Card Transform */}
-                    <Animated.View style={[
-                      styles.milestoneDeleteState,
-                      {
-                        opacity: translateX.interpolate({
-                          inputRange: [-80, -40, 0],
-                          outputRange: [1, 0.5, 0],
-                          extrapolate: 'clamp',
-                        }),
-                      }
-                    ]}>
-                      <Pressable onPress={handleDelete} style={styles.milestoneDeleteButton}>
-                        <Icon name="delete" size={32} color="#B23A48" />
-                      </Pressable>
-                    </Animated.View>
-                  </View>
-                );
-              })
+              milestones.map((milestone) => (
+                <MilestoneCard
+                  key={milestone.id}
+                  milestone={milestone}
+                  goal={goal}
+                  onMilestoneComplete={onMilestoneComplete}
+                  onMilestoneDelete={onMilestoneDelete}
+                />
+              ))
             ) : (
               <View style={{
                 backgroundColor: '#E9EDC9',
@@ -683,6 +756,102 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: '600',
     color: '#8B4513',
+  },
+
+
+
+
+  // Goal selection card (optimized design)
+  goalSelectionCard: {
+    backgroundColor: '#F5EBE0',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  goalSelectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+    marginRight: 12,
+  },
+  goalSelectionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  goalSelectionButtonText: {
+    fontSize: 28,
+    fontWeight: '300',
+    textAlign: 'center',
+    lineHeight: 32,
+  },
+  goalSelectionDescription: {
+    fontSize: 14,
+    fontWeight: '300',
+    color: '#364958',
+    textAlign: 'center',
+  },
+  plusIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 3,
+    height: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+  xIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  xLine1: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '45deg' }],
+  },
+  xLine2: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '-45deg' }],
   },
   milestoneDeleteState: {
     position: 'absolute',
