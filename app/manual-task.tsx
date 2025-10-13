@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -46,6 +47,43 @@ const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChang
           </Text>
         </TouchableOpacity>
       ))}
+    </View>
+  );
+};
+
+// Eat the Frog Section (for tasks only)
+const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }> = ({ 
+  isSelected, 
+  onToggle 
+}) => {
+  return (
+    <View style={styles.eatFrogContainer}>
+      <View style={styles.eatFrogContent}>
+        <View style={styles.eatFrogTextContainer}>
+          <Text style={styles.eatFrogTitle}>
+            Eat the frog
+          </Text>
+          <Text style={styles.eatFrogDescription}>
+            Choose this task if completing it will make your day a success.
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onToggle();
+          }}
+          style={[
+            styles.frogButton,
+            isSelected ? styles.frogButtonSelected : styles.frogButtonUnselected
+          ]}
+        >
+          <Image 
+            source={{ uri: 'https://s3-alpha-sig.figma.com/img/077f/e118/305b3d191f10f5d5855d5f074942d0d5?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MNj3ZK~tjl3RoKhbiLiUJX46IrmmSdSYBjovP3IP8WLxvj8jX9~CP9c95APsjf27TBc7mpqTjsrZI6VyovnQcFaQ2CqD2wP9ToNmM0rOYWllfHPR2VZy6OmvvCT-WsrgrIRrmYSIBEhOp43d8mRlZQEOmEu8sKm-7t2h0qhFXKDgMreHt9DF6jtbt1H~oJxzPqj2Qh8je2ImAQA-d6vVMrTLr1lm4va2QytH13yFdgeni5TqvaMZNDYnYhrn901gQyNgyJfUSg0A4zxHkNs-DQSA2TKlc2kmERUzwl38iaRT1FfEERIk7da3z9QOPNKyQSpLdLM4gbeDhvXV90OAtQ__' }}
+            style={styles.frogIcon}
+            contentFit="contain"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -352,6 +390,7 @@ export default function ManualTaskScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
+  const [isEatTheFrog, setIsEatTheFrog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Database hooks
@@ -376,8 +415,9 @@ export default function ManualTaskScreen() {
       if (selectedType === 'task') {
         await createTask({
           title: title.trim(),
-          notes: notes.trim() || undefined,
+          notes: notes.trim(),
           scheduledDate: selectedDate,
+          isFrog: isEatTheFrog,
           goalId: selectedGoalId,
           milestoneId: selectedMilestoneId,
           creationSource: 'manual'
@@ -465,6 +505,16 @@ export default function ManualTaskScreen() {
           />
         </View>
 
+        {/* Eat the Frog Section (for tasks only) */}
+        {selectedType === 'task' && (
+          <View style={styles.sectionContainer}>
+            <EatTheFrogSection 
+              isSelected={isEatTheFrog} 
+              onToggle={() => setIsEatTheFrog(!isEatTheFrog)} 
+            />
+          </View>
+        )}
+
         {/* Goal/Milestone Selection */}
         <GoalMilestoneSelection 
           selectedGoalId={selectedGoalId}
@@ -472,9 +522,6 @@ export default function ManualTaskScreen() {
           onGoalSelect={setSelectedGoalId}
           onMilestoneSelect={setSelectedMilestoneId}
         />
-
-        
-
 
         {/* Date Picker */}
         <DatePicker 
@@ -958,6 +1005,69 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 1.5,
     transform: [{ rotate: '-45deg' }],
+  },
+
+  // Eat the frog styles
+  eatFrogContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  eatFrogContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  eatFrogTextContainer: {
+    flex: 1,
+    gap: 8,
+  },
+  eatFrogTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#364958',
+  },
+  eatFrogDescription: {
+    fontSize: 15,
+    fontWeight: '300',
+    color: '#364958',
+    lineHeight: 20,
+  },
+  frogButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    padding: 7,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  frogButtonSelected: {
+    backgroundColor: '#a3b18a',
+    borderColor: '#9b9b9b',
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  frogButtonUnselected: {
+    backgroundColor: '#d9d9d9',
+    borderColor: '#9b9b9b',
+  },
+  frogIcon: {
+    width: 20,
+    height: 20,
+    opacity: 1,
   },
 
   // Action button styles
