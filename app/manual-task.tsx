@@ -160,25 +160,48 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
 // Goal/Milestone Selection Component
 interface GoalMilestoneSelectionProps {
   selectedGoalId: string | undefined;
+  selectedMilestoneId: string | undefined;
   onGoalSelect: (goalId: string | undefined) => void;
+  onMilestoneSelect: (milestoneId: string | undefined) => void;
 }
 
-const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ selectedGoalId, onGoalSelect }) => {
+const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ 
+  selectedGoalId, 
+  selectedMilestoneId,
+  onGoalSelect, 
+  onMilestoneSelect 
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
+  const { milestones } = useMilestones();
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleItemSelect = (goalId: string) => {
+  const handleGoalSelect = (goalId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onGoalSelect(goalId);
+    onMilestoneSelect(undefined); // Clear milestone when goal changes
+    setIsDropdownOpen(false);
+  };
+
+  const handleMilestoneSelect = (milestoneId: string | undefined) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onMilestoneSelect(milestoneId);
+    onGoalSelect(undefined); // Clear goal when milestone is selected
     setIsDropdownOpen(false);
   };
 
   const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
+  const selectedMilestone = milestones.find(milestone => milestone.id === selectedMilestoneId);
+  
+  const getDisplayText = () => {
+    if (selectedGoal) return selectedGoal.title;
+    if (selectedMilestone) return selectedMilestone.title;
+    return 'Select your main or sub goal';
+  };
 
   return (
     <View style={styles.sectionContainer}>
@@ -186,7 +209,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ selecte
         Goal / Milestone
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach either a goal or a milestone to your task.
+        Attach either a goal or milestone to your task.
       </Text>
       
       {/* Dropdown Container */}
@@ -197,7 +220,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ selecte
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal ? selectedGoal.title : 'Select a goal'}
+            {getDisplayText()}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -208,25 +231,81 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ selecte
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
+            {/* Goal Section */}
+            <Text style={styles.dropdownSectionTitle}>Goal</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
-                <TouchableOpacity
+                <GoalCard
                   key={goal.id}
-                  style={styles.dropdownItem}
-                  onPress={() => handleItemSelect(goal.id)}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
+                    emotions: goal.feelingsArray || [],
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [],
+                    progress: 0,
+                    isCompleted: goal.isCompleted,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
+                  }}
+                  variant="selection-compact"
+                  isAttached={selectedGoalId === goal.id}
+                  onAttach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => handleGoalSelect(undefined)}
+                />
+              ))
+            ) : (
+              <GoalCard variant="selection-empty" />
+            )}
+            
+            {/* Milestones Section */}
+            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            {milestones.length > 0 ? (
+              milestones.map((milestone) => (
+                <TouchableOpacity
+                  key={milestone.id}
+                  style={styles.milestoneCard}
+                  onPress={() => handleMilestoneSelect(milestone.id)}
                 >
-                  <Text style={styles.dropdownItemText}>{goal.title}</Text>
+                  <View style={styles.milestoneCardContent}>
+                    <Text style={styles.milestoneCardTitle}>{milestone.title}</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.milestoneAddButton,
+                        {
+                          backgroundColor: selectedMilestoneId === milestone.id ? '#BC4B51' : '#A3B18A',
+                        }
+                      ]}
+                      onPress={() => handleMilestoneSelect(milestone.id)}
+                    >
+                      {selectedMilestoneId === milestone.id ? (
+                        <View style={styles.xIcon}>
+                          <View style={styles.xLine1} />
+                          <View style={styles.xLine2} />
+                        </View>
+                      ) : (
+                        <View style={styles.plusIcon}>
+                          <View style={styles.plusHorizontal} />
+                          <View style={styles.plusVertical} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </TouchableOpacity>
               ))
             ) : (
-              <View style={styles.emptyStateDropdownItem}>
-                <Text style={styles.emptyStateTitle}>
-                  No goals or milestones yet
-                </Text>
-                <Text style={styles.emptyStateDescription}>
-                  Create your first goal and start your journey
-                </Text>
-              </View>
+              <TouchableOpacity style={styles.milestoneCard}>
+                <View style={styles.milestoneCardContent}>
+                  <Text style={styles.milestoneCardTitle}>Placeholder Title</Text>
+                  <TouchableOpacity style={styles.milestoneAddButton}>
+                    <View style={styles.plusIcon}>
+                      <View style={styles.plusHorizontal} />
+                      <View style={styles.plusVertical} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
             )}
           </View>
         )}
@@ -272,12 +351,13 @@ export default function ManualTaskScreen() {
   const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   // Database hooks
   const { createTask } = useTasks();
   const { createGoal } = useGoals();
-  const { createMilestone } = useMilestones();
+  const { createMilestone, milestones } = useMilestones();
   const { goals } = useGoals();
 
   const handleDateSelect = (date: Date) => {
@@ -298,6 +378,8 @@ export default function ManualTaskScreen() {
           title: title.trim(),
           notes: notes.trim() || undefined,
           scheduledDate: selectedDate,
+          goalId: selectedGoalId,
+          milestoneId: selectedMilestoneId,
           creationSource: 'manual'
         });
       } else if (selectedType === 'goal') {
@@ -386,18 +468,12 @@ export default function ManualTaskScreen() {
         {/* Goal/Milestone Selection */}
         <GoalMilestoneSelection 
           selectedGoalId={selectedGoalId}
+          selectedMilestoneId={selectedMilestoneId}
           onGoalSelect={setSelectedGoalId}
+          onMilestoneSelect={setSelectedMilestoneId}
         />
 
-        {/* Goal Card Display */}
-        {selectedGoalId && (
-          <GoalCard
-            goal={goals.find(g => g.id === selectedGoalId) as any}
-            variant="selection-compact"
-            isAttached={true}
-            onDetach={() => setSelectedGoalId(undefined)}
-          />
-        )}
+        
 
 
         {/* Date Picker */}
@@ -694,7 +770,7 @@ const styles = StyleSheet.create({
   // Goal attachment styles (matching SparkAIOutput)
   goalAttachmentContainer: {
     backgroundColor: '#f5ebe0',
-    borderRadius: 15,
+    borderRadius: 20,
     padding: 16,
     borderWidth: 0.5,
     borderColor: '#a3b18a',
@@ -785,6 +861,104 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // Dropdown section styles
+  dropdownSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#364958',
+    marginTop: 16,
+    marginBottom: 12,
+  },
+
+  // Milestone card styles
+  milestoneCard: {
+    backgroundColor: '#e9edc9',
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    marginBottom: 8,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestoneCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  milestoneCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+    marginRight: 12,
+  },
+  milestoneAddButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#a3b18a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestoneAddButtonText: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: '300',
+    lineHeight: 28,
+  },
+  plusIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 3,
+    height: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+  xIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  xLine1: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '45deg' }],
+  },
+  xLine2: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '-45deg' }],
+  },
 
   // Action button styles
   actionButtonsContainer: {

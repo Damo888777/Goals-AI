@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
 
   // Goal selection card (optimized design)
   goalSelectionCard: {
-    backgroundColor: '#F5EBE0',
+    backgroundColor: '#e9edc9',
     borderRadius: 20,
     padding: 16,
     borderWidth: 0.5,

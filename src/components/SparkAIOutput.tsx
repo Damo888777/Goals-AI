@@ -18,6 +18,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { images } from '../constants/images';
 import { useTasks, useGoals, useMilestones } from '../hooks/useDatabase';
+import { GoalCard } from './GoalCard';
 import VisionImage from '../db/models/VisionImage';
 import VisionPicker from './VisionPicker';
 
@@ -364,38 +365,68 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   );
 };
 
-// Goal/Milestone Attachment (for tasks and milestones)
-interface GoalMilestoneAttachmentProps {
-  type: SparkOutputType;
-  selectedGoal?: string;
-  onGoalSelect: (goal: string) => void;
+// Goal/Milestone Selection Component (identical to manual-task.tsx)
+interface GoalMilestoneSelectionProps {
+  selectedGoalId?: string;
+  selectedMilestoneId?: string;
+  onGoalSelect: (goalId?: string) => void;
+  onMilestoneSelect: (milestoneId?: string) => void;
 }
 
-const GoalMilestoneAttachment: React.FC<GoalMilestoneAttachmentProps> = ({ type, selectedGoal, onGoalSelect }) => {
+const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ 
+  selectedGoalId, 
+  selectedMilestoneId, 
+  onGoalSelect, 
+  onMilestoneSelect 
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [availableGoals] = useState<string[]>([]); // Empty for now - would come from props/context
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleGoalSelect = (goal: string) => {
+  const handleGoalSelect = (goalId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onGoalSelect(goal);
-    setIsDropdownOpen(false);
+    if (selectedGoalId === goalId) {
+      onGoalSelect(undefined);
+    } else {
+      onGoalSelect(goalId);
+      onMilestoneSelect(undefined); // Clear milestone selection
+    }
+  };
+
+  const handleMilestoneSelect = (milestoneId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (selectedMilestoneId === milestoneId) {
+      onMilestoneSelect(undefined);
+    } else {
+      onMilestoneSelect(milestoneId);
+      onGoalSelect(undefined); // Clear goal selection
+    }
+  };
+
+  const getDropdownButtonText = () => {
+    if (selectedGoalId) {
+      const goal = goals.find(g => g.id === selectedGoalId);
+      return goal ? goal.title : 'Select your goal or milestone';
+    }
+    if (selectedMilestoneId) {
+      const milestone = milestones.find(m => m.id === selectedMilestoneId);
+      return milestone ? milestone.title : 'Select your goal or milestone';
+    }
+    return 'Select your goal or milestone';
   };
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {type === 'task' ? 'Goal / Milestone' : 'My goal'}
+        Goal / Milestone
       </Text>
       <Text style={styles.sectionSubtitle}>
-        {type === 'task' 
-          ? 'Attach either a goal or a milestone to your task.' 
-          : 'Attach this milestone to your goal.'
-        }
+        Attach either a goal or a milestone to your task.
       </Text>
       
       {/* Dropdown Container */}
@@ -406,7 +437,7 @@ const GoalMilestoneAttachment: React.FC<GoalMilestoneAttachmentProps> = ({ type,
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal || 'Select your goal'}
+            {getDropdownButtonText()}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -417,25 +448,76 @@ const GoalMilestoneAttachment: React.FC<GoalMilestoneAttachmentProps> = ({ type,
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {availableGoals.length > 0 ? (
-              availableGoals.map((goal, index) => (
+            {/* Goals Section */}
+            <Text style={styles.dropdownSectionTitle}>Goals</Text>
+            {goals.length > 0 ? (
+              goals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={{
+                    ...goal,
+                    id: goal.id,
+                    emotions: goal.feelingsArray || [],
+                    progress: 0,
+                    milestones: []
+                  }}
+                  variant="selection-compact"
+                  isAttached={selectedGoalId === goal.id}
+                  onAttach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => handleGoalSelect(goal.id)}
+                />
+              ))
+            ) : (
+              <GoalCard variant="selection-empty" />
+            )}
+            
+            {/* Milestones Section */}
+            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            {milestones.length > 0 ? (
+              milestones.map((milestone) => (
                 <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownItem}
-                  onPress={() => handleGoalSelect(goal)}
+                  key={milestone.id}
+                  style={styles.milestoneCard}
+                  onPress={() => handleMilestoneSelect(milestone.id)}
                 >
-                  <Text style={styles.dropdownItemText}>{goal}</Text>
+                  <View style={styles.milestoneCardContent}>
+                    <Text style={styles.milestoneCardTitle}>{milestone.title}</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.milestoneAddButton,
+                        {
+                          backgroundColor: selectedMilestoneId === milestone.id ? '#BC4B51' : '#A3B18A',
+                        }
+                      ]}
+                      onPress={() => handleMilestoneSelect(milestone.id)}
+                    >
+                      {selectedMilestoneId === milestone.id ? (
+                        <View style={styles.xIcon}>
+                          <View style={styles.xLine1} />
+                          <View style={styles.xLine2} />
+                        </View>
+                      ) : (
+                        <View style={styles.plusIcon}>
+                          <View style={styles.plusHorizontal} />
+                          <View style={styles.plusVertical} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </TouchableOpacity>
               ))
             ) : (
-              <View style={styles.emptyStateDropdownItem}>
-                <Text style={styles.emptyStateTitle}>
-                  No goals yet
-                </Text>
-                <Text style={styles.emptyStateDescription}>
-                  Create your first goal and start your journey
-                </Text>
-              </View>
+              <TouchableOpacity style={styles.milestoneCard}>
+                <View style={styles.milestoneCardContent}>
+                  <Text style={styles.milestoneCardTitle}>No milestones yet</Text>
+                  <TouchableOpacity style={styles.milestoneAddButton}>
+                    <View style={styles.plusIcon}>
+                      <View style={styles.plusHorizontal} />
+                      <View style={styles.plusVertical} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
             )}
           </View>
         )}
@@ -485,7 +567,8 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [notes, setNotes] = useState('');
   const [isEatTheFrog, setIsEatTheFrog] = useState(false);
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
-  const [selectedGoal, setSelectedGoal] = useState<string>('');
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -517,8 +600,12 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
     );
   };
 
-  const handleGoalSelect = (goal: string) => {
-    setSelectedGoal(goal);
+  const handleGoalIdSelect = (goalId?: string) => {
+    setSelectedGoalId(goalId);
+  };
+
+  const handleMilestoneIdSelect = (milestoneId?: string) => {
+    setSelectedMilestoneId(milestoneId);
   };
 
   const handleDateSelect = (date: Date) => {
@@ -570,8 +657,8 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             notes: notes.trim(),
             scheduledDate: selectedDate,
             isFrog: isEatTheFrog,
-            goalId: selectedGoal || undefined,
-            milestoneId: undefined, // TODO: Add milestone selection
+            goalId: selectedGoalId || undefined,
+            milestoneId: selectedMilestoneId || undefined,
           });
           break;
 
@@ -587,7 +674,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         case 'milestone':
           await createMilestone({
             title: title.trim(),
-            goalId: selectedGoal || '',
+            goalId: selectedGoalId || '',
             targetDate: selectedDate,
           });
           break;
@@ -708,10 +795,11 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         )}
 
         {(selectedType === 'task' || selectedType === 'milestone') && (
-          <GoalMilestoneAttachment 
-            type={selectedType} 
-            selectedGoal={selectedGoal}
-            onGoalSelect={handleGoalSelect}
+          <GoalMilestoneSelection 
+            selectedGoalId={selectedGoalId}
+            selectedMilestoneId={selectedMilestoneId}
+            onGoalSelect={handleGoalIdSelect}
+            onMilestoneSelect={handleMilestoneIdSelect}
           />
         )}
 
@@ -1237,7 +1325,7 @@ const styles = StyleSheet.create({
     height: 1.5,
     backgroundColor: '#364958',
     borderRadius: 1,
-    transform: [{ rotate: '45deg' }, { translateX: -2 }],
+    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
   },
   chevronLine2: {
     position: 'absolute',
@@ -1245,7 +1333,7 @@ const styles = StyleSheet.create({
     height: 1.5,
     backgroundColor: '#364958',
     borderRadius: 1,
-    transform: [{ rotate: '-45deg' }, { translateX: 2 }],
+    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
   },
 
   // Dropdown styles
@@ -1320,6 +1408,102 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#364958',
     textAlign: 'center',
+    lineHeight: 20,
+  },
+
+  // Dropdown section styles
+  dropdownSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+    marginTop: 8,
+  },
+
+  // Milestone card styles
+  milestoneCard: {
+    backgroundColor: '#e9edc9',
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    marginBottom: 8,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestoneCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  milestoneCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+  },
+  milestoneAddButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  
+  // Plus icon styles
+  plusIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 3,
+    height: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+  },
+
+  // X icon styles
+  xIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  xLine1: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '45deg' }],
+  },
+  xLine2: {
+    position: 'absolute',
+    width: 16,
+    height: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1.5,
+    transform: [{ rotate: '-45deg' }],
   },
 
   // Modal styles
