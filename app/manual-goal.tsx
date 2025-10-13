@@ -10,8 +10,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useGoals } from '../src/hooks/useDatabase';
 import { images } from '../src/constants/images';
+import VisionPicker from '../src/components/VisionPicker';
+import VisionImage from '../src/db/models/VisionImage';
 
 // Selection Card Component
 interface SelectionCardProps {
@@ -113,8 +116,14 @@ const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, o
   );
 };
 
-// Vision Board Selection Component
-const VisionBoardSelection: React.FC = () => {
+// Vision Section Component
+interface VisionSectionProps {
+  selectedVisionImage: VisionImage | null;
+  onVisionImageSelect: (image: VisionImage | null) => void;
+  onVisionPress: () => void;
+}
+
+const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVisionImageSelect, onVisionPress }) => {
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
@@ -123,17 +132,17 @@ const VisionBoardSelection: React.FC = () => {
       <Text style={styles.sectionSubtitle}>
         Choose an image from your Vision Board.
       </Text>
-      <TouchableOpacity style={styles.visionButtonTouchable}>
+      <TouchableOpacity style={styles.visionButtonTouchable} onPress={onVisionPress}>
         <View style={styles.visionButton}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={{ uri: images.visionPlaceholder }}
+              source={{ uri: selectedVisionImage?.imageUri || images.visionPlaceholder }}
               style={styles.visionImage}
               contentFit="cover"
             />
           </View>
           <Text style={styles.visionButtonText}>
-            Choose your Vision
+            {selectedVisionImage ? 'Change Vision' : 'Choose your Vision'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -173,10 +182,13 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
 // Main Manual Goal Screen Component
 export default function ManualGoalScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [selectedType, setSelectedType] = useState<'task' | 'goal' | 'milestone'>('goal');
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+  const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
+  const [showVisionPicker, setShowVisionPicker] = useState(false);
 
   const handleEmotionToggle = (emotion: string) => {
     setSelectedEmotions(prev => 
@@ -257,7 +269,11 @@ export default function ManualGoalScreen() {
         />
 
         {/* Vision Board Selection */}
-        <VisionBoardSelection />
+        <VisionSection 
+          selectedVisionImage={selectedVisionImage}
+          onVisionImageSelect={setSelectedVisionImage}
+          onVisionPress={() => setShowVisionPicker(true)}
+        />
 
         {/* Notes Section */}
         <NotesSection 
@@ -286,6 +302,14 @@ export default function ManualGoalScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
+      
+      {/* Vision Picker Modal */}
+      <VisionPicker
+        visible={showVisionPicker}
+        onClose={() => setShowVisionPicker(false)}
+        onVisionSelect={setSelectedVisionImage}
+        selectedVisionImage={selectedVisionImage}
+      />
     </View>
   );
 }

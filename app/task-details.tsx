@@ -164,7 +164,7 @@ export default function TaskDetailsScreen() {
 
           {/* Eat the Frog Section */}
           <View className="mb-8">
-            <View className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl p-4 flex-row items-center shadow-sm"
+            <View className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-4 flex-row items-center shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
               <View className="flex-1">
@@ -175,17 +175,19 @@ export default function TaskDetailsScreen() {
               </View>
               <TouchableOpacity
                 onPress={() => setIsFrog(!isFrog)}
-                className={`border border-[#9b9b9b] rounded-xl p-2 shadow-sm ${isFrog ? 'bg-[#a3b18a]' : 'bg-[#d9d9d9]'}`}
+                className={`border-[0.5px] border-[#9b9b9b] rounded-xl shadow-sm ${isFrog ? 'bg-[#a3b18a]' : 'bg-[#d9d9d9]'}`}
                 style={{ 
                   shadowColor: '#7c7c7c', 
-                  shadowOffset: { width: 0, height: 2 }, 
+                  shadowOffset: { width: 0, height: 4 }, 
                   shadowOpacity: 0.75, 
                   shadowRadius: 0,
                   width: 44,
                   height: 44,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <Text className="text-2xl text-center" style={{ opacity: isFrog ? 1 : 0.4 }}>🐸</Text>
+                <Text className="text-xl" style={{ opacity: isFrog ? 1 : 0.4 }}>🐸</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -200,22 +202,34 @@ export default function TaskDetailsScreen() {
             </View>
 
             {/* Attachment Type Toggle */}
-            <View className="flex-row mb-4 bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl p-1 shadow-sm"
+            <View className="flex-row mb-4 bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-1 shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
               <TouchableOpacity
                 onPress={() => setAttachmentType('goal')}
                 className={`flex-1 py-3 px-4 rounded-xl ${attachmentType === 'goal' ? 'bg-[#a3b18a]' : 'bg-transparent'}`}
+                style={{
+                  shadowColor: attachmentType === 'goal' ? '#7c7c7c' : 'transparent',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 0,
+                }}
               >
-                <Text className={`text-center font-bold ${attachmentType === 'goal' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
+                <Text className={`text-center font-bold text-sm ${attachmentType === 'goal' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
                   Goal
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setAttachmentType('milestone')}
                 className={`flex-1 py-3 px-4 rounded-xl ${attachmentType === 'milestone' ? 'bg-[#a3b18a]' : 'bg-transparent'}`}
+                style={{
+                  shadowColor: attachmentType === 'milestone' ? '#7c7c7c' : 'transparent',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 0,
+                }}
               >
-                <Text className={`text-center font-bold ${attachmentType === 'milestone' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
+                <Text className={`text-center font-bold text-sm ${attachmentType === 'milestone' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
                   Milestones
                 </Text>
               </TouchableOpacity>
@@ -253,10 +267,10 @@ export default function TaskDetailsScreen() {
                           {goal.title}
                         </Text>
                         <TouchableOpacity
-                          className="bg-[#6096ba] border border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
+                          className="bg-[#bc4b51] border-[0.5px] border-[#9b9b9b] rounded-xl p-2 shadow-sm"
+                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
                         >
-                          <Ionicons name={selectedGoalId === goal.id ? "close" : "add"} size={20} color="#f5ebe0" />
+                          <Ionicons name={selectedGoalId === goal.id ? "close" : "close"} size={20} color="#f5ebe0" />
                         </TouchableOpacity>
                       </TouchableOpacity>
                     ))}
@@ -297,8 +311,8 @@ export default function TaskDetailsScreen() {
                           {milestone.title}
                         </Text>
                         <TouchableOpacity
-                          className="bg-[#6096ba] border border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
+                          className="bg-[#6096ba] border-[0.5px] border-[#9b9b9b] rounded-xl p-2 shadow-sm"
+                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
                         >
                           <Ionicons name={selectedMilestoneId === milestone.id ? "close" : "add"} size={20} color="#f5ebe0" />
                         </TouchableOpacity>
@@ -314,10 +328,10 @@ export default function TaskDetailsScreen() {
           <View className="mb-8">
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
+              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
-              <Text className="text-[#364958] text-xl font-light">
+              <Text className="text-[#364958] text-base font-normal">
                 {scheduledDate.toLocaleDateString()}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#364958" />
@@ -335,28 +349,44 @@ export default function TaskDetailsScreen() {
 
           {/* Focus History Section */}
           <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Focus History</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                A record of the time and dedication you've invested in this task.
-              </Text>
-            </View>
-            <View className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl p-4 shadow-sm"
+            <View className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-4 shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
-              <Text className="text-[#364958] text-sm font-bold mb-2">Your recent activity</Text>
-              <Text className="text-[#364958] text-sm mb-1">
-                Sessions in total: <Text className="font-light">{focusHistory.totalSessions} Sessions</Text>
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-[#364958] text-lg font-bold">Focus History</Text>
+                <TouchableOpacity 
+                  className="bg-[#6096ba] border-[0.5px] border-[#9b9b9b] rounded-xl px-3 py-2 shadow-sm"
+                  style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
+                >
+                  <Text className="text-[#f5ebe0] text-xs font-bold">+ Add</Text>
+                </TouchableOpacity>
+              </View>
+              <Text className="text-[#364958] text-sm opacity-75 mb-4">
+                Track your focus sessions for this task.
               </Text>
-              <Text className="text-[#364958] text-sm mb-1">
-                Total time spent: <Text className="font-light">{focusHistory.totalHours} Hours {focusHistory.totalMinutes} Minutes</Text>
-              </Text>
-              <Text className="text-[#364958] text-sm mb-2">Session history:</Text>
-              {focusHistory.sessions.map((session, index) => (
-                <Text key={index} className="text-[#364958] text-sm font-light ml-4 mb-1">
-                  • {session}
-                </Text>
-              ))}
+              
+              {/* Focus Sessions List */}
+              <View className="space-y-2">
+                <View className="bg-white border-[0.5px] border-[#a3b18a] rounded-xl p-3 flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-[#364958] text-sm font-medium">25 min focus session</Text>
+                    <Text className="text-[#364958] text-xs opacity-60">Today, 2:30 PM</Text>
+                  </View>
+                  <View className="w-8 h-8 bg-[#a3b18a] rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">✓</Text>
+                  </View>
+                </View>
+                
+                <View className="bg-white border-[0.5px] border-[#a3b18a] rounded-xl p-3 flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-[#364958] text-sm font-medium">15 min focus session</Text>
+                    <Text className="text-[#364958] text-xs opacity-60">Yesterday, 10:15 AM</Text>
+                  </View>
+                  <View className="w-8 h-8 bg-[#a3b18a] rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">✓</Text>
+                  </View>
+                </View>
+              </View>
             </View>
           </View>
 

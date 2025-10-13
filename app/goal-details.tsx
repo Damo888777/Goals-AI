@@ -1,31 +1,396 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
   ScrollView,
+  Pressable,
   Alert,
-  Image,
+  Animated,
+  Modal,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useGoals, useMilestones } from '../src/hooks/useDatabase';
+import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
+import { images } from '../src/constants/images';
+import VisionPicker from '../src/components/VisionPicker';
 
 const EMOTIONS = [
-  { id: 'confident', label: 'Confident', color: '#f7e1d7', textColor: '#e07a5f' },
-  { id: 'grateful', label: 'Grateful', color: '#c8d5b9', textColor: '#6b8e23' },
-  { id: 'proud', label: 'Proud', color: '#e6d7ff', textColor: '#8b5cf6' },
-  { id: 'calm', label: 'Calm', color: '#b8e6e1', textColor: '#20b2aa' },
-  { id: 'energized', label: 'Energized', color: '#ffd89b', textColor: '#ff8c00' },
-  { id: 'happy', label: 'Happy', color: '#a8d8ff', textColor: '#4169e1' },
-  { id: 'empowered', label: 'Empowered', color: '#ffb3ba', textColor: '#dc143c' },
-  { id: 'excited', label: 'Excited', color: '#ffdfba', textColor: '#ff6347' },
-  { id: 'fulfilled', label: 'Fulfilled', color: '#f2cc8f', textColor: '#e07a5f' },
+  { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
+  { label: 'Grateful', color: '#a1c181', textColor: '#081c15' },
+  { label: 'Proud', color: '#cdb4db', textColor: '#3d405b' },
+  { label: 'Calm', color: '#dedbd2', textColor: '#335c67' },
+  { label: 'Energized', color: '#eec170', textColor: '#780116' },
+  { label: 'Happy', color: '#bde0fe', textColor: '#023047' },
+  { label: 'Empowered', color: '#eae2b7', textColor: '#bb3e03' },
+  { label: 'Excited', color: '#f4a261', textColor: '#b23a48' },
+  { label: 'Fulfilled', color: '#f8ad9d', textColor: '#e07a5f' },
 ];
 
+// Emotion Selection Component
+interface EmotionSelectionProps {
+  selectedEmotions: string[];
+  onEmotionToggle: (emotion: string) => void;
+}
+
+const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
+  const handleEmotionPress = (emotion: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    if (selectedEmotions.includes(emotion)) {
+      onEmotionToggle(emotion);
+    } else if (selectedEmotions.length < 5) {
+      onEmotionToggle(emotion);
+    }
+  };
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        How do you feel after you achieved your goal?
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Choose up to 5 emotions
+      </Text>
+      <View style={styles.emotionGrid}>
+        {EMOTIONS.map((emotion, index) => {
+          const isSelected = selectedEmotions.includes(emotion.label);
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleEmotionPress(emotion.label)}
+              style={[
+                styles.emotionButton,
+                {
+                  backgroundColor: emotion.color,
+                  borderColor: emotion.textColor,
+                  opacity: selectedEmotions.length >= 5 && !isSelected ? 0.5 : 1,
+                },
+                isSelected && styles.emotionButtonSelected
+              ]}
+            >
+              {isSelected && <View style={styles.emotionButtonOverlay} />}
+              <Text style={[styles.emotionText, { color: emotion.textColor }]}>
+                {emotion.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+// Vision Board Selection Component
+interface VisionBoardSelectionProps {
+  visionImageUrl: string;
+  onChangeVision: () => void;
+  onRemoveVision: () => void;
+}
+
+const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImageUrl, onChangeVision, onRemoveVision }) => {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        Your Vision
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Begin with the end in mind. This is what you're working towards.
+      </Text>
+      <View style={styles.visionContainer}>
+        <View style={styles.visionImageContainer}>
+          {visionImageUrl ? (
+            <Image 
+              source={{ uri: visionImageUrl }}
+              style={styles.visionImage}
+              contentFit="cover"
+            />
+          ) : (
+            <View style={styles.visionPlaceholder}>
+              <View style={styles.visionPlaceholderIcon}>
+                <Text style={styles.visionPlaceholderText}>📷</Text>
+              </View>
+              <Text style={styles.visionPlaceholderLabel}>No vision image</Text>
+            </View>
+          )}
+        </View>
+        
+        {/* Vision Action Buttons */}
+        <View style={styles.visionButtonsContainer}>
+          {visionImageUrl && (
+            <TouchableOpacity
+              onPress={onRemoveVision}
+              style={[styles.actionButton, styles.removeVisionButton]}
+            >
+              <Text style={styles.actionButtonText}>
+                Remove
+              </Text>
+            </TouchableOpacity>
+          )}
+          
+          <TouchableOpacity
+            onPress={onChangeVision}
+            style={[styles.actionButton, styles.changeVisionButton]}
+          >
+            <Text style={styles.actionButtonText}>
+              {visionImageUrl ? 'Change Vision' : 'Add Vision'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+// MilestoneCard Component for dropdown
+interface MilestoneCardProps {
+  milestone: any;
+  goal?: any;
+  onMilestoneComplete?: (milestoneId: string) => void;
+  onMilestonePress: (milestoneId: string) => void;
+  onMilestoneDelete?: (milestoneId: string) => void;
+  isLast?: boolean;
+}
+
+const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilestoneComplete, onMilestonePress, onMilestoneDelete, isLast }) => {
+  const [isPressed, setIsPressed] = useState(false);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isDeleting = useRef(false);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'No date set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: '2-digit', 
+      year: 'numeric' 
+    }).replace(/\s/g, '.');
+  };
+
+  const handleGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: translateX } }],
+    { useNativeDriver: true }
+  );
+
+  const handleStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX } = event.nativeEvent;
+      
+      if (translationX < -20 && !isDeleting.current) {
+        Animated.spring(translateX, {
+          toValue: -80,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  };
+
+  const handleDelete = () => {
+    if (milestone?.id && onMilestoneDelete) {
+      isDeleting.current = true;
+      onMilestoneDelete(milestone.id);
+    }
+  };
+
+  return (
+    <View style={styles.milestoneCardContainer}>
+      <PanGestureHandler
+        onGestureEvent={handleGestureEvent}
+        onHandlerStateChange={handleStateChange}
+        activeOffsetX={[-10, 10]}
+      >
+        <Animated.View style={[styles.milestoneCardWrapper, { transform: [{ translateX }] }]}>
+          <Pressable
+            onPress={() => onMilestonePress(milestone.id)}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
+            style={[
+              styles.milestoneCard,
+              {
+                backgroundColor: isPressed ? '#D4E2B8' : '#E9EDC9',
+                transform: [{ scale: isPressed ? 0.98 : 1 }],
+              }
+            ]}
+          >
+            {/* Milestone Content */}
+            <View style={styles.milestoneContent}>
+              <Text style={styles.milestoneTitle}>
+                {milestone.title}
+              </Text>
+              <Text style={styles.milestoneGoal}>
+                {goal?.title}
+              </Text>
+              <View style={styles.milestoneDateContainer}>
+                <Text style={styles.milestoneDateIcon}>📅</Text>
+                <Text style={styles.milestoneDateText}>
+                  {formatDate(milestone.targetDate)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Complete Button */}
+            <Pressable
+              onPress={() => onMilestoneComplete?.(milestone.id)}
+              style={styles.milestoneCompleteButton}
+            >
+              <Text style={styles.milestoneCompleteText}>
+                ✓
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Animated.View>
+      </PanGestureHandler>
+      
+      {/* Delete State - Full Card Transform */}
+      <Animated.View style={[
+        styles.milestoneDeleteState,
+        {
+          opacity: translateX.interpolate({
+            inputRange: [-80, -40, 0],
+            outputRange: [1, 0.5, 0],
+            extrapolate: 'clamp',
+          }),
+        }
+      ]}>
+        <Pressable onPress={handleDelete} style={styles.milestoneDeleteButton}>
+          <Icon name="delete" size={32} color="#B23A48" />
+        </Pressable>
+      </Animated.View>
+    </View>
+  );
+};
+
+// Milestones Section Component
+interface MilestonesSectionProps {
+  goalId: string;
+  milestones: any[];
+  goal: any;
+  onMilestonePress: (milestoneId: string) => void;
+  onMilestoneComplete?: (milestoneId: string) => void;
+}
+
+const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestones, goal, onMilestonePress, onMilestoneComplete }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const goalMilestones = milestones.filter(m => m.goalId === goalId);
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        Milestones
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Break down your goal into smaller, manageable steps.
+      </Text>
+      
+      {/* Dropdown Container - wraps both button and content */}
+      <View style={styles.milestonesDropdownContainer}>
+        {/* Dropdown Button */}
+        <TouchableOpacity
+          onPress={() => setShowDropdown(!showDropdown)}
+          style={styles.milestonesDropdownButton}
+        >
+          <Text style={styles.milestonesDropdownText}>
+            {goalMilestones.length > 0 ? `${goalMilestones.length} Milestones` : 'No milestones yet'}
+          </Text>
+          <View style={[styles.chevronIcon, showDropdown && styles.chevronIconRotated]}>
+            <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
+        </TouchableOpacity>
+
+        {/* Dropdown Content */}
+        {showDropdown && (
+          <View style={styles.milestonesDropdownContent}>
+            {goalMilestones.length > 0 ? (
+              goalMilestones.map((milestone, index) => (
+                <View key={milestone.id} style={index < goalMilestones.length - 1 ? { marginBottom: 20 } : undefined}>
+                  <MilestoneCard
+                    milestone={milestone}
+                    goal={goal}
+                    onMilestonePress={(milestoneId) => {
+                      onMilestonePress(milestoneId);
+                      setShowDropdown(false);
+                    }}
+                    onMilestoneComplete={onMilestoneComplete}
+                    onMilestoneDelete={(milestoneId) => {
+                      Alert.alert(
+                        'Delete Milestone',
+                        `Are you sure you want to delete "${milestone.title}"?`,
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          {
+                            text: 'Delete',
+                            style: 'destructive',
+                            onPress: () => {
+                              // Handle delete - you'll need to implement this
+                              console.log('Delete milestone:', milestoneId);
+                            }
+                          }
+                        ]
+                      );
+                    }}
+                    isLast={index === goalMilestones.length - 1}
+                  />
+                </View>
+              ))
+            ) : (
+              <View style={styles.dropdownItem}>
+                <Text style={styles.noMilestonesText}>
+                  No milestones yet. Add some to break down your goal!
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// Notes Section Component
+interface NotesSectionProps {
+  notes: string;
+  onNotesChange: (text: string) => void;
+}
+
+const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        Notes & Details
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Add any extra thoughts, links, or steps you want to remember.
+      </Text>
+      <TextInput
+        value={notes}
+        onChangeText={onNotesChange}
+        placeholder="Type here your notes and details..."
+        placeholderTextColor="rgba(54,73,88,0.5)"
+        style={[styles.textInput, styles.textInputMultiline]}
+        multiline
+        scrollEnabled={false}
+        textAlignVertical="top"
+      />
+    </View>
+  );
+};
+
+// Main Goal Details Screen Component
 export default function GoalDetailsScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { goals, updateGoal, deleteGoal } = useGoals();
@@ -35,7 +400,8 @@ export default function GoalDetailsScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
-  const [visionImageUrl, setVisionImageUrl] = useState('');
+  const [visionImageUrl, setVisionImageUrl] = useState(goal?.visionImageUrl || '');
+  const [showVisionPicker, setShowVisionPicker] = useState(false);
 
   useEffect(() => {
     if (id && goals.length > 0) {
@@ -50,37 +416,33 @@ export default function GoalDetailsScreen() {
     }
   }, [id, goals]);
 
-  const handleEmotionToggle = (emotionId: string) => {
-    setSelectedEmotions(prev => {
-      if (prev.includes(emotionId)) {
-        return prev.filter(id => id !== emotionId);
-      } else if (prev.length < 5) {
-        return [...prev, emotionId];
-      }
-      return prev;
-    });
+  const handleEmotionToggle = (emotion: string) => {
+    setSelectedEmotions(prev => 
+      prev.includes(emotion) 
+        ? prev.filter(e => e !== emotion)
+        : [...prev, emotion]
+    );
   };
 
   const handleSave = async () => {
-    if (!goal || !title.trim()) {
-      Alert.alert('Error', 'Please enter a goal title');
-      return;
-    }
+    if (!goal) return;
 
     try {
       await updateGoal(goal.id, {
-        title: title.trim(),
-        notes: notes.trim(),
+        title,
+        notes,
         feelings: selectedEmotions,
-        visionImageUrl: visionImageUrl,
+        visionImageUrl,
       });
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to update goal');
+      Alert.alert('Error', 'Failed to save goal');
     }
   };
 
   const handleDelete = () => {
+    if (!goal) return;
+
     Alert.alert(
       'Delete Goal',
       'Are you sure you want to delete this goal? This action cannot be undone.',
@@ -102,218 +464,627 @@ export default function GoalDetailsScreen() {
     );
   };
 
-  const goalMilestones = milestones.filter(m => m.goalId === id);
+  const handleMilestonePress = (milestoneId: string) => {
+    router.push(`/milestone-details?id=${milestoneId}`);
+  };
+
+  const handleMilestoneComplete = async (milestoneId: string) => {
+    // TODO: Implement milestone completion logic
+    console.log('Complete milestone:', milestoneId);
+  };
+
+  const handleChangeVision = () => {
+    setShowVisionPicker(true);
+  };
+
+  const handleVisionSelect = (visionImage: any) => {
+    setVisionImageUrl(visionImage.imageUri);
+  };
+
+  const handleRemoveVision = () => {
+    setVisionImageUrl('');
+  };
+
+  const handleCancel = () => {
+    router.back();
+  };
 
   if (!goal) {
     return (
-      <SafeAreaView className="flex-1 bg-[#e9edc9]">
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-[#364958] text-lg">Loading...</Text>
-        </View>
-      </SafeAreaView>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#e9edc9]">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-        <View className="px-9 pt-4">
-          {/* Header */}
-          <View className="flex-row items-center mb-6">
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              className="w-11 h-11 items-center justify-center"
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <KeyboardAwareScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        enableResetScrollToCoords={false}
+      >
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.titleRow}>
+            <TouchableOpacity
+              onPress={handleCancel}
+              style={styles.backButton}
             >
-              <Ionicons name="chevron-back" size={24} color="#364958" />
-            </TouchableOpacity>
-            <View className="flex-1 ml-4">
-              <Text className="text-[#364958] text-2xl font-bold">My Goal</Text>
-              <Text className="text-[#364958] text-sm mt-1">
-                Review and adjust the details of your vision.
-              </Text>
-            </View>
-          </View>
-
-          {/* Goal Title Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Goal Title</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Tap the title to edit.
-              </Text>
-            </View>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Enter your goal title"
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-lg shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            />
-          </View>
-
-          {/* Emotions Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">
-                How do you feel after you achieved your goal?
-              </Text>
-              <Text className="text-[#364958] text-sm">
-                Choose up to 5 emotions.
-              </Text>
-            </View>
-            <View className="flex-row flex-wrap gap-4">
-              {EMOTIONS.map((emotion) => (
-                <TouchableOpacity
-                  key={emotion.id}
-                  onPress={() => handleEmotionToggle(emotion.id)}
-                  className="px-3 py-2 rounded-md border-[0.3px] shadow-sm"
-                  style={{
-                    backgroundColor: selectedEmotions.includes(emotion.id) 
-                      ? emotion.color 
-                      : '#f5ebe0',
-                    borderColor: emotion.textColor,
-                    shadowColor: '#7c7c7c',
-                    shadowOffset: { width: 0, height: 1.5 },
-                    shadowOpacity: 0.75,
-                    shadowRadius: 0,
-                    width: 80,
-                    height: 30,
-                  }}
-                >
-                  <Text 
-                    className="text-center text-sm"
-                    style={{ color: emotion.textColor }}
-                  >
-                    {emotion.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Vision Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Your Vision</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Begin with the end in mind. This is what you're working towards.
-              </Text>
-            </View>
-            <TouchableOpacity 
-              className="bg-[#e3e3e3] border border-[#a3b18a] rounded-2xl h-64 items-center justify-center shadow-sm"
-              style={{ shadowColor: '#9b9b9b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              {visionImageUrl ? (
-                <Image 
-                  source={{ uri: visionImageUrl }} 
-                  className="w-full h-full rounded-2xl"
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="items-center justify-center">
-                  <Ionicons name="image-outline" size={48} color="#9b9b9b" />
-                  <Text className="text-[#9b9b9b] text-sm mt-2">Tap to add vision image</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Milestones Section */}
-          <View className="mb-8">
-            <View className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl p-4 shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <View className="flex-row items-center justify-between mb-4">
-                <Text className="text-[#364958] text-sm">Explore your milestones</Text>
-                <Ionicons name="chevron-down" size={20} color="#364958" />
+              <View style={styles.chevronContainer}>
+                <View style={styles.chevron} />
               </View>
-              <Text className="text-[#364958] text-lg font-bold mb-4">Milestones</Text>
-              
-              {goalMilestones.length > 0 ? (
-                goalMilestones.map((milestone) => (
-                  <TouchableOpacity
-                    key={milestone.id}
-                    onPress={() => router.push(`/milestone-details?id=${milestone.id}`)}
-                    className="bg-[rgba(233,237,201,0.4)] border border-[#a3b18a] rounded-2xl p-4 mb-3 shadow-sm"
-                    style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                  >
-                    <View className="flex-row items-center justify-between">
-                      <View className="flex-1">
-                        <Text className="text-[#364958] text-sm font-bold mb-1">
-                          {milestone.title}
-                        </Text>
-                        <Text className="text-[#364958] text-xs opacity-75 mb-2">
-                          Milestone description
-                        </Text>
-                        <View className="flex-row items-center">
-                          <Ionicons name="calendar-outline" size={13} color="#364958" />
-                          <Text className="text-[#364958] text-xs ml-2">
-                            {milestone.targetDate ? new Date(milestone.targetDate).toLocaleDateString() : 'None'}
-                          </Text>
-                        </View>
-                      </View>
-                      <TouchableOpacity
-                        className="bg-[#a3b18a] border border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                        style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                      >
-                        <Ionicons name="checkmark" size={20} color="#f5ebe0" />
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <Text className="text-[#364958] text-sm opacity-75">No milestones yet</Text>
-              )}
-            </View>
-          </View>
-
-          {/* Notes Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Notes & Details</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Add any extra thoughts, links, or steps you want to remember.
-              </Text>
-            </View>
-            <TextInput
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Type here your notes and details..."
-              multiline
-              numberOfLines={4}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-base shadow-sm"
-              style={{ 
-                textAlignVertical: 'top',
-                shadowColor: '#7c7c7c', 
-                shadowOffset: { width: 0, height: 4 }, 
-                shadowOpacity: 0.75, 
-                shadowRadius: 0 
-              }}
-            />
-          </View>
-
-          {/* Action Buttons */}
-          <View className="flex-row justify-between items-center mb-8">
-            <TouchableOpacity
-              onPress={handleDelete}
-              className="bg-[#bc4b51] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="trash-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Delete goal</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleSave}
-              className="bg-[#a3b18a] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="save-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Save changes</Text>
-            </TouchableOpacity>
+            <Text style={styles.headerTitle}>
+              Edit Your Goal
+            </Text>
           </View>
+          <Text style={styles.headerSubtitle}>
+            Update your goal details and track your progress.
+          </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* Goal Title */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            Goal Title
+          </Text>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Type here your goal title..."
+            placeholderTextColor="#364958"
+            style={styles.textInput}
+          />
+        </View>
+
+        {/* Emotion Selection */}
+        <EmotionSelection 
+          selectedEmotions={selectedEmotions}
+          onEmotionToggle={handleEmotionToggle}
+        />
+
+        {/* Vision Board Selection */}
+        <VisionBoardSelection 
+          visionImageUrl={visionImageUrl} 
+          onChangeVision={handleChangeVision}
+          onRemoveVision={handleRemoveVision}
+        />
+
+        {/* Milestones Section */}
+        <MilestonesSection 
+          goalId={goal.id}
+          milestones={milestones}
+          goal={goal}
+          onMilestonePress={handleMilestonePress}
+          onMilestoneComplete={handleMilestoneComplete}
+        />
+
+        {/* Notes Section */}
+        <NotesSection 
+          notes={notes}
+          onNotesChange={setNotes}
+        />
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity
+            onPress={handleDelete}
+            style={[styles.actionButton, styles.cancelButton]}
+          >
+            <Text style={styles.actionButtonText}>
+              Delete
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSave}
+            style={[styles.actionButton, styles.saveButton]}
+          >
+            <Text style={styles.actionButtonText}>
+              Save
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
+
+      {/* Vision Picker Modal */}
+      <VisionPicker
+        visible={showVisionPicker}
+        onClose={() => setShowVisionPicker(false)}
+        onVisionSelect={handleVisionSelect}
+        selectedVisionImage={null}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  // Container styles
+  container: {
+    flex: 1,
+    backgroundColor: '#e9edc9',
+  },
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 36,
+  },
+  scrollContent: {
+    paddingBottom: 150,
+    paddingTop: 20,
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginTop: 100,
+    fontSize: 16,
+    color: '#364958',
+  },
+
+  // Header styles
+  headerContainer: {
+    marginBottom: 32,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
+    marginBottom: 8,
+  },
+  backButton: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chevronContainer: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chevron: {
+    width: 12,
+    height: 12,
+    borderLeftWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#364958',
+    transform: [{ rotate: '45deg' }],
+    borderRadius: 1,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    fontWeight: '300',
+    color: '#364958',
+    lineHeight: 20,
+  },
+
+  // Section styles
+  sectionContainer: {
+    marginBottom: 43,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 15,
+    color: '#364958',
+    lineHeight: 20,
+    marginBottom: 15,
+    fontWeight: '300',
+  },
+
+  // Input styles
+  textInput: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    fontSize: 15,
+    color: '#364958',
+    minHeight: 44,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  textInputMultiline: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+
+  // Emotion selection styles
+  emotionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 16,
+    columnGap: 8,
+  },
+  emotionButton: {
+    width: 100,
+    height: 30,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 5,
+    borderWidth: 0.3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    position: 'relative',
+  },
+  emotionButtonSelected: {
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  emotionButtonOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#9b9b9b',
+    borderRadius: 5,
+    opacity: 0.7,
+  },
+  emotionText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+    zIndex: 1,
+  },
+
+  // Vision board styles
+  visionContainer: {
+    marginBottom: 16,
+  },
+  visionImageContainer: {
+    height: 200,
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    backgroundColor: '#f5ebe0',
+    overflow: 'hidden',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    marginBottom: 16,
+  },
+  visionImage: {
+    width: '100%',
+    height: '100%',
+  },
+  visionPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  visionPlaceholderIcon: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#d9d9d9',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  visionPlaceholderText: {
+    fontSize: 24,
+  },
+  visionPlaceholderLabel: {
+    fontSize: 14,
+    color: '#364958',
+    opacity: 0.7,
+  },
+  visionButtonsContainer: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  changeVisionButton: {
+    backgroundColor: '#6096ba',
+    flex: 1,
+  },
+  removeVisionButton: {
+    backgroundColor: '#bc4b51',
+    width: 100,
+  },
+
+  // Dropdown styles
+  dropdownButton: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+  },
+  dropdownChevron: {
+    width: 12,
+    height: 12,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#364958',
+    transform: [{ rotate: '45deg' }],
+    borderRadius: 1,
+  },
+  dropdownChevronUp: {
+    transform: [{ rotate: '-135deg' }],
+  },
+  dropdownContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    marginTop: 8,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    overflow: 'hidden',
+    paddingVertical: 0,
+  },
+  // Milestones dropdown styles (matching manual-milestone.tsx pattern)
+  milestonesDropdownContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestonesDropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  milestonesDropdownText: {
+    fontSize: 15,
+    color: '#364958',
+    flex: 1,
+  },
+  // Chevron icon styles (matching manual-milestone.tsx)
+  chevronIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  chevronIconRotated: {
+    transform: [{ rotate: '180deg' }],
+  },
+  chevronLine1: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
+  },
+  chevronLine2: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
+  },
+  milestonesDropdownContent: {
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#a3b18a',
+  },
+  dropdownItemText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#364958',
+    flex: 1,
+  },
+  milestoneArrow: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chevronRight: {
+    width: 8,
+    height: 8,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#364958',
+    transform: [{ rotate: '-45deg' }],
+    borderRadius: 1,
+  },
+  noMilestonesText: {
+    fontSize: 15,
+    color: '#364958',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    opacity: 0.7,
+  },
+
+  // MilestoneCard styles
+  milestoneCardContainer: {
+    position: 'relative',
+    overflow: 'visible',
+  },
+  milestoneCardWrapper: {
+    zIndex: 1,
+  },
+  milestoneCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    minHeight: 91,
+    padding: 15,
+    backgroundColor: '#E9EDC9',
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestoneDeleteState: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F2CCC3',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  milestoneDeleteButton: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    borderRadius: 12,
+    paddingRight: 25,
+  },
+  milestoneContent: {
+    flex: 1,
+    gap: 8,
+  },
+  milestoneTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#364958',
+    fontFamily: 'Helvetica',
+  },
+  milestoneGoal: {
+    fontSize: 12,
+    fontWeight: '300',
+    color: '#364958',
+    fontFamily: 'Helvetica',
+  },
+  milestoneDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  milestoneDateIcon: {
+    fontSize: 12,
+  },
+  milestoneDateText: {
+    fontSize: 12,
+    fontWeight: '300',
+    color: '#364958',
+    fontFamily: 'Helvetica',
+  },
+  milestoneCompleteButton: {
+    backgroundColor: '#A3B18A',
+    borderWidth: 1,
+    borderColor: '#7C7C7C',
+    borderRadius: 10,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  milestoneCompleteText: {
+    fontSize: 16,
+    color: '#F5EBE0',
+  },
+
+  // Action button styles
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 40,
+    marginBottom: 24,
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: '#9b9b9b',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  cancelButton: {
+    backgroundColor: '#bc4b51',
+    width: 134,
+  },
+  saveButton: {
+    backgroundColor: '#a3b18a',
+    flex: 1,
+  },
+  actionButtonText: {
+    color: '#f5ebe0',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+});

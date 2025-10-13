@@ -100,6 +100,7 @@ export default function GoalsScreen() {
       title: dbGoal.title,
       description: dbGoal.notes || '',
       emotions: dbGoal.feelingsArray || [],
+      visionImageUrl: dbGoal.visionImageUrl, // Add this for GoalCard compatibility
       visionImages: dbGoal.visionImageUrl ? [dbGoal.visionImageUrl] : [],
       milestones: goalMilestones.map(milestone => ({
         id: milestone.id,

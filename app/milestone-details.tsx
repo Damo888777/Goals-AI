@@ -151,10 +151,10 @@ export default function MilestoneDetailsScreen() {
             </View>
             <TouchableOpacity
               onPress={() => setShowGoalDropdown(!showGoalDropdown)}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 flex-row items-center justify-between shadow-sm"
+              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-4 py-4 flex-row items-center justify-between shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
-              <Text className="text-[#364958] text-sm flex-1">
+              <Text className="text-[#364958] text-base flex-1">
                 {selectedGoal ? selectedGoal.title : 'Select your goal'}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#364958" />
@@ -192,11 +192,11 @@ export default function MilestoneDetailsScreen() {
           <View className="mb-8">
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
+              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
               style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
             >
-              <Text className="text-[#364958] text-xl font-light">
-                {targetDate.toLocaleDateString()}
+              <Text className="text-[#364958] text-base font-normal">
+                Select date
               </Text>
               <Ionicons name="chevron-down" size={20} color="#364958" />
             </TouchableOpacity>

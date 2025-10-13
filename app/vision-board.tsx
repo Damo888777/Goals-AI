@@ -135,9 +135,17 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
       prev.height < current.height ? prev : current
     );
     
-    // Calculate item height based on aspect ratio (using base height for layout)
-    const baseHeight = 150;
-    const itemHeight = baseHeight / item.aspectRatio;
+    // Calculate item height based on aspect ratio with Pinterest-like variation
+    const baseWidth = 150;
+    let itemHeight = baseWidth / item.aspectRatio;
+    
+    // Create more dramatic height variations like Pinterest
+    const heightVariations = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5, 1.8]; // Different height multipliers
+    const randomVariation = heightVariations[Math.floor(Math.random() * heightVariations.length)];
+    itemHeight = itemHeight * randomVariation;
+    
+    // Ensure reasonable bounds
+    itemHeight = Math.max(100, Math.min(350, itemHeight));
     
     // Add item to shortest column
     shortestColumn.items.push({ ...item, height: itemHeight });

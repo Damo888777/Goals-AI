@@ -17,8 +17,9 @@ import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { images } from '../constants/images';
-import { useTasks, useGoals, useMilestones, useVisionImages } from '../hooks/useDatabase';
+import { useTasks, useGoals, useMilestones } from '../hooks/useDatabase';
 import VisionImage from '../db/models/VisionImage';
+import VisionPicker from './VisionPicker';
 
 // Types for the component
 export type SparkOutputType = 'task' | 'goal' | 'milestone';
@@ -296,13 +297,9 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   onVisionImageSelect 
 }) => {
   const [showVisionPicker, setShowVisionPicker] = useState(false);
-  const { visionImages } = useVisionImages();
   const { goals } = useGoals();
 
-  // Filter out vision images that are already attached to goals
-  const availableVisionImages = visionImages.filter(image => {
-    return !goals.some(goal => goal.visionImageUrl === image.imageUri);
-  });
+  // No need to filter vision images here - VisionPicker handles this
 
   const handleVisionPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -312,7 +309,6 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   const handleVisionSelect = (image: VisionImage) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onVisionImageSelect(image);
-    setShowVisionPicker(false);
   };
 
   const handleRemoveVision = () => {
@@ -358,73 +354,12 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
       </TouchableOpacity>
 
       {/* Vision Picker Modal */}
-      <Modal
+      <VisionPicker
         visible={showVisionPicker}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowVisionPicker(false)}
-      >
-        <View style={styles.visionModalOverlay}>
-          <LinearGradient
-            colors={['#4a4e69', '#9a8c98', '#4a4e69']}
-            locations={[0, 0.5, 1]}
-            style={styles.visionModalContainer}
-          >
-            {/* Header */}
-            <View style={styles.visionModalHeader}>
-              <Text style={styles.visionModalTitle}>Choose Vision Image</Text>
-              <TouchableOpacity
-                onPress={() => setShowVisionPicker(false)}
-                style={styles.visionModalCloseButton}
-              >
-                <Text style={styles.visionModalCloseText}>×</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Vision Images Grid */}
-            <View style={styles.visionModalContent}>
-              {availableVisionImages.length > 0 ? (
-                <ScrollView 
-                  style={styles.visionScrollView}
-                  contentContainerStyle={styles.visionScrollContent}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <View style={styles.visionGrid}>
-                    {availableVisionImages.map((image) => (
-                      <TouchableOpacity
-                        key={image.id}
-                        style={[
-                          styles.visionGridItem,
-                          selectedVisionImage?.id === image.id && styles.visionGridItemSelected
-                        ]}
-                        onPress={() => handleVisionSelect(image)}
-                      >
-                        <Image
-                          source={{ uri: image.imageUri }}
-                          style={styles.visionGridImage}
-                          contentFit="cover"
-                        />
-                        {selectedVisionImage?.id === image.id && (
-                          <View style={styles.visionGridOverlay}>
-                            <Text style={styles.visionGridCheckmark}>✓</Text>
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              ) : (
-                <View style={styles.visionEmptyState}>
-                  <Text style={styles.visionEmptyTitle}>No Available Vision Images</Text>
-                  <Text style={styles.visionEmptySubtitle}>
-                    All vision images are already attached to goals, or create your first vision image to get started
-                  </Text>
-                </View>
-              )}
-            </View>
-          </LinearGradient>
-        </View>
-      </Modal>
+        onClose={() => setShowVisionPicker(false)}
+        onVisionSelect={handleVisionSelect}
+        selectedVisionImage={selectedVisionImage}
+      />
     </View>
   );
 };

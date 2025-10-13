@@ -415,7 +415,7 @@ export function GoalCard({
                 style={{
                   width: 44,
                   height: 44,
-                  alignItems: 'center',
+                  alignItems: 'flex-start', // Align chevron to left edge of touch area
                   justifyContent: 'center',
                   alignSelf: 'flex-start',
                 }}
@@ -426,6 +426,7 @@ export function GoalCard({
                   alignItems: 'center',
                   justifyContent: 'center',
                   transform: [{ rotate: expanded ? '180deg' : '0deg' }],
+                  marginLeft: 0, // Position chevron at left edge
                 }}>
                   <View style={{
                     width: 8,
