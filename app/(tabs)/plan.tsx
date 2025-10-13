@@ -22,7 +22,7 @@ export default function PlanTab() {
   // Use real data hooks
   const { weekDays: realWeekDays, isLoading: isWeeklyLoading, getWeekRange } = useWeeklyTasks(currentWeekOffset);
   const { somedayTasks, isLoading: isSomedayLoading, toggleTaskComplete, createSomedayTask } = useSomedayTasks();
-  const { createTask } = useTasks();
+  const { createTask, completeTask, deleteTask } = useTasks();
   
   // Get week range for display
   const { startDate, endDate } = getWeekRange();
@@ -301,6 +301,22 @@ export default function PlanTab() {
                     console.error('Error creating weekday task:', error);
                   }
                 }}
+                onToggleComplete={async (taskId) => {
+                  try {
+                    await completeTask(taskId);
+                    console.log('Task completed successfully');
+                  } catch (error) {
+                    console.error('Error completing task:', error);
+                  }
+                }}
+                onDeleteTask={async (taskId) => {
+                  try {
+                    await deleteTask(taskId);
+                    console.log('Task deleted successfully');
+                  } catch (error) {
+                    console.error('Error deleting task:', error);
+                  }
+                }}
               />
             ))}
           </View>
@@ -326,6 +342,22 @@ export default function PlanTab() {
                     console.log('Scheduled task created successfully');
                   } catch (error) {
                     console.error('Error creating scheduled task:', error);
+                  }
+                }}
+                onToggleComplete={async (taskId) => {
+                  try {
+                    await completeTask(taskId);
+                    console.log('Task completed successfully');
+                  } catch (error) {
+                    console.error('Error completing task:', error);
+                  }
+                }}
+                onDeleteTask={async (taskId) => {
+                  try {
+                    await deleteTask(taskId);
+                    console.log('Task deleted successfully');
+                  } catch (error) {
+                    console.error('Error deleting task:', error);
                   }
                 }}
               />

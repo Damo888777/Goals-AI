@@ -34,6 +34,7 @@ export function useWeeklyTasks(weekOffset: number = 0) {
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
+      date.setHours(0, 0, 0, 0); // Set to midnight to avoid timezone issues
       weekDays.push({
         name: dayNames[i],
         date: formatDate(date),
@@ -71,10 +72,39 @@ export function useWeeklyTasks(weekOffset: number = 0) {
       const tasksCollection = database.get<Task>('tasks');
 
       // Get start and end dates for the week
-      const startDate = initialWeekDays[0].dateObj; // Monday
-      const endDate = initialWeekDays[6].dateObj;   // Sunday
+      const startDate = new Date(initialWeekDays[0].dateObj); // Monday
+      startDate.setHours(0, 0, 0, 0); // Start of Monday at midnight
+      const endDate = new Date(initialWeekDays[6].dateObj);   // Sunday
       endDate.setHours(23, 59, 59, 999); // End of Sunday
 
+      // First, let's see ALL tasks for this user
+      const allUserTasks = await tasksCollection
+        .query(Q.where('user_id', userId))
+        .fetch();
+      
+      console.log('👤 User ID:', userId);
+      console.log('📊 All user tasks:', allUserTasks.length, allUserTasks.map(t => ({ 
+        title: t.title, 
+        scheduledDate: t.scheduledDate, 
+        isComplete: t.isComplete 
+      })));
+      
+      // Try a simpler query first - tasks with scheduled dates
+      const tasksWithDates = await tasksCollection
+        .query(
+          Q.where('user_id', userId),
+          Q.where('scheduled_date', Q.notEq(null))
+        )
+        .fetch();
+      
+      console.log('📆 Tasks with scheduled dates:', tasksWithDates.length, tasksWithDates.map(t => ({ 
+        title: t.title, 
+        scheduledDate: t.scheduledDate,
+        isComplete: t.isComplete,
+        goalId: t.goalId,
+        milestoneId: t.milestoneId
+      })));
+      
       // Query tasks for the entire week
       const weekTasks = await tasksCollection
         .query(
@@ -84,6 +114,9 @@ export function useWeeklyTasks(weekOffset: number = 0) {
           Q.where('scheduled_date', Q.lte(endDate.toISOString()))
         )
         .fetch();
+      
+      console.log('📅 Week range:', startDate.toISOString(), 'to', endDate.toISOString());
+      console.log('📋 Found week tasks:', weekTasks.length, weekTasks.map(t => ({ title: t.title, scheduledDate: t.scheduledDate })));
 
       // Group tasks by day
       const updatedWeekDays = initialWeekDays.map(day => {
@@ -95,8 +128,20 @@ export function useWeeklyTasks(weekOffset: number = 0) {
         const dayTasks = weekTasks.filter(task => {
           if (!task.scheduledDate) return false;
           const taskDate = new Date(task.scheduledDate);
-          return taskDate >= dayStart && taskDate <= dayEnd;
+          const isInRange = taskDate >= dayStart && taskDate <= dayEnd;
+          if (!isInRange) {
+            console.log(`❌ Task "${task.title}" filtered out:`, {
+              taskDate: taskDate.toISOString(),
+              dayStart: dayStart.toISOString(),
+              dayEnd: dayEnd.toISOString()
+            });
+          }
+          return isInRange;
         });
+        
+        if (dayTasks.length > 0) {
+          console.log(`✅ ${day.name} has ${dayTasks.length} tasks:`, dayTasks.map(t => t.title));
+        }
 
         return {
           ...day,
@@ -109,7 +154,7 @@ export function useWeeklyTasks(weekOffset: number = 0) {
             scheduledDate: task.scheduledDate,
             goalId: task.goalId,
             milestoneId: task.milestoneId,
-            userId: task.userId,
+            creationSource: task.creationSource, // Added missing field
             createdAt: task.createdAt,
             updatedAt: task.updatedAt,
           }))

@@ -15,9 +15,11 @@ interface WeekDayCardProps {
     scheduledDate: Date;
     creationSource: 'spark' | 'manual';
   }) => Promise<void>;
+  onToggleComplete?: (taskId: string) => Promise<void>;
+  onDeleteTask?: (taskId: string) => Promise<void>;
 }
 
-export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask }: WeekDayCardProps) {
+export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask, onToggleComplete, onDeleteTask }: WeekDayCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasTasks = tasks.length > 0;
 
@@ -89,8 +91,9 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask 
                 key={task.id}
                 task={task}
                 variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
-                onPress={() => console.log('Task pressed:', task.id)}
-                onToggleComplete={async (taskId) => console.log('Toggle complete:', taskId)}
+                onToggleComplete={onToggleComplete}
+                onDelete={onDeleteTask}
+                creationSource={task.creationSource}
               />
             ))
           ) : (

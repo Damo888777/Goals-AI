@@ -7,7 +7,8 @@ import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import type { Task } from '../types';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { useGoals, useMilestones } from '../hooks/useDatabase';
 
 // Format date as Dec.05.2025
 const formatDate = (date: Date): string => {
@@ -45,6 +46,39 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
   const [isPressed, setIsPressed] = useState(false);
   const [isCompletePressed, setIsCompletePressed] = useState(false);
   const [isPomodoroPressed, setIsPomodoroPressed] = useState(false);
+  const [goalName, setGoalName] = useState<string | null>(null);
+  const [milestoneName, setMilestoneName] = useState<string | null>(null);
+  
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
+  
+  // Fetch goal and milestone names when task changes
+  useEffect(() => {
+    console.log('🎯 TaskCard debug:', {
+      taskId: task?.id,
+      taskTitle: task?.title,
+      goalId: task?.goalId,
+      milestoneId: task?.milestoneId,
+      goalsCount: goals.length,
+      milestonesCount: milestones.length
+    });
+    
+    if (task?.goalId && goals.length > 0) {
+      const goal = goals.find(g => g.id === task.goalId);
+      console.log('🎯 Found goal:', goal?.title);
+      setGoalName(goal?.title || null);
+    } else {
+      setGoalName(null);
+    }
+    
+    if (task?.milestoneId && milestones.length > 0) {
+      const milestone = milestones.find(m => m.id === task.milestoneId);
+      console.log('📍 Found milestone:', milestone?.title);
+      setMilestoneName(milestone?.title || null);
+    } else {
+      setMilestoneName(null);
+    }
+  }, [task?.goalId, task?.milestoneId, goals, milestones]);
 
   const handleGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -193,8 +227,10 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
             <Text style={[
               styles.goalInfo,
               isCompleted && styles.completedText
-            ]}>
-              {task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
+            ]} numberOfLines={1}>
+              {milestoneName ? `📍 ${milestoneName}` : 
+               goalName ? `🎯 ${goalName}` : 
+               task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
             </Text>
             <View style={styles.dateRow}>
               <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
