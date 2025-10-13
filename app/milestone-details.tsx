@@ -4,16 +4,317 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
+  StyleSheet,
+  Modal,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useGoals, useMilestones } from '../src/hooks/useDatabase';
+import { GoalCard } from '../src/components/GoalCard';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#e9edc9',
+  },
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 36,
+  },
+  scrollContent: {
+    paddingBottom: 150,
+    paddingTop: 20,
+  },
+  headerContainer: {
+    marginBottom: 43,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
+    marginBottom: 8,
+  },
+  backButton: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chevronContainer: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chevron: {
+    width: 12,
+    height: 12,
+    borderLeftWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#364958',
+    transform: [{ rotate: '45deg' }],
+    borderRadius: 1,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    color: '#364958',
+    lineHeight: 20,
+    fontWeight: '300',
+  },
+  sectionContainer: {
+    marginBottom: 43,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 15,
+    color: '#364958',
+    lineHeight: 20,
+    marginBottom: 15,
+    fontWeight: '300',
+  },
+  textInput: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    fontSize: 15,
+    color: '#364958',
+    minHeight: 44,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  textInputMultiline: {
+    minHeight: 80,
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
+  },
+  goalAttachmentContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  goalAttachmentContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  goalAttachmentText: {
+    fontSize: 15,
+    color: '#364958',
+    flex: 1,
+  },
+  chevronIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  chevronIconRotated: {
+    transform: [{ rotate: '180deg' }],
+  },
+  chevronLine1: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
+  },
+  chevronLine2: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
+  },
+  dropdownContent: {
+    marginTop: 8,
+  },
+  dropdownItem: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 4,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+  },
+  dropdownItemText: {
+    fontSize: 15,
+    color: '#364958',
+  },
+  datePickerContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  datePickerContent: {
+    padding: 16,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
+  datePickerText: {
+    fontSize: 15,
+    color: '#364958',
+    textAlign: 'left',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#f5ebe0',
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 350,
+    alignSelf: 'center',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 8,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+  },
+  modalHeader: {
+    padding: 20,
+    paddingBottom: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#364958',
+  },
+  datePickerWrapper: {
+    backgroundColor: '#e9edc9',
+    marginHorizontal: 15,
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+    gap: 15,
+  },
+  modalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    backgroundColor: '#bc4b51',
+  },
+  modalCancelText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    backgroundColor: '#a3b18a',
+  },
+  modalConfirmText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 40,
+    marginBottom: 24,
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: '#9b9b9b',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  deleteButton: {
+    backgroundColor: '#bc4b51',
+    width: 134,
+  },
+  saveButton: {
+    backgroundColor: '#a3b18a',
+    flex: 1,
+  },
+  actionButtonText: {
+    color: '#f5ebe0',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+});
 
 export default function MilestoneDetailsScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { goals } = useGoals();
@@ -23,9 +324,11 @@ export default function MilestoneDetailsScreen() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedGoalId, setSelectedGoalId] = useState('');
-  const [targetDate, setTargetDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showGoalDropdown, setShowGoalDropdown] = useState(false);
+  const [targetDate, setTargetDate] = useState<Date | undefined>(undefined);
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (id && milestones.length > 0) {
@@ -35,7 +338,7 @@ export default function MilestoneDetailsScreen() {
         setTitle(foundMilestone.title);
         setNotes('');
         setSelectedGoalId(foundMilestone.goalId || '');
-        setTargetDate(foundMilestone.targetDate ? new Date(foundMilestone.targetDate) : new Date());
+        setTargetDate(foundMilestone.targetDate ? new Date(foundMilestone.targetDate) : undefined);
       }
     }
   }, [id, milestones]);
@@ -53,15 +356,25 @@ export default function MilestoneDetailsScreen() {
       return;
     }
 
+    setIsLoading(true);
+    
     try {
       await updateMilestone(milestone.id, {
         title: title.trim(),
         goalId: selectedGoalId,
-        targetDate: targetDate.toISOString(),
+        targetDate: targetDate?.toISOString(),
       });
-      router.back();
+      
+      Alert.alert(
+        'Success',
+        'Milestone updated successfully!',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
     } catch (error) {
-      Alert.alert('Error', 'Failed to update milestone');
+      console.error('Error updating milestone:', error);
+      Alert.alert('Error', 'Failed to update milestone. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,11 +388,18 @@ export default function MilestoneDetailsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
+            setIsLoading(true);
             try {
               await deleteMilestone(milestone.id);
-              router.back();
+              Alert.alert(
+                'Success',
+                'Milestone deleted successfully!',
+                [{ text: 'OK', onPress: () => router.back() }]
+              );
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete milestone');
+              console.error('Error deleting milestone:', error);
+              Alert.alert('Error', 'Failed to delete milestone. Please try again.');
+              setIsLoading(false);
             }
           },
         },
@@ -87,177 +407,271 @@ export default function MilestoneDetailsScreen() {
     );
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setTargetDate(selectedDate);
+  const handleDatePickerPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTempDate(targetDate || new Date());
+    setIsDateModalVisible(true);
+  };
+
+  const handleDateChange = (event: any, date?: Date) => {
+    if (date) {
+      setTempDate(date);
     }
+  };
+
+  const handleDateConfirm = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTargetDate(tempDate);
+    setIsDateModalVisible(false);
+  };
+
+  const handleDateCancel = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTempDate(targetDate || new Date());
+    setIsDateModalVisible(false);
+  };
+
+  const handleDropdownPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleGoalSelect = (goalId: string | undefined) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedGoalId(goalId || '');
+    setIsDropdownOpen(false);
+  };
+
+  const handleCancel = () => {
+    router.back();
+  };
+
+  const formatDate = (date: Date) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}.${day}.${year}`;
   };
 
   if (!milestone) {
     return (
-      <SafeAreaView className="flex-1 bg-[#e9edc9]">
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-[#364958] text-lg">Loading...</Text>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 18, color: '#364958' }}>Loading...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#e9edc9]">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-        <View className="px-9 pt-4">
-          {/* Header */}
-          <View className="flex-row items-center mb-6">
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              className="w-11 h-11 items-center justify-center"
-            >
-              <Ionicons name="chevron-back" size={24} color="#364958" />
-            </TouchableOpacity>
-            <View className="flex-1 ml-4">
-              <Text className="text-[#364958] text-2xl font-bold">My Milestone</Text>
-              <Text className="text-[#364958] text-sm mt-1">
-                Review and adjust the details of your milestone.
-              </Text>
-            </View>
-          </View>
-
-          {/* Milestone Title Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Milestone Title</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Tap on the title to edit.
-              </Text>
-            </View>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Placeholder Title Text"
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-lg shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            />
-          </View>
-
-          {/* My Goal Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">My goal</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Attach this milestone to your goal.
-              </Text>
-            </View>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <KeyboardAwareScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.titleRow}>
             <TouchableOpacity
-              onPress={() => setShowGoalDropdown(!showGoalDropdown)}
-              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-4 py-4 flex-row items-center justify-between shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
+              onPress={handleCancel}
+              style={styles.backButton}
             >
-              <Text className="text-[#364958] text-base flex-1">
+              <View style={styles.chevronContainer}>
+                <View style={styles.chevron} />
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>
+              Edit Milestone
+            </Text>
+          </View>
+          <Text style={styles.headerSubtitle}>
+            Review and adjust the details of your milestone.
+          </Text>
+        </View>
+
+        {/* Milestone Title */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            Milestone Title
+          </Text>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Type here your milestone title..."
+            placeholderTextColor="rgba(54,73,88,0.5)"
+            style={styles.textInput}
+          />
+        </View>
+
+        {/* Goal Selection */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            My goal
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            Attach this milestone to your goal.
+          </Text>
+          
+          {/* Dropdown Container */}
+          <View style={styles.goalAttachmentContainer}>
+            {/* Dropdown Button */}
+            <TouchableOpacity 
+              style={styles.goalAttachmentContent}
+              onPress={handleDropdownPress}
+            >
+              <Text style={styles.goalAttachmentText}>
                 {selectedGoal ? selectedGoal.title : 'Select your goal'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#364958" />
+              <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
+                <View style={styles.chevronLine1} />
+                <View style={styles.chevronLine2} />
+              </View>
             </TouchableOpacity>
 
-            {/* Goal Dropdown */}
-            {showGoalDropdown && (
-              <View className="mt-2 bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl shadow-sm"
-                style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-              >
-                {goals.map((goal) => (
-                  <TouchableOpacity
-                    key={goal.id}
-                    onPress={() => {
-                      setSelectedGoalId(goal.id);
-                      setShowGoalDropdown(false);
-                    }}
-                    className="px-4 py-4 flex-row items-center justify-between border-b border-[#a3b18a] last:border-b-0"
-                  >
-                    <Text className="text-[#364958] text-sm font-bold flex-1">
-                      {goal.title}
-                    </Text>
-                    <View className="bg-[#6096ba] border border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                      style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                    >
-                      <Ionicons name="add" size={20} color="#f5ebe0" />
-                    </View>
-                  </TouchableOpacity>
-                ))}
+            {/* Dropdown Content */}
+            {isDropdownOpen && (
+              <View style={styles.dropdownContent}>
+                {goals.length > 0 ? (
+                  goals.map((goal) => (
+                    <GoalCard
+                      key={goal.id}
+                      goal={{
+                        id: goal.id,
+                        title: goal.title,
+                        description: goal.notes || '',
+                        emotions: goal.feelingsArray || [],
+                        visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                        milestones: [],
+                        progress: 0,
+                        isCompleted: goal.isCompleted,
+                        createdAt: goal.createdAt,
+                        updatedAt: goal.updatedAt
+                      }}
+                      variant="selection-compact"
+                      isAttached={selectedGoalId === goal.id}
+                      onAttach={() => handleGoalSelect(goal.id)}
+                      onDetach={() => handleGoalSelect(undefined)}
+                    />
+                  ))
+                ) : (
+                  <GoalCard
+                    variant="selection-empty"
+                  />
+                )}
               </View>
             )}
           </View>
+        </View>
 
-          {/* Date Picker Section */}
-          <View className="mb-8">
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Text className="text-[#364958] text-base font-normal">
-                Select date
-              </Text>
-              <Ionicons name="chevron-down" size={20} color="#364958" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={targetDate}
-                mode="date"
-                display="default"
-                onChange={handleDateChange}
-              />
-            )}
-          </View>
-
-          {/* Notes Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Notes & Details</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Add any extra thoughts, links, or steps you want to remember.
+        {/* Date Picker */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            Due Date
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            Set when you want to complete this.
+          </Text>
+          <TouchableOpacity 
+            style={styles.datePickerContainer}
+            onPress={handleDatePickerPress}
+          >
+            <View style={styles.datePickerContent}>
+              <Text style={styles.datePickerText}>
+                {targetDate ? formatDate(targetDate) : 'Select date'}
               </Text>
             </View>
-            <TextInput
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Type here your notes and details..."
-              multiline
-              numberOfLines={4}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-base shadow-sm"
-              style={{ 
-                textAlignVertical: 'top',
-                shadowColor: '#7c7c7c', 
-                shadowOffset: { width: 0, height: 4 }, 
-                shadowOpacity: 0.75, 
-                shadowRadius: 0 
-              }}
-            />
-          </View>
+          </TouchableOpacity>
 
-          {/* Action Buttons */}
-          <View className="flex-row justify-between items-center mb-8">
-            <TouchableOpacity
-              onPress={handleDelete}
-              className="bg-[#bc4b51] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="trash-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Delete milestone</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleSave}
-              className="bg-[#a3b18a] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="save-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Save changes</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Date Modal */}
+          <Modal
+            visible={isDateModalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={handleDateCancel}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Date</Text>
+                </View>
+                
+                <View style={styles.datePickerWrapper}>
+                  <DateTimePicker
+                    value={tempDate}
+                    mode="date"
+                    display="spinner"
+                    onChange={handleDateChange}
+                    textColor="#364958"
+                  />
+                </View>
+                
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity 
+                    style={styles.modalCancelButton}
+                    onPress={handleDateCancel}
+                  >
+                    <Text style={styles.modalCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.modalConfirmButton}
+                    onPress={handleDateConfirm}
+                  >
+                    <Text style={styles.modalConfirmText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* Notes Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            Notes & Details
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            Add any extra thoughts, links, or steps you want to remember.
+          </Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Type here your notes and details..."
+            placeholderTextColor="rgba(54,73,88,0.5)"
+            style={[styles.textInput, styles.textInputMultiline]}
+            multiline
+            scrollEnabled={false}
+          />
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity
+            onPress={handleDelete}
+            style={[styles.actionButton, styles.deleteButton]}
+          >
+            <Text style={styles.actionButtonText}>
+              Delete
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSave}
+            style={[styles.actionButton, styles.saveButton]}
+          >
+            <Text style={styles.actionButtonText}>
+              Save Changes
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }

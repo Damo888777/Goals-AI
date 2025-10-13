@@ -173,7 +173,6 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
         scrollEnabled={false}
-        textAlignVertical="top"
       />
     </View>
   );
@@ -453,7 +452,9 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     minHeight: 80,
-    textAlignVertical: 'top',
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
   },
 
   // Emotion selection styles
