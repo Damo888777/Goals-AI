@@ -10,6 +10,8 @@ export interface GeminiResponse {
   type: 'task' | 'goal' | 'milestone';
   title: string;
   timestamp: string | null;
+  linkedGoalId?: string | null;
+  linkedMilestoneId?: string | null;
 }
 
 export interface AIProcessingResult {
@@ -86,7 +88,11 @@ export class WhisperService {
 
 // Google Gemini Service
 export class GeminiService {
-  static async processTranscription(transcription: string): Promise<GeminiResponse> {
+  static async processTranscription(
+    transcription: string, 
+    existingGoals: any[] = [], 
+    existingMilestones: any[] = []
+  ): Promise<GeminiResponse> {
     try {
       console.log('🤖 [Gemini] Starting classification for:', transcription);
       
@@ -98,7 +104,11 @@ export class GeminiService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ transcription }),
+        body: JSON.stringify({ 
+          transcription, 
+          existingGoals, 
+          existingMilestones 
+        }),
       });
       
       console.log('🤖 [Gemini] Response status:', response.status);
@@ -127,6 +137,8 @@ export class GeminiService {
         type: data.type,
         title: data.title,
         timestamp: data.timestamp,
+        linkedGoalId: data.linkedGoalId || null,
+        linkedMilestoneId: data.linkedMilestoneId || null,
       };
     } catch (error) {
       console.error('🤖 [Gemini] Processing error:', error);
@@ -134,6 +146,8 @@ export class GeminiService {
         type: 'task',
         title: transcription,
         timestamp: null,
+        linkedGoalId: null,
+        linkedMilestoneId: null,
       };
     }
   }
@@ -141,7 +155,11 @@ export class GeminiService {
 
 // Main AI Service orchestrator
 export class AIService {
-  static async processVoiceInput(audioUri: string): Promise<AIProcessingResult> {
+  static async processVoiceInput(
+    audioUri: string, 
+    existingGoals: any[] = [], 
+    existingMilestones: any[] = []
+  ): Promise<AIProcessingResult> {
     try {
       console.log('🚀 [AI Service] Starting voice processing pipeline');
       console.log('🚀 [AI Service] Audio URI:', audioUri);
@@ -159,7 +177,7 @@ export class AIService {
       
       // Stage 2: Process transcription with Gemini
       console.log('🚀 [AI Service] Stage 2: Starting classification');
-      const classification = await GeminiService.processTranscription(transcription);
+      const classification = await GeminiService.processTranscription(transcription, existingGoals, existingMilestones);
       
       console.log('🚀 [AI Service] Stage 2 complete. Classification:', classification);
       

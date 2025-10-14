@@ -88,7 +88,7 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
               />
             ))
           ) : (
-            <Pressable
+            <View
               style={{
                 backgroundColor: '#E9EDC9',
                 borderWidth: 0.5,
@@ -104,19 +104,6 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
                 shadowRadius: 0,
                 elevation: 4,
               }}
-              onPress={async () => {
-                if (onAddTask) {
-                  try {
-                    await onAddTask({
-                      title: `New Task for ${weekday}`,
-                      scheduledDate: dateObj,
-                      creationSource: 'manual'
-                    });
-                  } catch (error) {
-                    console.error('Error creating weekday task:', error);
-                  }
-                }
-              }}
             >
               <Text style={{
                 ...typography.emptyTitle,
@@ -127,9 +114,9 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
               <Text style={{
                 ...typography.emptyDescription,
               }}>
-                Tap to add a task for this day.
+                Your day looks clear.
               </Text>
-            </Pressable>
+            </View>
           )}
         </View>
       )}

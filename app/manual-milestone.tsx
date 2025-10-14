@@ -21,6 +21,7 @@ import { BackChevronButton } from '../src/components/ChevronButton';
 import { ChevronButton } from '../src/components/ChevronButton';
 import { GoalCard } from '../src/components/GoalCard';
 import { SelectionCard } from '../src/components/SelectionCard';
+import { spacing } from '../src/constants/spacing';
 
 // Date Picker Component
 interface DatePickerProps {
@@ -159,7 +160,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        My goal
+        My Goals
       </Text>
       <Text style={styles.sectionSubtitle}>
         Attach this milestone to your goal.
@@ -399,9 +400,9 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     flexDirection: 'row' as const,
-    alignItems: 'baseline' as const,
-    gap: 10,
-    marginBottom: 8,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   backButton: {
     width: 30,

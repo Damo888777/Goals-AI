@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import { router, useRouter } from 'expo-router';
@@ -8,6 +8,7 @@ import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
 import { ChevronButton } from './ChevronButton';
+import { IconButton } from './IconButton';
 import type { Goal, Milestone } from '../types';
 
 // Separate component for milestone cards to fix hooks order
@@ -186,6 +187,7 @@ interface GoalCardProps {
   onAttach?: () => void;
   onDetach?: () => void;
   isAttached?: boolean;
+  onDelete?: (goalId: string) => Promise<void>;
 }
 
 export function GoalCard({ 
@@ -200,11 +202,66 @@ export function GoalCard({
   onAttach,
   onDetach,
   isAttached = false,
-  creationSource 
+  creationSource,
+  onDelete 
 }: GoalCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const router = useRouter();
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isDeleting = useRef(false);
+
+  const handleGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: translateX } }],
+    { useNativeDriver: true }
+  );
+
+  const handleStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX } = event.nativeEvent;
+      
+      if (translationX < -20 && !isDeleting.current) {
+        Animated.spring(translateX, {
+          toValue: -80,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  };
+
+  const handleDelete = () => {
+    if (goal?.id && onDelete) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      Alert.alert(
+        'Delete Goal',
+        `Are you sure you want to delete "${goal.title}"?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              isDeleting.current = true;
+              await onDelete(goal.id);
+            }
+          }
+        ]
+      );
+    }
+  };
   
   // Selection compact variant for goal selection dropdowns
   if (variant === 'selection-compact') {
@@ -257,26 +314,21 @@ export function GoalCard({
 
     return (
       <Pressable onPress={onPress} style={[
-        styles.emptyContainer,
-        isCompletedEmpty && styles.emptyCompletedContainer
+        styles.emptyInnerCard,
+        isCompletedEmpty && styles.emptyCompletedInnerCard
       ]}>
-        <View style={[
-          styles.emptyInnerCard,
-          isCompletedEmpty && styles.emptyCompletedInnerCard
+        <Text style={[
+          styles.emptyTitle,
+          isCompletedEmpty && styles.emptyCompletedTitle
         ]}>
-          <Text style={[
-            styles.emptyTitle,
-            isCompletedEmpty && styles.emptyCompletedTitle
-          ]}>
-            {content.title}
-          </Text>
-          <Text style={[
-            styles.emptyDescription,
-            isCompletedEmpty && styles.emptyCompletedDescription
-          ]}>
-            {content.description}
-          </Text>
-        </View>
+          {content.title}
+        </Text>
+        <Text style={[
+          styles.emptyDescription,
+          isCompletedEmpty && styles.emptyCompletedDescription
+        ]}>
+          {content.description}
+        </Text>
       </Pressable>
     );
   }
@@ -301,14 +353,17 @@ export function GoalCard({
     }).replace(/\s/g, '.');
   };
 
-  // Emotion color mapping based on SparkAIOutput component
+  // Emotion color mapping based on manual-goal.tsx
   const getEmotionStyle = (emotion: string, index: number) => {
     const emotionStyles: { [key: string]: { backgroundColor: string; borderColor: string; textColor: string } } = {
       'confident': { backgroundColor: '#f7e1d7', borderColor: '#a4133c', textColor: '#a4133c' },
       'grateful': { backgroundColor: '#a1c181', borderColor: '#081c15', textColor: '#081c15' },
       'proud': { backgroundColor: '#cdb4db', borderColor: '#3d405b', textColor: '#3d405b' },
+      'calm': { backgroundColor: '#dedbd2', borderColor: '#335c67', textColor: '#335c67' },
+      'energized': { backgroundColor: '#eec170', borderColor: '#780116', textColor: '#780116' },
       'happy': { backgroundColor: '#bde0fe', borderColor: '#023047', textColor: '#023047' },
-      'excited': { backgroundColor: '#fcb9b2', borderColor: '#b23a48', textColor: '#b23a48' },
+      'empowered': { backgroundColor: '#eae2b7', borderColor: '#bb3e03', textColor: '#bb3e03' },
+      'excited': { backgroundColor: '#f4a261', borderColor: '#b23a48', textColor: '#b23a48' },
       'fulfilled': { backgroundColor: '#f8ad9d', borderColor: '#e07a5f', textColor: '#e07a5f' },
     };
     
@@ -321,19 +376,19 @@ export function GoalCard({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        isCompleted && styles.completedContainer
-      ]}
-    >
-      {/* Goal Card Container */}
-      <View style={[
-        styles.innerCard,
-        isCompleted && styles.completedInnerCard
-      ]}>
-        {/* Vision Image */}
-        {hasVisionImage && (
+    <View style={styles.goalCardContainer}>
+      <PanGestureHandler
+        onGestureEvent={handleGestureEvent}
+        onHandlerStateChange={handleStateChange}
+        activeOffsetX={[-10, 10]}
+      >
+        <Animated.View style={[styles.goalCardWrapper, { transform: [{ translateX }] }]}>
+          <View style={[
+            styles.innerCard,
+            isCompleted && styles.completedInnerCard
+          ]}>
+            {/* Vision Image */}
+            {hasVisionImage && (
           <View style={{
             height: 102,
             borderWidth: 0.5,
@@ -580,7 +635,6 @@ export function GoalCard({
                 }
               }}
               style={{
-                width: 80,
                 height: 32,
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -590,12 +644,14 @@ export function GoalCard({
                 borderWidth: 0.5,
                 borderColor: '#A3B18A',
                 borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 12,
                 shadowColor: '#7C7C7C', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0, elevation: 4,
               }}
             >
               <Text style={{
                 fontSize: 10,
-                color: '#344E41',
+                color: '#364958',
                 fontFamily: 'Helvetica',
               }}>
                 View Full Goal
@@ -650,12 +706,70 @@ export function GoalCard({
             )}
           </View>
         )}
-      </View>
+          </View>
+        </Animated.View>
+      </PanGestureHandler>
+      
+      {/* Delete State - Full Card Transform */}
+      <Animated.View style={[
+        styles.goalDeleteState,
+        {
+          opacity: translateX.interpolate({
+            inputRange: [-80, -40, 0],
+            outputRange: [1, 0.5, 0],
+            extrapolate: 'clamp',
+          }),
+        }
+      ]}>
+        <View style={styles.goalDeleteButton}>
+          <IconButton
+            variant="delete"
+            iconName="delete"
+            onPress={handleDelete}
+          />
+        </View>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Goal card container for swipe functionality
+  goalCardContainer: {
+    position: 'relative',
+    overflow: 'visible',
+    marginBottom: 8,
+  },
+  goalCardWrapper: {
+    zIndex: 1,
+  },
+  goalDeleteState: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F2CCC3',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  goalDeleteButton: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    borderRadius: 20,
+    paddingRight: 25,
+  },
   // Empty state styles
   emptyContainer: {
     backgroundColor: colors.background.secondary,

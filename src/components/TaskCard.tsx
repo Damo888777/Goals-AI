@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
@@ -140,28 +141,28 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
         case 'empty-frog':
           return {
             title: 'No frog for today',
-            description: 'What is your most important task for today?'
+            description: 'Your day looks clear.'
           };
         case 'empty-someday':
           return {
             title: 'No someday tasks',
-            description: 'Add tasks for future consideration or when you have time.'
+            description: 'Here you\'ll find tasks without date.'
           };
         case 'empty-weekday':
         case 'empty-today':
           return {
             title: 'No tasks for today',
-            description: 'Your day looks clear. Add a task to get started.'
+            description: 'Your day looks clear.'
           };
         case 'empty-completed':
           return {
             title: 'No completed tasks',
-            description: 'Complete some tasks to see them here.'
+            description: 'Your day looks clear.'
           };
         default:
           return {
             title: 'No tasks',
-            description: 'Add a task to get started.'
+            description: 'Your day looks clear.'
           };
       }
     };
@@ -242,16 +243,25 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
         <View style={styles.bottomRow}>
           {/* Left side - Project info */}
           <View style={styles.leftContent}>
-            <Text style={[
-              styles.goalInfo,
-              isCompleted && styles.completedText
-            ]} numberOfLines={1}>
-              {milestoneName ? `📍 ${milestoneName}` : 
-               goalName ? `🎯 ${goalName}` : 
-               task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
-            </Text>
+            <View style={styles.goalRow}>
+              <View style={styles.goalIcon}>
+                {milestoneName ? (
+                  <Ionicons name="location" size={12} color="#F39C12" />
+                ) : (
+                  <Ionicons name="target" size={12} color="#4A90E2" />
+                )}
+              </View>
+              <Text style={[
+                styles.goalInfo,
+                isCompleted && styles.completedText
+              ]} numberOfLines={1}>
+                {milestoneName ? milestoneName : 
+                 goalName ? goalName : 
+                 task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
+              </Text>
+            </View>
             <View style={styles.dateRow}>
-              <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
+              <Ionicons name="calendar-outline" size={12} color="#364958" />
               <Text style={[
                 styles.dateText,
                 isCompleted && styles.completedText
@@ -384,7 +394,8 @@ const styles = StyleSheet.create({
   },
   content: {
     minHeight: 80,
-    gap: 12,
+    gap: 4,
+    paddingBottom: 2,
   },
   title: {
     ...typography.body,
@@ -395,78 +406,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
+    paddingTop: 2,
   },
   leftContent: {
     flex: 1,
-    gap: 4,
+    gap: 1,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  goalIcon: {
+    width: 12,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   goalInfo: {
     fontSize: 12,
     fontWeight: '300',
     color: '#364958',
+    flex: 1,
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  calendarIcon: {
-    width: 16,
-    height: 16,
-  },
-  calendarVector: {
-    width: 16,
-    height: 16,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#364958',
-    borderRadius: 2,
-    position: 'relative',
-  },
-  calendarHeader: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: 3,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-  },
-  calendarRings: {
-    position: 'absolute',
-    top: -2,
-    left: 3,
-    right: 3,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  calendarRing: {
-    width: 2,
-    height: 4,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-  },
-  calendarGrid: {
-    position: 'absolute',
-    top: 6,
-    left: 2,
-    right: 2,
-    bottom: 2,
-    gap: 1,
-  },
-  calendarRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
-  },
-  calendarCell: {
-    width: 2,
-    height: 2,
-    backgroundColor: '#A3B18A',
-    borderRadius: 0.5,
-  },
-  calendarCellActive: {
-    backgroundColor: '#364958',
+    gap: 4,
   },
   dateText: {
     fontSize: 12,
@@ -475,8 +441,9 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
     alignItems: 'flex-end',
+    paddingBottom: 2,
   },
   emptyContent: {
     alignItems: 'center',

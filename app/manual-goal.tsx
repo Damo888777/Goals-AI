@@ -19,6 +19,7 @@ import { Alert } from 'react-native';
 import { Button } from '../src/components/Button';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { SelectionCard } from '../src/components/SelectionCard';
+import { spacing } from '../src/constants/spacing';
 
 // Emotion Selection Component
 interface EmotionSelectionProps {
@@ -307,9 +308,9 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     flexDirection: 'row' as const,
-    alignItems: 'baseline' as const,
-    gap: 10,
-    marginBottom: 8,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   backButton: {
     width: 30,

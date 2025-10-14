@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Animated, Alert, AppState } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
@@ -33,11 +33,29 @@ export default function SparkAIScreen() {
   const wave4 = useRef(new Animated.Value(0)).current;
 
   const handleBackPress = () => {
-    // Reset recording state when leaving the screen
+    // Show confirmation dialog if recording or processing
     if (isRecording || isProcessing) {
-      resetRecording();
+      Alert.alert(
+        'Cancel Recording?',
+        'Do you want to cancel your Spark Recording?',
+        [
+          {
+            text: 'Keep Recording',
+            style: 'cancel',
+          },
+          {
+            text: 'Cancel Recording',
+            style: 'destructive',
+            onPress: () => {
+              resetRecording();
+              router.back();
+            },
+          },
+        ]
+      );
+    } else {
+      router.back();
     }
-    router.back();
   };
 
   // Handle AI processing completion
@@ -55,6 +73,8 @@ export default function SparkAIScreen() {
             title: result.classification.title,
             timestamp: result.classification.timestamp || '',
             transcription: result.transcription,
+            linkedGoalId: result.classification.linkedGoalId || '',
+            linkedMilestoneId: result.classification.linkedMilestoneId || '',
           },
         });
         resetRecording();
@@ -63,10 +83,36 @@ export default function SparkAIScreen() {
       // Trigger error haptic feedback
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       
-      // Auto-reset after showing error for a moment
-      setTimeout(() => {
-        resetRecording();
-      }, 3000);
+      // Check if it's the "no text recognized" error
+      if (error === 'no_text_recognized') {
+        setTimeout(() => {
+          Alert.alert(
+            'No Text Recognized',
+            'No text recognized. Do you want to try again?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => {
+                  resetRecording();
+                  router.back();
+                },
+              },
+              {
+                text: 'Try Again',
+                onPress: () => {
+                  resetRecording();
+                },
+              },
+            ]
+          );
+        }, 500); // Small delay to let the error state show
+      } else {
+        // Auto-reset after showing other errors for a moment
+        setTimeout(() => {
+          resetRecording();
+        }, 3000);
+      }
     }
   }, [recordingState, result, resetRecording]);
 
@@ -153,6 +199,22 @@ export default function SparkAIScreen() {
       ]).start();
     }
   }, [isRecording, isProcessing]);
+
+  // Handle app state changes to stop recording when app goes to background
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState !== 'active' && (isRecording || isProcessing)) {
+        console.log('App went to background, stopping recording');
+        resetRecording();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    return () => {
+      subscription?.remove();
+    };
+  }, [isRecording, isProcessing, resetRecording]);
 
   // Animated styles for wave effects
   const wave1Style = {
@@ -278,10 +340,10 @@ export default function SparkAIScreen() {
 
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
-          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
+          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')} (max 1min)` :
            recordingState === 'processing' ? 'Spark is processing...' :
            recordingState === 'completed' ? 'Complete!' :
-           recordingState === 'error' ? 'Error occurred - tap to try again' :
+           recordingState === 'error' ? (error === 'no_text_recognized' ? 'No text recognized' : 'Error occurred - tap to try again') :
            'Tap to start recording'}
         </Text>
       </View>

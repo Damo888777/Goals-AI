@@ -19,6 +19,7 @@ import type { Goal, Milestone } from '../src/types';
 import { GoalCard } from '../src/components/GoalCard';
 import { Button } from '../src/components/Button';
 import { BackChevronButton } from '../src/components/ChevronButton';
+import { spacing } from '../src/constants/spacing';
 
 const styles = StyleSheet.create({
   container: {
@@ -34,25 +35,25 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   headerContainer: {
-    marginBottom: 43,
+    marginBottom: 32,
   },
   titleRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-    marginBottom: 8,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   backButton: {
     width: 30,
     height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chevronContainer: {
     width: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chevron: {
     width: 12,

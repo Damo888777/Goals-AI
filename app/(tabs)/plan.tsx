@@ -369,38 +369,29 @@ export default function PlanTab() {
               </Text>
               
               <View style={{ gap: 12 }}>
-                {somedayTasks.length > 0 ? (
-                  somedayTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
-                      onPress={() => console.log('Someday task pressed:', task.id)}
-                      onToggleComplete={toggleTaskComplete}
-                      onDelete={async (taskId) => {
-                        try {
-                          await deleteTask(taskId);
-                          console.log('Someday task deleted successfully');
-                        } catch (error) {
-                          console.error('Error deleting someday task:', error);
-                        }
-                      }}
-                    />
-                  ))
+                {somedayTasks.filter(task => !task.scheduledDate).length > 0 ? (
+                  somedayTasks
+                    .filter(task => !task.scheduledDate)
+                    .map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        variant={task.isComplete ? 'completed' : 'active-without-date'}
+                        onPress={() => console.log('Someday task pressed:', task.id)}
+                        onToggleComplete={toggleTaskComplete}
+                        onDelete={async (taskId) => {
+                          try {
+                            await deleteTask(taskId);
+                            console.log('Someday task deleted successfully');
+                          } catch (error) {
+                            console.error('Error deleting someday task:', error);
+                          }
+                        }}
+                      />
+                    ))
                 ) : (
                   <TaskCard
                     variant="empty-someday"
-                    onPress={async () => {
-                      try {
-                        await createSomedayTask({
-                          title: 'New Someday Task',
-                          creationSource: 'manual'
-                        });
-                        console.log('Someday task created successfully');
-                      } catch (error) {
-                        console.error('Error creating someday task:', error);
-                      }
-                    }}
                   />
                 )}
               </View>

@@ -64,10 +64,17 @@ export function useAudioRecording(): UseAudioRecordingReturn {
       
       recording.current = newRecording;
 
-      // Start duration timer
+      // Start duration timer with 1-minute maximum
       const startTime = Date.now();
       durationInterval.current = setInterval(() => {
-        setDuration(Math.floor((Date.now() - startTime) / 1000));
+        const currentDuration = Math.floor((Date.now() - startTime) / 1000);
+        setDuration(currentDuration);
+        
+        // Auto-stop after 60 seconds (1 minute)
+        if (currentDuration >= 60) {
+          console.log('Recording reached 1-minute limit, auto-stopping');
+          stopRecording();
+        }
       }, 100);
 
     } catch (error) {
@@ -108,6 +115,13 @@ export function useAudioRecording(): UseAudioRecordingReturn {
 
       // Process with AI
       const aiResult = await AIService.processVoiceInput(uri);
+      
+      // Check if transcription is empty or only whitespace
+      if (!aiResult.transcription || aiResult.transcription.trim().length === 0) {
+        setError('no_text_recognized');
+        setRecordingState('error');
+        return;
+      }
       
       setResult(aiResult);
       setRecordingState('completed');

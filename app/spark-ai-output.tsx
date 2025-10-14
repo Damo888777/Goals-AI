@@ -10,14 +10,16 @@ export default function SparkAIOutputScreen() {
     title: string;
     timestamp: string;
     transcription: string;
+    linkedGoalId?: string;
+    linkedMilestoneId?: string;
   }>();
 
   const handleSave = (data: any) => {
     // Data is already saved by SparkAIOutput component
     console.log('SparkAI output saved successfully:', data);
     
-    // Navigate back to appropriate screen
-    router.back();
+    // Navigate to Today tab after successful save
+    router.push('/(tabs)');
   };
 
   const handleCancel = () => {
@@ -31,6 +33,8 @@ export default function SparkAIOutputScreen() {
       userVoiceInput={params.transcription || ''}
       aiTitle={params.title || ''}
       aiTimestamp={params.timestamp || ''}
+      linkedGoalId={params.linkedGoalId}
+      linkedMilestoneId={params.linkedMilestoneId}
       onSave={handleSave}
       onCancel={handleCancel}
     />

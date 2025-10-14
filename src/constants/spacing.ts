@@ -12,8 +12,8 @@ export const spacing = {
 
 // Empty state content spacing
 export const emptyStateSpacing = {
-  titleMarginBottom: 8, // Standard spacing between title and description
-  contentPadding: 8,    // Reduced padding for tighter empty state content
+  titleMarginBottom: 4, // Reduced spacing between title and description
+  contentPadding: 4,    // Further reduced padding for tighter empty state content
 } as const;
 
 // Border radius system

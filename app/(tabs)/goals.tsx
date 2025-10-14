@@ -8,6 +8,7 @@ import { images } from '../../src/constants/images';
 import { GoalCard } from '../../src/components/GoalCard';
 import { FAB } from '../../src/components/FAB';
 import { typography } from '../../src/constants/typography';
+import { spacing } from '../../src/constants/spacing';
 import { useAuth, useGoals, useMilestones } from '../../src/hooks/useDatabase';
 import type { Goal } from '../../src/types';
 
@@ -192,9 +193,9 @@ export default function GoalsScreen() {
           </Pressable>
         </View>
 
-        {/* My Goals Section */}
-        <View style={styles.goalsSection}>
-          <View style={styles.header}>
+        {/* My Goals Section with Cream Background */}
+        <View style={styles.goalsSectionContainer}>
+          <View style={styles.goalsSectionHeader}>
             <Text style={styles.headerTitle}>
               My Goals
             </Text>
@@ -204,22 +205,24 @@ export default function GoalsScreen() {
           </View>
 
           {/* Goals List */}
-          {transformedGoals.length > 0 ? (
-            transformedGoals.map((goal) => (
-              <GoalCard
-                key={goal.id}
-                goal={goal}
-                variant="active-with-vision"
-                milestones={goal.milestones}
-                expanded={expandedGoals.has(goal.id)}
-                onPress={() => handleGoalPress(goal)}
-                onToggleExpand={() => handleToggleExpand(goal.id)}
-                onMilestoneComplete={handleMilestoneComplete}
-              />
-            ))
-          ) : (
-            <GoalCard variant="empty" />
-          )}
+          <View style={styles.goalsListContainer}>
+            {transformedGoals.length > 0 ? (
+              transformedGoals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  variant="active-with-vision"
+                  milestones={goal.milestones}
+                  expanded={expandedGoals.has(goal.id)}
+                  onPress={() => handleGoalPress(goal)}
+                  onToggleExpand={() => handleToggleExpand(goal.id)}
+                  onMilestoneComplete={handleMilestoneComplete}
+                />
+              ))
+            ) : (
+              <GoalCard variant="empty" />
+            )}
+          </View>
         </View>
       </ScrollView>
 
@@ -311,6 +314,25 @@ const styles = StyleSheet.create({
   buttonLabel: {
     ...typography.body,
     textAlign: 'center',
+  },
+  goalsSectionContainer: {
+    backgroundColor: '#F5EBE0', // Cream background
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    padding: 20,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  goalsSectionHeader: {
+    gap: spacing.sm, // 8px gap between title and description
+    marginBottom: 20,
+  },
+  goalsListContainer: {
+    gap: 16,
   },
   goalsSection: {
     gap: 15,

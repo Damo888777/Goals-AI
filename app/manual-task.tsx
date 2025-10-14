@@ -19,6 +19,7 @@ import { GoalCard } from '../src/components/GoalCard';
 import { SelectionCard } from '../src/components/SelectionCard';
 import { Button } from '../src/components/Button';
 import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
+import { spacing } from '../src/constants/spacing';
 
 // Eat the Frog Section (for tasks only)
 const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }> = ({ 
@@ -542,9 +543,9 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     flexDirection: 'row' as const,
-    alignItems: 'baseline' as const,
-    gap: 10,
-    marginBottom: 8,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   backButton: {
     width: 30,

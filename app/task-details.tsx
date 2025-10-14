@@ -21,6 +21,7 @@ import { Image } from 'expo-image';
 import { images } from '../src/constants/images';
 import { Button } from '../src/components/Button';
 import { BackChevronButton } from '../src/components/ChevronButton';
+import { spacing } from '../src/constants/spacing';
 import { FocusHistorySection } from './focus-history-section';
 import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
 
@@ -271,6 +272,7 @@ export default function TaskDetailsScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.back();
               }}
+              style={styles.backButton}
             />
             <Text style={styles.headerTitle}>Task Details</Text>
           </View>
@@ -388,13 +390,13 @@ const styles = StyleSheet.create({
 
     // Header styles
     headerContainer: {
-      marginBottom: 43,
+      marginBottom: 32,
     },
     titleRow: {
       flexDirection: 'row' as const,
-      alignItems: 'baseline' as const,
-      gap: 10,
-      marginBottom: 8,
+      alignItems: 'center' as const,
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
     },
     backButton: {
       width: 30,

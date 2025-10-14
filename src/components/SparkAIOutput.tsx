@@ -34,6 +34,8 @@ interface SparkAIOutputProps {
   userVoiceInput: string;
   aiTitle?: string;
   aiTimestamp?: string;
+  linkedGoalId?: string | null;
+  linkedMilestoneId?: string | null;
   onSave: (data: any) => void;
   onCancel: () => void;
 }
@@ -335,7 +337,94 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   );
 };
 
-// Goal/Milestone Selection Component (identical to manual-task.tsx)
+// Goal Selection Component for Milestones  
+interface GoalSelectionProps {
+  selectedGoalId?: string;
+  onGoalSelect: (goalId?: string) => void;
+  onDropdownToggle?: (isOpen: boolean) => void;
+}
+
+const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSelect, onDropdownToggle }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(Boolean(selectedGoalId));
+  const { goals } = useGoals();
+
+  const handleDropdownPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const newState = !isDropdownOpen;
+    setIsDropdownOpen(newState);
+    onDropdownToggle?.(newState);
+  };
+
+  const handleGoalSelect = (goalId: string | undefined) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onGoalSelect(goalId);
+    setIsDropdownOpen(false);
+    onDropdownToggle?.(false);
+  };
+
+  const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        My Goals
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Attach this milestone to your goal.
+      </Text>
+      
+      {/* Dropdown Container */}
+      <View style={styles.goalAttachmentContainer}>
+        {/* Dropdown Button */}
+        <TouchableOpacity 
+          style={styles.goalAttachmentContent}
+          onPress={handleDropdownPress}
+        >
+          <Text style={styles.goalAttachmentText}>
+            {selectedGoal ? selectedGoal.title : 'Select your goal'}
+          </Text>
+          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
+            <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
+        </TouchableOpacity>
+
+        {/* Dropdown Content */}
+        {isDropdownOpen && (
+          <View style={styles.dropdownContent}>
+            {goals.length > 0 ? (
+              goals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
+                    emotions: goal.feelingsArray || [],
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [],
+                    progress: 0,
+                    isCompleted: goal.isCompleted,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
+                  }}
+                  variant="selection-compact"
+                  isAttached={selectedGoalId === goal.id}
+                  onAttach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => handleGoalSelect(undefined)}
+                />
+              ))
+            ) : (
+              <GoalCard variant="selection-empty" />
+            )}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// Goal/Milestone Selection Component (for tasks only)
 interface GoalMilestoneSelectionProps {
   selectedGoalId?: string;
   selectedMilestoneId?: string;
@@ -349,7 +438,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   onGoalSelect, 
   onMilestoneSelect 
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(Boolean(selectedGoalId || selectedMilestoneId));
   const { goals } = useGoals();
   const { milestones } = useMilestones();
 
@@ -425,11 +514,16 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                 <GoalCard
                   key={goal.id}
                   goal={{
-                    ...goal,
                     id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
                     emotions: goal.feelingsArray || [],
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [],
                     progress: 0,
-                    milestones: []
+                    isCompleted: goal.isCompleted,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
                   }}
                   variant="selection-compact"
                   isAttached={selectedGoalId === goal.id}
@@ -477,17 +571,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                 </TouchableOpacity>
               ))
             ) : (
-              <TouchableOpacity style={styles.milestoneCard}>
-                <View style={styles.milestoneCardContent}>
-                  <Text style={styles.milestoneCardTitle}>No milestones yet</Text>
-                  <TouchableOpacity style={styles.milestoneAddButton}>
-                    <View style={styles.plusIcon}>
-                      <View style={styles.plusHorizontal} />
-                      <View style={styles.plusVertical} />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
+              <View style={styles.emptyStateDropdownItem}>
+                <Text style={styles.emptyStateTitle}>No milestones yet</Text>
+                <Text style={styles.emptyStateDescription}>Create your first milestone to get started</Text>
+              </View>
             )}
           </View>
         )}
@@ -528,6 +615,8 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   userVoiceInput, 
   aiTitle = '',
   aiTimestamp = '',
+  linkedGoalId = null,
+  linkedMilestoneId = null,
   onSave, 
   onCancel 
 }) => {
@@ -537,8 +626,8 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [notes, setNotes] = useState('');
   const [isEatTheFrog, setIsEatTheFrog] = useState(false);
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(linkedGoalId || undefined);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(linkedMilestoneId || undefined);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
 
@@ -642,9 +731,13 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
           break;
 
         case 'milestone':
+          if (!selectedGoalId) {
+            Alert.alert('Error', 'Please select a goal first to create a milestone.');
+            return;
+          }
           await createMilestone({
             title: title.trim(),
-            goalId: selectedGoalId || '',
+            goalId: selectedGoalId,
             targetDate: selectedDate,
             creationSource: 'spark'
           });
@@ -763,12 +856,19 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
           </>
         )}
 
-        {(selectedType === 'task' || selectedType === 'milestone') && (
+        {selectedType === 'task' && (
           <GoalMilestoneSelection 
             selectedGoalId={selectedGoalId}
             selectedMilestoneId={selectedMilestoneId}
             onGoalSelect={handleGoalIdSelect}
             onMilestoneSelect={handleMilestoneIdSelect}
+          />
+        )}
+
+        {selectedType === 'milestone' && (
+          <GoalSelection 
+            selectedGoalId={selectedGoalId}
+            onGoalSelect={handleGoalIdSelect}
           />
         )}
 

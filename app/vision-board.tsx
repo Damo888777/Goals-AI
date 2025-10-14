@@ -83,19 +83,19 @@ function MasonryGrid({ visionImages, onImagePress }: MasonryGridProps) {
     return (
       <View style={{
         backgroundColor: '#F5EBE0',
-        borderRadius: 12,
-        paddingVertical: 32,
-        paddingHorizontal: 24,
+        borderWidth: 0.5,
+        borderColor: '#A3B18A',
+        borderRadius: 20,
+        padding: 20,
         alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 91,
         marginTop: 16,
-        shadowColor: '#F5EBE0',
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
+        shadowColor: '#7C7C7C',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.75,
         shadowRadius: 0,
-        elevation: 8, // For Android
+        elevation: 4,
       }}>
         <Text style={{
           ...typography.emptyTitle,

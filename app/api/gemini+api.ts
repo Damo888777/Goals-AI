@@ -2,7 +2,7 @@ import { serverApiKeyService } from '../../src/services/apiKeyService-server';
 
 export async function POST(request: Request) {
   try {
-    const { transcription } = await request.json();
+    const { transcription, existingGoals = [], existingMilestones = [] } = await request.json();
     
     if (!transcription) {
       return Response.json({ error: 'No transcription provided' }, { status: 400 });
@@ -20,7 +20,16 @@ export async function POST(request: Request) {
 
     const currentDate = new Date().toISOString();
     
-    const systemPrompt = `You are an intelligent assistant integrated into the Spark productivity app. Your role is to analyze user voice input (transcribed by Whisper) and classify it as either a Task, Goal, or Milestone, then extract the title and any timestamp mentioned.
+    // Prepare goal/milestone context for AI
+    const goalsContext = existingGoals.length > 0 
+      ? `\n\nAvailable Goals: ${existingGoals.map((g: any) => `"${g.title}" (ID: ${g.id})`).join(', ')}`
+      : '';
+    
+    const milestonesContext = existingMilestones.length > 0 
+      ? `\nAvailable Milestones: ${existingMilestones.map((m: any) => `"${m.title}" (ID: ${m.id})`).join(', ')}`
+      : '';
+    
+    const systemPrompt = `You are an intelligent assistant integrated into the Spark productivity app. Your role is to analyze user voice input (transcribed by Whisper) and classify it as either a Task, Goal, or Milestone, then extract the title, any timestamp mentioned, and identify any existing goals/milestones the user is referring to.
 
 ## Classification Rules:
 
@@ -29,6 +38,15 @@ export async function POST(request: Request) {
 **GOAL**: Broader objectives or desired outcomes that require multiple steps or sustained effort. Often contains words like 'want to', 'achieve', 'reach', 'improve', 'learn', 'become', 'build', 'grow', 'develop'. Goals are aspirational and outcome-focused.
 
 **MILESTONE**: Significant checkpoints or achievements within a larger goal. They represent progress markers. Often contains words like 'complete phase', 'reach', 'launch', 'release', 'achieve milestone', 'hit target', 'deliver version'. Milestones are measurable achievements.
+
+## Goal/Milestone Linking Rules:
+
+When the user mentions doing something "for [goal/milestone name]" or refers to an existing goal/milestone, identify the best match from the available options using fuzzy matching. Look for:
+- Direct mentions: "for my fitness goal", "for the website project"
+- Indirect references: "workout routine" (might link to "Get fit" goal)
+- Context clues: "save money" (might link to "Buy a house" goal)
+
+${goalsContext}${milestonesContext}
 
 ## Date/Time Extraction Rules:
 
@@ -52,7 +70,9 @@ Always respond with valid JSON in this exact format:
 {
   "type": "task" | "goal" | "milestone",
   "title": "Clean, concise title without filler words",
-  "timestamp": "2025-10-02T00:00:00.000Z" | null
+  "timestamp": "2025-10-02T00:00:00.000Z" | null,
+  "linkedGoalId": "goal-id-123" | null,
+  "linkedMilestoneId": "milestone-id-456" | null
 }
 
 ## Classification Priority:
@@ -119,6 +139,8 @@ Current date for reference: ${currentDate}`;
       type: parsedResponse.type,
       title: parsedResponse.title,
       timestamp: parsedResponse.timestamp,
+      linkedGoalId: parsedResponse.linkedGoalId || null,
+      linkedMilestoneId: parsedResponse.linkedMilestoneId || null,
     });
   } catch (error) {
     console.error('Gemini proxy error:', error);

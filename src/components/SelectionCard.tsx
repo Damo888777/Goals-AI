@@ -28,7 +28,7 @@ export function SelectionCard({
   ]
 }: SelectionCardProps) {
   return (
-    <BaseCard variant="secondary" padding="xl">
+    <BaseCard variant="secondary" padding="xs" style={styles.cardContainer} innerStyle={styles.cardInner}>
       <View style={styles.container}>
         {options.map((option, index) => (
           <TouchableOpacity
@@ -58,6 +58,12 @@ export function SelectionCard({
 }
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    backgroundColor: colors.background.secondary, // Ensure cream background
+  },
+  cardInner: {
+    padding: spacing.xs, // Override the default inner padding to 4px
+  },
   container: {
     gap: spacing.md,
   },
@@ -77,13 +83,14 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: borderRadius.md,
   },
   radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    borderWidth: 0.5,
     marginRight: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    ...shadows.card,
   },
   radioButtonSelected: {
     backgroundColor: colors.border.primary,
@@ -94,7 +101,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border.primary,
   },
   optionLabel: {
-    ...typography.cardTitle,
+    fontSize: 19,
+    fontWeight: '700',
+    color: '#364958',
     flex: 1,
   },
   optionLabelSelected: {

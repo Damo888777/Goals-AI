@@ -23,6 +23,7 @@ import { images } from '../src/constants/images';
 import VisionPicker from '../src/components/VisionPicker';
 import { Button } from '../src/components/Button';
 import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
+import { spacing } from '../src/constants/spacing';
 
 const EMOTIONS = [
   { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
@@ -106,47 +107,32 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
       <Text style={styles.sectionSubtitle}>
         Begin with the end in mind. This is what you're working towards.
       </Text>
-      <View style={styles.visionContainer}>
-        <View style={styles.visionImageContainer}>
-          {visionImageUrl ? (
+      <TouchableOpacity style={styles.visionButtonTouchable} onPress={onChangeVision}>
+        <View style={styles.visionButton}>
+          <View style={styles.visionButtonInner}>
             <Image 
-              source={{ uri: visionImageUrl }}
+              source={{ uri: visionImageUrl || images.visionPlaceholder }}
               style={styles.visionImage}
               contentFit="cover"
             />
-          ) : (
-            <View style={styles.visionPlaceholder}>
-              <View style={styles.visionPlaceholderIcon}>
-                <Text style={styles.visionPlaceholderText}>📷</Text>
-              </View>
-              <Text style={styles.visionPlaceholderLabel}>No vision image</Text>
-            </View>
-          )}
+          </View>
+          <Text style={styles.visionButtonText}>
+            {visionImageUrl ? 'Change Vision' : 'Choose your Vision'}
+          </Text>
         </View>
-        
-        {/* Vision Action Buttons */}
-        <View style={styles.visionButtonsContainer}>
-          {visionImageUrl && (
-            <TouchableOpacity
-              onPress={onRemoveVision}
-              style={[styles.actionButton, styles.removeVisionButton]}
-            >
-              <Text style={styles.actionButtonText}>
-                Remove
-              </Text>
-            </TouchableOpacity>
-          )}
-          
-          <TouchableOpacity
-            onPress={onChangeVision}
-            style={[styles.actionButton, styles.changeVisionButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              {visionImageUrl ? 'Change Vision' : 'Add Vision'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </TouchableOpacity>
+      
+      {/* Remove Vision Button - only show when there's an image */}
+      {visionImageUrl && (
+        <TouchableOpacity
+          onPress={onRemoveVision}
+          style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134, marginTop: 15 }]}
+        >
+          <Text style={styles.actionButtonText}>
+            Remove Vision
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -307,8 +293,7 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
             {goalMilestones.length > 0 ? `${goalMilestones.length} Milestones` : 'No milestones yet'}
           </Text>
           <ChevronButton
-            direction="down"
-            rotated={showDropdown}
+            direction={showDropdown ? "up" : "down"}
             onPress={() => setShowDropdown(!showDropdown)}
             size="medium"
           />
@@ -350,9 +335,12 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
                 </View>
               ))
             ) : (
-              <View style={styles.dropdownItem}>
-                <Text style={styles.noMilestonesText}>
-                  No milestones yet. Add some to break down your goal!
+              <View style={styles.emptyMilestoneContainer}>
+                <Text style={styles.emptyMilestoneTitle}>
+                  No milestones yet
+                </Text>
+                <Text style={styles.emptyMilestoneDescription}>
+                  Break your goal down into milestones.
                 </Text>
               </View>
             )}
@@ -386,7 +374,6 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
         scrollEnabled={false}
-        textAlignVertical="top"
       />
     </View>
   );
@@ -519,6 +506,7 @@ export default function GoalDetailsScreen() {
           <View style={styles.titleRow}>
             <BackChevronButton
               onPress={handleCancel}
+              style={styles.backButton}
             />
             <Text style={styles.headerTitle}>
               Edit Your Goal
@@ -623,22 +611,22 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   titleRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-    marginBottom: 8,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   backButton: {
     width: 30,
     height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chevronContainer: {
     width: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   chevron: {
     width: 12,
@@ -697,7 +685,9 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     minHeight: 80,
-    textAlignVertical: 'top',
+    paddingTop: 16,
+    paddingBottom: 16,
+    lineHeight: 20,
   },
 
   // Emotion selection styles
@@ -746,60 +736,51 @@ const styles = StyleSheet.create({
   },
 
   // Vision board styles
-  visionContainer: {
-    marginBottom: 16,
-  },
-  visionImageContainer: {
-    height: 200,
-    borderRadius: 15,
-    borderWidth: 0.5,
-    borderColor: '#a3b18a',
-    backgroundColor: '#f5ebe0',
-    overflow: 'hidden',
+  visionButtonTouchable: {
     shadowColor: '#7c7c7c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
-    marginBottom: 16,
+    borderRadius: 15,
+  },
+  visionButton: {
+    height: 80,
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    backgroundColor: '#f5ebe0',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  visionButtonInner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
   },
   visionImage: {
     width: '100%',
     height: '100%',
   },
-  visionPlaceholder: {
-    flex: 1,
+  visionButtonText: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    color: '#f5ebe0',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  visionPlaceholderIcon: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#d9d9d9',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  visionPlaceholderText: {
-    fontSize: 24,
-  },
-  visionPlaceholderLabel: {
-    fontSize: 14,
-    color: '#364958',
-    opacity: 0.7,
-  },
-  visionButtonsContainer: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  changeVisionButton: {
-    backgroundColor: '#6096ba',
-    flex: 1,
-  },
-  removeVisionButton: {
-    backgroundColor: '#bc4b51',
-    width: 100,
+    display: 'flex',
+    lineHeight: 80,
   },
 
   // Dropdown styles
@@ -901,8 +882,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
   },
   milestonesDropdownContent: {
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 20,
   },
   dropdownItem: {
     flexDirection: 'row',
@@ -934,12 +914,32 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-45deg' }],
     borderRadius: 1,
   },
-  noMilestonesText: {
+  emptyMilestoneContainer: {
+    backgroundColor: '#e9edc9',
+    borderWidth: 0.5,
+    borderColor: '#a3b18a',
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 91,
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyMilestoneTitle: {
     fontSize: 15,
+    fontWeight: 'bold',
     color: '#364958',
     textAlign: 'center',
-    fontStyle: 'italic',
-    opacity: 0.7,
+    marginBottom: 8,
+  },
+  emptyMilestoneDescription: {
+    fontSize: 12,
+    color: '#364958',
+    textAlign: 'center',
   },
 
   // MilestoneCard styles
@@ -956,7 +956,7 @@ const styles = StyleSheet.create({
     gap: 20,
     minHeight: 91,
     padding: 15,
-    backgroundColor: '#E9EDC9',
+    backgroundColor: '#f5ebe0',
     borderRadius: 15,
     borderWidth: 0.5,
     borderColor: '#a3b18a',
@@ -1024,7 +1024,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   milestoneCompleteButton: {
-    backgroundColor: '#A3B18A',
+    backgroundColor: '#d9d9d9',
     borderWidth: 1,
     borderColor: '#7C7C7C',
     borderRadius: 10,
@@ -1040,7 +1040,7 @@ const styles = StyleSheet.create({
   },
   milestoneCompleteText: {
     fontSize: 16,
-    color: '#F5EBE0',
+    color: '#f5ebe0',
   },
 
   // Action button styles
