@@ -16,10 +16,8 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider>
-          <StatusBar style="dark" />
-          <SplashScreen onAnimationFinish={handleSplashFinish} />
-        </SafeAreaProvider>
+        <StatusBar style="dark" hidden={true} />
+        <SplashScreen onAnimationFinish={handleSplashFinish} />
       </GestureHandlerRootView>
     );
   }

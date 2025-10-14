@@ -67,8 +67,7 @@
         }
       ],
       "@morrowdigital/watermelondb-expo-plugin",
-      "expo-font",
-      "lottie-react-native"
+      "expo-font"
     ],
     "extra": {
       "router": {},
