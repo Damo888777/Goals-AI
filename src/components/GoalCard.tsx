@@ -635,24 +635,20 @@ export function GoalCard({
                 }
               }}
               style={{
-                height: 32,
                 alignItems: 'center',
+                alignSelf: 'flex-end',
+                minHeight: 44,
                 justifyContent: 'center',
-                alignSelf: 'flex-start',
-                marginTop: -4,
-                backgroundColor: '#F5EBE0',
-                borderWidth: 0.5,
-                borderColor: '#A3B18A',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 12,
-                shadowColor: '#7C7C7C', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0, elevation: 4,
+                paddingVertical: 8,
+                paddingHorizontal: 16,
               }}
             >
               <Text style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: '#364958',
                 fontFamily: 'Helvetica',
+                fontWeight: 'bold',
+                opacity: 0.5,
               }}>
                 View Full Goal
               </Text>

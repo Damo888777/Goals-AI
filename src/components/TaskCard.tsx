@@ -248,9 +248,9 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                 {milestoneName ? (
                   <Ionicons name="location" size={12} color="#F39C12" />
                 ) : (
-                  <Ionicons name="target" size={12} color="#4A90E2" />
+                  <Ionicons name="flag" size={12} color="#364958" />
                 )}
-              </View>
+              </View> 
               <Text style={[
                 styles.goalInfo,
                 isCompleted && styles.completedText
@@ -333,7 +333,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
               variant="pomodoro"
               iconSource={images.icons.tomato}
               pressed={isPomodoroPressed}
-              onPress={() => router.push('/pomodoro')}
+              onPress={() => router.push(`/pomodoro?taskTitle=${encodeURIComponent(task?.title || 'Task')}&taskId=${task?.id || ''}`)}
               onPressIn={() => setIsPomodoroPressed(true)}
               onPressOut={() => setIsPomodoroPressed(false)}
             />
@@ -393,9 +393,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   content: {
-    minHeight: 80,
-    gap: 4,
-    paddingBottom: 2,
+    gap: 3,
   },
   title: {
     ...typography.body,
@@ -406,7 +404,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    paddingTop: 2,
+    marginTop: 0,
   },
   leftContent: {
     flex: 1,
@@ -443,7 +441,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
     alignItems: 'flex-end',
-    paddingBottom: 2,
+    marginBottom: 0,
   },
   emptyContent: {
     alignItems: 'center',

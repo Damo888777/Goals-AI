@@ -165,7 +165,7 @@ export default function TaskDetailsScreen() {
   const [showMilestoneDropdown, setShowMilestoneDropdown] = useState(false);
 
   // Real pomodoro session data from database
-  const { sessions: focusSessions, timeStats, loading: sessionsLoading } = usePomodoroSessions(task?.id);
+  const { sessions: focusSessions, timeStats } = usePomodoroSessions(task?.id);
 
   useEffect(() => {
     if (id && tasks.length > 0) {
@@ -245,13 +245,6 @@ export default function TaskDetailsScreen() {
     }
   };
 
-  if (!task) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -327,7 +320,6 @@ export default function TaskDetailsScreen() {
           taskId={task.id}
           focusSessions={focusSessions}
           timeStats={timeStats}
-          loading={sessionsLoading}
           onStartPomodoro={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.push('/pomodoro');

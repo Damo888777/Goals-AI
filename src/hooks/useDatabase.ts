@@ -88,7 +88,6 @@ export const useSync = () => {
 // Hook for goals
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -213,7 +212,6 @@ export const useGoals = () => {
 
   return {
     goals,
-    isLoading,
     createGoal,
     updateGoal,
     deleteGoal,
@@ -224,7 +222,6 @@ export const useGoals = () => {
 // Hook for milestones
 export const useMilestones = (goalId?: string) => {
   const [milestones, setMilestones] = useState<Milestone[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchMilestones = async () => {
@@ -331,7 +328,6 @@ export const useMilestones = (goalId?: string) => {
 
   return {
     milestones,
-    isLoading,
     createMilestone,
     updateMilestone,
     deleteMilestone,
@@ -342,7 +338,6 @@ export const useMilestones = (goalId?: string) => {
 // Hook for tasks
 export const useTasks = (goalId?: string, milestoneId?: string) => {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -432,7 +427,14 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
     await database.write(async () => {
       const task = await database!.get<Task>('tasks').find(taskId)
       await task.update(() => {
-        Object.assign(task, updates)
+        if (updates.title !== undefined) task.title = updates.title
+        if (updates.notes !== undefined) task.notes = updates.notes
+        if (updates.scheduledDate !== undefined) task.scheduledDate = updates.scheduledDate
+        if (updates.isFrog !== undefined) task.isFrog = updates.isFrog
+        if (updates.isComplete !== undefined) task.isComplete = updates.isComplete
+        if (updates.goalId !== undefined) task.goalId = updates.goalId
+        if (updates.milestoneId !== undefined) task.milestoneId = updates.milestoneId
+        if (updates.updatedAt !== undefined) task.updatedAt = updates.updatedAt
       })
     })
   }
@@ -454,13 +456,13 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
       await task.update(() => {
         task.isComplete = true
         task.completedAt = new Date()
+        task.updatedAt = new Date()
       })
     })
   }
 
   return {
     tasks,
-    isLoading,
     createTask,
     updateTask,
     deleteTask,
@@ -473,7 +475,6 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 // Hook for completed tasks that were completed today AND scheduled for today
 export const useTodaysCompletedTasks = () => {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTodaysCompletedTasks = async () => {
@@ -518,14 +519,12 @@ export const useTodaysCompletedTasks = () => {
 
   return {
     completedTasks,
-    isLoading
   }
 }
 
 export const useTodaysTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [frogTask, setFrogTask] = useState<Task | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTodaysTasks = async () => {
@@ -608,7 +607,6 @@ export const useTodaysTasks = () => {
   return {
     tasks,
     frogTask,
-    isLoading,
     setFrogTaskForToday,
   }
 }
@@ -616,7 +614,6 @@ export const useTodaysTasks = () => {
 // Hook for vision images
 export const useVisionImages = () => {
   const [visionImages, setVisionImages] = useState<VisionImage[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (!database) {
@@ -685,7 +682,6 @@ export const useVisionImages = () => {
 
   return {
     visionImages,
-    isLoading,
     addVisionImage,
     deleteVisionImage,
   }

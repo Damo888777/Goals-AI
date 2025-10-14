@@ -333,7 +333,6 @@ export default function MilestoneDetailsScreen() {
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (id && milestones.length > 0) {
@@ -361,8 +360,6 @@ export default function MilestoneDetailsScreen() {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
       await updateMilestone(milestone.id, {
         title: title.trim(),
@@ -378,8 +375,6 @@ export default function MilestoneDetailsScreen() {
     } catch (error) {
       console.error('Error updating milestone:', error);
       Alert.alert('Error', 'Failed to update milestone. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -393,7 +388,6 @@ export default function MilestoneDetailsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            setIsLoading(true);
             try {
               await deleteMilestone(milestone.id);
               Alert.alert(
@@ -404,7 +398,6 @@ export default function MilestoneDetailsScreen() {
             } catch (error) {
               console.error('Error deleting milestone:', error);
               Alert.alert('Error', 'Failed to delete milestone. Please try again.');
-              setIsLoading(false);
             }
           },
         },
@@ -460,15 +453,6 @@ export default function MilestoneDetailsScreen() {
     return `${month}.${day}.${year}`;
   };
 
-  if (!milestone) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 18, color: '#364958' }}>Loading...</Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

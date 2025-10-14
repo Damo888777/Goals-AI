@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Dimensions, Text, Animated, StatusBar } from 'react-native';
+import { View, StyleSheet, Dimensions, StatusBar } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Audio } from 'expo-av';
 

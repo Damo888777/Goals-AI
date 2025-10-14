@@ -1,10 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
-import { spacing, borderRadius, shadows } from '../constants/spacing';
+import { spacing } from '../constants/spacing';
 import type { Task } from '../types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
+import { useGoals, useMilestones } from '../hooks/useDatabase';
 
 interface CompletedTaskCardProps {
   task?: Task;
@@ -17,6 +19,28 @@ interface CompletedTaskCardProps {
 
 export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCardProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const [goalName, setGoalName] = useState<string | null>(null);
+  const [milestoneName, setMilestoneName] = useState<string | null>(null);
+  
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
+  
+  // Fetch goal and milestone names when task changes
+  useEffect(() => {
+    if (task?.goalId && goals.length > 0) {
+      const goal = goals.find(g => g.id === task.goalId);
+      setGoalName(goal?.title || null);
+    } else {
+      setGoalName(null);
+    }
+    
+    if (task?.milestoneId && milestones.length > 0) {
+      const milestone = milestones.find(m => m.id === task.milestoneId);
+      setMilestoneName(milestone?.title || null);
+    } else {
+      setMilestoneName(null);
+    }
+  }, [task?.goalId, task?.milestoneId, goals, milestones]);
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -28,6 +52,12 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
   };
 
   const getProjectText = () => {
+    if (milestoneName) {
+      return milestoneName;
+    }
+    if (goalName) {
+      return goalName;
+    }
     if (task?.goalId || task?.milestoneId) {
       return 'Linked to project';
     }
@@ -45,13 +75,13 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
   }
 
   // Regular task rendering
-  if (!task) return null;
+  if (!task || !task.id) return null;
 
   return (
     <Pressable 
       onPress={() => {
-        if (task?.id) {
-          router.push(`/task-details?id=${task.id}`);
+        if (task && task.id) {
+          router.push(`/completed-task-details?id=${task.id}`);
         } else if (onPress) {
           onPress();
         }
@@ -72,11 +102,20 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
         </Text>
         
         <View style={styles.metaInfo}>
-          <Text style={styles.projectText}>
-            {getProjectText()}
-          </Text>
+          <View style={styles.goalRow}>
+            <View style={styles.goalIcon}>
+              {milestoneName ? (
+                <Ionicons name="location" size={12} color="#F39C12" />
+              ) : (
+                <Ionicons name="flag" size={12} color="#364958" />
+              )}
+            </View>
+            <Text style={styles.projectText}>
+              {getProjectText()}
+            </Text>
+          </View>
           <View style={styles.dateRow}>
-            <Text style={{ fontSize: 12, color: colors.text.primary }}>📅</Text>
+            <Ionicons name="calendar-outline" size={12} color="#364958" />
             <Text style={styles.completionDate}>
               Completed: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
             </Text>
@@ -93,7 +132,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#926C15',
     borderRadius: 20,
-    padding: spacing.md,
+    padding: spacing.lg,
     marginBottom: spacing.xs,
     shadowColor: '#7C7C7C',
     shadowOffset: { width: 0, height: 4 },
@@ -102,7 +141,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   content: {
-    gap: spacing.xs,
+    gap: 3,
   },
   title: {
     ...typography.body,
@@ -110,7 +149,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   metaInfo: {
-    gap: spacing.xxs,
+    gap: 1,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  goalIcon: {
+    width: 12,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   projectText: {
     ...typography.caption,
@@ -119,7 +169,7 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 4,
   },
   completionDate: {
     ...typography.caption,

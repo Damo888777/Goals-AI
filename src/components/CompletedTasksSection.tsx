@@ -14,10 +14,9 @@ interface CompletedTasksSectionProps {
   onTaskPress?: (task: Task) => void;
   onViewAllFinished?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
-  isLoading?: boolean;
 }
 
-export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, onToggleComplete, isLoading }: CompletedTasksSectionProps) {
+export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, onToggleComplete }: CompletedTasksSectionProps) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
   
@@ -56,7 +55,7 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
       {hasTasks ? (
         <>
           <View style={styles.tasksList}>
-            {displayTasks.map((task) => (
+            {displayTasks.filter(task => task && task.id).map((task) => (
               <CompletedTaskCard
                 key={task.id}
                 task={task}
@@ -76,31 +75,13 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
           </Pressable>
         </>
       ) : (
-        <>
-          <CompletedTaskCard
-            emptyState={{
-              title: "No completed tasks today",
-              description: "Complete your first task to start building momentum!"
-            }}
-          />
-          <InfoPopup 
-            visible={showInfoPopup}
-            title="Completed Tasks"
-            content="Tasks you complete will appear here. Start with your 'Eat the Frog' task for maximum impact!"
-            onClose={() => setShowInfoPopup(false)}
-          />
-        </>
+        <CompletedTaskCard
+          emptyState={{
+            title: "No completed tasks today",
+            description: "Complete your first task to start building momentum!"
+          }}
+        />
       )}
-      
-      {/* View All Finished Tasks Button - Always Show */}
-      <Pressable
-        onPress={handleViewFullProgress}
-        style={styles.viewAllButton}
-      >
-        <Text style={styles.viewAllButtonText}>
-          All Completed Tasks
-        </Text>
-      </Pressable>
       
       {/* Info Popup */}
       <InfoPopup

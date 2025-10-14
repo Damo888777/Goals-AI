@@ -21,8 +21,8 @@ export default function PlanTab() {
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   
   // Use real data hooks
-  const { weekDays: realWeekDays, isLoading: isWeeklyLoading, getWeekRange } = useWeeklyTasks(currentWeekOffset);
-  const { somedayTasks, isLoading: isSomedayLoading, toggleTaskComplete, createSomedayTask } = useSomedayTasks();
+  const { weekDays: realWeekDays, getWeekRange } = useWeeklyTasks(currentWeekOffset);
+  const { somedayTasks, toggleTaskComplete, createSomedayTask } = useSomedayTasks();
   const { createTask, completeTask, deleteTask } = useTasks();
   
   // Get week range for display

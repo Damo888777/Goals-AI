@@ -15,10 +15,9 @@ interface TodaysTasksSectionProps {
   onAddTask?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
   onDelete?: (taskId: string) => Promise<void>;
-  isLoading?: boolean;
 }
 
-export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, onDelete, isLoading }: TodaysTasksSectionProps) {
+export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, onDelete }: TodaysTasksSectionProps) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
 

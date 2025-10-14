@@ -9,16 +9,16 @@ interface FocusHistorySectionProps {
   taskId: string;
   focusSessions: PomodoroSessionData[];
   timeStats: TaskTimeStats | null;
-  loading?: boolean;
   onStartPomodoro: () => void;
+  isCompletedTask?: boolean;
 }
 
 export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({ 
   taskId, 
   focusSessions, 
   timeStats,
-  loading = false,
-  onStartPomodoro 
+  onStartPomodoro,
+  isCompletedTask = false
 }) => {
   // Use timeStats if available, otherwise calculate from sessions
   const totalSessions = timeStats?.totalSessions || focusSessions.length;
@@ -77,17 +77,21 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
               No focus sessions yet
             </Text>
             <Text style={styles.emptyStateDescription}>
-              Start your first pomodoro session to track your focus time and build momentum towards completing this task.
+              {isCompletedTask 
+                ? 'This task was completed without any focus sessions.'
+                : 'Start your first pomodoro session to track your focus time and build momentum towards completing this task.'}
             </Text>
-            <TouchableOpacity
-              style={styles.startPomodoroButton}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                onStartPomodoro();
-              }}
-            >
-              <Text style={styles.startPomodoroButtonText}>Start Focus Session</Text>
-            </TouchableOpacity>
+            {!isCompletedTask && (
+              <TouchableOpacity
+                style={styles.startPomodoroButton}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  onStartPomodoro();
+                }}
+              >
+                <Text style={styles.startPomodoroButtonText}>Start Focus Session</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           // Active State with Sessions
@@ -249,7 +253,6 @@ const styles = StyleSheet.create({
   // Empty state styles
   emptyStateContainer: {
     alignItems: 'center',
-    paddingVertical: 30,
   },
   emptyStateTitle: {
     fontSize: 18,
@@ -264,7 +267,6 @@ const styles = StyleSheet.create({
     color: '#364958',
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 20,
   },
   startPomodoroButton: {
     backgroundColor: '#e9edc9',

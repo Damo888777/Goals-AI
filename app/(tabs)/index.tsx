@@ -15,12 +15,11 @@ export default function TodayTab() {
   const { 
     tasks: todaysTasks, 
     frogTask, 
-    setFrogTaskForToday: updateFrogTask,
-    isLoading
+    setFrogTaskForToday: updateFrogTask
   } = useTodaysTasks();
   
   const { completeTask, createTask, deleteTask } = useTasks();
-  const { completedTasks, isLoading: completedTasksLoading } = useTodaysCompletedTasks();
+  const { completedTasks } = useTodaysCompletedTasks();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -127,7 +126,6 @@ export default function TodayTab() {
           onAddTask={handleAddTask}
           onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}
-          isLoading={isLoading}
         />
 
         {/* Completed Tasks Section */}
@@ -136,7 +134,6 @@ export default function TodayTab() {
           onTaskPress={handleTaskPress}
           onViewAllFinished={handleViewAllFinished}
           onToggleComplete={handleToggleComplete}
-          isLoading={completedTasksLoading}
         />
       </ScrollView>
 

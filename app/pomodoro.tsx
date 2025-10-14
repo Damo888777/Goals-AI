@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert, AppState, AppStateStatus, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
@@ -24,6 +24,8 @@ const POMODORO_SESSIONS: Record<SessionType, PomodoroSession> = {
 };
 
 export default function PomodoroScreen() {
+  const { taskTitle, taskId } = useLocalSearchParams<{ taskTitle?: string; taskId?: string }>();
+  
   const [fontsLoaded] = useFonts({
     'Digital-7': require('../assets/fonts/digital-7.ttf'),
   });
@@ -32,7 +34,7 @@ export default function PomodoroScreen() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentSession, setCurrentSession] = useState<SessionType>('work');
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
-  const [currentTask, setCurrentTask] = useState('[Placeholder of Task Title]');
+  const [currentTask, setCurrentTask] = useState(taskTitle || '[Placeholder of Task Title]');
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef(AppState.currentState);

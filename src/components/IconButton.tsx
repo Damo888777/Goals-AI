@@ -46,6 +46,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
+      overflow: 'visible',
       ...shadows.card,
     };
 
@@ -57,10 +58,10 @@ export const IconButton: React.FC<IconButtonProps> = ({
           backgroundColor: colors.success,
           borderColor: '#9B9B9B',
           shadowColor: '#7c7c7c',
-          shadowOffset: { width: 0, height: pressed ? 2 : 4 },
+          shadowOffset: { width: 0, height: pressed ? 1 : 2 },
           shadowOpacity: 0.75,
           shadowRadius: 0,
-          elevation: 4,
+          elevation: 2,
         };
       case 'pomodoro':
         return {
@@ -68,10 +69,10 @@ export const IconButton: React.FC<IconButtonProps> = ({
           backgroundColor: '#F2CCC3',
           borderColor: '#9B9B9B',
           shadowColor: '#7c7c7c',
-          shadowOffset: { width: 0, height: pressed ? 2 : 4 },
+          shadowOffset: { width: 0, height: pressed ? 1 : 2 },
           shadowOpacity: 0.75,
           shadowRadius: 0,
-          elevation: 4,
+          elevation: 2,
         };
       case 'delete':
         return {
@@ -181,10 +182,10 @@ const styles = StyleSheet.create({
     // Image styles handled by props
   },
   checkIconContainer: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -1,
+    overflow: 'visible',
   },
 });
