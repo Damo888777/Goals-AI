@@ -637,10 +637,7 @@ export function GoalCard({
               style={{
                 alignItems: 'center',
                 alignSelf: 'flex-end',
-                minHeight: 44,
                 justifyContent: 'center',
-                paddingVertical: 8,
-                paddingHorizontal: 16,
               }}
             >
               <Text style={{

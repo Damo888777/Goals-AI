@@ -108,7 +108,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
         Begin with the end in mind. This is what you're working towards.
       </Text>
       <TouchableOpacity style={styles.visionButtonTouchable} onPress={onChangeVision}>
-        <View style={styles.visionButton}>
+        <View style={[styles.visionButton, visionImageUrl ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
               source={{ uri: visionImageUrl || images.visionPlaceholder }}
@@ -116,22 +116,34 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
               contentFit="cover"
             />
           </View>
-          <Text style={styles.visionButtonText}>
-            {visionImageUrl ? 'Change Vision' : 'Choose your Vision'}
-          </Text>
+          {!visionImageUrl && (
+            <Text style={styles.visionButtonText}>
+              Choose your Vision
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
       
-      {/* Remove Vision Button - only show when there's an image */}
+      {/* Vision Management Buttons - only show when there's an image */}
       {visionImageUrl && (
-        <TouchableOpacity
-          onPress={onRemoveVision}
-          style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134, marginTop: 15 }]}
-        >
-          <Text style={styles.actionButtonText}>
-            Remove Vision
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.visionButtonsContainer}>
+          <TouchableOpacity
+            onPress={onRemoveVision}
+            style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              Remove
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onChangeVision}
+            style={[styles.actionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              Change Vision
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -753,6 +765,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
+  visionButtonWithImage: {
+    height: 200, // Make it taller to show more of the image
+  },
   visionButtonInner: {
     position: 'absolute',
     top: 0,
@@ -1078,5 +1093,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  visionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+    marginTop: 15,
   },
 });
