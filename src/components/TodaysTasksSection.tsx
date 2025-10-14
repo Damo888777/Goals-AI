@@ -1,7 +1,8 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
 import { InfoPopup } from './InfoPopup';
+import { InfoButton } from './InfoButton';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import { INFO_CONTENT } from '../constants/infoContent';
@@ -13,10 +14,11 @@ interface TodaysTasksSectionProps {
   onTaskPress?: (task: Task) => void;
   onAddTask?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
+  onDelete?: (taskId: string) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, isLoading }: TodaysTasksSectionProps) {
+export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, onDelete, isLoading }: TodaysTasksSectionProps) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
 
@@ -37,14 +39,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
           </Text>
           
           {/* Info Button */}
-          <Pressable 
-            style={styles.infoButton}
-            onPress={() => setShowInfoPopup(true)}
-          >
-            <View style={styles.infoCircle}>
-              <Text style={styles.infoText}>i</Text>
-            </View>
-          </Pressable>
+          <InfoButton onPress={() => setShowInfoPopup(true)} />
         </View>
 
         <Text style={styles.description}>
@@ -62,6 +57,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
               variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
               onPress={() => onTaskPress?.(task)}
               onToggleComplete={onToggleComplete}
+              onDelete={onDelete}
             />
           ))}
         </View>
@@ -109,25 +105,6 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     ...typography.title,
-  },
-  infoButton: {
-    width: 13,
-    height: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoCircle: {
-    width: '100%',
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#7C7C7C',
-    borderRadius: 6.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoText: {
-    fontSize: 10,
-    color: '#7C7C7C',
   },
   description: {
     ...typography.body,

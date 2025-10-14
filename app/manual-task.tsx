@@ -16,40 +16,9 @@ import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
 import { GoalCard } from '../src/components/GoalCard';
-
-// Selection Card Component
-interface SelectionCardProps {
-  selectedType: 'task' | 'goal' | 'milestone';
-  onTypeChange: (type: 'task' | 'goal' | 'milestone') => void;
-}
-
-const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChange }) => {
-  const options: { type: 'task' | 'goal' | 'milestone'; label: string }[] = [
-    { type: 'task', label: 'Task' },
-    { type: 'goal', label: 'Goal' },
-    { type: 'milestone', label: 'Milestone' },
-  ];
-
-  return (
-    <View style={styles.selectionCard}>
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={option.type}
-          style={[styles.selectionOption, index === options.length - 1 && { marginBottom: 0 }]}
-          onPress={() => onTypeChange(option.type)}
-        >
-          <View style={[
-            styles.radioButton,
-            selectedType === option.type ? styles.radioButtonSelected : styles.radioButtonUnselected
-          ]} />
-          <Text style={styles.selectionLabel}>
-            {option.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+import { SelectionCard } from '../src/components/SelectionCard';
+import { Button } from '../src/components/Button';
+import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
 
 // Eat the Frog Section (for tasks only)
 const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }> = ({ 
@@ -260,10 +229,12 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
           <Text style={styles.goalAttachmentText}>
             {getDisplayText()}
           </Text>
-          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
-            <View style={styles.chevronLine1} />
-            <View style={styles.chevronLine2} />
-          </View>
+          <ChevronButton
+            direction="down"
+            rotated={isDropdownOpen}
+            onPress={handleDropdownPress}
+            size="medium"
+          />
         </TouchableOpacity>
 
         {/* Dropdown Content */}
@@ -391,7 +362,6 @@ export default function ManualTaskScreen() {
   const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
   const [isEatTheFrog, setIsEatTheFrog] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Database hooks
   const { createTask } = useTasks();
@@ -409,8 +379,6 @@ export default function ManualTaskScreen() {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
       if (selectedType === 'task') {
         await createTask({
@@ -451,8 +419,6 @@ export default function ManualTaskScreen() {
     } catch (error) {
       console.error('Error saving:', error);
       Alert.alert('Error', `Failed to create ${selectedType}. Please try again.`);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -474,14 +440,9 @@ export default function ManualTaskScreen() {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
-            <TouchableOpacity
+            <BackChevronButton
               onPress={handleCancel}
-              style={styles.backButton}
-            >
-              <View style={styles.chevronContainer}>
-                <View style={styles.chevron} />
-              </View>
-            </TouchableOpacity>
+            />
             <Text style={styles.headerTitle}>
               Create Your Task
             </Text>

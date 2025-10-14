@@ -19,7 +19,7 @@ export default function TodayTab() {
     isLoading
   } = useTodaysTasks();
   
-  const { completeTask, createTask } = useTasks();
+  const { completeTask, createTask, deleteTask } = useTasks();
   const { completedTasks, isLoading: completedTasksLoading } = useTodaysCompletedTasks();
 
   const handleFABLongPress = () => {
@@ -76,6 +76,15 @@ export default function TodayTab() {
     }
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await deleteTask(taskId);
+      console.log('Task deleted successfully');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
   const handleViewAllFinished = () => {
     console.log('View all finished tasks');
   };
@@ -107,6 +116,8 @@ export default function TodayTab() {
           frogTask={frogTask}
           onAddFrogTask={handleAddFrogTask}
           onSelectFrog={handleSelectFrog}
+          onToggleComplete={handleToggleComplete}
+          onDelete={handleDeleteTask}
         />
 
         {/* Today's Tasks Section */}
@@ -115,6 +126,7 @@ export default function TodayTab() {
           onTaskPress={handleTaskPress}
           onAddTask={handleAddTask}
           onToggleComplete={handleToggleComplete}
+          onDelete={handleDeleteTask}
           isLoading={isLoading}
         />
 

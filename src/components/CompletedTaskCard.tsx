@@ -1,15 +1,21 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { typography } from '../constants/typography';
+import { colors } from '../constants/colors';
+import { spacing, borderRadius, shadows } from '../constants/spacing';
 import type { Task } from '../types';
 import { useState } from 'react';
 import { router } from 'expo-router';
 
 interface CompletedTaskCardProps {
-  task: Task;
+  task?: Task;
   onPress?: () => void;
+  emptyState?: {
+    title: string;
+    description: string;
+  };
 }
 
-export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
+export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   
   const formatDate = (dateString: string) => {
@@ -22,11 +28,24 @@ export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
   };
 
   const getProjectText = () => {
-    if (task.goalId || task.milestoneId) {
+    if (task?.goalId || task?.milestoneId) {
       return 'Linked to project';
     }
     return 'No project linked';
   };
+
+  // Empty state rendering
+  if (emptyState) {
+    return (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyStateTitle}>{emptyState.title}</Text>
+        <Text style={styles.emptyStateDescription}>{emptyState.description}</Text>
+      </View>
+    );
+  }
+
+  // Regular task rendering
+  if (!task) return null;
 
   return (
     <Pressable 
@@ -42,7 +61,7 @@ export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
       style={[
         styles.container,
         {
-          backgroundColor: isPressed ? '#D4D1A1' : '#EAE2B7',
+          backgroundColor: '#EAE2B7',
           transform: [{ scale: isPressed ? 0.98 : 1 }]
         }
       ]}
@@ -57,7 +76,7 @@ export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
             {getProjectText()}
           </Text>
           <View style={styles.dateRow}>
-            <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
+            <Text style={{ fontSize: 12, color: colors.text.primary }}>📅</Text>
             <Text style={styles.completionDate}>
               Completed: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
             </Text>
@@ -70,20 +89,20 @@ export function CompletedTaskCard({ task, onPress }: CompletedTaskCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#EAE2B7', // Same golden color as TrophyCard
+    backgroundColor: '#EAE2B7',
     borderWidth: 0.5,
-    borderColor: '#B69121', // Same golden border as TrophyCard
+    borderColor: '#926C15',
     borderRadius: 20,
-    padding: 15,
-    marginBottom: 8, // Match TaskCard spacing
-    shadowColor: '#B69121',
+    padding: spacing.md,
+    marginBottom: spacing.xs,
+    shadowColor: '#7C7C7C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
     elevation: 4,
   },
   content: {
-    gap: 8,
+    gap: spacing.xs,
   },
   title: {
     ...typography.body,
@@ -91,23 +110,40 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   metaInfo: {
-    gap: 4,
+    gap: spacing.xxs,
   },
   projectText: {
-    fontSize: 14,
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    fontWeight: '300',
+    ...typography.caption,
+    color: colors.text.primary,
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.xs,
   },
   completionDate: {
-    fontSize: 12,
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    fontWeight: '300',
+    ...typography.caption,
+    color: colors.text.primary,
+  },
+  emptyState: {
+    backgroundColor: '#EAE2B7',
+    borderWidth: 0.5,
+    borderColor: '#926C15',
+    borderRadius: 20,
+    padding: spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyStateTitle: {
+    ...typography.emptyTitle,
+    marginBottom: spacing.xs,
+  },
+  emptyStateDescription: {
+    ...typography.emptyDescription,
   },
 });

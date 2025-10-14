@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,46 +9,16 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
-import { useGoals } from '../src/hooks/useDatabase';
 import { images } from '../src/constants/images';
-import VisionPicker from '../src/components/VisionPicker';
+import * as Haptics from 'expo-haptics';
+import { useGoals } from '../src/hooks/useDatabase';
+import { router } from 'expo-router';
 import VisionImage from '../src/db/models/VisionImage';
-
-// Selection Card Component
-interface SelectionCardProps {
-  selectedType: 'task' | 'goal' | 'milestone';
-  onTypeChange: (type: 'task' | 'goal' | 'milestone') => void;
-}
-
-const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChange }) => {
-  const options: { type: 'task' | 'goal' | 'milestone'; label: string }[] = [
-    { type: 'task', label: 'Task' },
-    { type: 'goal', label: 'Goal' },
-    { type: 'milestone', label: 'Milestone' },
-  ];
-
-  return (
-    <View style={styles.selectionCard}>
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={option.type}
-          style={[styles.selectionOption, index === options.length - 1 && { marginBottom: 0 }]}
-          onPress={() => onTypeChange(option.type)}
-        >
-          <View style={[
-            styles.radioButton,
-            selectedType === option.type ? styles.radioButtonSelected : styles.radioButtonUnselected
-          ]} />
-          <Text style={styles.selectionLabel}>
-            {option.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+import VisionPicker from '../src/components/VisionPicker';
+import { Alert } from 'react-native';
+import { Button } from '../src/components/Button';
+import { BackChevronButton } from '../src/components/ChevronButton';
+import { SelectionCard } from '../src/components/SelectionCard';
 
 // Emotion Selection Component
 interface EmotionSelectionProps {
@@ -181,7 +151,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
 // Main Manual Goal Screen Component
 export default function ManualGoalScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
+  const { goals, createGoal } = useGoals();
   const [selectedType, setSelectedType] = useState<'task' | 'goal' | 'milestone'>('goal');
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
@@ -197,17 +167,31 @@ export default function ManualGoalScreen() {
     );
   };
 
-  const handleSave = () => {
-    // Handle saving the manual goal
-    console.log('Saving manual goal:', {
-      type: selectedType,
-      title,
-      notes,
-      emotions: selectedEmotions,
-    });
-    
-    // Navigate back
-    router.back();
+  const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter a goal title');
+      return;
+    }
+
+    try {
+      await createGoal({
+        title: title.trim(),
+        notes: notes.trim() || undefined,
+        feelings: selectedEmotions,
+        visionImageUrl: selectedVisionImage?.imageUri || undefined,
+        creationSource: 'manual'
+      });
+
+      // Show success confirmation
+      Alert.alert(
+        'Success',
+        'Goal created successfully!',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      Alert.alert('Error', 'Failed to create goal. Please try again.');
+    }
   };
 
   const handleCancel = () => {
@@ -230,14 +214,10 @@ export default function ManualGoalScreen() {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
-            <TouchableOpacity
+            <BackChevronButton
               onPress={handleCancel}
               style={styles.backButton}
-            >
-              <View style={styles.chevronContainer}>
-                <View style={styles.chevron} />
-              </View>
-            </TouchableOpacity>
+            />
             <Text style={styles.headerTitle}>
               Create Your Goal
             </Text>
@@ -282,23 +262,16 @@ export default function ManualGoalScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
+          <Button
+            title="Cancel"
+            variant="cancel"
             onPress={handleCancel}
-            style={[styles.actionButton, styles.cancelButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+          />
+          <Button
+            title="Save"
+            variant="save"
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Save
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </KeyboardAwareScrollView>
       

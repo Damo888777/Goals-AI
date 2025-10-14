@@ -182,10 +182,16 @@ class SyncService {
 
       // Push goals
       if (changes.goals?.created?.length > 0) {
+        const transformedGoals = changes.goals.created.map(this.transformLocalToSupabase.bind(this))
+        console.log('Pushing goals:', transformedGoals.length)
+        
         const { error } = await supabase
           .from('goals')
-          .upsert(changes.goals.created.map(this.transformLocalToSupabase))
-        if (error) throw error
+          .upsert(transformedGoals, { onConflict: 'id' })
+        if (error) {
+          console.error('Error pushing goals:', error)
+          throw error
+        }
       }
 
       if (changes.goals?.updated?.length > 0) {
@@ -208,10 +214,16 @@ class SyncService {
 
       // Push milestones
       if (changes.milestones?.created?.length > 0) {
+        const transformedMilestones = changes.milestones.created.map(this.transformLocalToSupabase.bind(this))
+        console.log('Pushing milestones:', transformedMilestones.length)
+        
         const { error } = await supabase
           .from('milestones')
-          .upsert(changes.milestones.created.map(this.transformLocalToSupabase))
-        if (error) throw error
+          .upsert(transformedMilestones, { onConflict: 'id' })
+        if (error) {
+          console.error('Error pushing milestones:', error)
+          throw error
+        }
       }
 
       if (changes.milestones?.updated?.length > 0) {
@@ -234,10 +246,16 @@ class SyncService {
 
       // Push tasks
       if (changes.tasks?.created?.length > 0) {
+        const transformedTasks = changes.tasks.created.map(this.transformLocalToSupabase.bind(this))
+        console.log('Pushing tasks:', transformedTasks.length)
+        
         const { error } = await supabase
           .from('tasks')
-          .upsert(changes.tasks.created.map(this.transformLocalToSupabase))
-        if (error) throw error
+          .upsert(transformedTasks, { onConflict: 'id' })
+        if (error) {
+          console.error('Error pushing tasks:', error)
+          throw error
+        }
       }
 
       if (changes.tasks?.updated?.length > 0) {
@@ -287,21 +305,134 @@ class SyncService {
 
   // Transform WatermelonDB data to Supabase format
   private transformLocalToSupabase(record: any): any {
-    return {
-      ...record,
-      user_id: record.userId,
-      goal_id: record.goalId,
-      milestone_id: record.milestoneId,
-      vision_image_url: record.visionImageUrl,
-      is_completed: record.isCompleted,
-      completed_at: record.completedAt?.toISOString(),
-      target_date: record.targetDate,
-      is_complete: record.isComplete,
-      scheduled_date: record.scheduledDate,
-      is_frog: record.isFrog,
-      creation_source: record.creationSource || 'manual',
+    const base = {
+      id: record.id,
       created_at: new Date(record.createdAt).toISOString(),
       updated_at: new Date(record.updatedAt).toISOString(),
+    }
+
+    // Handle profile records
+    if (record.email !== undefined) {
+      return {
+        ...base,
+        email: record.email
+      }
+    }
+
+    // Handle goal records (check for goal-specific fields)
+    if (record.table === 'goals' || (record.title !== undefined && (record.feelingsArray !== undefined || record.feelings !== undefined || record.visionImageUrl !== undefined))) {
+      return {
+        ...base,
+        user_id: record.userId,
+        title: record.title,
+        feelings: JSON.stringify(record.feelingsArray || record.feelings || []),
+        vision_image_url: record.visionImageUrl || null,
+        notes: record.notes || null,
+        is_completed: record.isCompleted || false,
+        completed_at: record.completedAt ? new Date(record.completedAt).toISOString() : null,
+        creation_source: record.creationSource || 'manual'
+      }
+    }
+
+    // Handle task records first (more specific detection)
+    if (record.table === 'tasks' || (record.title !== undefined && record.isComplete !== undefined && (record.isFrog !== undefined || record.scheduledDate !== undefined || record.milestoneId !== undefined))) {
+      return {
+        ...base,
+        user_id: record.userId,
+        goal_id: record.goalId || null,
+        milestone_id: record.milestoneId || null,
+        title: record.title,
+        notes: record.notes || null,
+        scheduled_date: record.scheduledDate || null,
+        is_frog: record.isFrog || false,
+        is_complete: record.isComplete || false,
+        completed_at: record.completedAt ? new Date(record.completedAt).toISOString() : null,
+        creation_source: record.creationSource || 'manual'
+      }
+    }
+
+    // Handle milestone records
+    if (record.table === 'milestones' || (record.title !== undefined && record.goalId !== undefined && record.isComplete !== undefined)) {
+      return {
+        ...base,
+        user_id: record.userId,
+        goal_id: record.goalId,
+        title: record.title,
+        target_date: record.targetDate || null,
+        is_complete: record.isComplete || false,
+        creation_source: record.creationSource || 'manual'
+      }
+    }
+
+    // Fallback for unknown record types (basic fields only)
+    return {
+      ...base,
+      user_id: record.userId,
+      title: record.title || null,
+      notes: record.notes || null,
+      creation_source: record.creationSource || 'manual'
+    }
+  }
+
+  // Get local changes that need to be synced
+  private async getLocalChanges(): Promise<SyncPushChanges> {
+    const userId = await this.getCurrentUserId()
+    if (!userId) {
+      throw new Error('User not authenticated')
+    }
+
+    // Get the last sync timestamp
+    const lastSyncTime = await this.database.adapter.getLocal('last_sync_timestamp') || 0
+    const lastSyncDate = new Date(lastSyncTime)
+
+    try {
+      // Get all records modified since last sync
+      const profilesCollection = this.database.get('profiles')
+      const goalsCollection = this.database.get('goals') 
+      const milestonesCollection = this.database.get('milestones')
+      const tasksCollection = this.database.get('tasks')
+
+      // Get all records for this user (since we don't have complex sync state tracking)
+      const [profiles, goals, milestones, tasks] = await Promise.all([
+        profilesCollection.query().fetch(),
+        goalsCollection.query().fetch(),
+        milestonesCollection.query().fetch(), 
+        tasksCollection.query().fetch()
+      ])
+
+      // Filter to only user's records and unsynchronized ones
+      const userProfiles = profiles.filter(p => (p as any).userId === userId || (p as any).id === userId)
+      const userGoals = goals.filter(g => (g as any).userId === userId)
+      const userMilestones = milestones.filter(m => (m as any).userId === userId)
+      const userTasks = tasks.filter(t => (t as any).userId === userId)
+
+      // For simplicity, treat all local records as "created" since we're doing push-only sync
+      // In a full implementation, you'd track sync state per record
+      return {
+        profiles: {
+          created: userProfiles,
+          updated: [],
+          deleted: []
+        },
+        goals: {
+          created: userGoals,
+          updated: [],
+          deleted: []
+        },
+        milestones: {
+          created: userMilestones,
+          updated: [],
+          deleted: []
+        },
+        tasks: {
+          created: userTasks,
+          updated: [],
+          deleted: []
+        }
+      }
+    } catch (error) {
+      console.error('Error getting local changes:', error)
+      throw error
     }
   }
 
@@ -331,25 +462,30 @@ class SyncService {
     this.syncInProgress = true
 
     try {
-      // Push-only sync - no pulling from server
-      console.log('Pushing local changes to Supabase...')
+      console.log('Starting sync to Supabase...')
       
-      // Get pending changes from WatermelonDB
-      const changes = await this.database.adapter.getLocal('sync_changes') || {
-        profiles: { created: [], updated: [], deleted: [] },
-        goals: { created: [], updated: [], deleted: [] },
-        milestones: { created: [], updated: [], deleted: [] },
-        tasks: { created: [], updated: [], deleted: [] }
-      }
+      // Get local changes
+      const changes = await this.getLocalChanges()
       
       if (this.hasChangesToPush(changes)) {
-        await this.pushChanges(changes as SyncPushChanges)
-        console.log('Local changes pushed to Supabase')
+        console.log('Found local changes to push:', {
+          profiles: changes.profiles.created.length,
+          goals: changes.goals.created.length,
+          milestones: changes.milestones.created.length,
+          tasks: changes.tasks.created.length
+        })
+        
+        await this.pushChanges(changes)
+        
+        // Update last sync timestamp
+        await this.database.adapter.setLocal('last_sync_timestamp', Date.now().toString())
+        
+        console.log('✅ Local changes successfully synced to Supabase')
       } else {
-        console.log('No local changes to push')
+        console.log('No local changes found to push')
       }
     } catch (error) {
-      console.error('Push sync failed:', error)
+      console.error('❌ Sync failed:', error)
       throw error
     } finally {
       this.syncInProgress = false

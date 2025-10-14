@@ -7,6 +7,8 @@ import Goal from './models/Goal'
 import Milestone from './models/Milestone'
 import Task from './models/Task'
 import VisionImage from './models/VisionImage'
+import PomodoroSession from './models/PomodoroSession'
+import TaskTimeTracking from './models/TaskTimeTracking'
 
 let database: Database | null = null;
 
@@ -29,6 +31,8 @@ if (DB_CONFIG.USE_WATERMELON) {
         Milestone,
         Task,
         VisionImage,
+        PomodoroSession,
+        TaskTimeTracking,
       ],
     });
     

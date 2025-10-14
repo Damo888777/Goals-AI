@@ -13,10 +13,10 @@ export default function SparkAIOutputScreen() {
   }>();
 
   const handleSave = (data: any) => {
-    // Handle saving the data (integrate with your data management system)
-    console.log('Saving SparkAI output:', data);
+    // Data is already saved by SparkAIOutput component
+    console.log('SparkAI output saved successfully:', data);
     
-    // Navigate back or to appropriate screen
+    // Navigate back to appropriate screen
     router.back();
   };
 

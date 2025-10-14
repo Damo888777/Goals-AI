@@ -58,6 +58,10 @@ export const colors = {
     border: '#926C15',
   },
   
+  // Completed Task Colors
+  completedTask: '#EAE2B7',
+  completedTaskPressed: '#D4D1A1',
+  
   // Button Colors
   button: {
     primary: '#364958',
@@ -65,4 +69,13 @@ export const colors = {
     cancel: '#F5EBE0',
     save: '#364958',
   },
+  
+  // Additional color aliases for components
+  primary: '#364958',
+  secondary: '#F5EBE0',
+  success: '#A3B18A',
+  error: '#B23A48',
+  white: '#FFFFFF',
+  lightGray: '#F5F5F5',
+  textSecondary: '#7C7C7C',
 } as const;

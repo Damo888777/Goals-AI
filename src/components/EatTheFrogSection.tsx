@@ -1,7 +1,8 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
 import { InfoPopup } from './InfoPopup';
+import { InfoButton } from './InfoButton';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
 import { INFO_CONTENT } from '../constants/infoContent';
@@ -17,9 +18,11 @@ interface EatTheFrogSectionProps {
     creationSource: 'spark' | 'manual';
   }) => Promise<void>;
   onSelectFrog?: () => void;
+  onToggleComplete?: (taskId: string) => Promise<void>;
+  onDelete?: (taskId: string) => Promise<void>;
 }
 
-export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog }: EatTheFrogSectionProps) {
+export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onToggleComplete, onDelete }: EatTheFrogSectionProps) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const handleSelectFrog = async () => {
     try {
@@ -55,14 +58,7 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog }: Eat
           </Text>
           
           {/* Info Button */}
-          <Pressable 
-            style={styles.infoButton}
-            onPress={() => setShowInfoPopup(true)}
-          >
-            <View style={styles.infoCircle}>
-              <Text style={styles.infoText}>i</Text>
-            </View>
-          </Pressable>
+          <InfoButton onPress={() => setShowInfoPopup(true)} />
         </View>
 
         {/* Description */}
@@ -76,6 +72,8 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog }: Eat
         task={frogTask}
         variant={frogTask ? 'active-frog' : 'empty-frog'}
         onPress={onSelectFrog}
+        onToggleComplete={onToggleComplete}
+        onDelete={onDelete}
       />
       
       {/* Info Popup */}
@@ -118,25 +116,6 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     ...typography.title,
-  },
-  infoButton: {
-    width: 13,
-    height: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoCircle: {
-    width: '100%',
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#7C7C7C',
-    borderRadius: 6.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoText: {
-    fontSize: 10,
-    color: '#7C7C7C',
   },
   description: {
     ...typography.body,

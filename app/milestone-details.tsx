@@ -5,16 +5,20 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Modal,
   Alert,
+  Modal,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import * as Haptics from 'expo-haptics';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useGoals, useMilestones } from '../src/hooks/useDatabase';
+import type { Goal, Milestone } from '../src/types';
 import { GoalCard } from '../src/components/GoalCard';
+import { Button } from '../src/components/Button';
+import { BackChevronButton } from '../src/components/ChevronButton';
 
 const styles = StyleSheet.create({
   container: {
@@ -479,14 +483,10 @@ export default function MilestoneDetailsScreen() {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
-            <TouchableOpacity
+            <BackChevronButton
               onPress={handleCancel}
               style={styles.backButton}
-            >
-              <View style={styles.chevronContainer}>
-                <View style={styles.chevron} />
-              </View>
-            </TouchableOpacity>
+            />
             <Text style={styles.headerTitle}>
               Edit Milestone
             </Text>
@@ -653,23 +653,18 @@ export default function MilestoneDetailsScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
+          <Button
+            title="Delete"
+            variant="delete"
             onPress={handleDelete}
-            style={[styles.actionButton, styles.deleteButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Delete
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            style={styles.deleteButton}
+          />
+          <Button
+            title="Save Changes"
+            variant="save"
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Save Changes
-            </Text>
-          </TouchableOpacity>
+            style={styles.saveButton}
+          />
         </View>
       </KeyboardAwareScrollView>
     </View>

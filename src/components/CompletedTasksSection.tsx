@@ -1,11 +1,13 @@
+import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { CompletedTaskCard } from './CompletedTaskCard';
 import { InfoPopup } from './InfoPopup';
+import { InfoButton } from './InfoButton';
 import { typography } from '../constants/typography';
+import { spacing, emptyStateSpacing } from '../constants/spacing';
 import type { Task } from '../types';
-import { useState } from 'react';
 
 interface CompletedTasksSectionProps {
   tasks: Task[];
@@ -42,14 +44,7 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
           </Text>
           
           {/* Info Button */}
-          <Pressable 
-            style={styles.infoButton}
-            onPress={() => setShowInfoPopup(true)}
-          >
-            <View style={styles.infoCircle}>
-              <Text style={styles.infoText}>i</Text>
-            </View>
-          </Pressable>
+          <InfoButton onPress={() => setShowInfoPopup(true)} />
         </View>
 
         <Text style={styles.description}>
@@ -82,26 +77,30 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
         </>
       ) : (
         <>
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>
-              No completed tasks today
-            </Text>
-            <Text style={styles.emptyStateDescription}>
-              Complete some tasks to see them here.
-            </Text>
-          </View>
-          
-          {/* View All Finished Tasks Button - Always Show */}
-          <Pressable
-            onPress={handleViewFullProgress}
-            style={styles.viewAllButton}
-          >
-            <Text style={styles.viewAllButtonText}>
-              All Completed Tasks
-            </Text>
-          </Pressable>
+          <CompletedTaskCard
+            emptyState={{
+              title: "No completed tasks today",
+              description: "Complete your first task to start building momentum!"
+            }}
+          />
+          <InfoPopup 
+            visible={showInfoPopup}
+            title="Completed Tasks"
+            content="Tasks you complete will appear here. Start with your 'Eat the Frog' task for maximum impact!"
+            onClose={() => setShowInfoPopup(false)}
+          />
         </>
       )}
+      
+      {/* View All Finished Tasks Button - Always Show */}
+      <Pressable
+        onPress={handleViewFullProgress}
+        style={styles.viewAllButton}
+      >
+        <Text style={styles.viewAllButtonText}>
+          All Completed Tasks
+        </Text>
+      </Pressable>
       
       {/* Info Popup */}
       <InfoPopup
@@ -153,25 +152,6 @@ const styles = StyleSheet.create({
     flex: 1,
     ...typography.title,
   },
-  infoButton: {
-    width: 13,
-    height: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoCircle: {
-    width: '100%',
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#7C7C7C',
-    borderRadius: 6.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoText: {
-    fontSize: 10,
-    color: '#7C7C7C',
-  },
   description: {
     ...typography.body,
   },
@@ -192,32 +172,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontWeight: 'bold',
     opacity: 0.5,
-  },
-  emptyState: {
-    backgroundColor: '#E9EDC9',
-    borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 15,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 91,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
-  },
-  emptyStateTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#364958',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  emptyStateDescription: {
-    fontSize: 12,
-    color: '#364958',
-    textAlign: 'center',
   },
 });

@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 5,
+  version: 6,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -63,6 +63,33 @@ export default appSchema({
         { name: 'image_uri', type: 'string' },
         { name: 'aspect_ratio', type: 'number' },
         { name: 'source', type: 'string' }, // 'generated' or 'uploaded'
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
+    tableSchema({
+      name: 'pomodoro_sessions',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'task_id', type: 'string', isIndexed: true },
+        { name: 'goal_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'session_type', type: 'string' }, // 'work', 'short_break', 'long_break'
+        { name: 'duration_minutes', type: 'number' },
+        { name: 'is_completed', type: 'boolean' },
+        { name: 'completed_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'notes', type: 'string', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
+    tableSchema({
+      name: 'task_time_tracking',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'task_id', type: 'string', isIndexed: true },
+        { name: 'total_pomodoro_sessions', type: 'number' },
+        { name: 'total_minutes_focused', type: 'number' },
+        { name: 'last_session_at', type: 'number', isOptional: true }, // Unix timestamp
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]

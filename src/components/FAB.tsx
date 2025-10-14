@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
+import { Button } from './Button';
 
 interface FABProps {
   onPress?: () => void;
@@ -99,33 +100,36 @@ export function FAB({ onPress, onLongPress }: FABProps) {
           <View 
             style={[
               styles.menuContainer,
-              { bottom: 70 + insets.bottom, right: 80 }
+              { bottom: 60 + insets.bottom, right: 60 }
             ]}
           >
-            <TouchableOpacity 
-              style={styles.menuItem}
+            <Button
+              title="Create Task"
+              variant="modal"
               onPress={() => handleMenuItemPress('task')}
-            >
-              <Text style={styles.menuText}>Create Task</Text>
-            </TouchableOpacity>
+              style={styles.menuItem}
+              textStyle={styles.menuText}
+            />
             
             <View style={styles.menuDivider} />
             
-            <TouchableOpacity 
-              style={styles.menuItem}
+            <Button
+              title="Create Goal"
+              variant="modal"
               onPress={() => handleMenuItemPress('goal')}
-            >
-              <Text style={styles.menuText}>Create Goal</Text>
-            </TouchableOpacity>
+              style={styles.menuItem}
+              textStyle={styles.menuText}
+            />
             
             <View style={styles.menuDivider} />
             
-            <TouchableOpacity 
-              style={styles.menuItem}
+            <Button
+              title="Create Milestone"
+              variant="modal"
               onPress={() => handleMenuItemPress('milestone')}
-            >
-              <Text style={styles.menuText}>Create Milestone</Text>
-            </TouchableOpacity>
+              style={styles.menuItem}
+              textStyle={styles.menuText}
+            />
           </View>
         </View>
       )}
@@ -176,7 +180,10 @@ const styles = StyleSheet.create({
   menuContainer: {
     position: 'absolute',
     backgroundColor: '#364958',
-    borderRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 24, // Much rounder right bottom corner
     paddingVertical: 8,
     minWidth: 200,
     borderWidth: 0.5,
@@ -191,12 +198,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     minHeight: 48,
+    alignItems: 'flex-start', // Ensure left alignment
     justifyContent: 'center',
   },
   menuText: {
-    color: '#F5EBE0',
+    color: '#F5EBE0', // Cream color
     fontSize: 16,
     fontWeight: '400',
+    textAlign: 'left',
+    width: '100%', // Ensure full width for proper left alignment
   },
   menuDivider: {
     height: 1,

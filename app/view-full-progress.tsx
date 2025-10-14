@@ -8,7 +8,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import type { Task } from '../src/types';
 import { typography } from '../src/constants/typography';
+import { colors } from '../src/constants/colors';
+import { spacing, borderRadius, shadows, emptyStateSpacing } from '../src/constants/spacing';
 import { useTasks } from '../src/hooks/useDatabase';
+import { Button } from '../src/components/Button';
+import { BackChevronButton } from '../src/components/ChevronButton';
 
 export default function ViewFullProgressScreen() {
   const insets = useSafeAreaInsets();
@@ -93,9 +97,10 @@ export default function ViewFullProgressScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Icon name="chevron-left" size={24} color="#364958" />
-            </TouchableOpacity>
+            <BackChevronButton
+              onPress={handleBack}
+              style={styles.backButton}
+            />
             <Text style={styles.headerTitle}>All Completed Tasks</Text>
           </View>
           <Text style={styles.headerDescription}>Review your completed tasks and celebrate your progress.</Text>
@@ -158,15 +163,14 @@ export default function ViewFullProgressScreen() {
             />
           ))
         ) : (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>No completed tasks found</Text>
-            <Text style={styles.emptyStateDescription}>
-              {searchQuery || selectedDate 
+          <CompletedTaskCard
+            emptyState={{
+              title: "No completed tasks found",
+              description: searchQuery || selectedDate 
                 ? 'Try adjusting your search or date filter.'
                 : 'Complete some tasks to see them here.'
-              }
-            </Text>
-          </View>
+            }}
+          />
         )}
       </ScrollView>
 
@@ -346,34 +350,6 @@ const styles = StyleSheet.create({
   resultsText: {
     fontSize: 14,
     color: '#7C7C7C',
-    fontFamily: 'Helvetica',
-    fontWeight: '300',
-  },
-  emptyState: {
-    backgroundColor: '#F5EBE0',
-    borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
-  },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#364958',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  emptyStateDescription: {
-    fontSize: 14,
-    color: '#364958',
-    textAlign: 'center',
     fontFamily: 'Helvetica',
     fontWeight: '300',
   },

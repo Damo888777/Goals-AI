@@ -34,4 +34,32 @@ export const typography = {
     fontWeight: '400' as const,
     color: '#364958',
   },
+  
+  // Caption text for metadata, dates, etc.
+  caption: {
+    fontSize: 12,
+    fontWeight: '300' as const,
+    color: '#364958',
+  },
+  
+  // Empty state typography
+  emptyTitle: {
+    fontSize: 15,
+    fontWeight: 'bold' as const,
+    color: '#364958',
+    textAlign: 'center' as const,
+  },
+  emptyDescription: {
+    fontSize: 12,
+    fontWeight: '300' as const,
+    color: '#364958',
+    textAlign: 'center' as const,
+  },
+  
+  // Button typography
+  button: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
+  },
 } as const;

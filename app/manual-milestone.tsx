@@ -1,54 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Modal,
   Alert,
+  Modal,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useGoals, useMilestones } from '../src/hooks/useDatabase';
+import type { Goal } from '../src/types';
+import { Button } from '../src/components/Button';
+import { BackChevronButton } from '../src/components/ChevronButton';
+import { ChevronButton } from '../src/components/ChevronButton';
 import { GoalCard } from '../src/components/GoalCard';
-
-// Selection Card Component
-interface SelectionCardProps {
-  selectedType: 'task' | 'goal' | 'milestone';
-  onTypeChange: (type: 'task' | 'goal' | 'milestone') => void;
-}
-
-const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChange }) => {
-  const options: { type: 'task' | 'goal' | 'milestone'; label: string }[] = [
-    { type: 'task', label: 'Task' },
-    { type: 'goal', label: 'Goal' },
-    { type: 'milestone', label: 'Milestone' },
-  ];
-
-  return (
-    <View style={styles.selectionCard}>
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={option.type}
-          style={[styles.selectionOption, index === options.length - 1 && { marginBottom: 0 }]}
-          onPress={() => onTypeChange(option.type)}
-        >
-          <View style={[
-            styles.radioButton,
-            selectedType === option.type ? styles.radioButtonSelected : styles.radioButtonUnselected
-          ]} />
-          <Text style={styles.selectionLabel}>
-            {option.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+import { SelectionCard } from '../src/components/SelectionCard';
 
 // Date Picker Component
 interface DatePickerProps {
@@ -203,10 +175,11 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
           <Text style={styles.goalAttachmentText}>
             {selectedGoal ? selectedGoal.title : 'Select your goal'}
           </Text>
-          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
-            <View style={styles.chevronLine1} />
-            <View style={styles.chevronLine2} />
-          </View>
+          <ChevronButton
+            direction={isDropdownOpen ? "up" : "down"}
+            onPress={handleDropdownPress}
+            size="medium"
+          />
         </TouchableOpacity>
 
         {/* Dropdown Content */}
@@ -282,7 +255,6 @@ export default function ManualMilestoneScreen() {
   const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleDateSelect = (date: Date) => {
@@ -304,8 +276,6 @@ export default function ManualMilestoneScreen() {
       return;
     }
 
-    setIsLoading(true);
-    
     try {
       await createMilestone({
         goalId: selectedGoalId,
@@ -323,8 +293,6 @@ export default function ManualMilestoneScreen() {
     } catch (error) {
       console.error('Error saving milestone:', error);
       Alert.alert('Error', 'Failed to create milestone. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -346,14 +314,9 @@ export default function ManualMilestoneScreen() {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
-            <TouchableOpacity
+            <BackChevronButton
               onPress={handleCancel}
-              style={styles.backButton}
-            >
-              <View style={styles.chevronContainer}>
-                <View style={styles.chevron} />
-              </View>
-            </TouchableOpacity>
+            />
             <Text style={styles.headerTitle}>
               Create Your Milestone
             </Text>
@@ -399,23 +362,16 @@ export default function ManualMilestoneScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
+          <Button
+            title="Cancel"
+            variant="cancel"
             onPress={handleCancel}
-            style={[styles.actionButton, styles.cancelButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+          />
+          <Button
+            title="Save"
+            variant="save"
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Save
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </KeyboardAwareScrollView>
     </View>
@@ -700,33 +656,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Chevron icon styles (matching SparkAIOutput)
-  chevronIcon: {
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  chevronIconRotated: {
-    transform: [{ rotate: '180deg' }],
-  },
-  chevronLine1: {
-    position: 'absolute',
-    width: 8,
-    height: 1.5,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
-  },
-  chevronLine2: {
-    position: 'absolute',
-    width: 8,
-    height: 1.5,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
-  },
   dropdownContent: {
     marginTop: 8,
   },

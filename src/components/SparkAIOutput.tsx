@@ -21,6 +21,10 @@ import { useTasks, useGoals, useMilestones } from '../hooks/useDatabase';
 import { GoalCard } from './GoalCard';
 import VisionImage from '../db/models/VisionImage';
 import VisionPicker from './VisionPicker';
+import { SelectionCard } from './SelectionCard';
+import { typography } from '../constants/typography';
+import { emptyStateSpacing } from '../constants/spacing';
+import { Button } from './Button';
 
 // Types for the component
 export type SparkOutputType = 'task' | 'goal' | 'milestone';
@@ -33,40 +37,6 @@ interface SparkAIOutputProps {
   onSave: (data: any) => void;
   onCancel: () => void;
 }
-
-// Selection Card Component
-interface SelectionCardProps {
-  selectedType: SparkOutputType;
-  onTypeChange: (type: SparkOutputType) => void;
-}
-
-const SelectionCard: React.FC<SelectionCardProps> = ({ selectedType, onTypeChange }) => {
-  const options: { type: SparkOutputType; label: string }[] = [
-    { type: 'task', label: 'Task' },
-    { type: 'goal', label: 'Goal' },
-    { type: 'milestone', label: 'Milestone' },
-  ];
-
-  return (
-    <View style={styles.selectionCard}>
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={option.type}
-          style={[styles.selectionOption, index === options.length - 1 && { marginBottom: 0 }]}
-          onPress={() => onTypeChange(option.type)}
-        >
-          <View style={[
-            styles.radioButton,
-            selectedType === option.type ? styles.radioButtonSelected : styles.radioButtonUnselected
-          ]} />
-          <Text style={styles.selectionLabel}>
-            {option.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
 
 // Date Picker Component
 interface DatePickerProps {
@@ -163,18 +133,18 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
             </View>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelModalButton]}
+              <Button
+                title="Cancel"
+                variant="cancel"
                 onPress={handleCancel}
-              >
-                <Text style={styles.cancelModalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmModalButton]}
+                style={styles.modalButton}
+              />
+              <Button
+                title="Confirm"
+                variant="confirm"
                 onPress={handleConfirm}
-              >
-                <Text style={styles.confirmModalButtonText}>Confirm</Text>
-              </TouchableOpacity>
+                style={styles.modalButton}
+              />
             </View>
           </View>
         </View>
@@ -571,7 +541,6 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   // Database hooks
   const { createTask } = useTasks();
@@ -644,7 +613,6 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
       return;
     }
 
-    setIsSaving(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
@@ -659,6 +627,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             isFrog: isEatTheFrog,
             goalId: selectedGoalId || undefined,
             milestoneId: selectedMilestoneId || undefined,
+            creationSource: 'spark'
           });
           break;
 
@@ -668,6 +637,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             notes: notes.trim(),
             feelings: selectedEmotions,
             visionImageUrl: selectedVisionImage?.imageUri || undefined,
+            creationSource: 'spark'
           });
           break;
 
@@ -676,6 +646,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             title: title.trim(),
             goalId: selectedGoalId || '',
             targetDate: selectedDate,
+            creationSource: 'spark'
           });
           break;
       }
@@ -703,8 +674,6 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
       console.error('Error saving:', error);
       Alert.alert('Error', 'Failed to save. Please try again.');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -814,24 +783,18 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
+          <Button
+            title="Cancel"
+            variant="cancel"
             onPress={onCancel}
-            style={[styles.actionButton, styles.cancelButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            style={styles.cancelButton}
+          />
+          <Button
+            title="Save changes"
+            variant="save"
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton, isSaving && { opacity: 0.6 }]}
-            disabled={isSaving}
-          >
-            <Text style={styles.actionButtonText}>
-              {isSaving ? 'Saving...' : 'Save changes'}
-            </Text>
-          </TouchableOpacity>
+            style={styles.saveButton}
+          />
         </View>
       </KeyboardAwareScrollView>
     </View>
@@ -1397,17 +1360,11 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#364958',
-    textAlign: 'center',
-    marginBottom: 8,
+    ...typography.emptyTitle,
+    marginBottom: emptyStateSpacing.titleMarginBottom,
   },
   emptyStateDescription: {
-    fontSize: 15,
-    fontWeight: '300',
-    color: '#364958',
-    textAlign: 'center',
+    ...typography.emptyDescription,
     lineHeight: 20,
   },
 

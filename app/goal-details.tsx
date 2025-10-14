@@ -21,6 +21,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
 import { images } from '../src/constants/images';
 import VisionPicker from '../src/components/VisionPicker';
+import { Button } from '../src/components/Button';
+import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
 
 const EMOTIONS = [
   { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
@@ -304,10 +306,12 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
           <Text style={styles.milestonesDropdownText}>
             {goalMilestones.length > 0 ? `${goalMilestones.length} Milestones` : 'No milestones yet'}
           </Text>
-          <View style={[styles.chevronIcon, showDropdown && styles.chevronIconRotated]}>
-            <View style={styles.chevronLine1} />
-            <View style={styles.chevronLine2} />
-          </View>
+          <ChevronButton
+            direction="down"
+            rotated={showDropdown}
+            onPress={() => setShowDropdown(!showDropdown)}
+            size="medium"
+          />
         </TouchableOpacity>
 
         {/* Dropdown Content */}
@@ -513,14 +517,9 @@ export default function GoalDetailsScreen() {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
-            <TouchableOpacity
+            <BackChevronButton
               onPress={handleCancel}
-              style={styles.backButton}
-            >
-              <View style={styles.chevronContainer}>
-                <View style={styles.chevron} />
-              </View>
-            </TouchableOpacity>
+            />
             <Text style={styles.headerTitle}>
               Edit Your Goal
             </Text>
@@ -574,23 +573,16 @@ export default function GoalDetailsScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity
+          <Button
+            title="Delete"
+            variant="delete"
             onPress={handleDelete}
-            style={[styles.actionButton, styles.cancelButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Delete
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+          />
+          <Button
+            title="Save"
+            variant="save"
             onPress={handleSave}
-            style={[styles.actionButton, styles.saveButton]}
-          >
-            <Text style={styles.actionButtonText}>
-              Save
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </KeyboardAwareScrollView>
 

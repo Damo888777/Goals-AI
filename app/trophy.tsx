@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import TrophyCard, { Achievement } from '../src/components/TrophyCard';
-import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import TrophyCard from '../src/components/TrophyCard';
+import { Achievement } from '../src/components/TrophyCard';
+import { BackChevronButton } from '../src/components/ChevronButton';
 import { typography } from '../src/constants/typography';
-
 
 export default function TrophyScreen() {
   const insets = useSafeAreaInsets();
@@ -43,12 +49,10 @@ export default function TrophyScreen() {
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerContent}>
-            <Pressable onPress={handleBackPress} style={styles.backButton}>
-              <View style={styles.backChevronIcon}>
-                <View style={styles.backChevronLine1} />
-                <View style={styles.backChevronLine2} />
-              </View>
-            </Pressable>
+            <BackChevronButton
+              onPress={handleBackPress}
+              style={styles.backButton}
+            />
             <Text style={styles.headerTitle}>My Victories</Text>
           </View>
           <Text style={styles.headerDescription}>
@@ -63,7 +67,7 @@ export default function TrophyScreen() {
               <TrophyCard 
                 key={achievement.id} 
                 achievement={achievement} 
-                onToggle={toggleAchievement} 
+                onToggleExpand={toggleAchievement} 
               />
             ))
           ) : (

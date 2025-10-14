@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
+import { BackChevronButton } from '../src/components/ChevronButton';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { useVisionImages } from '../src/hooks/useDatabase';
@@ -216,40 +217,18 @@ export default function SparkGenerateIMGScreen() {
             {/* Header Section */}
             <View style={{ gap: 11 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
-                <Pressable
+                <BackChevronButton
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     handleGoBack();
                   }}
-                  onPressIn={() => setIsBackPressed(true)}
-                  onPressOut={() => setIsBackPressed(false)}
-                  style={[
-                    {
-                      width: 30,
-                      height: 30,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    },
-                    isBackPressed && { opacity: 0.6 }
-                  ]}
-                >
-                  <View style={{
-                    width: 20,
-                    height: 20,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                    <View style={{
-                      width: 12,
-                      height: 12,
-                      borderLeftWidth: 2,
-                      borderBottomWidth: 2,
-                      borderColor: '#F5EBE0',
-                      transform: [{ rotate: '45deg' }],
-                      borderRadius: 1,
-                    }} />
-                  </View>
-                </Pressable>
+                  color="#F5EBE0"
+                  style={{
+                    width: 30,
+                    height: 30,
+                    opacity: isBackPressed ? 0.6 : 1,
+                  }}
+                />
                 <Text style={{
                   flex: 1,
                   color: '#F5EBE0',

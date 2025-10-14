@@ -6,8 +6,10 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { typography } from '../src/constants/typography';
+import { emptyStateSpacing } from '../src/constants/spacing';
 import { images } from '../src/constants/images';
 import { InfoPopup } from '../src/components/InfoPopup';
+import { BackChevronButton } from '../src/components/ChevronButton';
 import { INFO_CONTENT } from '../src/constants/infoContent';
 import { useVisionImages } from '../src/hooks/useDatabase';
 import * as ImagePicker from 'expo-image-picker';
@@ -96,20 +98,12 @@ function MasonryGrid({ visionImages, onImagePress }: MasonryGridProps) {
         elevation: 8, // For Android
       }}>
         <Text style={{
-          fontSize: 18,
-          fontWeight: '600',
-          color: '#3D405B',
-          marginBottom: 8,
-          textAlign: 'center',
+          ...typography.emptyTitle,
+          marginBottom: emptyStateSpacing.titleMarginBottom,
         }}>
           No vision yet
         </Text>
-        <Text style={{
-          fontSize: 14,
-          color: '#6B7280',
-          textAlign: 'center',
-          lineHeight: 20,
-        }}>
+        <Text style={typography.emptyDescription}>
           Add your first vision and start your journey
         </Text>
       </View>
@@ -344,40 +338,18 @@ export default function VisionBoardScreen() {
         {/* Header Section */}
         <View style={{ gap: 11 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
-            <Pressable
+            <BackChevronButton
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 handleGoBack();
               }}
-              onPressIn={() => setIsBackPressed(true)}
-              onPressOut={() => setIsBackPressed(false)}
-              style={[
-                {
-                  width: 30,
-                  height: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                },
-                isBackPressed && { opacity: 0.6 }
-              ]}
-            >
-              <View style={{
-                width: 20,
-                height: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-                <View style={{
-                  width: 12,
-                  height: 12,
-                  borderLeftWidth: 2,
-                  borderBottomWidth: 2,
-                  borderColor: '#F5EBE0',
-                  transform: [{ rotate: '45deg' }],
-                  borderRadius: 1,
-                }} />
-              </View>
-            </Pressable>
+              color="#F5EBE0"
+              style={{
+                width: 30,
+                height: 30,
+                opacity: isBackPressed ? 0.6 : 1,
+              }}
+            />
             <Text style={{
               flex: 1,
               color: '#F5EBE0',

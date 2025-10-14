@@ -1,7 +1,11 @@
+import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
+import { spacing, borderRadius, shadows, emptyStateSpacing } from '../constants/spacing';
 import { TaskCard } from './TaskCard';
+import { ChevronButton } from './ChevronButton';
 import type { Task } from '../types';
 
 interface WeekDayCardProps {
@@ -61,25 +65,12 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
         </View>
 
         {/* Right side - Chevron */}
-        <View 
-          style={{
-            width: 24,
-            height: 24,
-            alignItems: 'center',
-            justifyContent: 'center',
-            transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
-          }}
-        >
-          <View style={{
-            width: 8,
-            height: 8,
-            borderRightWidth: 1.5,
-            borderBottomWidth: 1.5,
-            borderColor: '#364958',
-            transform: [{ rotate: '45deg' }],
-            marginTop: -2,
-          }} />
-        </View>
+        <ChevronButton
+          direction={isExpanded ? 'up' : 'down'}
+          size="small"
+          color={colors.text.primary}
+          style={{ width: 24, height: 24 }}
+        />
       </Pressable>
 
       {/* Expanded Content - Tasks or Empty State */}
@@ -128,15 +119,13 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
               }}
             >
               <Text style={{
-                ...typography.cardTitle,
-                textAlign: 'center',
-                marginBottom: 8,
+                ...typography.emptyTitle,
+                marginBottom: emptyStateSpacing.titleMarginBottom,
               }}>
                 No tasks for {weekday}
               </Text>
               <Text style={{
-                ...typography.cardDescription,
-                textAlign: 'center',
+                ...typography.emptyDescription,
               }}>
                 Tap to add a task for this day.
               </Text>

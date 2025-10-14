@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { WeekDayCard } from '../../src/components/WeekDayCard';
 import { TaskCard } from '../../src/components/TaskCard';
 import { FAB } from '../../src/components/FAB';
+import { ChevronButton } from '../../src/components/ChevronButton';
 import { typography } from '../../src/constants/typography';
 import { useWeeklyTasks } from '../../src/hooks/useWeeklyTasks';
 import { useSomedayTasks } from '../../src/hooks/useSomedayTasks';
@@ -217,24 +218,12 @@ export default function PlanTab() {
           {/* Week Indicator - Scheduled */}
           {viewMode === 'backlog' && backlogFilter === 'scheduled' && (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Pressable
+              <ChevronButton
+                direction="left"
+                size="small"
+                color="#364958"
                 onPress={() => navigateWeek('prev')}
-                style={{
-                  width: 44,
-                  height: 44,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <View style={{
-                  width: 8,
-                  height: 8,
-                  borderLeftWidth: 1.5,
-                  borderBottomWidth: 1.5,
-                  borderColor: '#364958',
-                  transform: [{ rotate: '45deg' }],
-                  marginRight: 2,
-                }} />
-              </Pressable>
+              />
               <Text style={{
                 fontSize: 14,
                 fontWeight: '300',
@@ -256,24 +245,12 @@ export default function PlanTab() {
               }}>
                 {endDate}
               </Text>
-              <Pressable
+              <ChevronButton
+                direction="right"
+                size="small"
+                color="#364958"
                 onPress={() => navigateWeek('next')}
-                style={{
-                  width: 44,
-                  height: 44,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <View style={{
-                  width: 8,
-                  height: 8,
-                  borderRightWidth: 1.5,
-                  borderBottomWidth: 1.5,
-                  borderColor: '#364958',
-                  transform: [{ rotate: '-45deg' }],
-                  marginLeft: 2,
-                }} />
-              </Pressable>
+              />
             </View>
           )}
         </View>
@@ -400,6 +377,14 @@ export default function PlanTab() {
                       variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
                       onPress={() => console.log('Someday task pressed:', task.id)}
                       onToggleComplete={toggleTaskComplete}
+                      onDelete={async (taskId) => {
+                        try {
+                          await deleteTask(taskId);
+                          console.log('Someday task deleted successfully');
+                        } catch (error) {
+                          console.error('Error deleting someday task:', error);
+                        }
+                      }}
                     />
                   ))
                 ) : (

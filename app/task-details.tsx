@@ -4,34 +4,167 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
+  StyleSheet,
   Alert,
-  Switch,
+  Modal,
+  Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
+import { useRouter, useLocalSearchParams, router } from 'expo-router';
+import { GoalCard } from '../src/components/GoalCard';
+import * as Haptics from 'expo-haptics';
+import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
+import type { Task, Goal, Milestone } from '../src/types';
+import { Image } from 'expo-image';
+import { images } from '../src/constants/images';
+import { Button } from '../src/components/Button';
+import { BackChevronButton } from '../src/components/ChevronButton';
+import { FocusHistorySection } from './focus-history-section';
+import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
+
+// Date Picker Component
+interface DatePickerProps {
+  selectedDate?: Date;
+  onDateSelect: (date: Date) => void;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
+  const [tempDate, setTempDate] = useState(selectedDate || new Date());
+
+  const handleDatePickerPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTempDate(selectedDate || new Date());
+    setIsDateModalVisible(true);
+  };
+
+  const handleDateChange = (event: any, date?: Date) => {
+    if (date) {
+      setTempDate(date);
+    }
+  };
+
+  const handleConfirm = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onDateSelect(tempDate);
+    setIsDateModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTempDate(selectedDate || new Date());
+    setIsDateModalVisible(false);
+  };
+
+  const formatDate = (date: Date) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}.${day}.${year}`;
+  };
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        Due Date
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Set when you want to complete this.
+      </Text>
+      <TouchableOpacity 
+        style={styles.datePickerContainer}
+        onPress={handleDatePickerPress}
+      >
+        <View style={styles.datePickerContent}>
+          <Text style={styles.datePickerText}>
+            {selectedDate ? formatDate(selectedDate) : 'Select date'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Date Modal */}
+      <Modal
+        visible={isDateModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCancel}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Date</Text>
+            </View>
+            
+            <View style={styles.datePickerWrapper}>
+              <DateTimePicker
+                value={tempDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                textColor="#364958"
+              />
+            </View>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={handleCancel}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.modalConfirmButton}
+                onPress={handleConfirm}
+              >
+                <Text style={styles.modalConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+};
+
+// Eat the Frog Section Component
+interface EatTheFrogSectionProps {
+  isSelected: boolean;
+  onToggle: () => void;
+}
+
+// Pomodoro Session Tracking Section
+interface PomodoroSectionProps {
+  completedSessions: number;
+  totalSessions: number;
+  onStartPomodoro: () => void;
+}
 
 export default function TaskDetailsScreen() {
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { goals } = useGoals();
   const { milestones } = useMilestones();
   const { tasks, updateTask, deleteTask } = useTasks();
-  
+
   const [task, setTask] = useState<any>(null);
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
+  const [scheduledDate, setScheduledDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFrog, setIsFrog] = useState(false);
   const [selectedGoalId, setSelectedGoalId] = useState('');
   const [selectedMilestoneId, setSelectedMilestoneId] = useState('');
-  const [scheduledDate, setScheduledDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [attachmentType, setAttachmentType] = useState<'goal' | 'milestone'>('goal');
   const [showGoalDropdown, setShowGoalDropdown] = useState(false);
   const [showMilestoneDropdown, setShowMilestoneDropdown] = useState(false);
-  const [attachmentType, setAttachmentType] = useState<'goal' | 'milestone'>('goal');
+
+  // Real pomodoro session data from database
+  const { sessions: focusSessions, timeStats, loading: sessionsLoading } = usePomodoroSessions(task?.id);
 
   useEffect(() => {
     if (id && tasks.length > 0) {
@@ -53,9 +186,17 @@ export default function TaskDetailsScreen() {
   const selectedMilestone = milestones.find(m => m.id === selectedMilestoneId);
   const availableMilestones = selectedGoalId ? milestones.filter(m => m.goalId === selectedGoalId) : milestones;
 
+  const handleGoalSelect = (goalId: string | undefined) => {
+    setSelectedGoalId(goalId || '');
+  };
+
+  const handleMilestoneSelect = (milestoneId: string | undefined) => {
+    setSelectedMilestoneId(milestoneId || '');
+  };
+
   const handleSave = async () => {
-    if (!task || !title.trim()) {
-      Alert.alert('Error', 'Please enter a task title');
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter a title');
       return;
     }
 
@@ -64,8 +205,8 @@ export default function TaskDetailsScreen() {
         title: title.trim(),
         notes: notes.trim(),
         isFrog: isFrog,
-        goalId: attachmentType === 'goal' ? selectedGoalId : undefined,
-        milestoneId: attachmentType === 'milestone' ? selectedMilestoneId : undefined,
+        goalId: selectedGoalId || undefined,
+        milestoneId: selectedMilestoneId || undefined,
         scheduledDate: scheduledDate.toISOString(),
       });
       router.back();
@@ -103,340 +244,897 @@ export default function TaskDetailsScreen() {
     }
   };
 
-  // Mock focus history data
-  const focusHistory = {
-    totalSessions: 3,
-    totalHours: 2,
-    totalMinutes: 45,
-    sessions: [
-      'Dec.15.2024, 2:30 p.m. - 3:00 p.m.',
-      'Dec.14.2024, 10:15 a.m. - 11:00 a.m.',
-      'Dec.13.2024, 4:45 p.m. - 5:30 p.m.',
-    ]
-  };
-
   if (!task) {
     return (
-      <SafeAreaView className="flex-1 bg-[#e9edc9]">
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-[#364958] text-lg">Loading...</Text>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#e9edc9]">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-        <View className="px-9 pt-4">
-          {/* Header */}
-          <View className="flex-row items-center mb-6">
-            <TouchableOpacity 
-              onPress={() => router.back()}
-              className="w-11 h-11 items-center justify-center"
-            >
-              <Ionicons name="chevron-back" size={24} color="#364958" />
-            </TouchableOpacity>
-            <View className="flex-1 ml-4">
-              <Text className="text-[#364958] text-2xl font-bold">My Task</Text>
-              <Text className="text-[#364958] text-sm mt-1">
-                Review and adjust the details of your task.
-              </Text>
-            </View>
-          </View>
-
-          {/* Task Title Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Task Title</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Tap on the title to edit.
-              </Text>
-            </View>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Placeholder Title Text"
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-lg shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            />
-          </View>
-
-          {/* Eat the Frog Section */}
-          <View className="mb-8">
-            <View className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-4 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <View className="flex-1">
-                <Text className="text-[#364958] text-lg font-bold mb-2">Eat the frog</Text>
-                <Text className="text-[#364958] text-sm opacity-75">
-                  Choose this task if completing it will make your day a success.
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setIsFrog(!isFrog)}
-                className={`border-[0.5px] border-[#9b9b9b] rounded-xl shadow-sm ${isFrog ? 'bg-[#a3b18a]' : 'bg-[#d9d9d9]'}`}
-                style={{ 
-                  shadowColor: '#7c7c7c', 
-                  shadowOffset: { width: 0, height: 4 }, 
-                  shadowOpacity: 0.75, 
-                  shadowRadius: 0,
-                  width: 44,
-                  height: 44,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text className="text-xl" style={{ opacity: isFrog ? 1 : 0.4 }}>🐸</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Goal/Milestone Attachment Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Goal / Milestone</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Attach either a goal or milestone to your task.
-              </Text>
-            </View>
-
-            {/* Attachment Type Toggle */}
-            <View className="flex-row mb-4 bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-1 shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <TouchableOpacity
-                onPress={() => setAttachmentType('goal')}
-                className={`flex-1 py-3 px-4 rounded-xl ${attachmentType === 'goal' ? 'bg-[#a3b18a]' : 'bg-transparent'}`}
-                style={{
-                  shadowColor: attachmentType === 'goal' ? '#7c7c7c' : 'transparent',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 0,
-                }}
-              >
-                <Text className={`text-center font-bold text-sm ${attachmentType === 'goal' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
-                  Goal
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setAttachmentType('milestone')}
-                className={`flex-1 py-3 px-4 rounded-xl ${attachmentType === 'milestone' ? 'bg-[#a3b18a]' : 'bg-transparent'}`}
-                style={{
-                  shadowColor: attachmentType === 'milestone' ? '#7c7c7c' : 'transparent',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 0,
-                }}
-              >
-                <Text className={`text-center font-bold text-sm ${attachmentType === 'milestone' ? 'text-[#f5ebe0]' : 'text-[#364958]'}`}>
-                  Milestones
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Goal Selection */}
-            {attachmentType === 'goal' && (
-              <View>
-                <TouchableOpacity
-                  onPress={() => setShowGoalDropdown(!showGoalDropdown)}
-                  className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 flex-row items-center justify-between shadow-sm"
-                  style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                >
-                  <Text className="text-[#364958] text-sm flex-1">
-                    {selectedGoal ? selectedGoal.title : 'Select your main or sub goal'}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="#364958" />
-                </TouchableOpacity>
-
-                {showGoalDropdown && (
-                  <View className="mt-2 bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl shadow-sm"
-                    style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                  >
-                    {goals.map((goal) => (
-                      <TouchableOpacity
-                        key={goal.id}
-                        onPress={() => {
-                          setSelectedGoalId(goal.id);
-                          setSelectedMilestoneId('');
-                          setShowGoalDropdown(false);
-                        }}
-                        className="px-4 py-4 flex-row items-center justify-between border-b border-[#a3b18a] last:border-b-0"
-                      >
-                        <Text className="text-[#364958] text-sm font-bold flex-1">
-                          {goal.title}
-                        </Text>
-                        <TouchableOpacity
-                          className="bg-[#bc4b51] border-[0.5px] border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                        >
-                          <Ionicons name={selectedGoalId === goal.id ? "close" : "close"} size={20} color="#f5ebe0" />
-                        </TouchableOpacity>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Milestone Selection */}
-            {attachmentType === 'milestone' && (
-              <View>
-                <TouchableOpacity
-                  onPress={() => setShowMilestoneDropdown(!showMilestoneDropdown)}
-                  className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 flex-row items-center justify-between shadow-sm"
-                  style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                >
-                  <Text className="text-[#364958] text-sm flex-1">
-                    {selectedMilestone ? selectedMilestone.title : 'Select milestone'}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="#364958" />
-                </TouchableOpacity>
-
-                {showMilestoneDropdown && (
-                  <View className="mt-2 bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl shadow-sm"
-                    style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                  >
-                    {availableMilestones.map((milestone) => (
-                      <TouchableOpacity
-                        key={milestone.id}
-                        onPress={() => {
-                          setSelectedMilestoneId(milestone.id);
-                          setSelectedGoalId('');
-                          setShowMilestoneDropdown(false);
-                        }}
-                        className="px-4 py-4 flex-row items-center justify-between border-b border-[#a3b18a] last:border-b-0"
-                      >
-                        <Text className="text-[#364958] text-sm font-bold flex-1">
-                          {milestone.title}
-                        </Text>
-                        <TouchableOpacity
-                          className="bg-[#6096ba] border-[0.5px] border-[#9b9b9b] rounded-xl p-2 shadow-sm"
-                          style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                        >
-                          <Ionicons name={selectedMilestoneId === milestone.id ? "close" : "add"} size={20} color="#f5ebe0" />
-                        </TouchableOpacity>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-
-          {/* Date Picker Section */}
-          <View className="mb-8">
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl px-6 py-4 flex-row items-center justify-between shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Text className="text-[#364958] text-base font-normal">
-                {scheduledDate.toLocaleDateString()}
-              </Text>
-              <Ionicons name="chevron-down" size={20} color="#364958" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={scheduledDate}
-                mode="date"
-                display="default"
-                onChange={handleDateChange}
-              />
-            )}
-          </View>
-
-          {/* Focus History Section */}
-          <View className="mb-8">
-            <View className="bg-[#f5ebe0] border-[0.5px] border-[#a3b18a] rounded-2xl p-4 shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-[#364958] text-lg font-bold">Focus History</Text>
-                <TouchableOpacity 
-                  className="bg-[#6096ba] border-[0.5px] border-[#9b9b9b] rounded-xl px-3 py-2 shadow-sm"
-                  style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-                >
-                  <Text className="text-[#f5ebe0] text-xs font-bold">+ Add</Text>
-                </TouchableOpacity>
-              </View>
-              <Text className="text-[#364958] text-sm opacity-75 mb-4">
-                Track your focus sessions for this task.
-              </Text>
-              
-              {/* Focus Sessions List */}
-              <View className="space-y-2">
-                <View className="bg-white border-[0.5px] border-[#a3b18a] rounded-xl p-3 flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-[#364958] text-sm font-medium">25 min focus session</Text>
-                    <Text className="text-[#364958] text-xs opacity-60">Today, 2:30 PM</Text>
-                  </View>
-                  <View className="w-8 h-8 bg-[#a3b18a] rounded-full items-center justify-center">
-                    <Text className="text-white text-xs font-bold">✓</Text>
-                  </View>
-                </View>
-                
-                <View className="bg-white border-[0.5px] border-[#a3b18a] rounded-xl p-3 flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-[#364958] text-sm font-medium">15 min focus session</Text>
-                    <Text className="text-[#364958] text-xs opacity-60">Yesterday, 10:15 AM</Text>
-                  </View>
-                  <View className="w-8 h-8 bg-[#a3b18a] rounded-full items-center justify-center">
-                    <Text className="text-white text-xs font-bold">✓</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Notes Section */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-[#364958] text-xl font-bold mb-2">Notes & Details</Text>
-              <Text className="text-[#364958] text-sm opacity-75">
-                Add any extra thoughts, links, or steps you want to remember.
-              </Text>
-            </View>
-            <TextInput
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Type here your notes and details..."
-              multiline
-              numberOfLines={4}
-              className="bg-[#f5ebe0] border border-[#a3b18a] rounded-2xl px-4 py-4 text-[#364958] text-base shadow-sm"
-              style={{ 
-                textAlignVertical: 'top',
-                shadowColor: '#7c7c7c', 
-                shadowOffset: { width: 0, height: 4 }, 
-                shadowOpacity: 0.75, 
-                shadowRadius: 0 
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <KeyboardAwareScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.titleRow}>
+            <BackChevronButton
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.back();
               }}
             />
+            <Text style={styles.headerTitle}>Task Details</Text>
           </View>
-
-          {/* Action Buttons */}
-          <View className="flex-row justify-between items-center mb-8">
-            <TouchableOpacity
-              onPress={handleDelete}
-              className="bg-[#bc4b51] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="trash-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Delete task</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleSave}
-              className="bg-[#a3b18a] border border-[#9b9b9b] rounded-xl px-6 py-3 flex-row items-center shadow-sm"
-              style={{ shadowColor: '#7c7c7c', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75, shadowRadius: 0 }}
-            >
-              <Ionicons name="save-outline" size={20} color="#f5ebe0" />
-              <Text className="text-[#f5ebe0] text-sm font-bold ml-2">Save changes</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.headerSubtitle}>
+            Edit your task information and track your focus sessions.
+          </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* Task Title Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Task Title</Text>
+          <Text style={styles.sectionSubtitle}>
+            Give your task a clear and descriptive name.
+          </Text>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Enter task title"
+            placeholderTextColor="rgba(54,73,88,0.5)"
+            style={styles.textInput}
+          />
+        </View>
+
+        {/* Eat the Frog Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Eat the Frog</Text>
+          <Text style={styles.sectionSubtitle}>
+            Mark this task as your most important task of the day.
+          </Text>
+          <EatTheFrogSection 
+            isSelected={isFrog} 
+            onToggle={() => setIsFrog(!isFrog)} 
+          />
+        </View>
+
+        {/* Goal/Milestone Selection */}
+        <GoalMilestoneSelection 
+          selectedGoalId={selectedGoalId}
+          selectedMilestoneId={selectedMilestoneId}
+          onGoalSelect={handleGoalSelect}
+          onMilestoneSelect={handleMilestoneSelect}
+        />
+
+        {/* Date Picker */}
+        <DatePicker 
+          selectedDate={scheduledDate}
+          onDateSelect={setScheduledDate}
+        />
+
+        {/* Focus History Section */}
+        <FocusHistorySection 
+          taskId={task.id}
+          focusSessions={focusSessions}
+          timeStats={timeStats}
+          loading={sessionsLoading}
+          onStartPomodoro={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/pomodoro');
+          }}
+        />
+
+        {/* Notes Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            Notes & Details
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            Add any extra thoughts, links, or steps you want to remember.
+          </Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Type here your notes and details..."
+            placeholderTextColor="rgba(54,73,88,0.5)"
+            style={[styles.textInput, styles.textInputMultiline]}
+            multiline
+            scrollEnabled={false}
+          />
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtonsContainer}>
+          <Button
+            title="Delete Task"
+            variant="delete"
+            onPress={handleDelete}
+            style={styles.cancelButton}
+          />
+          <Button
+            title="Save Changes"
+            variant="save"
+            onPress={handleSave}
+            style={styles.saveButton}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+    // Container styles
+    container: {
+      flex: 1,
+      backgroundColor: '#e9edc9',
+    },
+    scrollContainer: {
+      flex: 1,
+      paddingHorizontal: 36,
+    },
+    scrollContent: {
+      paddingBottom: 150,
+      paddingTop: 20,
+    },
+
+    // Header styles
+    headerContainer: {
+      marginBottom: 43,
+    },
+    titleRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'baseline' as const,
+      gap: 10,
+      marginBottom: 8,
+    },
+    backButton: {
+      width: 30,
+      height: 30,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    },
+    chevronContainer: {
+      width: 20,
+      height: 20,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    },
+    chevron: {
+      width: 12,
+      height: 12,
+      borderLeftWidth: 2,
+      borderBottomWidth: 2,
+      borderColor: '#364958',
+      transform: [{ rotate: '45deg' }],
+      borderRadius: 1,
+    },
+    headerTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#364958',
+    },
+    headerSubtitle: {
+      fontSize: 15,
+      color: '#364958',
+      lineHeight: 20,
+      fontWeight: '300',
+    },
+
+    // Section styles
+    sectionContainer: {
+      marginBottom: 43,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#364958',
+      marginBottom: 8,
+    },
+    sectionSubtitle: {
+      fontSize: 15,
+      color: '#364958',
+      lineHeight: 20,
+      marginBottom: 15,
+      fontWeight: '300',
+    },
+
+    // Input styles
+    textInput: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 15,
+      padding: 16,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      fontSize: 15,
+      color: '#364958',
+      minHeight: 44,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    textInputMultiline: {
+      minHeight: 80,
+      paddingTop: 16,
+      paddingBottom: 16,
+      lineHeight: 20,
+    },
+
+    // Eat the Frog styles
+    eatFrogContainer: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 15,
+      padding: 15,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    eatFrogContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    eatFrogTextContainer: {
+      flex: 1,
+      gap: 8,
+    },
+    eatFrogTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#364958',
+    },
+    eatFrogDescription: {
+      fontSize: 15,
+      fontWeight: '300',
+      color: '#364958',
+      lineHeight: 20,
+    },
+    frogButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      padding: 7,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    frogButtonSelected: {
+      backgroundColor: '#a3b18a',
+      borderColor: '#9b9b9b',
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+    },
+    frogButtonUnselected: {
+      backgroundColor: '#d9d9d9',
+      borderColor: '#9b9b9b',
+    },
+    frogIcon: {
+      width: 20,
+      height: 20,
+      opacity: 1,
+    },
+
+    // Focus History styles (matching pomodoro.tsx aesthetics)
+    focusHistoryCard: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 20,
+      padding: 20,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    focusHistoryCardTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#364958',
+      marginBottom: 8,
+    },
+    focusHistoryDescription: {
+      fontSize: 15,
+      fontWeight: '300',
+      color: '#364958',
+      lineHeight: 20,
+      marginBottom: 20,
+    },
+    sessionStats: {
+      marginBottom: 20,
+    },
+    sessionStatsText: {
+      fontSize: 15,
+      color: '#364958',
+      marginBottom: 4,
+      fontWeight: '400',
+    },
+    sessionHistorySection: {
+      marginTop: 8,
+    },
+    sessionHistoryTitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#364958',
+      marginBottom: 12,
+    },
+    sessionHistoryList: {
+      gap: 8,
+    },
+    sessionHistoryItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    sessionBullet: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: '#364958',
+    },
+    sessionHistoryText: {
+      fontSize: 14,
+      color: '#364958',
+      flex: 1,
+      fontWeight: '400',
+    },
+    // Empty state styles
+    emptyStateContainer: {
+      alignItems: 'center',
+      paddingVertical: 30,
+    },
+    emptyStateTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#364958',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    emptyStateDescription: {
+      fontSize: 15,
+      fontWeight: '300',
+      color: '#364958',
+      textAlign: 'center',
+      lineHeight: 20,
+      marginBottom: 20,
+    },
+    startPomodoroButton: {
+      backgroundColor: '#e9edc9',
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      borderRadius: 15,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      minHeight: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    startPomodoroButtonText: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: '#364958',
+    },
+    // Session indicators (matching pomodoro.tsx)
+    sessionIndicatorSection: {
+      marginBottom: 20,
+    },
+    sessionIndicatorLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#364958',
+      marginBottom: 8,
+    },
+    sessionIndicators: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      gap: 8,
+    },
+    sessionIndicator: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      backgroundColor: '#e0e0e0',
+    },
+    completedIndicator: {
+      backgroundColor: '#bc4b51',
+    },
+
+    // Action button styles
+    actionButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 40,
+      marginBottom: 24,
+    },
+    actionButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      borderRadius: 10,
+      minHeight: 40,
+      borderWidth: 1,
+      borderColor: '#9b9b9b',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    cancelButton: {
+      backgroundColor: '#bc4b51',
+      width: 134,
+    },
+    saveButton: {
+      backgroundColor: '#a3b18a',
+      flex: 1,
+    },
+    actionButtonText: {
+      color: '#f5ebe0',
+      fontSize: 15,
+      fontWeight: '700',
+    },
+
+    // Date picker styles
+    datePickerContainer: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 15,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      padding: 16,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    datePickerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    datePickerText: {
+      fontSize: 15,
+      color: '#364958',
+      fontWeight: '400',
+    },
+
+    // Modal styles (matching manual-task.tsx)
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+    },
+    modalContainer: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 20,
+      width: '100%',
+      maxWidth: 350,
+      alignSelf: 'center',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 8,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+    },
+    modalHeader: {
+      padding: 20,
+      paddingBottom: 10,
+      alignItems: 'center',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#364958',
+    },
+    datePickerWrapper: {
+      backgroundColor: '#e9edc9',
+      marginHorizontal: 15,
+      borderRadius: 15,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      paddingVertical: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 20,
+      gap: 15,
+    },
+    modalCancelButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 44,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+      backgroundColor: '#bc4b51',
+    },
+    modalConfirmButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 44,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+      backgroundColor: '#a3b18a',
+    },
+    modalCancelText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    modalConfirmText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+
+    // Goal attachment styles
+    goalAttachmentContainer: {
+      backgroundColor: '#f5ebe0',
+      borderRadius: 20,
+      padding: 16,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    goalAttachmentContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 4,
+    },
+    goalAttachmentText: {
+      fontSize: 15,
+      color: '#364958',
+      fontWeight: '400',
+      flex: 1,
+    },
+    chevronIcon: {
+      width: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
+    chevronIconRotated: {
+      transform: [{ rotate: '180deg' }],
+    },
+    chevronLine1: {
+      position: 'absolute',
+      width: 8,
+      height: 1.5,
+      backgroundColor: '#364958',
+      borderRadius: 1,
+      transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
+    },
+    chevronLine2: {
+      position: 'absolute',
+      width: 8,
+      height: 1.5,
+      backgroundColor: '#364958',
+      borderRadius: 1,
+      transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
+    },
+    dropdownContent: {
+      marginTop: 8,
+    },
+    dropdownSectionTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#364958',
+      marginTop: 16,
+      marginBottom: 12,
+    },
+    milestoneCard: {
+      backgroundColor: '#e9edc9',
+      borderRadius: 20,
+      borderWidth: 0.5,
+      borderColor: '#a3b18a',
+      marginBottom: 8,
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    milestoneCardContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: 16,
+    },
+    milestoneCardTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#364958',
+      flex: 1,
+      marginRight: 12,
+    },
+    milestoneAddButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 10,
+      backgroundColor: '#a3b18a',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#7c7c7c',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.75,
+      shadowRadius: 0,
+      elevation: 4,
+    },
+    plusIcon: {
+      width: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
+    plusHorizontal: {
+      position: 'absolute',
+      width: 16,
+      height: 3,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 1.5,
+    },
+    plusVertical: {
+      position: 'absolute',
+      width: 3,
+      height: 16,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 1.5,
+    },
+    xIcon: {
+      width: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
+    xLine1: {
+      position: 'absolute',
+      width: 16,
+      height: 3,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 1.5,
+      transform: [{ rotate: '45deg' }],
+    },
+    xLine2: {
+      position: 'absolute',
+      width: 16,
+      height: 3,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 1.5,
+      transform: [{ rotate: '-45deg' }],
+    },
+  });
+
+// Helper Components
+const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }> = ({ 
+  isSelected, 
+  onToggle 
+}) => {
+  return (
+    <View style={styles.eatFrogContainer}>
+      <View style={styles.eatFrogContent}>
+        <View style={styles.eatFrogTextContainer}>
+          <Text style={styles.eatFrogTitle}>
+            Eat the frog
+          </Text>
+          <Text style={styles.eatFrogDescription}>
+            Choose this task if completing it will make your day a success.
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onToggle();
+          }}
+          style={[
+            styles.frogButton,
+            isSelected ? styles.frogButtonSelected : styles.frogButtonUnselected
+          ]}
+        >
+          <Image 
+            source={{ uri: 'https://s3-alpha-sig.figma.com/img/077f/e118/305b3d191f10f5d5855d5f074942d0d5?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MNj3ZK~tjl3RoKhbiLiUJX46IrmmSdSYBjovP3IP8WLxvj8jX9~CP9c95APsjf27TBc7mpqTjsrZI6VyovnQcFaQ2CqD2wP9ToNmM0rOYWllfHPR2VZy6OmvvCT-WsrgrIRrmYSIBEhOp43d8mRlZQEOmEu8sKm-7t2h0qhFXKDgMreHt9DF6jtbt1H~oJxzPqj2Qh8je2ImAQA-d6vVMrTLr1lm4va2QytH13yFdgeni5TqvaMZNDYnYhrn901gQyNgyJfUSg0A4zxHkNs-DQSA2TKlc2kmERUzwl38iaRT1FfEERIk7da3z9QOPNKyQSpLdLM4gbeDhvXV90OAtQ__' }}
+            style={styles.frogIcon}
+            contentFit="contain"
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+interface GoalMilestoneSelectionProps {
+  selectedGoalId: string | undefined;
+  selectedMilestoneId: string | undefined;
+  onGoalSelect: (goalId: string | undefined) => void;
+  onMilestoneSelect: (milestoneId: string | undefined) => void;
+}
+
+const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({ 
+  selectedGoalId, 
+  selectedMilestoneId,
+  onGoalSelect, 
+  onMilestoneSelect 
+}) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
+
+  const handleDropdownPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleGoalSelect = (goalId: string | undefined) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onGoalSelect(goalId);
+    onMilestoneSelect(undefined); // Clear milestone when goal changes
+    setIsDropdownOpen(false);
+  };
+
+  const handleMilestoneSelect = (milestoneId: string | undefined) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onMilestoneSelect(milestoneId);
+    onGoalSelect(undefined); // Clear goal when milestone is selected
+    setIsDropdownOpen(false);
+  };
+
+  const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
+  const selectedMilestone = milestones.find(milestone => milestone.id === selectedMilestoneId);
+  
+  const getDisplayText = () => {
+    if (selectedGoal) return selectedGoal.title;
+    if (selectedMilestone) return selectedMilestone.title;
+    return 'Select your main or sub goal';
+  };
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>
+        Goal / Milestone
+      </Text>
+      <Text style={styles.sectionSubtitle}>
+        Attach either a goal or milestone to your task.
+      </Text>
+      
+      {/* Dropdown Container */}
+      <View style={styles.goalAttachmentContainer}>
+        {/* Dropdown Button */}
+        <TouchableOpacity 
+          style={styles.goalAttachmentContent}
+          onPress={handleDropdownPress}
+        >
+          <Text style={styles.goalAttachmentText}>
+            {getDisplayText()}
+          </Text>
+          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
+            <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
+        </TouchableOpacity>
+
+        {/* Dropdown Content */}
+        {isDropdownOpen && (
+          <View style={styles.dropdownContent}>
+            {/* Goal Section */}
+            <Text style={styles.dropdownSectionTitle}>Goal</Text>
+            {goals.length > 0 ? (
+              goals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
+                    emotions: goal.feelingsArray || [],
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [],
+                    progress: 0,
+                    isCompleted: goal.isCompleted,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
+                  }}
+                  variant="selection-compact"
+                  isAttached={selectedGoalId === goal.id}
+                  onAttach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => handleGoalSelect(undefined)}
+                />
+              ))
+            ) : (
+              <GoalCard variant="selection-empty" />
+            )}
+            
+            {/* Milestones Section */}
+            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            {milestones.length > 0 ? (
+              milestones.map((milestone) => (
+                <TouchableOpacity
+                  key={milestone.id}
+                  style={styles.milestoneCard}
+                  onPress={() => handleMilestoneSelect(milestone.id)}
+                >
+                  <View style={styles.milestoneCardContent}>
+                    <Text style={styles.milestoneCardTitle}>{milestone.title}</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.milestoneAddButton,
+                        {
+                          backgroundColor: selectedMilestoneId === milestone.id ? '#BC4B51' : '#A3B18A',
+                        }
+                      ]}
+                      onPress={() => handleMilestoneSelect(milestone.id)}
+                    >
+                      {selectedMilestoneId === milestone.id ? (
+                        <View style={styles.xIcon}>
+                          <View style={styles.xLine1} />
+                          <View style={styles.xLine2} />
+                        </View>
+                      ) : (
+                        <View style={styles.plusIcon}>
+                          <View style={styles.plusHorizontal} />
+                          <View style={styles.plusVertical} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <GoalCard variant="selection-empty" />
+            )}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+

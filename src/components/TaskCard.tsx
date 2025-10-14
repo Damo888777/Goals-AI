@@ -1,14 +1,16 @@
 import { View, Text, Pressable, Animated, StyleSheet, Alert } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
+import { colors } from '../constants/colors';
+import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
 import type { Task } from '../types';
 import { useRef, useState, useEffect } from 'react';
 import { useGoals, useMilestones } from '../hooks/useDatabase';
+import { IconButton } from './IconButton';
 
 // Format date as Dec.05.2025
 const formatDate = (date: Date): string => {
@@ -105,8 +107,30 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
 
   const handleDelete = () => {
     if (task?.id && onDelete) {
-      isDeleting.current = true;
-      onDelete(task.id);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      Alert.alert(
+        'Delete Task',
+        `Are you sure you want to delete "${task.title}"?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              isDeleting.current = true;
+              await onDelete(task.id);
+            }
+          }
+        ]
+      );
     }
   };
   // Empty state variants
@@ -189,11 +213,10 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
             style={[
               styles.card,
               isCompleted && styles.completedCard,
-              isFrog && styles.frogCard,
               {
                 backgroundColor: isPressed 
-                  ? (isCompleted ? '#D4D1A1' : isFrog ? '#E8FFF8' : '#D4E2B8')
-                  : (isCompleted ? '#EAE2B7' : isFrog ? '#F0FFF0' : '#E9EDC9'),
+                  ? (isCompleted ? '#D4D1A1' : '#D4E2B8')
+                  : (isCompleted ? '#EAE2B7' : '#E9EDC9'),
                 transform: [{ scale: isPressed ? 0.98 : 1 }]
               }
             ]}
@@ -211,11 +234,6 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
           {showSparkBadge && (
             <View style={styles.sparkBadge}>
               <Text style={styles.sparkBadgeText}>SPARK</Text>
-            </View>
-          )}
-          {isFrog && (
-            <View style={styles.frogBadge}>
-              <Text style={styles.frogBadgeText}>🐸</Text>
             </View>
           )}
         </View>
@@ -250,8 +268,19 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
 
           {/* Right side - Action buttons */}
           <View style={styles.actionButtons}>
-            <Pressable 
-              style={[styles.completeButton, isCompletePressed && styles.completeButtonPressed]}
+            {isFrog && (
+              <View style={styles.frogBadgeSmall}>
+                <Image 
+                  source={{ uri: 'https://s3-alpha-sig.figma.com/img/077f/e118/305b3d191f10f5d5855d5f074942d0d5?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MNj3ZK~tjl3RoKhbiLiUJX46IrmmSdSYBjovP3IP8WLxvj8jX9~CP9c95APsjf27TBc7mpqTjsrZI6VyovnQcFaQ2CqD2wP9ToNmM0rOYWllfHPR2VZy6OmvvCT-WsrgrIRrmYSIBEhOp43d8mRlZQEOmEu8sKm-7t2h0qhFXKDgMreHt9DF6jtbt1H~oJxzPqj2Qh8je2ImAQA-d6vVMrTLr1lm4va2QytH13yFdgeni5TqvaMZNDYnYhrn901gQyNgyJfUSg0A4zxHkNs-DQSA2TKlc2kmERUzwl38iaRT1FfEERIk7da3z9QOPNKyQSpLdLM4gbeDhvXV90OAtQ__' }}
+                  style={styles.frogIconSmall}
+                  contentFit="contain"
+                />
+              </View>
+            )}
+            <IconButton
+              variant="complete"
+              iconText="✓"
+              pressed={isCompletePressed}
               onPress={() => {
                 if (task?.id && onToggleComplete) {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -289,29 +318,15 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
               }}
               onPressIn={() => setIsCompletePressed(true)}
               onPressOut={() => setIsCompletePressed(false)}
-            >
-              <View style={[
-                styles.checkIcon, 
-                (task?.isComplete || isCompleted) && styles.checkIconCompleted
-              ]}>
-                <Text style={[
-                  styles.checkmark, 
-                  (task?.isComplete || isCompleted) && styles.checkmarkCompleted
-                ]}>✓</Text>
-              </View>
-            </Pressable>
-            <Pressable 
-              style={[styles.pomodoroButton, isPomodoroPressed && styles.pomodoroButtonPressed]}
+            />
+            <IconButton
+              variant="pomodoro"
+              iconSource={images.icons.tomato}
+              pressed={isPomodoroPressed}
               onPress={() => router.push('/pomodoro')}
               onPressIn={() => setIsPomodoroPressed(true)}
               onPressOut={() => setIsPomodoroPressed(false)}
-            >
-              <Image 
-                source={{ uri: images.icons.tomato }}
-                style={styles.tomatoIcon}
-                contentFit="contain"
-              />
-            </Pressable>
+            />
           </View>
             </View>
           </View>
@@ -330,9 +345,11 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
           }),
         }
       ]}>
-        <Pressable onPress={handleDelete} style={styles.deleteButton}>
-          <Icon name="delete" size={32} color="#B23A48" />
-        </Pressable>
+        <IconButton
+          variant="delete"
+          iconName="delete"
+          onPress={handleDelete}
+        />
       </Animated.View>
     </View>
   );
@@ -348,30 +365,22 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   card: {
-    backgroundColor: '#E9EDC9',
+    backgroundColor: colors.background.primary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 15,
-    padding: 15,
-    minHeight: 44,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    minHeight: touchTargets.minimum,
+    ...shadows.card,
   },
   emptyCard: {
-    backgroundColor: '#E9EDC9',
+    backgroundColor: colors.background.primary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 15,
-    padding: 16,
-    minHeight: 44,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    minHeight: touchTargets.minimum,
+    ...shadows.card,
   },
   content: {
     minHeight: 80,
@@ -467,71 +476,19 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
-  },
-  completeButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#A3B18A',
-    borderWidth: 1,
-    borderColor: '#9B9B9B',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#7c7c7c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
-  },
-  completeButtonPressed: {
-    shadowOffset: { width: 0, height: 2 },
-  },
-  checkIcon: {
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkmark: {
-    fontSize: 16,
-    color: '#F5EBE0',
-    fontWeight: '700',
-  },
-  pomodoroButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#F2CCC3',
-    borderWidth: 1,
-    borderColor: '#9B9B9B',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#7c7c7c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
-  },
-  pomodoroButtonPressed: {
-    shadowOffset: { width: 0, height: 2 },
-  },
-  tomatoIcon: {
-    width: 22,
-    height: 22,
+    alignItems: 'flex-end',
   },
   emptyContent: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: emptyStateSpacing.contentPadding,
   },
   emptyTitle: {
-    ...typography.body,
-    fontWeight: '700',
-    textAlign: 'center',
+    ...typography.emptyTitle,
+    marginBottom: emptyStateSpacing.titleMarginBottom,
   },
   emptyDescription: {
-    ...typography.small,
-    textAlign: 'center',
-    marginTop: 8,
+    ...typography.emptyDescription,
   },
   titleRow: {
     flexDirection: 'row',
@@ -566,40 +523,61 @@ const styles = StyleSheet.create({
   frogBadgeText: {
     fontSize: 12,
   },
+  rightContent: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  frogBadgeSmall: {
+    width: 24,
+    height: 24,
+    backgroundColor: colors.success,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.5,
+    borderColor: '#9b9b9b',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    padding: 3,
+    marginRight: 8,
+  },
+  frogIconSmall: {
+    width: 16,
+    height: 16,
+    opacity: 1,
+  },
+  frogBadgeSmallText: {
+    fontSize: 10,
+  },
   completedCard: {
-    backgroundColor: '#EAE2B7',
-    borderColor: '#B69121',
+    backgroundColor: colors.trophy.bg,
+    borderColor: colors.trophy.border,
   },
   frogCard: {
-    backgroundColor: '#F0FFF0',
-    borderColor: '#90EE90',
+    backgroundColor: colors.accent.frog,
+    borderColor: colors.border.primary,
   },
   completedTitle: {
     textDecorationLine: 'line-through',
-    color: '#8B7355',
+    color: colors.text.tertiary,
   },
   completedText: {
-    color: '#8B7355',
+    color: colors.text.tertiary,
     opacity: 0.8,
   },
   emptyCompletedCard: {
-    backgroundColor: '#EAE2B7',
-    borderColor: '#B69121',
+    backgroundColor: colors.trophy.bg,
+    borderColor: colors.trophy.border,
   },
   emptyCompletedTitle: {
-    color: '#8B7355',
+    color: colors.text.tertiary,
   },
   emptyCompletedDescription: {
-    color: '#8B7355',
+    color: colors.text.tertiary,
     opacity: 0.8,
-  },
-  checkIconCompleted: {
-    backgroundColor: '#A3B18A',
-    borderColor: '#A3B18A',
-  },
-  checkmarkCompleted: {
-    color: '#FFFFFF',
-    fontWeight: '600',
   },
   deleteState: {
     position: 'absolute',
@@ -619,13 +597,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-  },
-  deleteButton: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    borderRadius: 12,
-    paddingRight: 25,
   },
 });

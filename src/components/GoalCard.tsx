@@ -1,11 +1,14 @@
 import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity } from 'react-native';
-import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import React from 'react';
-import { useRouter } from 'expo-router';
-import type { Goal, Milestone } from '../types';
-import { typography } from '../constants/typography';
+import { Image } from 'expo-image';
+import { router, useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useState, useRef } from 'react';
+import { colors } from '../constants/colors';
+import { typography } from '../constants/typography';
+import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
+import { ChevronButton } from './ChevronButton';
+import type { Goal, Milestone } from '../types';
 
 // Separate component for milestone cards to fix hooks order
 interface MilestoneCardProps {
@@ -78,47 +81,37 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             style={{
-              backgroundColor: isPressed ? '#D4E2B8' : '#E9EDC9',
+              backgroundColor: isPressed ? colors.goal.progress : colors.background.primary,
               borderWidth: 0.5,
-              borderColor: '#A3B18A',
-              borderRadius: 15,
-              padding: 15,
+              borderColor: colors.border.primary,
+              borderRadius: borderRadius.lg,
+              padding: spacing.lg,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 20,
+              gap: spacing.xl,
               minHeight: 91,
-              shadowColor: '#7C7C7C',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.75,
-              shadowRadius: 0,
-              elevation: 4,
+              ...shadows.card,
               transform: [{ scale: isPressed ? 0.98 : 1 }],
             }}
           >
             {/* Milestone Content */}
             <View style={{ flex: 1, gap: 8 }}>
               <Text style={{
-                fontSize: 15,
-                fontWeight: 'bold',
-                color: '#364958',
+                ...typography.cardTitle,
                 fontFamily: 'Helvetica',
               }}>
                 {milestone.title}
               </Text>
               <Text style={{
-                fontSize: 12,
-                fontWeight: '300',
-                color: '#364958',
+                ...typography.cardDescription,
                 fontFamily: 'Helvetica',
               }}>
                 {goal?.title}
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 12, color: '#364958' }}>📅</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Text style={{ ...typography.cardDescription }}>📅</Text>
                 <Text style={{
-                  fontSize: 12,
-                  fontWeight: '300',
-                  color: '#364958',
+                  ...typography.cardDescription,
                   fontFamily: 'Helvetica',
                 }}>
                   {formatDate(milestone.targetDate)}
@@ -130,24 +123,20 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
             <Pressable
               onPress={() => onMilestoneComplete?.(milestone.id)}
               style={{
-                backgroundColor: milestone.isComplete ? '#A3B18A' : '#A3B18A',
+                backgroundColor: colors.border.primary,
                 borderWidth: 1,
-                borderColor: '#7C7C7C',
-                borderRadius: 10,
-                width: 40,
-                height: 40,
+                borderColor: colors.text.tertiary,
+                borderRadius: borderRadius.sm,
+                width: touchTargets.button,
+                height: touchTargets.button,
                 alignItems: 'center',
                 justifyContent: 'center',
-                shadowColor: '#7C7C7C',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.75,
-                shadowRadius: 0,
-                elevation: 4,
+                ...shadows.card,
               }}
             >
               <Text style={{
                 fontSize: 16,
-                color: '#F5EBE0',
+                color: colors.background.secondary,
               }}>
                 ✓
               </Text>
@@ -252,9 +241,9 @@ export function GoalCard({
   // Selection empty variant for when no goals exist
   if (variant === 'selection-empty') {
     return (
-      <View style={styles.goalSelectionCard}>
-        <Text style={styles.goalSelectionTitle}>No goals yet</Text>
-        <Text style={styles.goalSelectionDescription}>Create your first goal and start your journey</Text>
+      <View style={styles.goalSelectionEmptyCard}>
+        <Text style={styles.goalSelectionEmptyTitle}>No goals yet</Text>
+        <Text style={styles.goalSelectionEmptyDescription}>Create your first goal and start your journey</Text>
       </View>
     );
   }
@@ -410,35 +399,17 @@ export function GoalCard({
               </View>
 
               {/* Expand/Collapse Button - Matching WeekDayCard */}
-              <Pressable
+              <ChevronButton
+                direction={expanded ? 'up' : 'down'}
+                size="small"
+                color={colors.text.primary}
                 onPress={onToggleExpand}
                 style={{
+                  alignSelf: 'flex-start',
                   width: 44,
                   height: 44,
-                  alignItems: 'flex-start', // Align chevron to left edge of touch area
-                  justifyContent: 'center',
-                  alignSelf: 'flex-start',
                 }}
-              >
-                <View style={{
-                  width: 24,
-                  height: 24,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transform: [{ rotate: expanded ? '180deg' : '0deg' }],
-                  marginLeft: 0, // Position chevron at left edge
-                }}>
-                  <View style={{
-                    width: 8,
-                    height: 8,
-                    borderRightWidth: 1.5,
-                    borderBottomWidth: 1.5,
-                    borderColor: '#364958',
-                    transform: [{ rotate: '45deg' }],
-                    marginTop: -2,
-                  }} />
-                </View>
-              </Pressable>
+              />
             </View>
           </View>
 
@@ -687,93 +658,75 @@ export function GoalCard({
 const styles = StyleSheet.create({
   // Empty state styles
   emptyContainer: {
-    backgroundColor: '#F5EBE0',
+    backgroundColor: colors.background.secondary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 20,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
     minHeight: 124,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    ...shadows.card,
   },
   emptyCompletedContainer: {
-    backgroundColor: '#EAE2B7',
-    borderColor: '#B69121',
+    backgroundColor: colors.trophy.bg,
+    borderColor: colors.trophy.border,
   },
   emptyInnerCard: {
-    backgroundColor: '#E9EDC9',
+    backgroundColor: colors.background.primary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 15,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    ...shadows.card,
   },
   emptyCompletedInnerCard: {
     backgroundColor: '#F0E68C',
-    borderColor: '#B69121',
+    borderColor: colors.trophy.border,
   },
   emptyTitle: {
-    ...typography.cardTitle,
-    textAlign: 'center',
-    marginBottom: 8,
+    ...typography.emptyTitle,
+    marginBottom: emptyStateSpacing.titleMarginBottom,
   },
   emptyCompletedTitle: {
-    color: '#8B7355',
+    color: colors.text.tertiary,
   },
   emptyDescription: {
-    ...typography.cardDescription,
-    textAlign: 'center',
+    ...typography.emptyDescription,
   },
   emptyCompletedDescription: {
-    color: '#8B7355',
+    color: colors.text.tertiary,
     opacity: 0.8,
   },
   // Active state styles
   container: {
-    backgroundColor: '#F5EBE0',
+    backgroundColor: colors.background.secondary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 20,
-    gap: 10,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    gap: spacing.sm,
+    ...shadows.card,
   },
   completedContainer: {
-    backgroundColor: '#EAE2B7',
-    borderColor: '#B69121',
+    backgroundColor: colors.trophy.bg,
+    borderColor: colors.trophy.border,
   },
   containerPressed: {
     shadowOffset: { width: 0, height: 2 },
   },
   innerCard: {
-    backgroundColor: '#E9EDC9',
+    backgroundColor: colors.background.primary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 15,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    ...shadows.card,
   },
   completedInnerCard: {
     backgroundColor: '#F0E68C',
-    borderColor: '#B69121',
+    borderColor: colors.trophy.border,
   },
   sparkBadge: {
     backgroundColor: '#FFE066',
@@ -841,6 +794,29 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#364958',
     textAlign: 'center',
+  },
+  // Empty selection card styles (centered layout)
+  goalSelectionEmptyCard: {
+    backgroundColor: '#e9edc9',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 91,
+  },
+  goalSelectionEmptyTitle: {
+    ...typography.emptyTitle,
+    marginBottom: emptyStateSpacing.titleMarginBottom,
+  },
+  goalSelectionEmptyDescription: {
+    ...typography.emptyDescription,
   },
   plusIcon: {
     width: 20,

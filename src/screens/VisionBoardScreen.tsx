@@ -1,49 +1,11 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { typography } from '../constants/typography';
-
-interface VisionImageProps {
-  width: number;
-  height: number;
-  imageUri?: string;
-}
-
-function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
-  return (
-    <View
-      style={{
-        width,
-        height,
-        backgroundColor: '#E3E3E3',
-        borderRadius: 5,
-        overflow: 'hidden',
-      }}
-    >
-      {imageUri ? (
-        <Image
-          source={{ uri: imageUri }}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-        />
-      ) : (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: 0.2,
-          }}
-        >
-          <Text style={{ fontSize: 12, color: '#999' }}>Vision</Text>
-        </View>
-      )}
-    </View>
-  );
-}
+import { VisionImageCard } from '../components/VisionImageCard';
 
 function MasonryGrid() {
   const columnWidth = 95;

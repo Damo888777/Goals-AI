@@ -88,20 +88,18 @@ export const useSync = () => {
 // Hook for goals
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchGoals = async () => {
       if (!database) {
         console.log('WatermelonDB not available, using empty goals array')
         setGoals([])
-        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
-        setIsLoading(false)
         return
       }
 
@@ -113,14 +111,12 @@ export const useGoals = () => {
 
         const subscription = userGoals.subscribe((goals) => {
           setGoals(goals)
-          setIsLoading(false)
         })
 
         return () => subscription.unsubscribe()
       } catch (error) {
         console.error('Error fetching goals:', error)
         setGoals([])
-        setIsLoading(false)
       }
     }
 
@@ -228,20 +224,18 @@ export const useGoals = () => {
 // Hook for milestones
 export const useMilestones = (goalId?: string) => {
   const [milestones, setMilestones] = useState<Milestone[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchMilestones = async () => {
       if (!database) {
         console.log('WatermelonDB not available, using empty milestones array')
         setMilestones([])
-        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
-        setIsLoading(false)
         return
       }
 
@@ -258,14 +252,12 @@ export const useMilestones = (goalId?: string) => {
 
         const subscription = query.observe().subscribe((milestones) => {
           setMilestones(milestones)
-          setIsLoading(false)
         })
 
         return () => subscription.unsubscribe()
       } catch (error) {
         console.error('Error fetching milestones:', error)
         setMilestones([])
-        setIsLoading(false)
       }
     }
 
@@ -285,7 +277,7 @@ export const useMilestones = (goalId?: string) => {
 
     await database.write(async () => {
       const milestonesCollection = database!.get<Milestone>('milestones')
-      await milestonesCollection.create((milestone) => {
+      const newMilestone = await milestonesCollection.create((milestone) => {
         milestone.userId = userId
         milestone.goalId = milestoneData.goalId
         milestone.title = milestoneData.title
@@ -293,6 +285,16 @@ export const useMilestones = (goalId?: string) => {
         milestone.isComplete = false
         milestone.creationSource = milestoneData.creationSource || 'manual'
       })
+      console.log('Milestone created:', newMilestone.id)
+      
+      // Trigger background sync after action
+      setTimeout(() => {
+        import('../services/syncService').then(({ syncService }) => {
+          syncService.sync().catch(error => {
+            console.log('Background sync after milestone creation failed (non-critical):', error.message)
+          })
+        })
+      }, 500)
     })
   }
 
@@ -340,20 +342,18 @@ export const useMilestones = (goalId?: string) => {
 // Hook for tasks
 export const useTasks = (goalId?: string, milestoneId?: string) => {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTasks = async () => {
       if (!database) {
         console.log('WatermelonDB not available, using empty tasks array')
         setTasks([])
-        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
-        setIsLoading(false)
         return
       }
 
@@ -374,14 +374,12 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
           .observe()
           .subscribe((tasks) => {
             setTasks(tasks)
-            setIsLoading(false)
           })
 
         return () => subscription.unsubscribe()
       } catch (error) {
         console.error('Error fetching tasks:', error)
         setTasks([])
-        setIsLoading(false)
       }
     }
 
@@ -404,7 +402,7 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 
     await database.write(async () => {
       const tasksCollection = database!.get<Task>('tasks')
-      await tasksCollection.create((task) => {
+      const newTask = await tasksCollection.create((task) => {
         task.userId = userId
         task.title = taskData.title
         task.goalId = taskData.goalId
@@ -415,6 +413,16 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
         task.isComplete = false
         task.creationSource = taskData.creationSource || 'manual'
       })
+      console.log('Task created:', newTask.id)
+      
+      // Trigger background sync after action
+      setTimeout(() => {
+        import('../services/syncService').then(({ syncService }) => {
+          syncService.sync().catch(error => {
+            console.log('Background sync after task creation failed (non-critical):', error.message)
+          })
+        })
+      }, 500)
     })
   }
 
@@ -465,19 +473,17 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 // Hook for completed tasks that were completed today AND scheduled for today
 export const useTodaysCompletedTasks = () => {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTodaysCompletedTasks = async () => {
       if (!database) {
         setCompletedTasks([])
-        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
-        setIsLoading(false)
         return
       }
 
@@ -498,14 +504,12 @@ export const useTodaysCompletedTasks = () => {
           .observe()
           .subscribe((tasks) => {
             setCompletedTasks(tasks)
-            setIsLoading(false)
           })
 
         return () => subscription.unsubscribe()
       } catch (error) {
         console.error('Error fetching today\'s completed tasks:', error)
         setCompletedTasks([])
-        setIsLoading(false)
       }
     }
 
@@ -521,7 +525,7 @@ export const useTodaysCompletedTasks = () => {
 export const useTodaysTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [frogTask, setFrogTask] = useState<Task | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchTodaysTasks = async () => {
@@ -529,13 +533,11 @@ export const useTodaysTasks = () => {
         console.log('WatermelonDB not available, using empty tasks array')
         setTasks([])
         setFrogTask(null)
-        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
-        setIsLoading(false)
         return
       }
 
@@ -557,7 +559,6 @@ export const useTodaysTasks = () => {
           .subscribe((todaysTasks) => {
             setTasks(todaysTasks)
             setFrogTask(todaysTasks.find(task => task.isFrog) || null)
-            setIsLoading(false)
           })
 
         return () => subscription.unsubscribe()
@@ -565,7 +566,6 @@ export const useTodaysTasks = () => {
         console.error('Error fetching today\'s tasks:', error)
         setTasks([])
         setFrogTask(null)
-        setIsLoading(false)
       }
     }
 
@@ -616,11 +616,10 @@ export const useTodaysTasks = () => {
 // Hook for vision images
 export const useVisionImages = () => {
   const [visionImages, setVisionImages] = useState<VisionImage[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (!database) {
-      setIsLoading(false)
       return
     }
 
@@ -628,7 +627,6 @@ export const useVisionImages = () => {
 
     const loadVisionImages = async () => {
       if (!database) {
-        setIsLoading(false)
         return
       }
 
@@ -636,7 +634,6 @@ export const useVisionImages = () => {
       const currentUserId = await getCurrentUserId()
 
       if (!currentUserId) {
-        setIsLoading(false)
         return
       }
 
@@ -645,7 +642,6 @@ export const useVisionImages = () => {
         .observe()
         .subscribe((images) => {
           setVisionImages(images)
-          setIsLoading(false)
         })
     }
 

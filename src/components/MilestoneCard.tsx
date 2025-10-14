@@ -1,7 +1,12 @@
+import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
+import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
+import { BaseCard } from './BaseCard';
 import type { Milestone } from '../types';
-import { useState } from 'react';
 
 type MilestoneCardVariant = 
   | 'empty'
@@ -325,16 +330,14 @@ const styles = StyleSheet.create({
   emptyContent: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: emptyStateSpacing.contentPadding,
   },
   emptyTitle: {
-    ...typography.body,
-    fontWeight: '700',
-    textAlign: 'center',
+    ...typography.emptyTitle,
+    marginBottom: emptyStateSpacing.titleMarginBottom,
   },
   emptyDescription: {
-    ...typography.small,
-    textAlign: 'center',
-    marginTop: 8,
+    ...typography.emptyDescription,
   },
   emptyCompletedCard: {
     backgroundColor: '#EAE2B7',

@@ -1,6 +1,13 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { colors } from '../constants/colors';
+import { typography } from '../constants/typography';
+import { spacing } from '../constants/spacing';
+import { borderRadius } from '../constants/spacing';
+import { shadows } from '../constants/spacing';
+import { touchTargets } from '../constants/spacing';
+import { ChevronButton } from './ChevronButton';
 
 export interface Achievement {
   id: string;
@@ -18,13 +25,13 @@ export interface Achievement {
 
 interface TrophyCardProps {
   achievement: Achievement;
-  onToggle: (id: string) => void;
+  onToggleExpand: (id: string) => void;
 }
 
-export default function TrophyCard({ achievement, onToggle }: TrophyCardProps) {
+export default function TrophyCard({ achievement, onToggleExpand }: TrophyCardProps) {
   const handleToggle = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onToggle(achievement.id);
+    onToggleExpand(achievement.id);
   };
 
   return (
@@ -42,12 +49,12 @@ export default function TrophyCard({ achievement, onToggle }: TrophyCardProps) {
               <Text style={styles.achievedDate}> {achievement.achievedDate}</Text>
             </Text>
           </View>
-          <View style={styles.chevronButton}>
-            <View style={[styles.chevronIcon, achievement.isExpanded && styles.chevronIconRotated]}>
-              <View style={styles.chevronLine1} />
-              <View style={styles.chevronLine2} />
-            </View>
-          </View>
+          <ChevronButton
+            direction="down"
+            rotated={achievement.isExpanded}
+            onPress={handleToggle}
+            size="medium"
+          />
         </View>
         
           
@@ -113,34 +120,26 @@ export default function TrophyCard({ achievement, onToggle }: TrophyCardProps) {
 
 const styles = StyleSheet.create({
   trophyCard: {
-    backgroundColor: '#F5EBE0',
+    backgroundColor: colors.background.secondary,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.card,
+    padding: spacing.xl,
+    marginBottom: spacing.lg,
     minHeight: 124,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    ...shadows.card,
   },
   trophyCardContent: {
     flex: 1,
   },
   innerContainer: {
-    backgroundColor: '#EAE2B7',
+    backgroundColor: colors.trophy.bg,
     borderWidth: 0.5,
-    borderColor: '#B69121',
-    borderRadius: 20,
-    padding: 15,
+    borderColor: colors.trophy.border,
+    borderRadius: borderRadius.card,
+    padding: spacing.md,
     flex: 1,
-    shadowColor: '#B69121',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
+    ...shadows.trophy,
   },
   titleRow: {
     flexDirection: 'row',
@@ -150,19 +149,17 @@ const styles = StyleSheet.create({
   },
   titleContent: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   goalTitle: {
+    ...typography.cardTitle,
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    marginBottom: 4,
+    marginBottom: spacing.xxs,
   },
   achievedText: {
+    ...typography.caption,
     fontSize: 14,
-    color: '#364958',
-    fontFamily: 'Helvetica',
   },
   achievedLabel: {
     fontWeight: '300',
@@ -171,8 +168,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   chevronButton: {
-    width: 44,
-    height: 44,
+    width: touchTargets.minimum,
+    height: touchTargets.minimum,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -190,7 +187,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#364958',
+    backgroundColor: colors.text.primary,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 2 }],
   },
@@ -198,25 +195,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#364958',
+    backgroundColor: colors.text.primary,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 2 }],
   },
   expandedContent: {
-    gap: 16,
-    marginTop: 16,
+    gap: spacing.lg,
+    marginTop: spacing.lg,
     width: '100%',
   },
   visionBoardPlaceholder: {
     width: '100%',
     height: 120,
-    backgroundColor: '#E9EDC9',
-    borderRadius: 8,
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius.sm,
     borderWidth: 0.5,
-    borderColor: '#A3B18A',
+    borderColor: colors.border.primary,
   },
   statisticsSection: {
-    gap: 16,
+    gap: spacing.lg,
   },
   statItem: {
     flexDirection: 'row',
@@ -224,39 +221,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statTitle: {
-    fontSize: 15,
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    fontWeight: '300',
+    ...typography.body,
   },
   statValue: {
-    fontSize: 15,
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    fontWeight: 'bold',
+    ...typography.cardTitle,
   },
   reflectionItem: {
-    gap: 8,
+    gap: spacing.xs,
   },
   reflectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.xs,
   },
   diamondIcon: {
+    ...typography.small,
     fontSize: 12,
-    color: '#364958',
   },
   reflectionTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#364958',
-    fontFamily: 'Helvetica',
+    ...typography.cardTitle,
   },
   reflectionValue: {
+    ...typography.caption,
     fontSize: 14,
-    color: '#364958',
-    fontFamily: 'Helvetica',
-    fontWeight: '300',
   },
 });
