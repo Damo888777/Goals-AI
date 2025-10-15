@@ -7,6 +7,7 @@ import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
 import { IconButton } from './IconButton';
+import { soundService } from '../services/soundService';
 import type { Milestone } from '../types';
 
 type MilestoneCardVariant = 
@@ -135,6 +136,7 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
                         text: 'Yes',
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          soundService.playCompleteSound(); // Play completion sound
                           await onToggleComplete(milestone.id);
                           
                           // Show completion confirmation

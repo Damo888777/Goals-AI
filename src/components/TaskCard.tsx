@@ -12,6 +12,7 @@ import type { Task } from '../types';
 import { useRef, useState, useEffect } from 'react';
 import { useGoals, useMilestones } from '../hooks/useDatabase';
 import { IconButton } from './IconButton';
+import { soundService } from '../services/soundService';
 
 // Format date as Dec.05.2025
 const formatDate = (date: Date): string => {
@@ -310,6 +311,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                         text: 'Yes',
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          soundService.playCompleteSound(); // Play completion sound
                           await onToggleComplete(task.id);
                           
                           // Show completion confirmation

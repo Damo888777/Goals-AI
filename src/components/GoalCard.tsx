@@ -3,13 +3,16 @@ import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import { router, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
 import { ChevronButton } from './ChevronButton';
 import { IconButton } from './IconButton';
+import { soundService } from '../services/soundService';
+import { GoalCompletionModal } from './GoalCompletionModal';
+import { goalCompletionService } from '../services/goalCompletionService';
 import type { Goal, Milestone } from '../types';
 
 // Separate component for milestone cards to fix hooks order
@@ -153,6 +156,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                         text: 'Yes',
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          soundService.playCompleteSound(); // Play completion sound
                           onMilestoneComplete(milestone.id);
                           
                           // Show completion confirmation
@@ -218,6 +222,8 @@ interface GoalCardProps {
   onDetach?: () => void;
   isAttached?: boolean;
   onDelete?: (goalId: string) => Promise<void>;
+  onGoalComplete?: (goalId: string) => Promise<void>;
+  allMilestones?: Milestone[];
 }
 
 export function GoalCard({ 
@@ -233,13 +239,43 @@ export function GoalCard({
   onDetach,
   isAttached = false,
   creationSource,
-  onDelete 
+  onDelete,
+  onGoalComplete,
+  allMilestones = []
 }: GoalCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const router = useRouter();
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
+  const [showGoalCompletionModal, setShowGoalCompletionModal] = useState(false);
+
+  // Handle milestone completion and check if goal should be completed
+  const handleMilestoneCompletion = async (milestoneId: string) => {
+    if (onMilestoneComplete) {
+      await onMilestoneComplete(milestoneId);
+      
+      // Check if goal should be completed after milestone completion
+      if (goal?.id) {
+        const shouldTriggerGoalCompletion = goalCompletionService.shouldCheckGoalCompletion(
+          { id: milestoneId, isComplete: true, goalId: goal.id } as Milestone,
+          allMilestones
+        );
+        
+        if (shouldTriggerGoalCompletion && !goal.isCompleted) {
+          setShowGoalCompletionModal(true);
+        }
+      }
+    }
+  };
+
+  // Handle goal completion with optional reflection data
+  const handleGoalCompletion = async (goalId: string, reflectionData?: any) => {
+    if (onGoalComplete) {
+      await onGoalComplete(goalId);
+    }
+    setShowGoalCompletionModal(false);
+  };
 
   const handleGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -367,7 +403,12 @@ export function GoalCard({
   const isCompleted = variant === 'active-completed';
   const hasVisionImage = variant === 'active-with-vision' && goal?.visionImageUrl;
   const showSparkBadge = creationSource === 'spark';
-  const progress = goal?.progress || 0;
+  
+  // Calculate progress using goalCompletionService
+  const progress = goal?.id 
+    ? goalCompletionService.calculateProgress(goal.id, allMilestones)
+    : 0;
+  
   const emotions = goal?.emotions || [];
   const displayedEmotions = emotions.slice(0, 2);
   const remainingCount = emotions.length - 2;
@@ -688,7 +729,7 @@ export function GoalCard({
                   key={milestone.id}
                   milestone={milestone}
                   goal={goal}
-                  onMilestoneComplete={onMilestoneComplete}
+                  onMilestoneComplete={handleMilestoneCompletion}
                   onMilestoneDelete={onMilestoneDelete}
                 />
               ))
@@ -752,6 +793,14 @@ export function GoalCard({
           />
         </View>
       </Animated.View>
+      
+      {/* Goal Completion Modal */}
+      <GoalCompletionModal
+        visible={showGoalCompletionModal}
+        goal={goal}
+        onClose={() => setShowGoalCompletionModal(false)}
+        onCompleteGoal={handleGoalCompletion}
+      />
     </View>
   );
 }

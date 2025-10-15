@@ -11,16 +11,37 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import TrophyCard from '../src/components/TrophyCard';
 import { Achievement } from '../src/components/TrophyCard';
+import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
+import { CompletedMilestoneCard } from '../src/components/CompletedMilestoneCard';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { typography } from '../src/constants/typography';
+import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
+import type { Goal, Milestone, Task } from '../src/types';
+
+type ViewMode = 'goals' | 'milestones';
 
 export default function TrophyScreen() {
   const insets = useSafeAreaInsets();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('goals');
+  
+  // Database hooks
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
+  const { tasks } = useTasks();
+  
+  // Filter completed items
+  const completedGoals = goals.filter(goal => goal.isCompleted);
+  const completedMilestones = milestones.filter(milestone => milestone.isComplete);
 
   const handleBackPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
+  };
+  
+  const handleViewToggle = (mode: ViewMode) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setViewMode(mode);
   };
 
   const toggleAchievement = (id: string) => {
@@ -59,27 +80,84 @@ export default function TrophyScreen() {
             A gallery of your achievements. Proof of your dedication and progress.
           </Text>
         </View>
+        
+        {/* View Toggle */}
+        <View style={styles.toggleContainer}>
+          <Pressable
+            onPress={() => handleViewToggle('goals')}
+            style={[
+              styles.toggleButton,
+              viewMode === 'goals' && styles.toggleButtonActive
+            ]}
+          >
+            <Text style={[
+              styles.toggleButtonText,
+              viewMode === 'goals' && styles.toggleButtonTextActive
+            ]}>
+              Goals
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => handleViewToggle('milestones')}
+            style={[
+              styles.toggleButton,
+              viewMode === 'milestones' && styles.toggleButtonActive
+            ]}
+          >
+            <Text style={[
+              styles.toggleButtonText,
+              viewMode === 'milestones' && styles.toggleButtonTextActive
+            ]}>
+              Milestones
+            </Text>
+          </Pressable>
+        </View>
 
-        {/* Trophy Cards Container */}
-        <View style={styles.trophyCardsContainer}>
-          {achievements.length > 0 ? (
-            achievements.map((achievement) => (
-              <TrophyCard 
-                key={achievement.id} 
-                achievement={achievement} 
-                onToggleExpand={toggleAchievement} 
-              />
-            ))
-          ) : (
-            /* Empty State */
-            <View style={styles.emptyStateCard}>
-              <View style={styles.emptyStateInner}>
-                <Text style={styles.emptyStateTitle}>No achieved goals yet</Text>
-                <Text style={styles.emptyStateDescription}>
-                  It's time to tackle your goals. Complete tasks and milestones.
-                </Text>
+        {/* Content Container */}
+        <View style={styles.contentContainer}>
+          {viewMode === 'goals' ? (
+            completedGoals.length > 0 ? (
+              completedGoals.map((goal) => (
+                <CompletedTaskCard
+                  key={goal.id}
+                  task={{
+                    id: goal.id,
+                    title: goal.title,
+                    updatedAt: goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt),
+                    goalId: goal.id,
+                  } as Task}
+                  onPress={() => router.push(`/goal-details?id=${goal.id}`)}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyStateCard}>
+                <View style={styles.emptyStateInner}>
+                  <Text style={styles.emptyStateTitle}>No completed goals yet</Text>
+                  <Text style={styles.emptyStateDescription}>
+                    Complete some goals to see your victories here.
+                  </Text>
+                </View>
               </View>
-            </View>
+            )
+          ) : (
+            completedMilestones.length > 0 ? (
+              completedMilestones.map((milestone) => (
+                <CompletedMilestoneCard
+                  key={milestone.id}
+                  milestone={milestone}
+                  onPress={() => router.push(`/milestone-details?id=${milestone.id}`)}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyStateCard}>
+                <View style={styles.emptyStateInner}>
+                  <Text style={styles.emptyStateTitle}>No completed milestones yet</Text>
+                  <Text style={styles.emptyStateDescription}>
+                    Complete some milestones to see your victories here.
+                  </Text>
+                </View>
+              </View>
+            )
           )}
         </View>
       </ScrollView>
@@ -146,7 +224,41 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     lineHeight: 20,
   },
-  trophyCardsContainer: {
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F5EBE0',
+    borderRadius: 12,
+    padding: 4,
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleButtonActive: {
+    backgroundColor: '#B69121',
+  },
+  toggleButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#364958',
+    fontFamily: 'Helvetica',
+  },
+  toggleButtonTextActive: {
+    color: '#F5EBE0',
+    fontWeight: '600',
+  },
+  contentContainer: {
     width: '100%',
     gap: 16,
   },

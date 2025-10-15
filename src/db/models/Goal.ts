@@ -1,6 +1,7 @@
 import { Model, Query } from '@nozbe/watermelondb'
 import { field, json, children, date, relation } from '@nozbe/watermelondb/decorators'
 import { Associations } from '@nozbe/watermelondb/Model'
+import { soundService } from '../../services/soundService'
 
 export default class Goal extends Model {
   static table = 'goals'
@@ -41,11 +42,17 @@ export default class Goal extends Model {
   }
 
   // Helper method to mark as completed
-  async markCompleted(): Promise<void> {
+  async markCompleted(reflectionData?: string): Promise<void> {
     await this.update(() => {
       this.isCompleted = true
       this.completedAt = Date.now()
+      // Store reflection data in notes field if provided
+      if (reflectionData) {
+        this.notes = this.notes ? `${this.notes}\n\n--- REFLECTION ---\n${reflectionData}` : `--- REFLECTION ---\n${reflectionData}`
+      }
     })
+    // Play success sound when goal is completed
+    soundService.playSuccessSound()
   }
 
   // Helper method to check if created by Spark AI

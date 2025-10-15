@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { WeekDayCard } from '../../src/components/WeekDayCard';
@@ -60,63 +60,32 @@ export default function PlanTab() {
           {/* Toggle View */}
           <View style={{ gap: 8 }}>
             {/* First Row: This Week | Backlog */}
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={styles.toggleContainer}>
               <Pressable
                 onPress={() => setViewMode('week')}
-                style={{
-                  flex: 1,
-                  height: 32,
-                  borderRadius: 8,
-                  borderWidth: 0.5,
-                  borderColor: '#A3B18A',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: viewMode === 'week' ? '#364958' : '#F5EBE0',
-                  // Drop shadow matching Figma specs
-                  shadowColor: '#7C7C7C',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.75,
-                  shadowRadius: 0,
-                  elevation: 4,
-                }}
+                style={[
+                  styles.toggleButton,
+                  viewMode === 'week' && styles.toggleButtonActive
+                ]}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '400',
-                    color: viewMode === 'week' ? '#FFFFFF' : '#757575',
-                  }}
-                >
+                <Text style={[
+                  styles.toggleButtonText,
+                  viewMode === 'week' && styles.toggleButtonTextActive
+                ]}>
                   This Week
                 </Text>
               </Pressable>
-
               <Pressable
                 onPress={() => setViewMode('backlog')}
-                style={{
-                  flex: 1,
-                  height: 32,
-                  borderRadius: 8,
-                  borderWidth: 0.5,
-                  borderColor: '#A3B18A',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: viewMode === 'backlog' ? '#364958' : '#F5EBE0',
-                  // Drop shadow matching Figma specs
-                  shadowColor: '#7C7C7C',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.75,
-                  shadowRadius: 0,
-                  elevation: 4,
-                }}
+                style={[
+                  styles.toggleButton,
+                  viewMode === 'backlog' && styles.toggleButtonActive
+                ]}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '400',
-                    color: viewMode === 'backlog' ? '#FFFFFF' : '#757575',
-                  }}
-                >
+                <Text style={[
+                  styles.toggleButtonText,
+                  viewMode === 'backlog' && styles.toggleButtonTextActive
+                ]}>
                   Backlog
                 </Text>
               </Pressable>
@@ -124,63 +93,32 @@ export default function PlanTab() {
 
             {/* Second Row: Scheduled | Ideas (conditional) */}
             {viewMode === 'backlog' && (
-              <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={styles.toggleContainer}>
                 <Pressable
                   onPress={() => setBacklogFilter('scheduled')}
-                  style={{
-                    flex: 1,
-                    height: 32,
-                    borderRadius: 8,
-                    borderWidth: 0.5,
-                    borderColor: '#A3B18A',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: backlogFilter === 'scheduled' ? '#364958' : '#F5EBE0',
-                    // Drop shadow matching Figma specs
-                    shadowColor: '#7C7C7C',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.75,
-                    shadowRadius: 0,
-                    elevation: 4,
-                  }}
+                  style={[
+                    styles.toggleButton,
+                    backlogFilter === 'scheduled' && styles.toggleButtonActive
+                  ]}
                 >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: '400',
-                      color: backlogFilter === 'scheduled' ? '#FFFFFF' : '#757575',
-                    }}
-                  >
+                  <Text style={[
+                    styles.toggleButtonText,
+                    backlogFilter === 'scheduled' && styles.toggleButtonTextActive
+                  ]}>
                     Scheduled
                   </Text>
                 </Pressable>
-
                 <Pressable
                   onPress={() => setBacklogFilter('someday')}
-                  style={{
-                    flex: 1,
-                    height: 32,
-                    borderRadius: 8,
-                    borderWidth: 0.5,
-                    borderColor: '#A3B18A',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: backlogFilter === 'someday' ? '#364958' : '#F5EBE0',
-                    // Drop shadow matching Figma specs
-                    shadowColor: '#7C7C7C',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.75,
-                    shadowRadius: 0,
-                    elevation: 4,
-                  }}
+                  style={[
+                    styles.toggleButton,
+                    backlogFilter === 'someday' && styles.toggleButtonActive
+                  ]}
                 >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: '400',
-                      color: backlogFilter === 'someday' ? '#FFFFFF' : '#757575',
-                    }}
-                  >
+                  <Text style={[
+                    styles.toggleButtonText,
+                    backlogFilter === 'someday' && styles.toggleButtonTextActive
+                  ]}>
                     Someday
                   </Text>
                 </Pressable>
@@ -405,3 +343,40 @@ export default function PlanTab() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F5EBE0',
+    borderRadius: 12,
+    padding: 4,
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleButtonActive: {
+    backgroundColor: '#364958',
+  },
+  toggleButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#364958',
+    fontFamily: 'Helvetica',
+  },
+  toggleButtonTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+});
