@@ -25,6 +25,12 @@ export interface Goal {
   milestones: Milestone[];
   progress: number;
   isCompleted: boolean;
+  reflectionAnswers?: {
+    takeaways?: string;
+    challengeConquered?: string;
+    futureImprovement?: string;
+  };
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }

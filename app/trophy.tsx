@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import TrophyCard from '../src/components/TrophyCard';
-import { Achievement } from '../src/components/TrophyCard';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import { CompletedMilestoneCard } from '../src/components/CompletedMilestoneCard';
 import { BackChevronButton } from '../src/components/ChevronButton';
@@ -22,7 +21,6 @@ type ViewMode = 'goals' | 'milestones';
 
 export default function TrophyScreen() {
   const insets = useSafeAreaInsets();
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('goals');
   
   // Database hooks
@@ -44,16 +42,6 @@ export default function TrophyScreen() {
     setViewMode(mode);
   };
 
-  const toggleAchievement = (id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setAchievements(prev => 
-      prev.map(achievement => 
-        achievement.id === id 
-          ? { ...achievement, isExpanded: !achievement.isExpanded }
-          : achievement
-      )
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -118,26 +106,19 @@ export default function TrophyScreen() {
           {viewMode === 'goals' ? (
             completedGoals.length > 0 ? (
               completedGoals.map((goal) => (
-                <CompletedTaskCard
+                <TrophyCard
                   key={goal.id}
-                  task={{
-                    id: goal.id,
-                    title: goal.title,
-                    updatedAt: goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt),
-                    goalId: goal.id,
-                  } as Task}
-                  onPress={() => router.push(`/goal-details?id=${goal.id}`)}
+                  goal={goal}
+                  onPress={() => router.push(`/completed-goal-details?id=${goal.id}`)}
                 />
               ))
             ) : (
-              <View style={styles.emptyStateCard}>
-                <View style={styles.emptyStateInner}>
-                  <Text style={styles.emptyStateTitle}>No completed goals yet</Text>
-                  <Text style={styles.emptyStateDescription}>
-                    Complete some goals to see your victories here.
-                  </Text>
-                </View>
-              </View>
+              <TrophyCard
+                emptyState={{
+                  title: "No completed goals yet",
+                  description: "Complete some goals to see your victories here."
+                }}
+              />
             )
           ) : (
             completedMilestones.length > 0 ? (

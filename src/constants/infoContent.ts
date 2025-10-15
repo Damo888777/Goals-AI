@@ -17,7 +17,7 @@ export const INFO_CONTENT = {
   },
   SPARK_AI: {
     title: "Spark AI",
-    content: "Speak one item at a time for best results:\n\n**Tasks:** \"Schedule dentist appointment tomorrow\"\n**Goals:** \"Learn Spanish fluently\"\n**Milestones:** \"Complete project proposal by Dec.15.2025\"\n\n**Be specific with timing for tasks and milestones:**\n• \"today\" or \"tomorrow\"\n• \"next week\" or \"in 2 weeks\"\n• Exact dates: \"Jan.20.2025\"\n\nKeep it short and clear - one focused item per recording."
+    content: "**Record one item at a time for best results.**\n\n**Tasks:** \"Buy groceries tomorrow\"\n**Goals:** \"Save 10,000 euros\"\n**Milestones:** \"Get first client by March\"\n\n**Link to existing goals:**\nSay the goal name clearly:\n\"This milestone is for my saving 10,000 euros goal\"\n\"Add task to my fitness goal\"\n\n**Tips:**\n• Speak 5-15 seconds\n• Use exact goal names\n• Be specific with dates\n• One item per recording"
   },
   VISION_BOARD: {
     title: "Vision Board",

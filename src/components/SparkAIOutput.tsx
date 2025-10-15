@@ -348,9 +348,14 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
 
+  console.log('🎯 [GoalSelection] Component props:', { selectedGoalId });
+  console.log('🎯 [GoalSelection] Available goals:', goals.map(g => ({ id: g.id, title: g.title })));
+
   // Auto-open dropdown if there's a preselected goal
   useEffect(() => {
+    console.log('🎯 [GoalSelection] useEffect triggered with selectedGoalId:', selectedGoalId);
     if (selectedGoalId) {
+      console.log('🎯 [GoalSelection] Opening dropdown for preselected goal');
       setIsDropdownOpen(true);
       onDropdownToggle?.(true);
     }
@@ -371,6 +376,9 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   };
 
   const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
+  
+  console.log('🎯 [GoalSelection] Selected goal found:', selectedGoal ? { id: selectedGoal.id, title: selectedGoal.title } : 'NONE');
+  console.log('🎯 [GoalSelection] Dropdown state:', { isDropdownOpen });
 
   return (
     <View style={styles.sectionContainer}>
@@ -644,8 +652,25 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const [notes, setNotes] = useState('');
   const [isEatTheFrog, setIsEatTheFrog] = useState(false);
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(linkedGoalId || undefined);
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(linkedMilestoneId || undefined);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(
+    linkedGoalId && linkedGoalId !== '' ? linkedGoalId : undefined
+  );
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | undefined>(
+    linkedMilestoneId && linkedMilestoneId !== '' ? linkedMilestoneId : undefined
+  );
+
+  // Debug logs for linked IDs
+  console.log('🎯 [SparkAIOutput] Props received:', {
+    type: initialType,
+    linkedGoalId,
+    linkedMilestoneId,
+    aiTitle
+  });
+  
+  console.log('🎯 [SparkAIOutput] Initial state set:', {
+    selectedGoalId,
+    selectedMilestoneId
+  });
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedVisionImage, setSelectedVisionImage] = useState<VisionImage | null>(null);
 
@@ -890,11 +915,13 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
           />
         )}
 
-        {/* Date Picker */}
-        <DatePicker 
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-        />
+        {/* Date Picker - only for tasks and milestones */}
+        {selectedType !== 'goal' && (
+          <DatePicker 
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+          />
+        )}
 
         {/* Notes Section */}
         <NotesSection notes={notes} onNotesChange={setNotes} />

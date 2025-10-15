@@ -14,6 +14,8 @@ export default function SparkAIOutputScreen() {
     linkedMilestoneId?: string;
   }>();
 
+  console.log('🎯 [SparkAIOutputScreen] Received params:', params);
+
   const handleSave = (data: any) => {
     // Data is already saved by SparkAIOutput component
     console.log('SparkAI output saved successfully:', data);

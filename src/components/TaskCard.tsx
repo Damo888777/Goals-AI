@@ -246,11 +246,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
           <View style={styles.leftContent}>
             <View style={styles.goalRow}>
               <View style={styles.goalIcon}>
-                {milestoneName ? (
-                  <Ionicons name="location" size={12} color="#F39C12" />
-                ) : (
-                  <Ionicons name="flag" size={12} color="#364958" />
-                )}
+                <Ionicons name="flag" size={12} color="#364958" />
               </View> 
               <Text style={[
                 styles.goalInfo,

@@ -1,117 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { colors } from '../constants/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { typography } from '../constants/typography';
+import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
-import { borderRadius } from '../constants/spacing';
-import { shadows } from '../constants/spacing';
-import { touchTargets } from '../constants/spacing';
-import { ChevronButton } from './ChevronButton';
-
-export interface Achievement {
-  id: string;
-  title: string;
-  achievedDate: string;
-  isExpanded?: boolean;
-  totalFocusTime: string;
-  milestonesCompleted: number;
-  tasksCompleted: number;
-  journeyDuration: string;
-  yourTakeaways: string;
-  challengeConquered: string;
-  futureImprovement: string;
-}
+import type { Goal } from '../types/index';
 
 interface TrophyCardProps {
-  achievement: Achievement;
-  onToggleExpand: (id: string) => void;
+  goal: Goal;
+  onPress?: () => void;
+  emptyState?: {
+    title: string;
+    description: string;
+  };
 }
 
-export default function TrophyCard({ achievement, onToggleExpand }: TrophyCardProps) {
-  const handleToggle = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onToggleExpand(achievement.id);
+export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProps) {
+  const [isPressed, setIsPressed] = useState(false);
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: '2-digit', 
+      year: 'numeric' 
+    }).replace(/\s/g, '.');
   };
 
+  // Empty state rendering
+  if (emptyState) {
+    return (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyStateTitle}>{emptyState.title}</Text>
+        <Text style={styles.emptyStateDescription}>{emptyState.description}</Text>
+      </View>
+    );
+  }
+
+  // Regular goal rendering
+  if (!goal || !goal.id) return null;
+
   return (
-    <View style={styles.trophyCard}>
+    <View style={styles.outerContainer}>
       <Pressable 
-        onPress={handleToggle}
-        style={styles.trophyCardContent}
+        onPress={onPress}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        style={[
+          styles.container,
+          {
+            backgroundColor: '#EAE2B7',
+            transform: [{ scale: isPressed ? 0.98 : 1 }]
+          }
+        ]}
       >
-        <View style={styles.innerContainer}>
-          <View style={styles.titleRow}>
-          <View style={styles.titleContent}>
-            <Text style={styles.goalTitle}>{achievement.title}</Text>
-            <Text style={styles.achievedText}>
-              <Text style={styles.achievedLabel}>Achieved:</Text>
-              <Text style={styles.achievedDate}> {achievement.achievedDate}</Text>
-            </Text>
-          </View>
-          <ChevronButton
-            direction="down"
-            rotated={achievement.isExpanded}
-            onPress={handleToggle}
-            size="medium"
-          />
-        </View>
-        
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={2}>
+            {goal.title}
+          </Text>
           
-          {/* Expanded Content */}
-          {achievement.isExpanded && (
-            <View style={styles.expandedContent}>
-            {/* Vision Board Placeholder */}
-            <View style={styles.visionBoardPlaceholder} />
-            
-            {/* Statistics */}
-            <View style={styles.statisticsSection}>
-              <View style={styles.statItem}>
-                <Text style={styles.statTitle}>Total Focus Time</Text>
-                <Text style={styles.statValue}>{achievement.totalFocusTime}</Text>
+          <View style={styles.metaInfo}>
+            <View style={styles.goalRow}>
+              <View style={styles.goalIcon}>
+                <Ionicons name="trophy" size={12} color="#B69121" />
               </View>
-              
-              <View style={styles.statItem}>
-                <Text style={styles.statTitle}>Milestones Completed</Text>
-                <Text style={styles.statValue}>{achievement.milestonesCompleted} Milestones</Text>
-              </View>
-              
-              <View style={styles.statItem}>
-                <Text style={styles.statTitle}>Tasks Completed</Text>
-                <Text style={styles.statValue}>{achievement.tasksCompleted} Tasks</Text>
-              </View>
-              
-              <View style={styles.statItem}>
-                <Text style={styles.statTitle}>Journey Duration</Text>
-                <Text style={styles.statValue}>{achievement.journeyDuration}</Text>
-              </View>
-              
-              <View style={styles.reflectionItem}>
-                <View style={styles.reflectionHeader}>
-                  <Text style={styles.diamondIcon}>◊</Text>
-                  <Text style={styles.reflectionTitle}>Your Takeaways</Text>
-                </View>
-                <Text style={styles.reflectionValue}>{achievement.yourTakeaways}</Text>
-              </View>
-              
-              <View style={styles.reflectionItem}>
-                <View style={styles.reflectionHeader}>
-                  <Text style={styles.diamondIcon}>◊</Text>
-                  <Text style={styles.reflectionTitle}>Challenge Conquered</Text>
-                </View>
-                <Text style={styles.reflectionValue}>{achievement.challengeConquered}</Text>
-              </View>
-              
-              <View style={styles.reflectionItem}>
-                <View style={styles.reflectionHeader}>
-                  <Text style={styles.diamondIcon}>◊</Text>
-                  <Text style={styles.reflectionTitle}>Future Improvement</Text>
-                </View>
-                <Text style={styles.reflectionValue}>{achievement.futureImprovement}</Text>
-              </View>
-              </View>
+              <Text style={styles.achievedText}>
+                Goal Achieved
+              </Text>
             </View>
-          )}
+            <View style={styles.dateRow}>
+              <Ionicons name="calendar-outline" size={12} color="#364958" />
+              <Text style={styles.completionDate}>
+                Completed: {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
+              </Text>
+            </View>
+          </View>
         </View>
       </Pressable>
     </View>
@@ -119,130 +81,85 @@ export default function TrophyCard({ achievement, onToggleExpand }: TrophyCardPr
 }
 
 const styles = StyleSheet.create({
-  trophyCard: {
-    backgroundColor: colors.background.secondary,
+  outerContainer: {
+    backgroundColor: '#F5EBE0',
     borderWidth: 0.5,
-    borderColor: colors.border.primary,
-    borderRadius: borderRadius.card,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
-    minHeight: 124,
-    ...shadows.card,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: spacing.xs,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  trophyCardContent: {
-    flex: 1,
-  },
-  innerContainer: {
-    backgroundColor: colors.trophy.bg,
+  container: {
+    backgroundColor: '#EAE2B7',
     borderWidth: 0.5,
-    borderColor: colors.trophy.border,
-    borderRadius: borderRadius.card,
-    padding: spacing.md,
-    flex: 1,
-    ...shadows.trophy,
+    borderColor: '#B69121',
+    borderRadius: 20,
+    padding: spacing.lg,
+    shadowColor: '#B69121',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  content: {
+    gap: 3,
+  },
+  title: {
+    ...typography.body,
+    fontWeight: '700',
     width: '100%',
   },
-  titleContent: {
-    flex: 1,
-    marginRight: spacing.md,
+  metaInfo: {
+    gap: 1,
   },
-  goalTitle: {
-    ...typography.cardTitle,
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: spacing.xxs,
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  goalIcon: {
+    width: 12,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   achievedText: {
     ...typography.caption,
-    fontSize: 14,
+    color: colors.text.primary,
   },
-  achievedLabel: {
-    fontWeight: '300',
-  },
-  achievedDate: {
-    fontWeight: 'bold',
-  },
-  chevronButton: {
-    width: touchTargets.minimum,
-    height: touchTargets.minimum,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chevronIcon: {
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  chevronIconRotated: {
-    transform: [{ rotate: '180deg' }],
-  },
-  chevronLine1: {
-    position: 'absolute',
-    width: 8,
-    height: 2,
-    backgroundColor: colors.text.primary,
-    borderRadius: 1,
-    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 2 }],
-  },
-  chevronLine2: {
-    position: 'absolute',
-    width: 8,
-    height: 2,
-    backgroundColor: colors.text.primary,
-    borderRadius: 1,
-    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 2 }],
-  },
-  expandedContent: {
-    gap: spacing.lg,
-    marginTop: spacing.lg,
-    width: '100%',
-  },
-  visionBoardPlaceholder: {
-    width: '100%',
-    height: 120,
-    backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.sm,
-    borderWidth: 0.5,
-    borderColor: colors.border.primary,
-  },
-  statisticsSection: {
-    gap: spacing.lg,
-  },
-  statItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  statTitle: {
-    ...typography.body,
-  },
-  statValue: {
-    ...typography.cardTitle,
-  },
-  reflectionItem: {
-    gap: spacing.xs,
-  },
-  reflectionHeader: {
+  dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 4,
   },
-  diamondIcon: {
-    ...typography.small,
-    fontSize: 12,
-  },
-  reflectionTitle: {
-    ...typography.cardTitle,
-  },
-  reflectionValue: {
+  completionDate: {
     ...typography.caption,
-    fontSize: 14,
+    color: colors.text.primary,
+  },
+  emptyState: {
+    backgroundColor: '#EAE2B7',
+    borderWidth: 0.5,
+    borderColor: '#926C15',
+    borderRadius: 20,
+    padding: spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyStateTitle: {
+    ...typography.emptyTitle,
+    marginBottom: spacing.xs,
+  },
+  emptyStateDescription: {
+    ...typography.emptyDescription,
   },
 });

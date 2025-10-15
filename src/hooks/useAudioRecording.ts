@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { AIService, AIProcessingResult } from '../services/aiService';
+import { useGoals, useMilestones } from './useDatabase';
 
 export type RecordingState = 'idle' | 'recording' | 'processing' | 'completed' | 'error';
 
@@ -26,6 +27,10 @@ export function useAudioRecording(): UseAudioRecordingReturn {
   
   const recording = useRef<Audio.Recording | null>(null);
   const durationInterval = useRef<NodeJS.Timeout | null>(null);
+  
+  // Get existing goals and milestones for AI matching
+  const { goals } = useGoals();
+  const { milestones } = useMilestones();
 
   const resetRecording = useCallback(async () => {
     // Stop and cleanup any active recording first
@@ -56,6 +61,10 @@ export function useAudioRecording(): UseAudioRecordingReturn {
     try {
       setError(null);
       setRecordingState('recording');
+      
+      // Log goals availability at recording start
+      console.log('🎤 [Audio Recording] Starting recording with goals loaded:', goals?.length || 0);
+      console.log('🎤 [Audio Recording] Goals available:', goals?.map(g => ({ id: g.id, title: g.title })) || []);
 
       // Request permissions
       const { status } = await Audio.requestPermissionsAsync();
@@ -127,8 +136,26 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         throw new Error('Recording file is empty or does not exist');
       }
 
-      // Process with AI
-      const aiResult = await AIService.processVoiceInput(uri);
+      // Process with AI, passing existing goals and milestones for matching
+      console.log('🎤 [Audio Recording] Existing goals for AI matching:', goals?.map(g => ({ id: g.id, title: g.title })) || []);
+      console.log('🎤 [Audio Recording] Existing milestones for AI matching:', milestones?.map(m => ({ id: m.id, title: m.title })) || []);
+      
+      // Ensure we have arrays even if hooks return undefined
+      const safeGoals = goals || [];
+      const safeMilestones = milestones || [];
+      
+      console.log('🎤 [Audio Recording] Safe goals count:', safeGoals.length);
+      console.log('🎤 [Audio Recording] Safe milestones count:', safeMilestones.length);
+      
+      const aiResult = await AIService.processVoiceInput(uri, safeGoals, safeMilestones);
+      
+      console.log('🎤 [Audio Recording] AI Result received:', {
+        type: aiResult.classification.type,
+        title: aiResult.classification.title,
+        linkedGoalId: aiResult.classification.linkedGoalId,
+        linkedMilestoneId: aiResult.classification.linkedMilestoneId,
+        transcription: aiResult.transcription
+      });
       
       // Check if transcription is empty or only whitespace
       if (!aiResult.transcription || aiResult.transcription.trim().length === 0) {

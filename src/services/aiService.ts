@@ -98,6 +98,14 @@ export class GeminiService {
       
       const apiUrl = getApiUrl('/api/gemini');
       console.log('🤖 [Gemini] Sending request to:', apiUrl);
+      console.log('🤖 [Gemini] Request payload:', {
+        transcription,
+        existingGoals: existingGoals?.map(g => ({ id: g.id, title: g.title })) || [],
+        existingMilestones: existingMilestones?.map(m => ({ id: m.id, title: m.title })) || []
+      });
+      
+      console.log('🤖 [Gemini] Searching for goal match in transcription:', transcription);
+      console.log('🤖 [Gemini] Available goals to match against:', existingGoals?.length || 0);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -133,13 +141,27 @@ export class GeminiService {
         throw new Error(`Failed to parse Gemini response: ${parseError}`);
       }
       
-      return {
+      const result = {
         type: data.type,
         title: data.title,
         timestamp: data.timestamp,
         linkedGoalId: data.linkedGoalId || null,
         linkedMilestoneId: data.linkedMilestoneId || null,
       };
+      
+      console.log('🤖 [Gemini] Final classification result:', result);
+      
+      if (result.linkedGoalId) {
+        const matchedGoal = existingGoals.find(g => g.id === result.linkedGoalId);
+        console.log('🤖 [Gemini] Matched goal:', matchedGoal ? { id: matchedGoal.id, title: matchedGoal.title } : 'NOT FOUND');
+      }
+      
+      if (result.linkedMilestoneId) {
+        const matchedMilestone = existingMilestones.find(m => m.id === result.linkedMilestoneId);
+        console.log('🤖 [Gemini] Matched milestone:', matchedMilestone ? { id: matchedMilestone.id, title: matchedMilestone.title } : 'NOT FOUND');
+      }
+      
+      return result;
     } catch (error) {
       console.error('🤖 [Gemini] Processing error:', error);
       return {

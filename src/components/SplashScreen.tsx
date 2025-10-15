@@ -30,10 +30,32 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
           await signInAnonymously();
         }
         
-        // Wait a minimum of 2 seconds for good UX, then mark preload complete
+        // Wait for essential data to load or timeout after 4 seconds
+        console.log('🚀 [Splash] Starting preload...');
+        console.log('🚀 [Splash] Goals loaded:', goals.length);
+        console.log('🚀 [Splash] Milestones loaded:', milestones.length);
+        console.log('🚀 [Splash] Tasks loaded:', tasks.length);
+        
+        const startTime = Date.now();
+        const maxWaitTime = 4000; // 4 seconds max
+        
+        // Wait for goals to load or timeout
+        while (goals.length === 0 && (Date.now() - startTime) < maxWaitTime) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        console.log('🚀 [Splash] Preload complete. Final counts:');
+        console.log('🚀 [Splash] Goals:', goals.length);
+        console.log('🚀 [Splash] Milestones:', milestones.length);
+        console.log('🚀 [Splash] Tasks:', tasks.length);
+        
+        // Ensure minimum 2 seconds for good UX
+        const elapsed = Date.now() - startTime;
+        const remainingTime = Math.max(2000 - elapsed, 0);
+        
         setTimeout(() => {
           setPreloadComplete(true);
-        }, 2000);
+        }, remainingTime);
         
       } catch (error) {
         console.error('Error preloading app:', error);
@@ -45,7 +67,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
     };
 
     preloadApp();
-  }, [user, signInAnonymously]);
+  }, [user, signInAnonymously, goals.length, milestones.length, tasks.length]);
 
   useEffect(() => {
     let isMounted = true;

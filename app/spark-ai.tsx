@@ -66,16 +66,20 @@ export default function SparkAIScreen() {
       
       // Navigate to spark-ai-output with the AI processed data
       setTimeout(async () => {
+        const navParams = {
+          type: result.classification.type,
+          title: result.classification.title,
+          timestamp: result.classification.timestamp || '',
+          transcription: result.transcription,
+          linkedGoalId: result.classification.linkedGoalId || undefined,
+          linkedMilestoneId: result.classification.linkedMilestoneId || undefined,
+        };
+        
+        console.log('🎯 [Spark AI Screen] Navigating to output with params:', navParams);
+        
         router.push({
           pathname: '/spark-ai-output',
-          params: {
-            type: result.classification.type,
-            title: result.classification.title,
-            timestamp: result.classification.timestamp || '',
-            transcription: result.transcription,
-            linkedGoalId: result.classification.linkedGoalId || '',
-            linkedMilestoneId: result.classification.linkedMilestoneId || '',
-          },
+          params: navParams,
         });
         await resetRecording();
       }, 1500); // Show completion animation for 1.5 seconds
