@@ -376,7 +376,7 @@ export function GoalCard({
     const isCompletedEmpty = variant === 'empty-completed';
     const content = isCompletedEmpty 
       ? { title: 'No completed goals', description: 'Complete some goals to see them here.' }
-      : { title: 'No goals yet', description: 'Create your first goal and start your journey' };
+      : { title: 'No goals yet', description: 'Create a goal and start your journey' };
 
     return (
       <Pressable onPress={onPress} style={[
@@ -797,7 +797,7 @@ export function GoalCard({
       {/* Goal Completion Modal */}
       <GoalCompletionModal
         visible={showGoalCompletionModal}
-        goal={goal}
+        goal={goal || null}
         onClose={() => setShowGoalCompletionModal(false)}
         onCompleteGoal={handleGoalCompletion}
       />
