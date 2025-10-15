@@ -53,27 +53,15 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
 
       {/* Tasks List */}
       {hasTasks ? (
-        <>
-          <View style={styles.tasksList}>
-            {displayTasks.filter(task => task && task.id).map((task) => (
-              <CompletedTaskCard
-                key={task.id}
-                task={task}
-                onPress={() => onTaskPress?.(task)}
-              />
-            ))}
-          </View>
-          
-          {/* View All Finished Tasks Button */}
-          <Pressable
-            onPress={handleViewFullProgress}
-            style={styles.viewAllButton}
-          >
-            <Text style={styles.viewAllButtonText}>
-              All Completed Tasks
-            </Text>
-          </Pressable>
-        </>
+        <View style={styles.tasksList}>
+          {displayTasks.filter(task => task && task.id).map((task) => (
+            <CompletedTaskCard
+              key={task.id}
+              task={task}
+              onPress={() => onTaskPress?.(task)}
+            />
+          ))}
+        </View>
       ) : (
         <CompletedTaskCard
           emptyState={{
@@ -82,6 +70,16 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
           }}
         />
       )}
+      
+      {/* View All Finished Tasks Button - Always visible */}
+      <Pressable
+        onPress={handleViewFullProgress}
+        style={styles.viewAllButton}
+      >
+        <Text style={styles.viewAllButtonText}>
+          All Completed Tasks
+        </Text>
+      </Pressable>
       
       {/* Info Popup */}
       <InfoPopup
@@ -142,7 +140,6 @@ const styles = StyleSheet.create({
   viewAllButton: {
     alignItems: 'center',
     alignSelf: 'center',
-    minHeight: 44, // Apple HIG minimum touch target
     justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 16,

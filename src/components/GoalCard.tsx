@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { router, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useState, useRef } from 'react';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
@@ -23,6 +24,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [isCompletePressed, setIsCompletePressed] = useState(false);
   const router = useRouter();
 
   const handleGestureEvent = Animated.event(
@@ -82,7 +84,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             style={{
-              backgroundColor: isPressed ? colors.goal.progress : colors.background.primary,
+              backgroundColor: isPressed ? '#E8D5C4' : '#F5EBE0',
               borderWidth: 0.5,
               borderColor: colors.border.primary,
               borderRadius: borderRadius.lg,
@@ -103,16 +105,23 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
               }}>
                 {milestone.title}
               </Text>
-              <Text style={{
-                ...typography.cardDescription,
-                fontFamily: 'Helvetica',
-              }}>
-                {goal?.title}
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-                <Text style={{ ...typography.cardDescription }}>📅</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="flag" size={12} color="#364958" />
                 <Text style={{
-                  ...typography.cardDescription,
+                  fontSize: 12,
+                  fontWeight: '300',
+                  color: '#364958',
+                  fontFamily: 'Helvetica',
+                }}>
+                  {goal?.title || 'Goal Title'}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="calendar-outline" size={12} color="#364958" />
+                <Text style={{
+                  fontSize: 12,
+                  fontWeight: '300',
+                  color: '#364958',
                   fontFamily: 'Helvetica',
                 }}>
                   {formatDate(milestone.targetDate)}
@@ -121,27 +130,48 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
             </View>
 
             {/* Complete Button */}
-            <Pressable
-              onPress={() => onMilestoneComplete?.(milestone.id)}
-              style={{
-                backgroundColor: colors.border.primary,
-                borderWidth: 1,
-                borderColor: colors.text.tertiary,
-                borderRadius: borderRadius.sm,
-                width: touchTargets.button,
-                height: touchTargets.button,
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...shadows.card,
+            <IconButton
+              variant="complete"
+              iconText="✓"
+              pressed={isCompletePressed}
+              onPress={() => {
+                if (milestone?.id && onMilestoneComplete) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  
+                  Alert.alert(
+                    'Complete Milestone',
+                    `Did you complete "${milestone.title}"?`,
+                    [
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                        onPress: () => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        onPress: async () => {
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          onMilestoneComplete(milestone.id);
+                          
+                          // Show completion confirmation
+                          setTimeout(() => {
+                            Alert.alert(
+                              '🎉 Milestone Completed!',
+                              'Great job! Your milestone has been marked as complete.',
+                              [{ text: 'OK', onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
+                            );
+                          }, 300);
+                        }
+                      }
+                    ]
+                  );
+                }
               }}
-            >
-              <Text style={{
-                fontSize: 16,
-                color: colors.background.secondary,
-              }}>
-                ✓
-              </Text>
-            </Pressable>
+              onPressIn={() => setIsCompletePressed(true)}
+              onPressOut={() => setIsCompletePressed(false)}
+            />
           </Pressable>
         </Animated.View>
       </PanGestureHandler>
@@ -664,7 +694,7 @@ export function GoalCard({
               ))
             ) : (
               <View style={{
-                backgroundColor: '#E9EDC9',
+                backgroundColor: '#F5EBE0',
                 borderWidth: 0.5,
                 borderColor: '#A3B18A',
                 borderRadius: 15,

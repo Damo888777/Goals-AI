@@ -206,20 +206,19 @@ export default function GoalsScreen() {
 
           {/* Goals List */}
           <View style={styles.goalsListContainer}>
-            {transformedGoals.length > 0 ? (
-              transformedGoals.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  goal={goal}
-                  variant="active-with-vision"
-                  milestones={goal.milestones}
-                  expanded={expandedGoals.has(goal.id)}
-                  onPress={() => handleGoalPress(goal)}
-                  onToggleExpand={() => handleToggleExpand(goal.id)}
-                  onMilestoneComplete={handleMilestoneComplete}
-                />
-              ))
-            ) : (
+            {transformedGoals.map((goal) => (
+              <GoalCard
+                key={goal.id}
+                goal={goal}
+                variant="active-with-vision"
+                milestones={goal.milestones}
+                expanded={expandedGoals.has(goal.id)}
+                onPress={() => handleGoalPress(goal)}
+                onToggleExpand={() => handleToggleExpand(goal.id)}
+                onMilestoneComplete={handleMilestoneComplete}
+              />
+            ))}
+            {transformedGoals.length === 0 && !goalsLoading && (
               <GoalCard variant="empty" />
             )}
           </View>

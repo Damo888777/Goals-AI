@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Q } from '@nozbe/watermelondb'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import database from '../db'
 import { authService, AuthUser } from '../services/authService'
 import { syncService, getCurrentUserId } from '../services/syncService'
@@ -88,17 +89,39 @@ export const useSync = () => {
 // Hook for goals
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchGoals = async () => {
+    const initializeGoals = async () => {
+      // 1. Load cached goals immediately for instant display
+      try {
+        const cachedGoals = await AsyncStorage.getItem('cached_goals')
+        if (cachedGoals) {
+          const parsedGoals = JSON.parse(cachedGoals)
+          // Create mock Goal objects for compatibility with existing code
+          const mockGoals = parsedGoals.map((goalData: any) => ({
+            ...goalData,
+            // Add any missing methods/properties that the UI might expect
+            _raw: goalData, // WatermelonDB compatibility
+            table: 'goals'
+          }))
+          setGoals(mockGoals as Goal[])
+          console.log('Loaded cached goals:', parsedGoals.length)
+        }
+      } catch (error) {
+        console.error('Error loading cached goals:', error)
+      }
+
+      // 2. Then fetch fresh data from database
       if (!database) {
-        console.log('WatermelonDB not available, using empty goals array')
-        setGoals([])
+        console.log('WatermelonDB not available, using cached goals only')
+        setIsLoading(false)
         return
       }
 
       const userId = await getCurrentUserId()
       if (!userId) {
+        setIsLoading(false)
         return
       }
 
@@ -108,18 +131,38 @@ export const useGoals = () => {
           .query(Q.where('user_id', userId))
           .observe()
 
-        const subscription = userGoals.subscribe((goals) => {
-          setGoals(goals)
+        const subscription = userGoals.subscribe(async (freshGoals) => {
+          setGoals(freshGoals)
+          setIsLoading(false)
+          
+          // 3. Cache the fresh data for next time (serialize only plain data)
+          try {
+            const serializedGoals = freshGoals.map(goal => ({
+              id: goal.id,
+              title: goal.title,
+              notes: goal.notes,
+              feelingsArray: goal.feelingsArray,
+              visionImageUrl: goal.visionImageUrl,
+              isCompleted: goal.isCompleted,
+              createdAt: goal.createdAt,
+              updatedAt: goal.updatedAt,
+              userId: goal.userId,
+              creationSource: goal.creationSource
+            }))
+            await AsyncStorage.setItem('cached_goals', JSON.stringify(serializedGoals))
+          } catch (error) {
+            console.error('Error caching goals:', error)
+          }
         })
 
         return () => subscription.unsubscribe()
       } catch (error) {
         console.error('Error fetching goals:', error)
-        setGoals([])
+        setIsLoading(false)
       }
     }
 
-    fetchGoals()
+    initializeGoals()
   }, [])
 
   const createGoal = async (goalData: {
@@ -212,6 +255,7 @@ export const useGoals = () => {
 
   return {
     goals,
+    isLoading,
     createGoal,
     updateGoal,
     deleteGoal,

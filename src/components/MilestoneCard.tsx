@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
-import { BaseCard } from './BaseCard';
+import { IconButton } from './IconButton';
 import type { Milestone } from '../types';
 
 type MilestoneCardVariant = 
@@ -18,12 +19,14 @@ interface MilestoneCardProps {
   milestone?: Milestone;
   variant: MilestoneCardVariant;
   onPress?: () => void;
+  onToggleComplete?: (milestoneId: string) => Promise<void>;
   creationSource?: 'spark' | 'manual';
 }
 
-export function MilestoneCard({ milestone, variant, onPress, creationSource }: MilestoneCardProps) {
+export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, creationSource }: MilestoneCardProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
+  const [isCompletePressed, setIsCompletePressed] = useState(false);
   
   // Empty state variants
   if (variant === 'empty' || variant === 'empty-completed') {
@@ -96,28 +99,7 @@ export function MilestoneCard({ milestone, variant, onPress, creationSource }: M
           {/* Left side - Target date */}
           <View style={styles.leftContent}>
             <View style={styles.dateRow}>
-              <View style={styles.calendarIcon}>
-                {/* Vector Calendar Icon */}
-                <View style={styles.calendarVector}>
-                  <View style={styles.calendarHeader} />
-                  <View style={styles.calendarRings}>
-                    <View style={styles.calendarRing} />
-                    <View style={styles.calendarRing} />
-                  </View>
-                  <View style={styles.calendarGrid}>
-                    <View style={styles.calendarRow}>
-                      <View style={styles.calendarCell} />
-                      <View style={styles.calendarCell} />
-                      <View style={styles.calendarCell} />
-                    </View>
-                    <View style={styles.calendarRow}>
-                      <View style={styles.calendarCell} />
-                      <View style={[styles.calendarCell, styles.calendarCellActive]} />
-                      <View style={styles.calendarCell} />
-                    </View>
-                  </View>
-                </View>
-              </View>
+              <Ionicons name="calendar-outline" size={12} color="#364958" />
               <Text style={[
                 styles.dateText,
                 isOverdue ? styles.overdueText : null,
@@ -128,18 +110,50 @@ export function MilestoneCard({ milestone, variant, onPress, creationSource }: M
             </View>
           </View>
 
-          {/* Right side - Status indicator */}
-          <View style={styles.statusIndicator}>
-            {isCompleted ? (
-              <View style={styles.completedIndicator}>
-                <Text style={styles.checkmark}>✓</Text>
-              </View>
-            ) : (
-              <View style={[
-                styles.progressIndicator,
-                isOverdue ? styles.overdueIndicator : null
-              ]} />
-            )}
+          {/* Right side - Action buttons */}
+          <View style={styles.actionButtons}>
+            <IconButton
+              variant="complete"
+              iconText="✓"
+              pressed={isCompletePressed}
+              onPress={() => {
+                if (milestone?.id && onToggleComplete) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  
+                  Alert.alert(
+                    'Complete Milestone',
+                    `Did you complete "${milestone.title}"?`,
+                    [
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                        onPress: () => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        onPress: async () => {
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          await onToggleComplete(milestone.id);
+                          
+                          // Show completion confirmation
+                          setTimeout(() => {
+                            Alert.alert(
+                              '🎉 Milestone Completed!',
+                              'Great job! Your milestone has been marked as complete.',
+                              [{ text: 'OK', onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
+                            );
+                          }, 300);
+                        }
+                      }
+                    ]
+                  );
+                }
+              }}
+              onPressIn={() => setIsCompletePressed(true)}
+              onPressOut={() => setIsCompletePressed(false)}
+            />
           </View>
         </View>
       </View>
@@ -217,65 +231,7 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  calendarIcon: {
-    width: 16,
-    height: 16,
-  },
-  calendarVector: {
-    width: 16,
-    height: 16,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#364958',
-    borderRadius: 2,
-    position: 'relative',
-  },
-  calendarHeader: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: 1,
-    height: 3,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-  },
-  calendarRings: {
-    position: 'absolute',
-    top: -2,
-    left: 3,
-    right: 3,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  calendarRing: {
-    width: 2,
-    height: 4,
-    backgroundColor: '#364958',
-    borderRadius: 1,
-  },
-  calendarGrid: {
-    position: 'absolute',
-    top: 6,
-    left: 2,
-    right: 2,
-    bottom: 2,
-    gap: 1,
-  },
-  calendarRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
-  },
-  calendarCell: {
-    width: 2,
-    height: 2,
-    backgroundColor: '#A3B18A',
-    borderRadius: 0.5,
-  },
-  calendarCellActive: {
-    backgroundColor: '#364958',
+    gap: 4,
   },
   dateText: {
     fontSize: 12,
@@ -286,31 +242,11 @@ const styles = StyleSheet.create({
     color: '#DC143C',
     fontWeight: '500',
   },
-  statusIndicator: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  completedIndicator: {
-    width: 24,
-    height: 24,
-    backgroundColor: '#8FBC8F',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkmark: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  progressIndicator: {
-    width: 12,
-    height: 12,
-    backgroundColor: '#A3B18A',
-    borderRadius: 6,
-  },
-  overdueIndicator: {
-    backgroundColor: '#DC143C',
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'flex-end',
+    marginBottom: 0,
   },
   sparkBadge: {
     backgroundColor: '#FFE066',

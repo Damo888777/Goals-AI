@@ -165,7 +165,7 @@ export default function TaskDetailsScreen() {
   const [showMilestoneDropdown, setShowMilestoneDropdown] = useState(false);
 
   // Real pomodoro session data from database
-  const { sessions: focusSessions, timeStats } = usePomodoroSessions(task?.id);
+  const { sessions: focusSessions, timeStats } = usePomodoroSessions(task?.id || '');
 
   useEffect(() => {
     if (id && tasks.length > 0) {
@@ -201,6 +201,11 @@ export default function TaskDetailsScreen() {
       return;
     }
 
+    if (!task) {
+      Alert.alert('Error', 'Task not found');
+      return;
+    }
+
     try {
       await updateTask(task.id, {
         title: title.trim(),
@@ -217,6 +222,11 @@ export default function TaskDetailsScreen() {
   };
 
   const handleDelete = () => {
+    if (!task) {
+      Alert.alert('Error', 'Task not found');
+      return;
+    }
+
     Alert.alert(
       'Delete Task',
       'Are you sure you want to delete this task? This action cannot be undone.',
@@ -316,15 +326,17 @@ export default function TaskDetailsScreen() {
         />
 
         {/* Focus History Section */}
-        <FocusHistorySection 
-          taskId={task.id}
-          focusSessions={focusSessions}
-          timeStats={timeStats}
-          onStartPomodoro={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push('/pomodoro');
-          }}
-        />
+        {task && (
+          <FocusHistorySection 
+            taskId={task.id}
+            focusSessions={focusSessions}
+            timeStats={timeStats}
+            onStartPomodoro={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/pomodoro');
+            }}
+          />
+        )}
 
         {/* Notes Section */}
         <View style={styles.sectionContainer}>
@@ -346,20 +358,22 @@ export default function TaskDetailsScreen() {
         </View>
 
         {/* Action Buttons */}
-        <View style={styles.actionButtonsContainer}>
-          <Button
-            title="Delete Task"
-            variant="delete"
-            onPress={handleDelete}
-            style={styles.cancelButton}
-          />
-          <Button
-            title="Save Changes"
-            variant="save"
-            onPress={handleSave}
-            style={styles.saveButton}
-          />
-        </View>
+        {task && (
+          <View style={styles.actionButtonsContainer}>
+            <Button
+              title="Delete Task"
+              variant="delete"
+              onPress={handleDelete}
+              style={styles.cancelButton}
+            />
+            <Button
+              title="Save Changes"
+              variant="save"
+              onPress={handleSave}
+              style={styles.saveButton}
+            />
+          </View>
+        )}
       </KeyboardAwareScrollView>
     </View>
   );

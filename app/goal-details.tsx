@@ -850,7 +850,8 @@ const styles = StyleSheet.create({
   milestonesDropdownContainer: {
     backgroundColor: '#f5ebe0',
     borderRadius: 15,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderWidth: 0.5,
     borderColor: '#a3b18a',
     shadowColor: '#7c7c7c',

@@ -307,8 +307,8 @@ class SyncService {
   private transformLocalToSupabase(record: any): any {
     const base = {
       id: record.id,
-      created_at: new Date(record.createdAt).toISOString(),
-      updated_at: new Date(record.updatedAt).toISOString(),
+      created_at: record.createdAt,
+      updated_at: record.updatedAt,
     }
 
     // Handle profile records
@@ -329,7 +329,7 @@ class SyncService {
         vision_image_url: record.visionImageUrl || null,
         notes: record.notes || null,
         is_completed: record.isCompleted || false,
-        completed_at: record.completedAt ? new Date(record.completedAt).toISOString() : null,
+        completed_at: record.completedAt ? (record.completedAt instanceof Date ? record.completedAt.getTime() : new Date(record.completedAt).getTime()) : null,
         creation_source: record.creationSource || 'manual'
       }
     }
@@ -346,7 +346,7 @@ class SyncService {
         scheduled_date: record.scheduledDate || null,
         is_frog: record.isFrog || false,
         is_complete: record.isComplete || false,
-        completed_at: record.completedAt ? new Date(record.completedAt).toISOString() : null,
+        completed_at: record.completedAt ? (record.completedAt instanceof Date ? record.completedAt.getTime() : new Date(record.completedAt).getTime()) : null,
         creation_source: record.creationSource || 'manual'
       }
     }
