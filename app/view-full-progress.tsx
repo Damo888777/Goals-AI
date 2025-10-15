@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import type { Task } from '../src/types';
 import { typography } from '../src/constants/typography';
@@ -106,8 +107,9 @@ export default function ViewFullProgressScreen() {
           <Text style={styles.headerDescription}>Review your completed tasks and celebrate your progress.</Text>
         </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        {/* Search and Date Filter Container */}
+        <View style={styles.filtersContainer}>
+          {/* Search Bar */}
           <View style={styles.searchInnerContainer}>
             <View style={styles.searchInputContainer}>
               <Icon name="search" size={20} color="#7C7C7C" style={styles.searchIcon} />
@@ -125,11 +127,10 @@ export default function ViewFullProgressScreen() {
               )}
             </View>
           </View>
-        </View>
 
-        {/* Date Filter */}
-        <View style={styles.dateFilterContainer}>
+          {/* Date Filter */}
           <View style={styles.dateFilterInnerContainer}>
+            <Ionicons name="calendar-outline" size={20} color="#7C7C7C" style={styles.dateIcon} />
             <TouchableOpacity 
               style={styles.datePickerButton}
               onPress={handleDatePickerPress}
@@ -146,32 +147,37 @@ export default function ViewFullProgressScreen() {
           </View>
         </View>
 
-        {/* Results */}
-        <View style={styles.resultsContainer}>
-          <Text style={styles.resultsText}>
-            {filteredTasks.length} completed task{filteredTasks.length !== 1 ? 's' : ''}
-          </Text>
-        </View>
+        {/* Completed Tasks Section */}
+        <View style={styles.completedTasksContainer}>
+          <View style={styles.completedTasksHeader}>
+            <Text style={styles.completedTasksTitle}>Completed Tasks</Text>
+            <Text style={styles.resultsText}>
+              {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
+            </Text>
+          </View>
 
-        {/* Completed Tasks List */}
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task: Task) => (
-            <CompletedTaskCard
-              key={task.id}
-              task={task}
-              onPress={() => handleTaskPress(task)}
-            />
-          ))
-        ) : (
-          <CompletedTaskCard
-            emptyState={{
-              title: "No completed tasks found",
-              description: searchQuery || selectedDate 
-                ? 'Try adjusting your search or date filter.'
-                : 'Complete some tasks to see them here.'
-            }}
-          />
-        )}
+          {/* Completed Tasks List */}
+          <View style={styles.tasksListContainer}>
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task: Task) => (
+                <CompletedTaskCard
+                  key={task.id}
+                  task={task}
+                  onPress={() => handleTaskPress(task)}
+                />
+              ))
+            ) : (
+              <CompletedTaskCard
+                emptyState={{
+                  title: "No completed tasks found",
+                  description: searchQuery || selectedDate 
+                    ? 'Try adjusting your search or date filter.'
+                    : 'Complete some tasks to see them here.'
+                }}
+              />
+            )}
+          </View>
+        </View>
       </ScrollView>
 
       {/* Date Picker Modal */}
@@ -250,12 +256,13 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     lineHeight: 18,
   },
-  searchContainer: {
+  filtersContainer: {
     backgroundColor: '#F5EBE0',
     borderWidth: 0.5,
     borderColor: '#A3B18A',
     borderRadius: 20,
     padding: 15,
+    gap: 12,
     shadowColor: '#7C7C7C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
@@ -284,6 +291,9 @@ const styles = StyleSheet.create({
   searchIcon: {
     marginLeft: 4,
   },
+  dateIcon: {
+    marginLeft: 4,
+  },
   searchInput: {
     flex: 1,
     fontSize: 16,
@@ -293,18 +303,6 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: 4,
-  },
-  dateFilterContainer: {
-    backgroundColor: '#F5EBE0',
-    borderWidth: 0.5,
-    borderColor: '#A3B18A',
-    borderRadius: 20,
-    padding: 15,
-    shadowColor: '#7C7C7C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 4,
   },
   dateFilterInnerContainer: {
     backgroundColor: '#EAE2B7', // Completed task background
@@ -344,14 +342,36 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontWeight: '500',
   },
-  resultsContainer: {
-    paddingHorizontal: 4,
+  completedTasksContainer: {
+    backgroundColor: '#F5EBE0',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  completedTasksHeader: {
+    marginBottom: 20,
+    gap: 4,
+  },
+  completedTasksTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#364958',
+    fontFamily: 'Helvetica',
   },
   resultsText: {
     fontSize: 14,
     color: '#7C7C7C',
     fontFamily: 'Helvetica',
     fontWeight: '300',
+  },
+  tasksListContainer: {
+    gap: 16,
   },
   modalOverlay: {
     flex: 1,

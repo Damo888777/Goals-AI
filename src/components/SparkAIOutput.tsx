@@ -345,8 +345,16 @@ interface GoalSelectionProps {
 }
 
 const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSelect, onDropdownToggle }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(Boolean(selectedGoalId));
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
+
+  // Auto-open dropdown if there's a preselected goal
+  useEffect(() => {
+    if (selectedGoalId) {
+      setIsDropdownOpen(true);
+      onDropdownToggle?.(true);
+    }
+  }, [selectedGoalId, onDropdownToggle]);
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -442,6 +450,13 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const { goals } = useGoals();
   const { milestones } = useMilestones();
 
+  // Auto-open dropdown if there's a preselected goal or milestone
+  useEffect(() => {
+    if (selectedGoalId || selectedMilestoneId) {
+      setIsDropdownOpen(true);
+    }
+  }, [selectedGoalId, selectedMilestoneId]);
+
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsDropdownOpen(!isDropdownOpen);
@@ -478,6 +493,9 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
     }
     return 'Select your goal or milestone';
   };
+
+  const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
+  const selectedMilestone = milestones.find(milestone => milestone.id === selectedMilestoneId);
 
   return (
     <View style={styles.sectionContainer}>

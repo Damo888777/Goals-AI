@@ -15,7 +15,7 @@ export interface UseAudioRecordingReturn {
   startRecording: () => Promise<void>;
   stopRecording: () => Promise<void>;
   toggleRecording: () => Promise<void>;
-  resetRecording: () => void;
+  resetRecording: () => Promise<void>;
 }
 
 export function useAudioRecording(): UseAudioRecordingReturn {
@@ -27,15 +27,29 @@ export function useAudioRecording(): UseAudioRecordingReturn {
   const recording = useRef<Audio.Recording | null>(null);
   const durationInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const resetRecording = useCallback(() => {
-    setRecordingState('idle');
-    setDuration(0);
-    setError(null);
-    setResult(null);
+  const resetRecording = useCallback(async () => {
+    // Stop and cleanup any active recording first
+    if (recording.current) {
+      try {
+        console.log('Cleaning up active recording...');
+        await recording.current.stopAndUnloadAsync();
+      } catch (cleanupError) {
+        console.error('Error cleaning up recording during reset:', cleanupError);
+      }
+      recording.current = null;
+    }
+    
+    // Clear the duration timer
     if (durationInterval.current) {
       clearInterval(durationInterval.current);
       durationInterval.current = null;
     }
+    
+    // Reset all state
+    setRecordingState('idle');
+    setDuration(0);
+    setError(null);
+    setResult(null);
   }, []);
 
   const startRecording = useCallback(async () => {

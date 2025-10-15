@@ -46,8 +46,8 @@ export default function SparkAIScreen() {
           {
             text: 'Cancel Recording',
             style: 'destructive',
-            onPress: () => {
-              resetRecording();
+            onPress: async () => {
+              await resetRecording();
               router.back();
             },
           },
@@ -65,7 +65,7 @@ export default function SparkAIScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       
       // Navigate to spark-ai-output with the AI processed data
-      setTimeout(() => {
+      setTimeout(async () => {
         router.push({
           pathname: '/spark-ai-output',
           params: {
@@ -77,7 +77,7 @@ export default function SparkAIScreen() {
             linkedMilestoneId: result.classification.linkedMilestoneId || '',
           },
         });
-        resetRecording();
+        await resetRecording();
       }, 1500); // Show completion animation for 1.5 seconds
     } else if (recordingState === 'error') {
       // Trigger error haptic feedback
@@ -93,15 +93,15 @@ export default function SparkAIScreen() {
               {
                 text: 'Cancel',
                 style: 'cancel',
-                onPress: () => {
-                  resetRecording();
+                onPress: async () => {
+                  await resetRecording();
                   router.back();
                 },
               },
               {
                 text: 'Try Again',
-                onPress: () => {
-                  resetRecording();
+                onPress: async () => {
+                  await resetRecording();
                 },
               },
             ]
@@ -109,8 +109,8 @@ export default function SparkAIScreen() {
         }, 500); // Small delay to let the error state show
       } else {
         // Auto-reset after showing other errors for a moment
-        setTimeout(() => {
-          resetRecording();
+        setTimeout(async () => {
+          await resetRecording();
         }, 3000);
       }
     }
@@ -202,10 +202,10 @@ export default function SparkAIScreen() {
 
   // Handle app state changes to stop recording when app goes to background
   useEffect(() => {
-    const handleAppStateChange = (nextAppState: string) => {
+    const handleAppStateChange = async (nextAppState: string) => {
       if (nextAppState !== 'active' && (isRecording || isProcessing)) {
         console.log('App went to background, stopping recording');
-        resetRecording();
+        await resetRecording();
       }
     };
 
@@ -340,7 +340,7 @@ export default function SparkAIScreen() {
 
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
-          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')} (max 1min)` :
+          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
            recordingState === 'processing' ? 'Spark is processing...' :
            recordingState === 'completed' ? 'Complete!' :
            recordingState === 'error' ? (error === 'no_text_recognized' ? 'No text recognized' : 'Error occurred - tap to try again') :

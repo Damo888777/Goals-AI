@@ -78,63 +78,77 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
   if (!task || !task.id) return null;
 
   return (
-    <Pressable 
-      onPress={() => {
-        if (task && task.id) {
-          router.push(`/completed-task-details?id=${task.id}`);
-        } else if (onPress) {
-          onPress();
-        }
-      }} 
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
-      style={[
-        styles.container,
-        {
-          backgroundColor: '#EAE2B7',
-          transform: [{ scale: isPressed ? 0.98 : 1 }]
-        }
-      ]}
-    >
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>
-          {task.title}
-        </Text>
-        
-        <View style={styles.metaInfo}>
-          <View style={styles.goalRow}>
-            <View style={styles.goalIcon}>
-              {milestoneName ? (
-                <Ionicons name="location" size={12} color="#F39C12" />
-              ) : (
-                <Ionicons name="flag" size={12} color="#364958" />
-              )}
+    <View style={styles.outerContainer}>
+      <Pressable 
+        onPress={() => {
+          if (task && task.id) {
+            router.push(`/completed-task-details?id=${task.id}`);
+          } else if (onPress) {
+            onPress();
+          }
+        }} 
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        style={[
+          styles.container,
+          {
+            backgroundColor: '#EAE2B7',
+            transform: [{ scale: isPressed ? 0.98 : 1 }]
+          }
+        ]}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={2}>
+            {task.title}
+          </Text>
+          
+          <View style={styles.metaInfo}>
+            <View style={styles.goalRow}>
+              <View style={styles.goalIcon}>
+                {milestoneName ? (
+                  <Ionicons name="location" size={12} color="#F39C12" />
+                ) : (
+                  <Ionicons name="flag" size={12} color="#364958" />
+                )}
+              </View>
+              <Text style={styles.projectText}>
+                {getProjectText()}
+              </Text>
             </View>
-            <Text style={styles.projectText}>
-              {getProjectText()}
-            </Text>
-          </View>
-          <View style={styles.dateRow}>
-            <Ionicons name="calendar-outline" size={12} color="#364958" />
-            <Text style={styles.completionDate}>
-              Completed: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
-            </Text>
+            <View style={styles.dateRow}>
+              <Ionicons name="calendar-outline" size={12} color="#364958" />
+              <Text style={styles.completionDate}>
+                Completed: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    backgroundColor: '#F5EBE0',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: spacing.xs,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
   container: {
     backgroundColor: '#EAE2B7',
     borderWidth: 0.5,
-    borderColor: '#926C15',
+    borderColor: '#B69121',
     borderRadius: 20,
     padding: spacing.lg,
-    marginBottom: spacing.xs,
-    shadowColor: '#7C7C7C',
+    shadowColor: '#B69121',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
