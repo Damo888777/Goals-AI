@@ -197,14 +197,12 @@ export const useGoals = () => {
         })
         console.log('Goal created:', newGoal.id)
         
-        // Trigger background sync after action
+        // Schedule optimized sync after action
         setTimeout(() => {
           import('../services/syncService').then(({ syncService }) => {
-            syncService.sync().catch(error => {
-              console.log('Background sync after goal creation failed (non-critical):', error.message)
-            })
+            syncService.scheduleSync(1500) // Debounced sync
           })
-        }, 500)
+        }, 100)
       })
     } catch (error) {
       console.error('Error creating goal:', error)
@@ -457,11 +455,9 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
       // Trigger background sync after action
       setTimeout(() => {
         import('../services/syncService').then(({ syncService }) => {
-          syncService.sync().catch(error => {
-            console.log('Background sync after task creation failed (non-critical):', error.message)
-          })
+          syncService.scheduleSync(1500) // Debounced sync
         })
-      }, 500)
+      }, 100)
     })
   }
 

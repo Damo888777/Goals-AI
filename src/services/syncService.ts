@@ -40,6 +40,9 @@ class SyncService {
   private database: Database
   private isOnline: boolean = true
   private syncInProgress: boolean = false
+  private lastSyncTime: Date | null = null
+  private syncCooldown: number = 5000 // 5 seconds between syncs
+  private pendingSyncTimeout: NodeJS.Timeout | null = null
 
   constructor(db: Database) {
     this.database = db
@@ -436,60 +439,89 @@ class SyncService {
     }
   }
 
-  // Push-only sync for offline-first architecture
-  async sync(): Promise<void> {
+  // Main sync function with intelligent scheduling and error handling
+  async sync(force: boolean = false): Promise<void> {
+    if (!isSupabaseConfigured || !supabase) {
+      console.log('⏭️ Skipping sync - Supabase not configured')
+      return
+    }
+
     if (this.syncInProgress) {
-      console.log('Sync already in progress, skipping...')
+      console.log('⏭️ Sync already in progress, skipping')
       return
     }
 
-    if (!this.isOnline) {
-      console.log('Device is offline, skipping sync...')
-      return
-    }
-
-    // Skip sync if Supabase is not configured
-    if (!isSupabaseConfigured) {
-      console.log('Supabase not configured, skipping sync...')
-      return
+    // Check cooldown period unless forced
+    if (!force && this.lastSyncTime) {
+      const timeSinceLastSync = Date.now() - this.lastSyncTime.getTime()
+      if (timeSinceLastSync < this.syncCooldown) {
+        console.log(`⏭️ Sync cooldown active (${Math.round((this.syncCooldown - timeSinceLastSync) / 1000)}s remaining)`)
+        return
+      }
     }
 
     if (!(await this.isAuthenticated())) {
-      console.log('User not authenticated, skipping sync...')
+      console.log('⏭️ User not authenticated, skipping sync')
       return
     }
 
     this.syncInProgress = true
+    console.log('🔄 Starting sync...')
 
-    try {
-      console.log('Starting sync to Supabase...')
-      
-      // Get local changes
-      const changes = await this.getLocalChanges()
-      
-      if (this.hasChangesToPush(changes)) {
-        console.log('Found local changes to push:', {
-          profiles: changes.profiles.created.length,
-          goals: changes.goals.created.length,
-          milestones: changes.milestones.created.length,
-          tasks: changes.tasks.created.length
+    const maxRetries = 3
+    let retryCount = 0
+
+    while (retryCount < maxRetries) {
+      try {
+        await synchronize({
+          database: this.database,
+          pullChanges: async ({ lastPulledAt }) => {
+            return this.pullChanges(lastPulledAt)
+          },
+          pushChanges: async ({ changes }) => {
+            await this.pushChanges(changes as SyncPushChanges)
+          },
         })
+
+        this.lastSyncTime = new Date()
+        console.log('✅ Sync completed successfully')
+        return // Success, exit retry loop
+      } catch (error: any) {
+        retryCount++
         
-        await this.pushChanges(changes)
+        // Check if it's a network error
+        const isNetworkError = error.message?.includes('Network') || 
+                              error.message?.includes('fetch') ||
+                              error.message?.includes('unavailable') ||
+                              error.code === 'NETWORK_ERROR'
         
-        // Update last sync timestamp
-        await this.database.adapter.setLocal('last_sync_timestamp', Date.now().toString())
-        
-        console.log('✅ Local changes successfully synced to Supabase')
-      } else {
-        console.log('No local changes found to push')
+        if (isNetworkError && retryCount < maxRetries) {
+          const backoffDelay = Math.pow(2, retryCount) * 1000 // Exponential backoff
+          console.log(`🔄 Network error during sync, retrying in ${backoffDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`)
+          await new Promise(resolve => setTimeout(resolve, backoffDelay))
+        } else {
+          console.error(`❌ Sync failed (attempt ${retryCount}/${maxRetries}):`, error)
+          if (retryCount >= maxRetries) {
+            throw error
+          }
+        }
       }
-    } catch (error) {
-      console.error('❌ Sync failed:', error)
-      throw error
-    } finally {
-      this.syncInProgress = false
     }
+    
+    this.syncInProgress = false
+  }
+
+  // Schedule a delayed sync (debounced)
+  scheduleSync(delayMs: number = 2000): void {
+    if (this.pendingSyncTimeout) {
+      clearTimeout(this.pendingSyncTimeout)
+    }
+    
+    this.pendingSyncTimeout = setTimeout(() => {
+      this.sync().catch(error => {
+        console.log('Scheduled sync failed (non-critical):', error.message)
+      })
+    }, delayMs)
   }
 
   // Check if there are any changes to push
@@ -515,22 +547,22 @@ export const syncService = new SyncService(database!)
 
 // Helper function to get current user ID
 export const getCurrentUserId = async (): Promise<string | null> => {
-  // First check if we have an authenticated user via authService
-  const { authService } = await import('./authService')
-  const currentUser = authService.getCurrentUser()
-  
-  if (currentUser) {
-    return currentUser.id
-  }
-  
-  // Fallback to Supabase if configured
-  if (isSupabaseConfigured && supabase) {
-    const { data: { user } } = await supabase.auth.getUser()
-    return user?.id || null
-  }
-  
-  // If no user found, try to initialize auth
   try {
+    // First check if we have an authenticated user via authService
+    const { authService } = await import('./authService')
+    const currentUser = authService.getCurrentUser()
+    
+    if (currentUser) {
+      return currentUser.id
+    }
+
+    // Try to get effective user ID (includes persistent anonymous)
+    const effectiveUserId = authService.getEffectiveUserId()
+    if (effectiveUserId) {
+      return effectiveUserId
+    }
+
+    // Try to initialize auth if no current user
     const user = await authService.initialize()
     return user?.id || null
   } catch (error) {

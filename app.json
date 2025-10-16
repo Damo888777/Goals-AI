@@ -15,6 +15,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "pro.GoalAchieverAI",
       "appleTeamId": "5PT3BWY2A5",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
@@ -24,7 +25,8 @@
       },
       "entitlements": {
         "aps-environment": "development",
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.onesignal"]
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.onesignal"],
+        "com.apple.developer.applesignin": ["Default"]
       }
     },
     "android": {
@@ -49,6 +51,7 @@
       "expo-router",
       "expo-secure-store",
       "expo-image-picker",
+      "expo-apple-authentication",
       [
         "expo-build-properties",
         {

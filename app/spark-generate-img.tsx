@@ -17,7 +17,7 @@ interface StyleButtonProps {
   style: StyleOption;
   selected: boolean;
   onPress: () => void;
-  imageUri: string;
+  imageUri: any;
   label: string;
 }
 
@@ -51,7 +51,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
           }}
         >
           <Image
-            source={{ uri: imageUri }}
+            source={imageUri}
             style={{ width: '100%', height: '100%' }}
             contentFit="cover"
           />
@@ -99,22 +99,22 @@ export default function SparkGenerateIMGScreen() {
     {
       id: 'photorealistic' as StyleOption,
       label: 'Photorealistic',
-      imageUri: 'https://s3-alpha-sig.figma.com/img/dbb9/7fb7/b840eab2022e07612954b986b23859c4?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=CZC7Wd3C6fnzD6v-fRfVXZInuqE-8ZXIvA7pR0T2oavlpQhbRGtk2mVT9SAYSP2M3CinC6DvxmOC8Ls~wpryVmDvYz-8tooia~rZ~eGtActHkzZkszsyFmzNV99MOeCt3-uUC8agHJJLH07md0sA9IHt-oJtNsXDLUfqoIBmkfULyjU-L1y~wmUlZGmBSY-j5DhgZPuihBT~DCbfs7XixXqckOR2zy-AvMt9g3umoHRh6SmJ5-TIfIIiLyKnFKq6BHNNeQraZz8MuJ5qAvIUFIEU~8aYxAJsQeiWGPZfv1OyyItw3LEyf3aSVlVhWGVenrJ7CJHjkS8doUOsUzukxA__'
+      imageUri: require('../assets/styles/style_photorealistic.png')
     },
     {
       id: 'anime' as StyleOption,
       label: 'Anime',
-      imageUri: 'https://s3-alpha-sig.figma.com/img/026a/16b4/90ce8feea056b3d278e07e42e8a36553?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=lQwYU1gVBFUxPLQtzSc6if7GXX2c~X2gON2rZfVUgDPJYiQD6Ja0Fy4~L0ZoKuHTFKnp88c~Mti-ci0ULXZfCrYIlZCs7BwtNaOryyD0wMMrvgFcMywWgg7XFz7Eh9A3qwyGKYPF2WCk80zBzkTmm1LzciBC774Jb48HH3c6lGvMmi9ZcQP0uSfrxdDenRifU3i5ajNJMmp2NdF8O-otu~guSk51iF74Ilj02JfSHA0clWDW7Dekp~4spmh8PGpIk1PnuBvz2WN74QpVb8xLYs4FudVT5QVZ2vioGEyXHf15JZtbFX~vOZIxxm7nKygvqRlml5z6Fx4DydUm8X56sw__'
+      imageUri: require('../assets/styles/style_anime.png')
     },
     {
       id: 'watercolour' as StyleOption,
       label: 'Watercolour',
-      imageUri: 'https://s3-alpha-sig.figma.com/img/4d3d/54f1/59c113d3a18e80dbd3ade4ee58d70293?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Q1CoeFcc5P0MXjDbU6jzykskXlh9j2VnbnVmaCdxC3KhjGvtubWtcVvfsBQkpQQO8AINwvxYHVWaTetRJeDkstCjgGGTnkS6tqll3HIzHSUigXAn-00c3YrG5vLEi8Kl4EUu8nNtPEGX12oN9xN76Z4su0feu9Q6IODauXYTuaXLYIpdwNblMJuBzw8LzdkhI9lxbOeu4zhNWsievcLbyre0wYfmQGHpx6QYcMdi0EoAchL5NQt7W5H4DmKCI1vJMIfrQcT2HhV9YAD~eNvWTfOyFcN2o9Ofuu8GpT3PelZ2qq95OiPw1uYfq8SoayFxigNX25xOt-lODqkF~~tRrQ__'
+      imageUri: require('../assets/styles/style_watercolour.png')
     },
     {
       id: 'cyberpunk' as StyleOption,
       label: 'Cyberpunk',
-      imageUri: 'https://s3-alpha-sig.figma.com/img/141b/8b73/11dde176484458807c9fee63f4fa4702?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=kvcr7yjnd-UZn8GUr1zN4oebM2kZ2Lksnpb~1Mpl0Ttw3nZuYFngu2P6OTb9NNc2-97qHVfUdoQQhlhqmhcJHMzpDh56fMp5h3vCW8De59T4rU3NsK~Z3c~hF5SXZfROQsOWFgkTpJ2x6BgRTj1cuZYeJZ1zLlnI6dqG3BU3q~EavwI-5qMAbEqfiVY4pz6IrXJhOz8U-IIFS-TnATtrw1Op10Do5pFoG7g59UqPEPj02d-aq8~cb9Cwcm~bF6IUmywb9BWEzCoXM3wqgqzMi7PL0tZd1Tw7wgB1AH6qbpwmABO8TSGCrrJlxP5dxW8HHjMC1WHghRMRoCdleW9d6g__'
+      imageUri: require('../assets/styles/style_cyberpunk.png')
     }
   ];
 

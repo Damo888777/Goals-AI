@@ -1,11 +1,13 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { syncService } from './syncService'
 import database from '../db'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export interface AuthUser {
   id: string
   email?: string
   isAnonymous: boolean
+  persistentAnonymousId?: string // For tracking the original anonymous ID
 }
 
 class AuthService {
@@ -13,9 +15,14 @@ class AuthService {
   private retryCount: number = 0
   private maxRetries: number = 3
   private isRetrying: boolean = false
+  private persistentAnonymousId: string | null = null
+  private static readonly ANONYMOUS_ID_KEY = 'persistent_anonymous_id'
 
   // Initialize authentication - check for existing session
   async initialize(): Promise<AuthUser | null> {
+    // Load persistent anonymous ID first
+    await this.loadPersistentAnonymousId()
+    
     // If Supabase is not configured, create offline user
     if (!isSupabaseConfigured) {
       console.log('🔄 Creating offline user - Supabase not configured')
@@ -29,7 +36,8 @@ class AuthService {
         this.currentUser = {
           id: user.id,
           email: user.email || undefined,
-          isAnonymous: user.is_anonymous || false
+          isAnonymous: user.is_anonymous || false,
+          persistentAnonymousId: this.persistentAnonymousId || undefined
         }
         
         // Ensure profile exists in local database
@@ -45,106 +53,110 @@ class AuthService {
         return this.currentUser
       }
       
-      return null
+      // No authenticated user - fall back to anonymous
+      return this.ensureAnonymousUser()
     } catch (error) {
       console.error('Error initializing auth:', error)
-      // Fallback to offline mode
-      return this.createOfflineUser()
+      // Fallback to anonymous user
+      return this.ensureAnonymousUser()
     }
   }
 
-  // Sign in anonymously (guest mode)
-  async signInAnonymously(): Promise<AuthUser> {
-    // Prevent infinite retry loop
-    if (this.isRetrying) {
-      console.log('🔄 Auth retry already in progress, skipping...')
-      return this.currentUser || this.createOfflineUser()
+  // Ensure anonymous user exists (either from Supabase or offline)
+  private async ensureAnonymousUser(): Promise<AuthUser> {
+    // Load persistent anonymous ID if not already loaded
+    if (!this.persistentAnonymousId) {
+      await this.loadPersistentAnonymousId()
     }
 
-    // If Supabase is not configured, create offline user
-    if (!isSupabaseConfigured) {
-      console.log('🔄 Creating offline user - Supabase not configured')
-      return this.createOfflineUser()
-    }
-
-    // Check retry limit
-    if (this.retryCount >= this.maxRetries) {
-      console.log('🔄 Max retries reached, falling back to offline mode')
-      return this.createOfflineUser()
-    }
-
-    this.isRetrying = true
-    this.retryCount++
-
-    try {
-      const { data, error } = await supabase!.auth.signInAnonymously()
-      
-      if (error) throw error
-      if (!data.user) throw new Error('No user returned from anonymous sign in')
-
+    // If we have a persistent anonymous ID, use it for offline mode
+    if (this.persistentAnonymousId) {
       this.currentUser = {
-        id: data.user.id,
+        id: this.persistentAnonymousId,
         email: undefined,
-        isAnonymous: true
+        isAnonymous: true,
+        persistentAnonymousId: this.persistentAnonymousId
       }
-
-      // Reset retry count on success
-      this.retryCount = 0
-      this.isRetrying = false
-
-      // Create profile in local database
+      
       await this.ensureLocalProfile(this.currentUser)
-      
-      // Trigger initial sync
-      await syncService.sync()
-
+      console.log('✅ Using persistent anonymous user:', this.persistentAnonymousId)
       return this.currentUser
-    } catch (error) {
-      this.isRetrying = false
-      console.error(`Error signing in anonymously (attempt ${this.retryCount}/${this.maxRetries}):`, error)
-      
-      // If we've reached max retries, fall back to offline mode
-      if (this.retryCount >= this.maxRetries) {
-        console.log('🔄 Falling back to offline mode')
-        return this.createOfflineUser()
-      }
-      
-      throw error
     }
+
+    // Try to create new anonymous user in Supabase
+    if (isSupabaseConfigured && this.retryCount < this.maxRetries) {
+      try {
+        const { data, error } = await supabase!.auth.signInAnonymously()
+        
+        if (!error && data.user) {
+          // Store this as our persistent anonymous ID
+          this.persistentAnonymousId = data.user.id
+          await this.savePersistentAnonymousId()
+          
+          this.currentUser = {
+            id: data.user.id,
+            email: undefined,
+            isAnonymous: true,
+            persistentAnonymousId: this.persistentAnonymousId
+          }
+
+          await this.ensureLocalProfile(this.currentUser)
+          console.log('✅ Created new anonymous user:', data.user.id)
+          return this.currentUser
+        }
+      } catch (error) {
+        console.log('Failed to create Supabase anonymous user, falling back to offline')
+      }
+    }
+
+    // Fallback to offline anonymous user
+    return this.createOfflineUser()
+  }
+
+  // Sign in anonymously (guest mode) - now just ensures anonymous user exists
+  async signInAnonymously(): Promise<AuthUser> {
+    return this.ensureAnonymousUser()
   }
 
   // Create offline user for when Supabase is unavailable
   private async createOfflineUser(): Promise<AuthUser> {
-    const offlineUserId = 'offline-user-' + Date.now()
+    // Use persistent anonymous ID if available, otherwise create new one
+    if (!this.persistentAnonymousId) {
+      this.persistentAnonymousId = 'offline-user-' + Date.now()
+      await this.savePersistentAnonymousId()
+    }
     
     this.currentUser = {
-      id: offlineUserId,
+      id: this.persistentAnonymousId,
       email: undefined,
-      isAnonymous: true
+      isAnonymous: true,
+      persistentAnonymousId: this.persistentAnonymousId
     }
 
     // Create profile in local database
     await this.ensureLocalProfile(this.currentUser)
     
-    console.log('✅ Created offline user:', offlineUserId)
+    console.log('✅ Created offline user:', this.persistentAnonymousId)
     return this.currentUser
   }
 
-  // Sign out
+  // Sign out from authenticated session but maintain anonymous user
   async signOut(): Promise<void> {
     try {
-      // Clear local database
-      await this.clearLocalData()
-      
       // Sign out from Supabase (only if configured)
       if (isSupabaseConfigured && supabase) {
         const { error } = await supabase.auth.signOut()
         if (error) throw error
       }
 
-      this.currentUser = null
+      // Don't clear local data - keep it for anonymous user
+      // Instead, revert to anonymous user
+      await this.ensureAnonymousUser()
+      
       this.retryCount = 0
       this.isRetrying = false
+      
+      console.log('✅ Signed out, reverted to anonymous user')
     } catch (error) {
       console.error('Error signing out:', error)
       throw error
@@ -252,10 +264,84 @@ class AuthService {
     return this.currentUser
   }
 
-  // Future: Upgrade anonymous account to Apple Sign-in
-  async upgradeToAppleSignIn(): Promise<AuthUser> {
-    // This will be implemented when Apple Sign-in is added
-    throw new Error('Apple Sign-in not yet implemented')
+  // Load persistent anonymous ID from storage
+  private async loadPersistentAnonymousId(): Promise<void> {
+    try {
+      this.persistentAnonymousId = await AsyncStorage.getItem(AuthService.ANONYMOUS_ID_KEY)
+    } catch (error) {
+      console.error('Error loading persistent anonymous ID:', error)
+    }
+  }
+
+  // Save persistent anonymous ID to storage
+  private async savePersistentAnonymousId(): Promise<void> {
+    if (!this.persistentAnonymousId) return
+    
+    try {
+      await AsyncStorage.setItem(AuthService.ANONYMOUS_ID_KEY, this.persistentAnonymousId)
+    } catch (error) {
+      console.error('Error saving persistent anonymous ID:', error)
+    }
+  }
+
+  // Upgrade anonymous account to Apple Sign-in (merge data)
+  async upgradeToAppleSignIn(appleUser: any): Promise<AuthUser> {
+    const previousAnonymousId = this.persistentAnonymousId
+    
+    if (!database) {
+      throw new Error('Database not available for data migration')
+    }
+
+    try {
+      // Migrate all local data from anonymous user to authenticated user
+      await database.write(async () => {
+        const collections = ['goals', 'milestones', 'tasks', 'vision_images']
+        
+        for (const collectionName of collections) {
+          const collection = database!.get(collectionName)
+          const anonymousRecords = await collection
+            .query(Q.where('user_id', previousAnonymousId || ''))
+            .fetch()
+          
+          // Update each record to use the new authenticated user ID
+          for (const record of anonymousRecords) {
+            await record.update(() => {
+              ;(record as any).userId = appleUser.id
+            })
+          }
+          
+          console.log(`✅ Migrated ${anonymousRecords.length} ${collectionName} records to authenticated user`)
+        }
+      })
+    } catch (error) {
+      console.error('Error migrating data to authenticated user:', error)
+      // Don't throw - allow sign-in to continue even if migration fails
+    }
+
+    this.currentUser = {
+      id: appleUser.id,
+      email: appleUser.email || undefined,
+      isAnonymous: false,
+      persistentAnonymousId: previousAnonymousId || undefined
+    }
+
+    // Ensure profile exists in local database
+    await this.ensureLocalProfile(this.currentUser)
+    
+    // Trigger immediate sync to upload migrated data to cloud
+    setTimeout(() => {
+      syncService.sync().catch(error => {
+        console.log('Post-upgrade sync failed (non-critical):', error.message)
+      })
+    }, 1000)
+    
+    console.log('✅ Upgraded to Apple Sign-in with data migration, user ID:', appleUser.id)
+    return this.currentUser
+  }
+
+  // Get the effective user ID for data operations
+  getEffectiveUserId(): string | null {
+    return this.currentUser?.id || this.persistentAnonymousId
   }
 }
 

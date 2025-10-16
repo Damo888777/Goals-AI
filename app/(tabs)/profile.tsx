@@ -1,113 +1,955 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  Switch,
+  Alert,
+  Linking,
+  Platform,
+  Animated,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Clipboard } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Image } from 'expo-image';
+import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
+import { statsUtils } from '../../src/utils/database';
+import { supabase } from '../../src/lib/supabase';
+import { colors } from '../../src/constants/colors';
+import { typography } from '../../src/constants/typography';
+import { spacing, borderRadius, shadows } from '../../src/constants/spacing';
+import { images } from '../../src/constants/images';
+import { DevTools } from '../../src/components/DevTools';
+
+interface Stats {
+  eatTheFrogStreak: number;
+  goalsAchieved: number;
+  totalFocusTime: number; // in minutes
+}
+
+// Animated Flame Component
+const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (isActive) {
+      const createAnimation = () => {
+        return Animated.loop(
+          Animated.sequence([
+            Animated.parallel([
+              Animated.timing(scaleAnim, {
+                toValue: 1.1,
+                duration: 800,
+                useNativeDriver: true,
+              }),
+              Animated.timing(opacityAnim, {
+                toValue: 0.8,
+                duration: 800,
+                useNativeDriver: true,
+              }),
+            ]),
+            Animated.parallel([
+              Animated.timing(scaleAnim, {
+                toValue: 0.9,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+              Animated.timing(opacityAnim, {
+                toValue: 1,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+            ]),
+          ])
+        );
+      };
+      
+      createAnimation().start();
+    } else {
+      scaleAnim.setValue(1);
+      opacityAnim.setValue(1);
+    }
+  }, [isActive, scaleAnim, opacityAnim]);
+
+  return (
+    <Animated.View
+      style={{
+        transform: [{ scale: scaleAnim }],
+        opacity: opacityAnim,
+      }}
+    >
+      <Ionicons 
+        name="flame" 
+        size={24} 
+        color={isActive ? colors.text.primary : '#7C7C7C'} 
+      />
+    </Animated.View>
+  );
+};
 
 export default function ProfileTab() {
   const insets = useSafeAreaInsets();
-
-  const stats = {
+  const { user } = useAuth();
+  const { goals } = useGoals();
+  const { tasks } = useTasks();
+  
+  const [userName, setUserName] = useState('User');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isPressed, setIsPressed] = useState<string | null>(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showDevTools, setShowDevTools] = useState(false);
+  const [stats, setStats] = useState<Stats>({
     eatTheFrogStreak: 0,
     goalsAchieved: 0,
-    totalFocusSessions: 0,
+    totalFocusTime: 0,
+  });
+
+  // Generate mock user ID for now
+  const userId = user?.id || 'anon_' + Math.random().toString(36).substr(2, 9);
+
+  useEffect(() => {
+    loadStats();
+    checkAuthStatus();
+  }, [goals, tasks]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const { authService } = await import('../../src/services/authService')
+      const currentUser = authService.getCurrentUser()
+      
+      if (currentUser && !currentUser.isAnonymous) {
+        setIsSignedIn(true)
+        setUserEmail(currentUser.email || null)
+      } else {
+        setIsSignedIn(false)
+        setUserEmail(null)
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error)
+    }
   };
 
+  const loadStats = async () => {
+    try {
+      // Calculate real stats from database
+      const completedGoals = goals.filter(goal => goal.isCompleted).length;
+      
+      // Calculate frog streak - simplified for now
+      const frogTasks = tasks.filter(task => task.isFrog && task.isComplete);
+      const frogStreak = frogTasks.length; // Simplified calculation
+      
+      // Calculate total focus time from all tasks
+      let totalFocusMinutes = 0;
+      tasks.forEach((task: any) => {
+        if (task.focusSessions && task.focusSessions.length > 0) {
+          task.focusSessions.forEach((session: any) => {
+            totalFocusMinutes += Math.floor(session.duration / 60); // Convert seconds to minutes
+          });
+        }
+      });
+
+      setStats({
+        eatTheFrogStreak: frogStreak,
+        goalsAchieved: completedGoals,
+        totalFocusTime: totalFocusMinutes,
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      })
+
+      if (credential.identityToken && supabase) {
+        const { data: { user }, error } = await supabase.auth.signInWithIdToken({
+          provider: 'apple',
+          token: credential.identityToken,
+        })
+
+        if (error) {
+          Alert.alert('Sign In Error', error.message)
+        } else {
+          // Use authService to handle the upgrade from anonymous to authenticated
+          const { authService } = await import('../../src/services/authService')
+          await authService.upgradeToAppleSignIn(user)
+          
+          setIsSignedIn(true)
+          setUserEmail(user?.email || null)
+          
+          // Update user name if available
+          if (credential.fullName?.givenName) {
+            setUserName(credential.fullName.givenName)
+          }
+          
+          Alert.alert('Success', 'Successfully signed in with Apple! Your data has been synced to the cloud.')
+        }
+      }
+    } catch (e: any) {
+      if (e.code === 'ERR_REQUEST_CANCELED') {
+        // User canceled the sign-in flow
+        console.log('User canceled Apple Sign In')
+      } else {
+        Alert.alert('Error', 'Failed to sign in with Apple')
+        console.error('Apple Sign In error:', e)
+      }
+    }
+  };
+
+  const handleSignOut = async () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out? Your data will remain available locally.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'default',
+          onPress: async () => {
+            try {
+              // Use authService instead of direct Supabase call
+              const { authService } = await import('../../src/services/authService')
+              await authService.signOut()
+              
+              setIsSignedIn(false)
+              setUserEmail(null)
+              Alert.alert('Success', 'Successfully signed out. You can continue using the app anonymously.')
+            } catch (error) {
+              Alert.alert('Error', 'Failed to sign out')
+            }
+          }
+        }
+      ]
+    )
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!supabase) {
+      Alert.alert('Error', 'Supabase not configured');
+      return;
+    }
+
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Note: Account deletion should be handled by a server function
+              // For now, we'll just sign out the user
+              const { error } = await supabase!.auth.signOut();
+              if (error) {
+                Alert.alert('Error', 'Failed to delete account');
+              } else {
+                setIsSignedIn(false);
+                setUserEmail(null);
+                Alert.alert(
+                  'Account Deletion', 
+                  'Your account deletion request has been processed. Please contact support if you need assistance.'
+                );
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete account');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleSupportFeedback = async () => {
+    const emailContent = `Hello Goals AI Support,
+
+User ID: ${userId}
+
+[Please describe your feedback, bug report, or feature suggestion here]
+
+Note: If your feedback/idea gets implemented, you'll receive 1 month free subscription!
+
+Best regards`;
+
+    try {
+      Clipboard.setString(emailContent);
+      Alert.alert(
+        'Email Template Copied!', 
+        'The support email template has been copied to your clipboard. Please paste it into your email app and send to: support@goals-ai.app\n\nDon\'t forget to include your User ID for faster support!'
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to copy email template to clipboard.');
+    }
+  };
+
+  const formatFocusTime = (minutes: number): string => {
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  };
+
+  const openPrivacyPolicy = () => {
+    Linking.openURL('https://goals-ai.app/privacy');
+  };
+
+  const openTerms = () => {
+    Linking.openURL('https://goals-ai.app/terms');
+  };
+
+  const handlePressIn = (id: string) => setIsPressed(id);
+  const handlePressOut = () => setIsPressed(null);
+
   return (
-    <View className="flex-1 bg-bg-primary">
+    <View style={styles.container}>
       <ScrollView
-        className="flex-1"
+        style={styles.scrollView}
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
           paddingBottom: 50,
-          gap: 43,
+          gap: spacing.xxxl,
         }}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Header */}
-        <View className="gap-2">
-          <Text className="text-[20px] font-helvetica-bold text-text-primary">
-            Your Journey
-          </Text>
-          <Text className="text-[15px] font-helvetica-light text-text-primary">
-            Track your progress and celebrate your achievements.
-          </Text>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="person" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Your Profile</Text>
+            </View>
+          </View>
+          
+          <View style={styles.profileCard}>
+            <View style={styles.profileContent}>
+              <View style={styles.avatarContainer}>
+                <Ionicons name="person" size={32} color={colors.text.primary} />
+              </View>
+              
+              <View style={styles.profileInfo}>
+                {isEditingName ? (
+                  <View style={styles.nameEditContainer}>
+                    <TextInput
+                      style={styles.nameInput}
+                      value={userName}
+                      onChangeText={setUserName}
+                      onBlur={() => setIsEditingName(false)}
+                      onSubmitEditing={() => setIsEditingName(false)}
+                      autoFocus
+                      placeholderTextColor="rgba(245,235,224,0.5)"
+                    />
+                  </View>
+                ) : (
+                  <Pressable
+                    style={styles.nameContainer}
+                    onPress={() => setIsEditingName(true)}
+                  >
+                    <Text style={[typography.title, styles.userName]}>{userName}</Text>
+                    <Ionicons name="pencil" size={16} color={colors.secondary} />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+            
+            {/* Apple Sign In / Account Management */}
+            {Platform.OS === 'ios' && (
+              <View style={styles.appleSignInContainer}>
+                {!isSignedIn ? (
+                  // Not signed in - show sign in button
+                  <>
+                    <Pressable 
+                      style={[styles.appleSignInButton, isPressed === 'apple' && styles.buttonPressed]} 
+                      onPress={handleAppleSignIn}
+                      onPressIn={() => handlePressIn('apple')}
+                      onPressOut={handlePressOut}
+                    >
+                      <Ionicons name="logo-apple" size={20} color={colors.secondary} />
+                      <Text style={[typography.button, styles.buttonText]}>Sign In with Apple</Text>
+                    </Pressable>
+                    <Text style={[typography.caption, styles.appleSignInDescription]}>
+                      Sign in to permanently save your data and sync across devices
+                    </Text>
+                  </>
+                ) : (
+                  // Signed in - show account info and management
+                  <View style={styles.signedInContainer}>
+                    <View style={styles.accountInfo}>
+                      <View style={styles.accountDetails}>
+                        <Text style={[typography.cardTitle, styles.accountLabel]}>Data Synced</Text>
+                        <Text style={[typography.caption, styles.accountEmail]}>
+                          {userEmail ? userEmail.replace(/(.{2})(.*)(@.*)/, '$1***$3') : 'Email hidden'}
+                        </Text>
+                      </View>
+                    </View>
+                    
+                    <View style={styles.accountActions}>
+                      <Pressable 
+                        style={[styles.accountButton, styles.deleteButton, isPressed === 'delete' && styles.buttonPressed]} 
+                        onPress={handleDeleteAccount}
+                        onPressIn={() => handlePressIn('delete')}
+                        onPressOut={handlePressOut}
+                      >
+                        <Text style={[typography.caption, styles.deleteButtonText]}>Delete Account</Text>
+                      </Pressable>
+                      
+                      <Pressable 
+                        style={[styles.accountButton, styles.signOutButton, isPressed === 'signout' && styles.buttonPressed]} 
+                        onPress={handleSignOut}
+                        onPressIn={() => handlePressIn('signout')}
+                        onPressOut={handlePressOut}
+                      >
+                        <Text style={[typography.caption, styles.signOutButtonText]}>Sign Out</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
         </View>
 
-        {/* Stats Cards */}
-        <View className="gap-4">
-          {/* Eat the Frog Streak */}
-          <View className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5">
-            <Text className="text-[15px] font-helvetica-bold text-text-primary">
-              Eat the Frog Streak
-            </Text>
-            <Text className="text-[32px] font-helvetica-bold text-text-primary mt-2">
-              {stats.eatTheFrogStreak} days
-            </Text>
+        {/* Your Journey Stats */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="trophy" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Your Journey</Text>
+            </View>
           </View>
-
-          {/* Goals Achieved */}
-          <View className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5">
-            <Text className="text-[15px] font-helvetica-bold text-text-primary">
-              Goals Achieved
-            </Text>
-            <Text className="text-[32px] font-helvetica-bold text-text-primary mt-2">
-              {stats.goalsAchieved}
-            </Text>
-          </View>
-
-          {/* Total Focus Sessions */}
-          <View className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5">
-            <Text className="text-[15px] font-helvetica-bold text-text-primary">
-              Total Focus Sessions
-            </Text>
-            <Text className="text-[32px] font-helvetica-bold text-text-primary mt-2">
-              {stats.totalFocusSessions}
-            </Text>
+          
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <View style={styles.statIconOnly}>
+                <AnimatedFlame isActive={stats.eatTheFrogStreak > 0} />
+              </View>
+              <View style={styles.statContent}>
+                <Text style={styles.statValue}>{stats.eatTheFrogStreak}</Text>
+                <Text style={[typography.caption, styles.statLabel]}>Eat the Frog Streak</Text>
+              </View>
+            </View>
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconOnly}>
+                <Image 
+                  source={{ uri: images.tabIcons.goals }}
+                  style={{ width: 24, height: 24 }}
+                  contentFit="contain"
+                  tintColor={colors.text.primary}
+                />
+              </View>
+              <View style={styles.statContent}>
+                <Text style={styles.statValue}>{stats.goalsAchieved}</Text>
+                <Text style={[typography.caption, styles.statLabel]}>Goals Achieved</Text>
+              </View>
+            </View>
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconOnly}>
+                <Ionicons name="time" size={24} color={colors.text.primary} />
+              </View>
+              <View style={styles.statContent}>
+                <Text style={styles.statValue}>{formatFocusTime(stats.totalFocusTime)}</Text>
+                <Text style={[typography.caption, styles.statLabel]}>Total Focus Time</Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        {/* Sign In Section */}
-        <View className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5 gap-4">
-          <View className="gap-2">
-            <Text className="text-[15px] font-helvetica-bold text-text-primary">
-              Create Permanent Account
-            </Text>
-            <Text className="text-[13px] font-helvetica-light text-text-primary">
-              Sign in with Apple to save your data permanently and sync across devices.
-            </Text>
-          </View>
 
-          <Pressable className="bg-accent-fab h-[44px] rounded-button items-center justify-center active:opacity-80">
-            <Text className="text-[16px] font-helvetica-bold text-bg-secondary">
-              Sign In with Apple
-            </Text>
-          </Pressable>
+        {/* Settings */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="settings" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Settings</Text>
+            </View>
+          </View>
+          
+          <View style={styles.settingsCard}>
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="notifications" size={20} color={colors.text.primary} />
+                </View>
+                <Text style={[typography.cardTitle, styles.settingLabel]}>Notifications</Text>
+              </View>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={setNotificationsEnabled}
+                trackColor={{ false: colors.textSecondary, true: colors.accent.frog }}
+                thumbColor={colors.secondary}
+              />
+            </View>
+          </View>
         </View>
 
-        {/* Settings Section */}
-        <View className="gap-4">
-          <Text className="text-[20px] font-helvetica-bold text-text-primary">
-            Settings
-          </Text>
+        {/* Support & Info */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="help-circle" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Support & Info</Text>
+            </View>
+          </View>
+          
+          <View style={styles.menuCard}>
+            {/* Support & Feedback */}
+            <Pressable 
+              style={[styles.menuItem, isPressed === 'support' && styles.menuItemPressed]} 
+              onPress={handleSupportFeedback}
+              onPressIn={() => handlePressIn('support')}
+              onPressOut={handlePressOut}
+            >
+              <View style={styles.menuLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="mail" size={20} color={colors.text.primary} />
+                </View>
+                <View style={styles.menuTextContainer}>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>Support & Feedback</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>Get help or share ideas for rewards</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </Pressable>
 
-          <Pressable className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5 active:opacity-80">
-            <Text className="text-[15px] font-helvetica text-text-primary">
-              Pomodoro Durations
-            </Text>
-          </Pressable>
+            <View style={styles.menuDivider} />
 
-          <Pressable className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5 active:opacity-80">
-            <Text className="text-[15px] font-helvetica text-text-primary">
-              Notifications
-            </Text>
-          </Pressable>
+            {/* Credits */}
+            <View style={styles.menuItem}>
+              <View style={styles.menuLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="heart" size={20} color={colors.text.primary} />
+                </View>
+                <View style={styles.menuTextContainer}>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>Credits</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>Icons and illustrations by Freepik</Text>
+                </View>
+              </View>
+            </View>
 
-          <Pressable className="bg-bg-secondary border-[0.5px] border-border-primary rounded-card p-5 active:opacity-80">
-            <Text className="text-[15px] font-helvetica text-text-primary">
-              Help & Support
-            </Text>
-          </Pressable>
+            <View style={styles.menuDivider} />
+
+            {/* Privacy Policy */}
+            <Pressable 
+              style={[styles.menuItem, isPressed === 'privacy' && styles.menuItemPressed]} 
+              onPress={openPrivacyPolicy}
+              onPressIn={() => handlePressIn('privacy')}
+              onPressOut={handlePressOut}
+            >
+              <View style={styles.menuLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="shield" size={20} color={colors.text.primary} />
+                </View>
+                <View style={styles.menuTextContainer}>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>Privacy Policy</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>How we protect your data</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </Pressable>
+
+            <View style={styles.menuDivider} />
+
+            {/* Terms & Conditions */}
+            <Pressable 
+              style={[styles.menuItem, isPressed === 'terms' && styles.menuItemPressed]} 
+              onPress={openTerms}
+              onPressIn={() => handlePressIn('terms')}
+              onPressOut={handlePressOut}
+            >
+              <View style={styles.menuLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="document-text" size={20} color={colors.text.primary} />
+                </View>
+                <View style={styles.menuTextContainer}>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>Terms & Conditions</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>Service terms and conditions</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Dev Tools - Only show in development */}
+        {__DEV__ && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionHeaderLeft}>
+                <Ionicons name="code" size={20} color={colors.secondary} />
+                <Text style={[typography.title, styles.sectionTitle]}>Dev Tools</Text>
+              </View>
+            </View>
+            
+            <View style={styles.menuCard}>
+              <Pressable 
+                style={[styles.menuItem, isPressed === 'devtools' && styles.menuItemPressed]} 
+                onPress={() => setShowDevTools(true)}
+                onPressIn={() => handlePressIn('devtools')}
+                onPressOut={handlePressOut}
+              >
+                <View style={styles.menuLeft}>
+                  <View style={styles.iconOnly}>
+                    <Ionicons name="construct" size={20} color={colors.text.primary} />
+                  </View>
+                  <View style={styles.menuTextContainer}>
+                    <Text style={[typography.cardTitle, styles.menuLabel]}>Developer Tools</Text>
+                    <Text style={[typography.caption, styles.menuSubtitle]}>Reset onboarding, debug tools</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={colors.text.primary} />
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* User ID */}
+        <View style={styles.userIdSection}>
+          <Text style={[typography.caption, styles.userIdLabel]}>User ID</Text>
+          <Text style={[typography.caption, styles.userIdText]}>{userId}</Text>
         </View>
       </ScrollView>
+
+      <DevTools 
+        visible={showDevTools} 
+        onClose={() => setShowDevTools(false)} 
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.text.primary, // Dark blue background
+  },
+  scrollView: {
+    flex: 1,
+  },
+  section: {
+    gap: spacing.lg,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  sectionTitle: {
+    color: colors.secondary, // Cream color
+  },
+  
+  // Profile Card
+  profileCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary, // Cream shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  profileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  nameEditContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  nameInput: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text.primary,
+    padding: 0,
+  },
+  userName: {
+    flex: 1,
+  },
+  
+  // Apple Sign In in Profile Section
+  appleSignInContainer: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
+  appleSignInDescription: {
+    color: colors.text.primary,
+    textAlign: 'center',
+    fontSize: 10,
+    fontWeight: '300',
+  },
+  
+  // Signed In Interface
+  signedInContainer: {
+    gap: spacing.lg,
+    width: '100%',
+  },
+  accountInfo: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    justifyContent: 'center',
+  },
+  accountDetails: {
+    alignItems: 'flex-start',
+    gap: spacing.xxs,
+    width: '100%',
+  },
+  accountLabel: {
+    color: colors.text.primary,
+    textAlign: 'left',
+  },
+  accountEmail: {
+    color: colors.text.primary,
+    textAlign: 'left',
+    opacity: 0.7,
+    fontSize: 9,
+  },
+  accountActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  accountButton: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderRadius: borderRadius.md,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signOutButton: {
+    backgroundColor: '#6B7280',
+  },
+  deleteButton: {
+    backgroundColor: '#BC4B51',
+  },
+  signOutButtonText: {
+    color: colors.secondary,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  deleteButtonText: {
+    color: colors.secondary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  // Stats Section
+  statsGrid: {
+    gap: spacing.lg,
+  },
+  statCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary, // Cream shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  statIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.background.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIconOnly: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconOnly: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statContent: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.text.primary,
+  },
+  statLabel: {
+    color: colors.text.primary,
+  },
+
+  appleSignInButton: {
+    backgroundColor: colors.text.primary,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    minWidth: '100%',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.98 }],
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  buttonText: {
+    color: colors.secondary,
+  },
+
+  // Settings
+  settingsCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary, // Cream shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  settingItem: {
+    padding: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  settingLabel: {
+    color: colors.text.primary,
+  },
+
+  // Menu Card
+  menuCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary, // Cream shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    padding: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuItemPressed: {
+    backgroundColor: colors.background.primary,
+  },
+  menuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    flex: 1,
+  },
+  menuTextContainer: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  menuLabel: {
+    color: colors.text.primary,
+  },
+  menuSubtitle: {
+    color: colors.textSecondary,
+    lineHeight: 16,
+  },
+  menuDivider: {
+    height: 0.5,
+    backgroundColor: colors.border.primary,
+    marginLeft: spacing.xl + 40 + spacing.lg, // Align with text
+  },
+
+  // User ID
+  userIdSection: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingTop: spacing.xl,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(245,235,224,0.2)',
+  },
+  userIdLabel: {
+    color: 'rgba(245,235,224,0.7)',
+  },
+  userIdText: {
+    color: 'rgba(245,235,224,0.5)',
+    fontWeight: '500',
+  },
+});

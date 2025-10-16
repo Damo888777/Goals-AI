@@ -6,8 +6,10 @@ import { EatTheFrogSection } from '../../src/components/EatTheFrogSection';
 import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
 import { CompletedTasksSection } from '../../src/components/CompletedTasksSection';
 import { FAB } from '../../src/components/FAB';
+import { SparkTutorialOverlay } from '../../src/components/SparkTutorialOverlay';
 import { useTodaysTasks } from '../../src/hooks/useTodaysTasks';
 import { useTasks, useTodaysCompletedTasks } from '../../src/hooks/useDatabase';
+import { useOnboarding } from '../../src/hooks/useOnboarding';
 import type { Task } from '../../src/types';
 
 export default function TodayTab() {
@@ -20,6 +22,7 @@ export default function TodayTab() {
   
   const { completeTask, createTask, deleteTask } = useTasks();
   const { completedTasks } = useTodaysCompletedTasks();
+  const { shouldShowSparkTutorial, completeSparkTutorial } = useOnboarding();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -139,6 +142,12 @@ export default function TodayTab() {
 
       {/* Floating Action Button */}
       <FAB onLongPress={handleFABLongPress} />
+
+      {/* Spark Tutorial Overlay */}
+      <SparkTutorialOverlay
+        visible={shouldShowSparkTutorial}
+        onComplete={completeSparkTutorial}
+      />
     </View>
   );
 }
