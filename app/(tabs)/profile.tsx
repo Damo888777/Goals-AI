@@ -17,7 +17,7 @@ export default function ProfileTab() {
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
           gap: 43,
         }}
         showsVerticalScrollIndicator={false}

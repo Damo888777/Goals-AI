@@ -50,7 +50,7 @@ export default function TrophyScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
           gap: 43,
         }}
         showsVerticalScrollIndicator={false}
@@ -108,7 +108,24 @@ export default function TrophyScreen() {
               completedGoals.map((goal) => (
                 <TrophyCard
                   key={goal.id}
-                  goal={goal}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.notes || '',
+                    feelings: goal.feelings || [],
+                    emotions: goal.feelings || [],
+                    visionImageUrl: goal.visionImageUrl,
+                    visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
+                    milestones: [], // Empty array since TrophyCard doesn't need milestones
+                    progress: 100, // Completed goals are 100%
+                    isCompleted: goal.isCompleted,
+                    completedAt: goal.completedAt,
+                    reflectionAnswers: goal.reflectionAnswers,
+                    notes: goal.notes,
+                    creationSource: goal.creationSource,
+                    createdAt: goal.createdAt,
+                    updatedAt: goal.updatedAt
+                  }}
                   onPress={() => router.push(`/completed-goal-details?id=${goal.id}`)}
                 />
               ))

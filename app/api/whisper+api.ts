@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     
     // Forward to OpenAI Whisper API with optimized settings
     const whisperFormData = new FormData();
-    whisperFormData.append('file', audioFile, 'recording.m4a');
+    whisperFormData.append('file', audioFile as Blob, 'recording.m4a');
     // Use turbo model for faster transcription with minimal accuracy loss
     whisperFormData.append('model', 'whisper-1'); // Note: OpenAI API uses 'whisper-1' which maps to turbo
     whisperFormData.append('response_format', 'json'); // Use JSON for better error handling

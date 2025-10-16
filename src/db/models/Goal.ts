@@ -18,6 +18,11 @@ export default class Goal extends Model {
   @field('notes') notes?: string
   @field('is_completed') isCompleted!: boolean
   @field('completed_at') completedAt?: number // Unix timestamp
+  @json('reflection_answers', (json) => json) reflectionAnswers?: {
+    takeaways?: string;
+    challengeConquered?: string;
+    futureImprovement?: string;
+  }
   @field('creation_source') creationSource!: 'spark' | 'manual'
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date

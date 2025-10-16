@@ -15,6 +15,10 @@ export class SparkIntegrationTest {
   async runAllTests(): Promise<void> {
     console.log('🚀 Starting Spark Integration Tests...')
     
+    if (!database) {
+      throw new Error('Database not initialized')
+    }
+    
     try {
       await this.setup()
       await this.testSparkGoalCreation()
@@ -64,7 +68,7 @@ export class SparkIntegrationTest {
     }
     
     // Verify the goal was created with correct source
-    const goal = await database.get<Goal>('goals').find(result.itemId)
+    const goal = await database!.get<Goal>('goals').find(result.itemId)
     
     if (!goal) {
       throw new Error('Goal not found in database')
@@ -97,7 +101,7 @@ export class SparkIntegrationTest {
     }
     
     // Verify the milestone was created with correct source
-    const milestone = await database.get<Milestone>('milestones').find(result.itemId)
+    const milestone = await database!.get<Milestone>('milestones').find(result.itemId)
     
     if (!milestone) {
       throw new Error('Milestone not found in database')
@@ -134,7 +138,7 @@ export class SparkIntegrationTest {
     }
     
     // Verify the task was created with correct source
-    const task = await database.get<Task>('tasks').find(result.itemId)
+    const task = await database!.get<Task>('tasks').find(result.itemId)
     
     if (!task) {
       throw new Error('Task not found in database')
@@ -159,8 +163,8 @@ export class SparkIntegrationTest {
     console.log('👤 Testing manual creation with proper source tracking...')
     
     // Create manual goal
-    await database.write(async () => {
-      const goalsCollection = database.get<Goal>('goals')
+    await database!.write(async () => {
+      const goalsCollection = database!.get<Goal>('goals')
       await goalsCollection.create((goal) => {
         goal.userId = this.testUserId!
         goal.title = 'Manual Goal Test'
@@ -171,8 +175,8 @@ export class SparkIntegrationTest {
     })
     
     // Create manual task
-    await database.write(async () => {
-      const tasksCollection = database.get<Task>('tasks')
+    await database!.write(async () => {
+      const tasksCollection = database!.get<Task>('tasks')
       await tasksCollection.create((task) => {
         task.userId = this.testUserId!
         task.title = 'Manual Task Test'
@@ -259,7 +263,7 @@ export class SparkIntegrationTest {
     console.log('🎨 Testing UI data integrity for card components...')
     
     // Get all goals and verify they have creation source
-    const goals = await database.get<Goal>('goals').query().fetch()
+    const goals = await database!.get<Goal>('goals').query().fetch()
     
     for (const goal of goals) {
       const creationSource = (goal as any).creationSource
@@ -284,7 +288,7 @@ export class SparkIntegrationTest {
     }
     
     // Get all tasks and verify they have creation source
-    const tasks = await database.get<Task>('tasks').query().fetch()
+    const tasks = await database!.get<Task>('tasks').query().fetch()
     
     for (const task of tasks) {
       const creationSource = (task as any).creationSource
@@ -310,7 +314,7 @@ export class SparkIntegrationTest {
     }
     
     // Get all milestones and verify they have creation source
-    const milestones = await database.get<Milestone>('milestones').query().fetch()
+    const milestones = await database!.get<Milestone>('milestones').query().fetch()
     
     for (const milestone of milestones) {
       const creationSource = (milestone as any).creationSource
@@ -342,10 +346,10 @@ export class SparkIntegrationTest {
     
     try {
       // Clean up test data
-      await database.write(async () => {
-        const goals = await database.get<Goal>('goals').query().fetch()
-        const milestones = await database.get<Milestone>('milestones').query().fetch()
-        const tasks = await database.get<Task>('tasks').query().fetch()
+      await database!.write(async () => {
+        const goals = await database!.get<Goal>('goals').query().fetch()
+        const milestones = await database!.get<Milestone>('milestones').query().fetch()
+        const tasks = await database!.get<Task>('tasks').query().fetch()
         
         await Promise.all([
           ...goals.map(goal => goal.markAsDeleted()),

@@ -7,7 +7,7 @@ import { spacing } from '../constants/spacing';
 import type { Goal } from '../types/index';
 
 interface TrophyCardProps {
-  goal: Goal;
+  goal?: Goal;
   onPress?: () => void;
   emptyState?: {
     title: string;

@@ -18,6 +18,10 @@ class ApiKeyService {
     }
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized')
+      }
+
       // Get current session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       

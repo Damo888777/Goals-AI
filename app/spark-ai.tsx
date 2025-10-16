@@ -294,9 +294,9 @@ export default function SparkAIScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Pressable onPress={handleBackPress} style={styles.headerButton}>
           <View style={styles.chevronLeft}>
             <View style={styles.chevronLine1} />

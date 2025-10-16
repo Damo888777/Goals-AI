@@ -38,7 +38,7 @@ export default function CompletedGoalDetailsScreen() {
     if (id && goals.length > 0) {
       const foundGoal = goals.find(g => g.id === id);
       if (foundGoal) {
-        setGoal(foundGoal);
+        setGoal(foundGoal as unknown as Goal);
         
         // Get goal milestones
         const goalMilestonesList = milestones.filter(m => m.goalId === id);
@@ -107,17 +107,17 @@ export default function CompletedGoalDetailsScreen() {
 
   if (!goal) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={[styles.container, { paddingTop: insets.top + 100 }]}>
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <ScrollView
         style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -315,8 +315,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
   },
   scrollContent: {
-    paddingBottom: 150,
-    paddingTop: 20,
+    paddingBottom: 50,
   },
   loadingText: {
     textAlign: 'center',

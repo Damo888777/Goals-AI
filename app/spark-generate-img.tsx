@@ -206,7 +206,7 @@ export default function SparkGenerateIMGScreen() {
           paddingTop: insets.top + 20,
           paddingLeft: 36,
           paddingRight: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
         }}
         showsVerticalScrollIndicator={false}
       >

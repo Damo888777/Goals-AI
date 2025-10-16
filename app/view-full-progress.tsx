@@ -90,7 +90,7 @@ export default function ViewFullProgressScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
           gap: 24,
         }}
         showsVerticalScrollIndicator={false}

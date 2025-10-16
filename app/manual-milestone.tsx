@@ -194,7 +194,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
                     id: goal.id,
                     title: goal.title,
                     description: goal.notes || '',
-                    emotions: goal.feelingsArray || [],
+                    emotions: goal.feelings || [],
                     visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
                     milestones: [],
                     progress: 0,
@@ -302,10 +302,10 @@ export default function ManualMilestoneScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <KeyboardAwareScrollView
         style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
         showsVerticalScrollIndicator={false}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -390,8 +390,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
   },
   scrollContent: {
-    paddingBottom: 150,
-    paddingTop: 20,
+    paddingBottom: 50,
   },
 
   // Header styles

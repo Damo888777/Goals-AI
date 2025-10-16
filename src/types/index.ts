@@ -19,18 +19,21 @@ export interface Goal {
   id: string;
   title: string;
   description?: string;
-  emotions: string[];
+  feelings?: string[]; // Match database model field name
+  emotions?: string[]; // For component compatibility
   visionImageUrl?: string;
   visionImages?: string[];
-  milestones: Milestone[];
-  progress: number;
+  milestones?: Milestone[]; // Make optional since it's a relation
+  progress?: number; // For component compatibility
   isCompleted: boolean;
+  completedAt?: number; // Unix timestamp to match database model
   reflectionAnswers?: {
     takeaways?: string;
     challengeConquered?: string;
     futureImprovement?: string;
   };
   notes?: string;
+  creationSource?: 'spark' | 'manual'; // Add creation source field
   createdAt: Date;
   updatedAt: Date;
 }

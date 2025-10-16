@@ -118,7 +118,7 @@ export default function GoalsScreen() {
         id: dbGoal.id,
         title: dbGoal.title,
         description: dbGoal.notes || '',
-        emotions: dbGoal.feelingsArray || [],
+        emotions: dbGoal.feelings || [],
         visionImageUrl: dbGoal.visionImageUrl, // Add this for GoalCard compatibility
         visionImages: dbGoal.visionImageUrl ? [dbGoal.visionImageUrl] : [],
         milestones: goalMilestones.map(milestone => ({
@@ -144,7 +144,7 @@ export default function GoalsScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
           gap: 43,
         }}
         showsVerticalScrollIndicator={false}

@@ -7,6 +7,10 @@ import { goalUtils, milestoneUtils, taskUtils, statsUtils } from '../utils/datab
 async function testDatabaseIntegration() {
   console.log('🧪 Starting database integration test...')
 
+  if (!database) {
+    throw new Error('Database not initialized')
+  }
+
   try {
     // Test 1: Database initialization
     console.log('\n1️⃣ Testing database initialization...')
@@ -27,7 +31,7 @@ async function testDatabaseIntegration() {
     // Create a mock user profile
     const mockUserId = 'test-user-123'
     await database.write(async () => {
-      const profilesCollection = database.get('profiles')
+      const profilesCollection = database!.get('profiles')
       await profilesCollection.create((profile: any) => {
         profile._raw.id = mockUserId
         profile.email = null // Anonymous user
@@ -37,7 +41,7 @@ async function testDatabaseIntegration() {
 
     // Create a test goal
     await database.write(async () => {
-      const goalsCollection = database.get('goals')
+      const goalsCollection = database!.get('goals')
       await goalsCollection.create((goal: any) => {
         goal.userId = mockUserId
         goal.title = 'Test Goal: Learn React Native'
@@ -54,7 +58,7 @@ async function testDatabaseIntegration() {
     goalId = goals[0].id
 
     await database.write(async () => {
-      const milestonesCollection = database.get('milestones')
+      const milestonesCollection = database!.get('milestones')
       await milestonesCollection.create((milestone: any) => {
         milestone.userId = mockUserId
         milestone.goalId = goalId
@@ -70,7 +74,7 @@ async function testDatabaseIntegration() {
     const milestoneId = milestones[0].id
 
     await database.write(async () => {
-      const tasksCollection = database.get('tasks')
+      const tasksCollection = database!.get('tasks')
       await tasksCollection.create((task: any) => {
         task.userId = mockUserId
         task.goalId = goalId
@@ -164,7 +168,7 @@ async function testDatabaseIntegration() {
       for (const goal of allGoals) {
         await goal.markAsDeleted()
       }
-      const profiles = await database.get('profiles').query().fetch()
+      const profiles = await database!.get('profiles').query().fetch()
       for (const profile of profiles) {
         await profile.markAsDeleted()
       }

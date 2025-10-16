@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 6,
+  version: 7,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -21,6 +21,7 @@ export default appSchema({
         { name: 'notes', type: 'string', isOptional: true },
         { name: 'is_completed', type: 'boolean' },
         { name: 'completed_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'reflection_answers', type: 'string', isOptional: true }, // JSON string for reflection data
         { name: 'creation_source', type: 'string' }, // 'spark' or 'manual'
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },

@@ -102,7 +102,7 @@ export default function TodayTab() {
         contentContainerStyle={{
           paddingTop: insets.top + 20,
           paddingHorizontal: 36,
-          paddingBottom: 150,
+          paddingBottom: 50,
           gap: 45,
         }}
         showsVerticalScrollIndicator={false}

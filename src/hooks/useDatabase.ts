@@ -141,7 +141,7 @@ export const useGoals = () => {
               id: goal.id,
               title: goal.title,
               notes: goal.notes,
-              feelingsArray: goal.feelingsArray,
+              feelingsArray: goal.feelings,
               visionImageUrl: goal.visionImageUrl,
               isCompleted: goal.isCompleted,
               createdAt: goal.createdAt,

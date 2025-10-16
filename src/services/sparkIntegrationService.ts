@@ -23,12 +23,16 @@ class SparkIntegrationService {
         throw new Error('User not authenticated')
       }
 
+      if (!database) {
+        throw new Error('Database not initialized')
+      }
+
       let itemId: string
 
       await database.write(async () => {
         switch (sparkResult.type) {
           case 'goal':
-            const goalsCollection = database.get<Goal>('goals')
+            const goalsCollection = database!.get<Goal>('goals')
             const goal = await goalsCollection.create((goal) => {
               goal.userId = userId
               goal.title = sparkResult.title
@@ -40,7 +44,7 @@ class SparkIntegrationService {
             break
 
           case 'milestone':
-            const milestonesCollection = database.get<Milestone>('milestones')
+            const milestonesCollection = database!.get<Milestone>('milestones')
             // For milestones, we need to associate with the most recent goal
             const recentGoal = await this.getMostRecentGoal(userId)
             if (!recentGoal) {
@@ -61,7 +65,7 @@ class SparkIntegrationService {
             break
 
           case 'task':
-            const tasksCollection = database.get<Task>('tasks')
+            const tasksCollection = database!.get<Task>('tasks')
             const task = await tasksCollection.create((task) => {
               task.userId = userId
               task.title = sparkResult.title
@@ -96,6 +100,10 @@ class SparkIntegrationService {
   // Get the most recent goal for milestone association
   private async getMostRecentGoal(userId: string): Promise<Goal | null> {
     try {
+      if (!database) {
+        throw new Error('Database not initialized')
+      }
+      
       const goalsCollection = database.get<Goal>('goals')
       const goals = await goalsCollection
         .query()
@@ -122,6 +130,10 @@ class SparkIntegrationService {
     }
 
     try {
+      if (!database) {
+        throw new Error('Database not initialized')
+      }
+
       const [goals, milestones, tasks] = await Promise.all([
         database.get<Goal>('goals')
           .query()
@@ -166,6 +178,10 @@ class SparkIntegrationService {
     }
 
     try {
+      if (!database) {
+        throw new Error('Database not initialized')
+      }
+
       const [allGoals, allMilestones, allTasks] = await Promise.all([
         database.get<Goal>('goals').query().fetch(),
         database.get<Milestone>('milestones').query().fetch(),

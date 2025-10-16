@@ -416,7 +416,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
                     id: goal.id,
                     title: goal.title,
                     description: goal.notes || '',
-                    emotions: goal.feelingsArray || [],
+                    emotions: goal.feelings || [],
                     visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
                     milestones: [],
                     progress: 0,
@@ -543,7 +543,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                     id: goal.id,
                     title: goal.title,
                     description: goal.notes || '',
-                    emotions: goal.feelingsArray || [],
+                    emotions: goal.feelings || [],
                     visionImages: goal.visionImageUrl ? [goal.visionImageUrl] : [],
                     milestones: [],
                     progress: 0,
@@ -958,8 +958,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
   },
   scrollContent: {
-    paddingBottom: 150,
-    paddingTop: 63,
+    paddingBottom: 50,
+    paddingTop: 20,
   },
 
   // Header styles

@@ -14,7 +14,7 @@ export const goalUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const goalsCollection = database.get<Goal>('goals')
+    const goalsCollection = database!.get<Goal>('goals')
     return await goalsCollection
       .query(Q.where('user_id', userId))
       .fetch()
@@ -25,7 +25,7 @@ export const goalUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const goalsCollection = database.get<Goal>('goals')
+    const goalsCollection = database!.get<Goal>('goals')
     return await goalsCollection
       .query(
         Q.where('user_id', userId),
@@ -39,7 +39,7 @@ export const goalUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const goalsCollection = database.get<Goal>('goals')
+    const goalsCollection = database!.get<Goal>('goals')
     return await goalsCollection
       .query(
         Q.where('user_id', userId),
@@ -55,7 +55,7 @@ export const goalUtils = {
     tasks: Task[]
   } | null> {
     try {
-      const goal = await database.get<Goal>('goals').find(goalId)
+      const goal = await database!.get<Goal>('goals').find(goalId)
       const milestones = await goal.milestones.fetch()
       const tasks = await goal.tasks.fetch()
 
@@ -73,7 +73,7 @@ export const milestoneUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const milestonesCollection = database.get<Milestone>('milestones')
+    const milestonesCollection = database!.get<Milestone>('milestones')
     return await milestonesCollection
       .query(
         Q.where('user_id', userId),
@@ -87,7 +87,7 @@ export const milestoneUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const milestonesCollection = database.get<Milestone>('milestones')
+    const milestonesCollection = database!.get<Milestone>('milestones')
     return await milestonesCollection
       .query(
         Q.where('user_id', userId),
@@ -114,7 +114,7 @@ export const taskUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     return await tasksCollection
       .query(Q.where('user_id', userId))
       .fetch()
@@ -126,7 +126,7 @@ export const taskUtils = {
     if (!userId) return []
 
     const today = new Date().toISOString().split('T')[0]
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     
     return await tasksCollection
       .query(
@@ -148,7 +148,7 @@ export const taskUtils = {
     if (!userId) return []
 
     const today = new Date().toISOString().split('T')[0]
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     
     return await tasksCollection
       .query(
@@ -167,7 +167,7 @@ export const taskUtils = {
     const today = new Date()
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
     
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     
     return await tasksCollection
       .query(
@@ -184,7 +184,7 @@ export const taskUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     return await tasksCollection
       .query(
         Q.where('user_id', userId),
@@ -198,7 +198,7 @@ export const taskUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return []
 
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     return await tasksCollection
       .query(
         Q.where('user_id', userId),
@@ -258,10 +258,10 @@ export const statsUtils = {
     ] = await Promise.all([
       goalUtils.getAllGoals(),
       goalUtils.getCompletedGoals(),
-      database.get<Milestone>('milestones').query(Q.where('user_id', userId)).fetch(),
-      database.get<Milestone>('milestones').query(Q.where('user_id', userId), Q.where('is_complete', true)).fetch(),
+      database!.get<Milestone>('milestones').query(Q.where('user_id', userId)).fetch(),
+      database!.get<Milestone>('milestones').query(Q.where('user_id', userId), Q.where('is_complete', true)).fetch(),
       taskUtils.getAllTasks(),
-      database.get<Task>('tasks').query(Q.where('user_id', userId), Q.where('is_complete', true)).fetch(),
+      database!.get<Task>('tasks').query(Q.where('user_id', userId), Q.where('is_complete', true)).fetch(),
       taskUtils.getTodaysTasks(),
       taskUtils.getOverdueTasks(),
     ])
@@ -286,7 +286,7 @@ export const statsUtils = {
     const userId = await getCurrentUserId()
     if (!userId) return 0
 
-    const tasksCollection = database.get<Task>('tasks')
+    const tasksCollection = database!.get<Task>('tasks')
     let streak = 0
     let currentDate = new Date()
 
