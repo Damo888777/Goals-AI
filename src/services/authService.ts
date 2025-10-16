@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { syncService } from './syncService'
 import database from '../db'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Q } from '@nozbe/watermelondb'
 
 export interface AuthUser {
   id: string

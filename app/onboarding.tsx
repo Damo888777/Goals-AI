@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,6 @@ import { colors } from '../src/constants/colors';
 import { typography } from '../src/constants/typography';
 import { spacing, borderRadius } from '../src/constants/spacing';
 import { images } from '../src/constants/images';
-import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
@@ -115,22 +114,64 @@ export default function OnboardingScreen() {
   const [isPressed, setIsPressed] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { createGoal } = useGoals();
-  const { createMilestone } = useMilestones();
-  const { createTask } = useTasks();
-  const { completeOnboarding } = useOnboarding();
+  const { 
+    currentSession,
+    startOnboardingSession,
+    updateOnboardingStep,
+    completeOnboarding,
+    isLoading: onboardingLoading 
+  } = useOnboarding();
   
   const [data, setData] = useState<OnboardingData>({
-    name: '',
-    personalization: null,
-    visionPrompt: '',
-    visionImageUrl: null,
-    selectedStyle: 'photorealistic',
-    goalTitle: '',
-    emotions: [],
-    milestoneTitle: '',
-    taskTitle: '',
+    name: currentSession?.userName || '',
+    personalization: currentSession?.genderPreference || null,
+    visionPrompt: currentSession?.visionPrompt || '',
+    visionImageUrl: currentSession?.visionImageUrl || null,
+    selectedStyle: (currentSession?.visionStyle as StyleOption) || 'photorealistic',
+    goalTitle: currentSession?.goalTitle || '',
+    emotions: currentSession?.goalEmotions || [],
+    milestoneTitle: currentSession?.milestoneTitle || '',
+    taskTitle: currentSession?.firstTaskTitle || '',
   });
+
+  // Initialize onboarding session on component mount
+  useEffect(() => {
+    const initializeSession = async () => {
+      if (!currentSession) {
+        await startOnboardingSession();
+      } else {
+        // Restore current step from session
+        if (currentSession.currentStep) {
+          const stepMap: { [key: number]: OnboardingStep } = {
+            0: 'welcome',
+            1: 'name', 
+            2: 'personalization',
+            3: 'vision',
+            4: 'goal',
+            5: 'milestone',
+            6: 'task'
+          };
+          setCurrentStep(stepMap[currentSession.currentStep] || 'welcome');
+        }
+      }
+    };
+    initializeSession();
+  }, [currentSession, startOnboardingSession]);
+
+  // Update session data when local data changes
+  useEffect(() => {
+    if (currentSession && data.name !== currentSession.userName) {
+      const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
+      updateOnboardingStep(stepNumber, { userName: data.name });
+    }
+  }, [data.name, currentSession, currentStep, updateOnboardingStep]);
+
+  useEffect(() => {
+    if (currentSession && data.personalization !== currentSession.genderPreference) {
+      const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
+      updateOnboardingStep(stepNumber, { genderPreference: data.personalization || undefined });
+    }
+  }, [data.personalization, currentSession, currentStep, updateOnboardingStep]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
@@ -194,6 +235,14 @@ export default function OnboardingScreen() {
           goalTitle: prev.visionPrompt 
         }));
         
+        // Update session with vision data
+        await updateOnboardingStep(3, {
+          visionPrompt: data.visionPrompt,
+          visionImageUrl: fileUri,
+          visionStyle: data.selectedStyle,
+          goalTitle: data.visionPrompt
+        });
+        
         setGenerationState('preview');
         
         // Success haptic
@@ -234,11 +283,31 @@ export default function OnboardingScreen() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
-      setCurrentStep(steps[currentIndex + 1]);
+      const nextStep = steps[currentIndex + 1];
+      setCurrentStep(nextStep);
+      
+      // Update session with current step and relevant data
+      const stepData: any = {};
+      if (currentStep === 'name') stepData.userName = data.name;
+      if (currentStep === 'personalization') stepData.genderPreference = data.personalization;
+      if (currentStep === 'vision') {
+        stepData.visionPrompt = data.visionPrompt;
+        stepData.visionImageUrl = data.visionImageUrl;
+        stepData.visionStyle = data.selectedStyle;
+      }
+      if (currentStep === 'goal') {
+        stepData.goalTitle = data.goalTitle;
+        stepData.goalEmotions = data.emotions;
+      }
+      if (currentStep === 'milestone') stepData.milestoneTitle = data.milestoneTitle;
+      if (currentStep === 'task') stepData.firstTaskTitle = data.taskTitle;
+      
+      const nextStepNumber = steps.indexOf(nextStep);
+      await updateOnboardingStep(nextStepNumber, stepData);
     }
   };
 
@@ -246,26 +315,23 @@ export default function OnboardingScreen() {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      // Create goal
-      await createGoal({
-        title: data.goalTitle,
-        feelings: data.emotions,
-        visionImageUrl: data.visionImageUrl || undefined,
-        creationSource: 'manual',
-      });
-
-      // TODO: Create milestone and task after getting goalId
-      // For now, we'll just navigate to the app
-      
-      // Mark onboarding as completed with user preferences
+      // Complete onboarding with all collected data
       await completeOnboarding({
-        name: data.name,
-        personalization: data.personalization,
+        userName: data.name,
+        genderPreference: data.personalization || 'specify',
+        visionPrompt: data.visionPrompt,
+        visionImageUrl: data.visionImageUrl || undefined,
+        visionStyle: data.selectedStyle,
+        goalTitle: data.goalTitle,
+        goalEmotions: data.emotions,
+        milestoneTitle: data.milestoneTitle,
+        firstTaskTitle: data.taskTitle,
       });
       
+      // Navigate to main app
       router.replace('/(tabs)');
     } catch (error) {
-      Alert.alert('Error', 'Failed to save your goal. Please try again.');
+      Alert.alert('Error', 'Failed to complete onboarding. Please try again.');
       console.error('Onboarding completion error:', error);
     } finally {
       setIsLoading(false);
@@ -702,7 +768,7 @@ export default function OnboardingScreen() {
           onPress={data.taskTitle.trim() ? handleComplete : undefined}
           onPressIn={() => setIsPressed('makefrog')}
           onPressOut={() => setIsPressed(null)}
-          disabled={!data.taskTitle.trim() || isLoading}
+          disabled={!data.taskTitle.trim() || isLoading || onboardingLoading}
         >
           <Image 
             source={{ uri: images.icons.frog }}
@@ -710,7 +776,7 @@ export default function OnboardingScreen() {
             contentFit="contain"
           />
           <Text style={[typography.button, styles.primaryButtonText]}>
-            {isLoading ? 'Creating...' : "Make it Today's Priority"}
+            {(isLoading || onboardingLoading) ? 'Creating...' : "Make it Today's Priority"}
           </Text>
         </Pressable>
         

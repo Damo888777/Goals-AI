@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { onboardingService, OnboardingPreferences } from '../services/onboardingService';
+import { onboardingService, OnboardingPreferences, OnboardingSessionData, CompleteOnboardingData } from '../services/onboardingService';
 
 export const useOnboarding = () => {
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean | null>(null);
   const [onboardingData, setOnboardingData] = useState<OnboardingPreferences | null>(null);
   const [shouldShowSparkTutorial, setShouldShowSparkTutorial] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentSession, setCurrentSession] = useState<OnboardingSessionData | null>(null);
 
   useEffect(() => {
     loadOnboardingState();
@@ -30,7 +31,47 @@ export const useOnboarding = () => {
     }
   };
 
-  const completeOnboarding = async (data?: OnboardingPreferences) => {
+  const startOnboardingSession = async (): Promise<OnboardingSessionData> => {
+    try {
+      const session = await onboardingService.startOnboardingSession();
+      setCurrentSession(session);
+      return session;
+    } catch (error) {
+      console.error('Error starting onboarding session:', error);
+      throw error;
+    }
+  };
+
+  const updateOnboardingStep = async (step: number, data?: Partial<OnboardingSessionData>) => {
+    try {
+      await onboardingService.updateOnboardingStep(step, data);
+      if (currentSession) {
+        setCurrentSession({ ...currentSession, currentStep: step, ...data });
+      }
+    } catch (error) {
+      console.error('Error updating onboarding step:', error);
+    }
+  };
+
+  const completeOnboarding = async (data: CompleteOnboardingData) => {
+    try {
+      await onboardingService.completeOnboarding(data);
+      setIsOnboardingCompleted(true);
+      setOnboardingData({
+        name: data.userName,
+        personalization: data.genderPreference
+      });
+      
+      // Check if we should show Spark tutorial after onboarding
+      const showTutorial = await onboardingService.shouldShowSparkTutorial();
+      setShouldShowSparkTutorial(showTutorial);
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      throw error;
+    }
+  };
+
+  const completeOnboardingLegacy = async (data?: OnboardingPreferences) => {
     try {
       if (data) {
         await onboardingService.saveOnboardingData(data);
@@ -62,6 +103,7 @@ export const useOnboarding = () => {
       setIsOnboardingCompleted(false);
       setOnboardingData(null);
       setShouldShowSparkTutorial(false);
+      setCurrentSession(null);
     } catch (error) {
       console.error('Error resetting onboarding:', error);
     }
@@ -80,7 +122,11 @@ export const useOnboarding = () => {
     onboardingData,
     shouldShowSparkTutorial,
     isLoading,
+    currentSession,
+    startOnboardingSession,
+    updateOnboardingStep,
     completeOnboarding,
+    completeOnboardingLegacy,
     completeSparkTutorial,
     resetOnboarding,
     getUserName,
