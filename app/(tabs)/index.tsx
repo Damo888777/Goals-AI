@@ -111,7 +111,7 @@ export default function TodayTab() {
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting */}
-        <GreetingMessage username={userPreferences?.name || "User"} />
+        <GreetingMessage username={userPreferences?.name || userPreferences?.userName || "User"} />
 
         {/* Eat the Frog Section */}
         <EatTheFrogSection

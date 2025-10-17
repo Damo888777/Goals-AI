@@ -127,13 +127,30 @@ const PROMPT_LIBRARY = {
 
 type StyleOption = 'photorealistic' | 'anime' | 'watercolour' | 'cyberpunk';
 
-function buildPrompt(userText: string, style: StyleOption): string {
+function buildPrompt(userText: string, style: StyleOption, gender?: string): string {
   const styleConfig = PROMPT_LIBRARY[style];
+  
+  // Helper function to inject gender into user text
+  const getSubjectText = (text: string, gender?: string): string => {
+    if (!gender || gender === 'specify') return text;
+    
+    // Add gender prefix to the user text
+    const genderPrefix = gender === 'man' ? 'a man ' : 'a woman ';
+    
+    // If text already starts with "a man" or "a woman", don't add prefix
+    if (text.toLowerCase().startsWith('a man ') || text.toLowerCase().startsWith('a woman ')) {
+      return text;
+    }
+    
+    return `${genderPrefix}${text}`;
+  };
+  
+  const subjectText = getSubjectText(userText, gender);
   
   switch (style) {
     case 'cyberpunk': {
       const config = styleConfig as typeof PROMPT_LIBRARY.cyberpunk;
-      return `Create an image of: ${userText}
+      return `Create an image of: ${subjectText}
 
 Style: ${config.style}
 Lighting: ${config.lighting}
@@ -148,7 +165,7 @@ High quality, detailed, professional rendering.`;
 
     case 'watercolour': {
       const config = styleConfig as typeof PROMPT_LIBRARY.watercolour;
-      return `Create an image of: ${userText}
+      return `Create an image of: ${subjectText}
 
 Style: ${config.style}
 Technique: ${config.technique.join(', ')}
@@ -162,7 +179,7 @@ High quality watercolor painting style.`;
 
     case 'anime': {
       const config = styleConfig as typeof PROMPT_LIBRARY.anime;
-      return `Create an image of: ${userText}
+      return `Create an image of: ${subjectText}
 
 Style inspiration: ${config.style.inspiration}
 Features: ${config.style.features.join(', ')}
@@ -173,7 +190,7 @@ High quality anime/Studio Ghibli style artwork.`;
 
     case 'photorealistic': {
       const config = styleConfig as typeof PROMPT_LIBRARY.photorealistic;
-      return `Create a photorealistic image of: ${userText}
+      return `Create a photorealistic image of: ${subjectText}
 
 Camera: ${config.camera.body} with ${config.camera.lens}
 Camera settings: ${config.camera.settings.aperture}, ${config.camera.settings.shutter_speed}, ISO ${config.camera.settings.iso}, ${config.camera.settings.focal_length}
@@ -186,7 +203,7 @@ Professional photography, ultra-high quality, photorealistic rendering.`;
     }
 
     default:
-      return `Create a high-quality image of: ${userText}`;
+      return `Create a high-quality image of: ${subjectText}`;
   }
 }
 
@@ -198,8 +215,9 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const userText = url.searchParams.get('userText');
     const style = url.searchParams.get('style');
+    const gender = url.searchParams.get('gender') || url.searchParams.get('genderPreference') || url.searchParams.get('subjectGender');
     
-    console.log('🖼️ [Image Generation API] Parameters:', { userText, style });
+    console.log('🖼️ [Image Generation API] Parameters:', { userText, style, gender });
 
     if (!userText || !style) {
       console.error('🖼️ [Image Generation API] Missing parameters');
@@ -224,8 +242,8 @@ export async function GET(request: Request) {
     console.log('🖼️ [Image Generation API] Google API key obtained successfully');
 
     // Build the prompt using the style library
-    const prompt = buildPrompt(userText, style as StyleOption);
-    console.log('🖼️ [Image Generation API] Built prompt for style:', style);
+    const prompt = buildPrompt(userText, style as StyleOption, gender || undefined);
+    console.log('🖼️ [Image Generation API] Built prompt for style:', style, 'with gender:', gender);
     console.log('🖼️ [Image Generation API] Prompt preview:', prompt.substring(0, 200) + '...');
 
     // Call Google Gemini API with image generation model (gemini-2.5-flash-image)

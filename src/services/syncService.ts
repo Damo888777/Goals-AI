@@ -164,6 +164,12 @@ class SyncService {
       throw new Error('User not authenticated')
     }
 
+    // Validate changes structure
+    if (!changes || typeof changes !== 'object') {
+      console.warn('⚠️ Invalid changes object received:', changes)
+      return
+    }
+
     try {
       // Push profiles
       if (changes.profiles?.created && Array.isArray(changes.profiles.created) && changes.profiles.created.length > 0) {
@@ -476,10 +482,51 @@ class SyncService {
         await synchronize({
           database: this.database,
           pullChanges: async ({ lastPulledAt }) => {
-            return this.pullChanges(lastPulledAt)
+            try {
+              const result = await this.pullChanges(lastPulledAt)
+              console.log('🔄 Pull changes result:', {
+                timestamp: result.timestamp,
+                profiles: result.changes?.profiles?.length || 0,
+                goals: result.changes?.goals?.length || 0,
+                milestones: result.changes?.milestones?.length || 0,
+                tasks: result.changes?.tasks?.length || 0
+              })
+              return result
+            } catch (error) {
+              console.error('❌ Error in pullChanges:', error)
+              throw error
+            }
           },
           pushChanges: async ({ changes }) => {
-            await this.pushChanges(changes as SyncPushChanges)
+            try {
+              const typedChanges = changes as any
+              console.log('🔄 Push changes:', {
+                profiles: {
+                  created: typedChanges.profiles?.created?.length || 0,
+                  updated: typedChanges.profiles?.updated?.length || 0,
+                  deleted: typedChanges.profiles?.deleted?.length || 0
+                },
+                goals: {
+                  created: typedChanges.goals?.created?.length || 0,
+                  updated: typedChanges.goals?.updated?.length || 0,
+                  deleted: typedChanges.goals?.deleted?.length || 0
+                },
+                milestones: {
+                  created: typedChanges.milestones?.created?.length || 0,
+                  updated: typedChanges.milestones?.updated?.length || 0,
+                  deleted: typedChanges.milestones?.deleted?.length || 0
+                },
+                tasks: {
+                  created: typedChanges.tasks?.created?.length || 0,
+                  updated: typedChanges.tasks?.updated?.length || 0,
+                  deleted: typedChanges.tasks?.deleted?.length || 0
+                }
+              })
+              await this.pushChanges(changes as SyncPushChanges)
+            } catch (error) {
+              console.error('❌ Error in pushChanges:', error)
+              throw error
+            }
           },
         })
 
@@ -502,7 +549,9 @@ class SyncService {
         } else {
           console.error(`❌ Sync failed (attempt ${retryCount}/${maxRetries}):`, error)
           if (retryCount >= maxRetries) {
-            throw error
+            // Don't throw error to prevent app crashes, just log and continue
+            console.log('🔄 Sync failed after all retries, continuing without sync')
+            break
           }
         }
       }

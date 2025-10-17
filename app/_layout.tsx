@@ -50,21 +50,33 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
       <SafeAreaProvider style={{ backgroundColor: '#E9EDC9' }}>
         <StatusBar style="dark" />
-        <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: '#E9EDC9' }}>
-          <Stack screenOptions={{ headerShown: false }}>
-            {/* Show onboarding if not completed, otherwise show main app */}
-            {isOnboardingCompleted === false ? (
-              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            ) : (
-              <>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="vision-board" options={{ headerShown: false }} />
-                <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
-                <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-              </>
-            )}
-          </Stack>
-        </Animated.View>
+        <Stack 
+          screenOptions={{ 
+            headerShown: false,
+            contentStyle: { backgroundColor: '#E9EDC9' },
+            animation: 'fade',
+            animationDuration: 300
+          }}
+          initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          <Stack.Screen name="vision-board" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-task" options={{ headerShown: false }} />
+          <Stack.Screen name="goal-details" options={{ headerShown: false }} />
+          <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
+          <Stack.Screen name="task-details" options={{ headerShown: false }} />
+          <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
+          <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
+          <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
+          <Stack.Screen name="trophy" options={{ headerShown: false }} />
+          <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
+        </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

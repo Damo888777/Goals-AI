@@ -285,30 +285,49 @@ export default function OnboardingScreen() {
   };
 
   const handleNext = async () => {
-    const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
-    const currentIndex = steps.indexOf(currentStep);
-    if (currentIndex < steps.length - 1) {
-      const nextStep = steps[currentIndex + 1];
-      setCurrentStep(nextStep);
-      
-      // Update session with current step and relevant data
-      const stepData: any = {};
-      if (currentStep === 'name') stepData.userName = data.name;
-      if (currentStep === 'personalization') stepData.genderPreference = data.personalization;
-      if (currentStep === 'vision') {
-        stepData.visionPrompt = data.visionPrompt;
-        stepData.visionImageUrl = data.visionImageUrl;
-        stepData.visionStyle = data.selectedStyle;
+    console.log('🔄 handleNext called, currentStep:', currentStep);
+    try {
+      const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
+      const currentIndex = steps.indexOf(currentStep);
+      console.log('🔄 Current index:', currentIndex, 'Next step will be:', steps[currentIndex + 1]);
+      if (currentIndex < steps.length - 1) {
+        const nextStep = steps[currentIndex + 1];
+        
+        // Update session with current step and relevant data
+        const stepData: any = {};
+        if (currentStep === 'name') stepData.userName = data.name;
+        if (currentStep === 'personalization') stepData.genderPreference = data.personalization;
+        if (currentStep === 'vision') {
+          stepData.visionPrompt = data.visionPrompt;
+          stepData.visionImageUrl = data.visionImageUrl;
+          stepData.visionStyle = data.selectedStyle;
+        }
+        if (currentStep === 'goal') {
+          stepData.goalTitle = data.goalTitle;
+          stepData.goalEmotions = data.emotions;
+        }
+        if (currentStep === 'milestone') stepData.milestoneTitle = data.milestoneTitle;
+        if (currentStep === 'task') stepData.firstTaskTitle = data.taskTitle;
+        
+        // Try to update session but don't block progression if it fails
+        try {
+          const nextStepNumber = steps.indexOf(nextStep);
+          await updateOnboardingStep(nextStepNumber, stepData);
+        } catch (sessionError) {
+          console.error('Session update failed, but continuing:', sessionError);
+        }
+        
+        // Always update the UI step regardless of session update
+        setCurrentStep(nextStep);
       }
-      if (currentStep === 'goal') {
-        stepData.goalTitle = data.goalTitle;
-        stepData.goalEmotions = data.emotions;
+    } catch (error) {
+      console.error('Error in handleNext:', error);
+      // Still try to proceed to prevent blocking
+      const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
+      const currentIndex = steps.indexOf(currentStep);
+      if (currentIndex < steps.length - 1) {
+        setCurrentStep(steps[currentIndex + 1]);
       }
-      if (currentStep === 'milestone') stepData.milestoneTitle = data.milestoneTitle;
-      if (currentStep === 'task') stepData.firstTaskTitle = data.taskTitle;
-      
-      const nextStepNumber = steps.indexOf(nextStep);
-      await updateOnboardingStep(nextStepNumber, stepData);
     }
   };
 
@@ -341,36 +360,49 @@ export default function OnboardingScreen() {
 
   const renderWelcomeScreen = () => (
     <View style={styles.centerContent}>
-      <View style={styles.sparkImageContainer}>
-        <Image
-          source={require('../assets/SparkAI_Dark.png')}
-          style={styles.sparkImage}
-          contentFit="contain"
-        />
-      </View>
-      
       <View style={styles.welcomeContent}>
-        <Text style={[typography.title, styles.headline]}>
-          Vision to Victory. Simplified.
-        </Text>
-        <Text style={[typography.body, styles.subheadline]}>
-          Transform your dreams into achievable goals with AI-powered planning
-        </Text>
+        <View style={styles.sparkImageContainer}>
+          <Image
+            source={require('../assets/SparkAI_Dark.png')}
+            style={styles.sparkImage}
+            contentFit="contain"
+          />
+        </View>
+        
+        <View style={styles.textContainer}>
+          <Text style={[typography.title, styles.headline]}>
+            Vision to Victory. Simplified.
+          </Text>
+          <Text style={[typography.body, styles.subheadline]}>
+            Transform your dreams into achievable goals with AI-powered planning
+          </Text>
+        </View>
       </View>
       
-      <Pressable
-        style={[
-          styles.primaryButton,
-          isPressed === 'start' && styles.buttonPressed
-        ]}
-        onPress={handleNext}
-        onPressIn={() => setIsPressed('start')}
-        onPressOut={() => setIsPressed(null)}
-      >
-        <Text style={[typography.button, styles.primaryButtonText]}>
-          Start Your Journey
-        </Text>
-      </Pressable>
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={[
+            styles.primaryButton,
+            isPressed === 'start' && styles.buttonPressed
+          ]}
+          onPress={() => {
+            console.log('🔄 Button pressed!');
+            handleNext();
+          }}
+          onPressIn={() => {
+            console.log('🔄 Button press in');
+            setIsPressed('start');
+          }}
+          onPressOut={() => {
+            console.log('🔄 Button press out');
+            setIsPressed(null);
+          }}
+        >
+          <Text style={[typography.button, styles.primaryButtonText]}>
+            Start Your Journey
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 
@@ -859,14 +891,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   welcomeContent: {
+    flex: 1,
     alignItems: 'center',
-    gap: spacing.lg,
-    marginBottom: 75,
+    justifyContent: 'center',
+    gap: 30, // 30px gap between logo and text
   },
   sparkImageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 75,
+  },
+  textContainer: {
+    alignItems: 'center',
+    gap: 10, // 10px gap between title and description
   },
   sparkImage: {
     width: 160,

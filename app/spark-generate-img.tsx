@@ -144,7 +144,7 @@ export default function SparkGenerateIMGScreen() {
       const result = await imageGenerationService.generateImage({
         userText: visionText,
         style: selectedStyle,
-        genderPreference: userPreferences?.genderPreference || undefined
+        genderPreference: userPreferences?.genderPreference || userPreferences?.personalization || undefined
       });
 
       if (result.success && result.imageBase64) {
@@ -482,7 +482,7 @@ export default function SparkGenerateIMGScreen() {
                       {
                         text: 'View Vision Board',
                         onPress: () => {
-                          router.replace('/vision-board');
+                          router.push('/vision-board');
                         }
                       }
                     ]);

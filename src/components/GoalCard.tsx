@@ -409,7 +409,7 @@ export function GoalCard({
     ? goalCompletionService.calculateProgress(goal.id, allMilestones)
     : 0;
   
-  const emotions = goal?.emotions || [];
+  const emotions = goal?.emotions || goal?.feelings || [];
   const displayedEmotions = emotions.slice(0, 2);
   const remainingCount = emotions.length - 2;
   const goalMilestones = milestones || goal?.milestones || [];

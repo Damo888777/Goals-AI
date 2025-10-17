@@ -19,11 +19,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
-import { statsUtils } from '../../src/utils/database';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
-import { spacing, borderRadius, shadows } from '../../src/constants/spacing';
+import { spacing, borderRadius } from '../../src/constants/spacing';
 import { images } from '../../src/constants/images';
 import { DevTools } from '../../src/components/DevTools';
 
@@ -115,8 +114,8 @@ export default function ProfileTab() {
     totalFocusTime: 0,
   });
 
-  // Generate mock user ID for now
-  const userId = user?.id || 'anon_' + Math.random().toString(36).substr(2, 9);
+  // Generate mock user ID for now  
+  const userId = user?.id || 'anon_' + Math.random().toString(36).substring(2, 11);
 
   useEffect(() => {
     loadStats();

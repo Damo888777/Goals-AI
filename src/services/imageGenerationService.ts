@@ -18,17 +18,27 @@ class ImageGenerationService {
   async generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResult> {
     try {
       console.log('🖼️ [ImageGenerationService] Starting image generation...');
-      console.log('🖼️ [ImageGenerationService] Request:', { userText: request.userText, style: request.style });
+      console.log('🖼️ [ImageGenerationService] Request:', { 
+        userText: request.userText, 
+        style: request.style, 
+        genderPreference: request.genderPreference 
+      });
       
       // Use proper API URL for both development and production
       let apiUrl = getApiUrl(`/api/generate-image?userText=${encodeURIComponent(request.userText)}&style=${encodeURIComponent(request.style)}`);
       
       // Add gender preference if provided
       if (request.genderPreference && request.genderPreference !== 'specify') {
+        const genderTerm = request.genderPreference === 'man' ? 'man' : 'woman';
         apiUrl += `&genderPreference=${encodeURIComponent(request.genderPreference)}`;
+        apiUrl += `&subjectGender=${encodeURIComponent(genderTerm)}`;
+        apiUrl += `&gender=${encodeURIComponent(genderTerm)}`;
+        console.log('🖼️ [ImageGenerationService] Adding gender preference:', request.genderPreference, 'as', genderTerm);
+      } else {
+        console.log('🖼️ [ImageGenerationService] No gender preference provided or set to specify');
       }
       
-      console.log('🖼️ [ImageGenerationService] API URL:', apiUrl);
+      console.log('🖼️ [ImageGenerationService] Final API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'GET',

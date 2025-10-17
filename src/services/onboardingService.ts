@@ -69,10 +69,10 @@ class OnboardingService {
         return true;
       }
 
-      // Check Supabase for authenticated users
+      // Check Supabase for all users (including anonymous)
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
+        if (currentUser) {
           const { data, error } = await supabase
             .from('onboarding_sessions')
             .select('is_completed')
@@ -99,10 +99,13 @@ class OnboardingService {
    * Start a new onboarding session
    */
   async startOnboardingSession(): Promise<OnboardingSessionData> {
+    console.log('🚀 Starting onboarding session...');
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
+      console.error('❌ No authenticated user found for onboarding session');
       throw new Error('No authenticated user found');
     }
+    console.log('👤 Current user:', { id: currentUser.id, isAnonymous: currentUser.isAnonymous });
 
     const sessionData: OnboardingSessionData = {
       userId: currentUser.id,
@@ -111,8 +114,8 @@ class OnboardingService {
       isCompleted: false
     };
 
-    // Save to Supabase if available
-    if (isSupabaseConfigured && supabase && !currentUser.isAnonymous) {
+    // Save to Supabase if available (including anonymous users)
+    if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase
           .from('onboarding_sessions')
@@ -127,9 +130,12 @@ class OnboardingService {
 
         if (!error && data) {
           sessionData.id = data.id;
+          console.log('✅ Onboarding session saved to Supabase:', data.id);
+        } else if (error) {
+          console.error('❌ Error saving onboarding session to Supabase:', error);
         }
       } catch (error) {
-        console.error('Error saving onboarding session to Supabase:', error);
+        console.error('❌ Exception saving onboarding session to Supabase:', error);
       }
     }
 
@@ -141,7 +147,9 @@ class OnboardingService {
    * Update onboarding session step
    */
   async updateOnboardingStep(step: number, data?: Partial<OnboardingSessionData>): Promise<void> {
+    console.log('📝 Updating onboarding step:', step, 'with data:', data);
     if (!this.currentSession) {
+      console.error('❌ No active onboarding session to update');
       throw new Error('No active onboarding session');
     }
 
@@ -150,7 +158,7 @@ class OnboardingService {
       Object.assign(this.currentSession, data);
     }
 
-    // Update in Supabase if available
+    // Update in Supabase if available (including anonymous users)
     if (isSupabaseConfigured && supabase && this.currentSession.id) {
       try {
         const updateData: any = {
@@ -168,12 +176,18 @@ class OnboardingService {
         if (data?.milestoneTitle) updateData.milestone_title = data.milestoneTitle;
         if (data?.firstTaskTitle) updateData.first_task_title = data.firstTaskTitle;
 
-        await supabase
+        const { error } = await supabase
           .from('onboarding_sessions')
           .update(updateData)
           .eq('id', this.currentSession.id);
+        
+        if (error) {
+          console.error('❌ Error updating onboarding session in Supabase:', error);
+        } else {
+          console.log('✅ Onboarding session updated in Supabase');
+        }
       } catch (error) {
-        console.error('Error updating onboarding session:', error);
+        console.error('❌ Exception updating onboarding session:', error);
       }
     }
   }
@@ -328,10 +342,10 @@ class OnboardingService {
       // Clear current session
       this.currentSession = null;
       
-      // Optionally clear Supabase data for authenticated users
+      // Clear Supabase data for all users (including anonymous)
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
+        if (currentUser) {
           await supabase
             .from('onboarding_sessions')
             .delete()
