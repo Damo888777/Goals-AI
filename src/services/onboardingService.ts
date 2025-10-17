@@ -10,6 +10,7 @@ const SPARK_TUTORIAL_KEY = 'spark_tutorial_shown';
 export interface OnboardingPreferences {
   name?: string;
   personalization?: 'man' | 'woman' | 'specify';
+  genderPreference?: 'man' | 'woman' | 'specify';
 }
 
 export interface OnboardingSessionData {

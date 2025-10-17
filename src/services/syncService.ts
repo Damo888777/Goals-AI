@@ -166,14 +166,14 @@ class SyncService {
 
     try {
       // Push profiles
-      if (changes.profiles?.created?.length > 0) {
+      if (changes.profiles?.created && Array.isArray(changes.profiles.created) && changes.profiles.created.length > 0) {
         const { error } = await supabase
           .from('profiles')
           .upsert(changes.profiles.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.profiles?.updated?.length > 0) {
+      if (changes.profiles?.updated && Array.isArray(changes.profiles.updated) && changes.profiles.updated.length > 0) {
         for (const profile of changes.profiles.updated) {
           const { error } = await supabase
             .from('profiles')
@@ -184,7 +184,7 @@ class SyncService {
       }
 
       // Push goals
-      if (changes.goals?.created?.length > 0) {
+      if (changes.goals?.created && Array.isArray(changes.goals.created) && changes.goals.created.length > 0) {
         const transformedGoals = changes.goals.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing goals:', transformedGoals.length)
         
@@ -197,7 +197,7 @@ class SyncService {
         }
       }
 
-      if (changes.goals?.updated?.length > 0) {
+      if (changes.goals?.updated && Array.isArray(changes.goals.updated) && changes.goals.updated.length > 0) {
         for (const goal of changes.goals.updated) {
           const { error } = await supabase
             .from('goals')
@@ -207,7 +207,7 @@ class SyncService {
         }
       }
 
-      if (changes.goals?.deleted?.length > 0) {
+      if (changes.goals?.deleted && Array.isArray(changes.goals.deleted) && changes.goals.deleted.length > 0) {
         const { error } = await supabase
           .from('goals')
           .delete()
@@ -216,7 +216,7 @@ class SyncService {
       }
 
       // Push milestones
-      if (changes.milestones?.created?.length > 0) {
+      if (changes.milestones?.created && Array.isArray(changes.milestones.created) && changes.milestones.created.length > 0) {
         const transformedMilestones = changes.milestones.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing milestones:', transformedMilestones.length)
         
@@ -229,7 +229,7 @@ class SyncService {
         }
       }
 
-      if (changes.milestones?.updated?.length > 0) {
+      if (changes.milestones?.updated && Array.isArray(changes.milestones.updated) && changes.milestones.updated.length > 0) {
         for (const milestone of changes.milestones.updated) {
           const { error } = await supabase
             .from('milestones')
@@ -239,7 +239,7 @@ class SyncService {
         }
       }
 
-      if (changes.milestones?.deleted?.length > 0) {
+      if (changes.milestones?.deleted && Array.isArray(changes.milestones.deleted) && changes.milestones.deleted.length > 0) {
         const { error } = await supabase
           .from('milestones')
           .delete()
@@ -248,7 +248,7 @@ class SyncService {
       }
 
       // Push tasks
-      if (changes.tasks?.created?.length > 0) {
+      if (changes.tasks?.created && Array.isArray(changes.tasks.created) && changes.tasks.created.length > 0) {
         const transformedTasks = changes.tasks.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing tasks:', transformedTasks.length)
         
@@ -261,7 +261,7 @@ class SyncService {
         }
       }
 
-      if (changes.tasks?.updated?.length > 0) {
+      if (changes.tasks?.updated && Array.isArray(changes.tasks.updated) && changes.tasks.updated.length > 0) {
         for (const task of changes.tasks.updated) {
           const { error } = await supabase
             .from('tasks')
@@ -271,7 +271,7 @@ class SyncService {
         }
       }
 
-      if (changes.tasks?.deleted?.length > 0) {
+      if (changes.tasks?.deleted && Array.isArray(changes.tasks.deleted) && changes.tasks.deleted.length > 0) {
         const { error } = await supabase
           .from('tasks')
           .delete()
@@ -413,22 +413,22 @@ class SyncService {
       // In a full implementation, you'd track sync state per record
       return {
         profiles: {
-          created: userProfiles,
+          created: Array.isArray(userProfiles) ? userProfiles : [],
           updated: [],
           deleted: []
         },
         goals: {
-          created: userGoals,
+          created: Array.isArray(userGoals) ? userGoals : [],
           updated: [],
           deleted: []
         },
         milestones: {
-          created: userMilestones,
+          created: Array.isArray(userMilestones) ? userMilestones : [],
           updated: [],
           deleted: []
         },
         tasks: {
-          created: userTasks,
+          created: Array.isArray(userTasks) ? userTasks : [],
           updated: [],
           deleted: []
         }
@@ -526,9 +526,21 @@ class SyncService {
 
   // Check if there are any changes to push
   private hasChangesToPush(changes: any): boolean {
-    return Object.values(changes).some((table: any) => 
-      table.created?.length > 0 || table.updated?.length > 0 || table.deleted?.length > 0
-    )
+    if (!changes || typeof changes !== 'object') {
+      return false
+    }
+    
+    return Object.values(changes).some((table: any) => {
+      if (!table || typeof table !== 'object') {
+        return false
+      }
+      
+      const created = Array.isArray(table.created) ? table.created : []
+      const updated = Array.isArray(table.updated) ? table.updated : []
+      const deleted = Array.isArray(table.deleted) ? table.deleted : []
+      
+      return created.length > 0 || updated.length > 0 || deleted.length > 0
+    })
   }
 
   // Set online/offline status

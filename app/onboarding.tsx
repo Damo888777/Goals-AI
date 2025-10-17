@@ -218,7 +218,8 @@ export default function OnboardingScreen() {
       
       const result = await imageGenerationService.generateImage({
         userText: data.visionPrompt,
-        style: data.selectedStyle
+        style: data.selectedStyle,
+        genderPreference: data.personalization || undefined
       });
 
       if (result.success && result.imageBase64) {

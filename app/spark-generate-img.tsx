@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
+import { useOnboarding } from '../src/hooks/useOnboarding';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import * as FileSystem from 'expo-file-system';
@@ -84,6 +85,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
 export default function SparkGenerateIMGScreen() {
   const insets = useSafeAreaInsets();
   const { addVisionImage } = useVisionImages();
+  const { userPreferences } = useOnboarding();
   const [visionText, setVisionText] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>('photorealistic');
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
@@ -141,7 +143,8 @@ export default function SparkGenerateIMGScreen() {
       
       const result = await imageGenerationService.generateImage({
         userText: visionText,
-        style: selectedStyle
+        style: selectedStyle,
+        genderPreference: userPreferences?.genderPreference || undefined
       });
 
       if (result.success && result.imageBase64) {

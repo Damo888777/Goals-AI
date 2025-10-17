@@ -117,12 +117,24 @@ export const useOnboarding = () => {
     return onboardingData?.personalization || null;
   };
 
+  const updateUserPreferences = async (preferences: Partial<OnboardingPreferences>) => {
+    try {
+      const updatedData = { ...onboardingData, ...preferences };
+      await onboardingService.saveOnboardingData(updatedData);
+      setOnboardingData(updatedData);
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      throw error;
+    }
+  };
+
   return {
     isOnboardingCompleted,
     onboardingData,
     shouldShowSparkTutorial,
     isLoading,
     currentSession,
+    userPreferences: onboardingData,
     startOnboardingSession,
     updateOnboardingStep,
     completeOnboarding,
@@ -131,6 +143,7 @@ export const useOnboarding = () => {
     resetOnboarding,
     getUserName,
     getPersonalizationPreference,
+    updateUserPreferences,
     refreshOnboardingState: loadOnboardingState,
   };
 };

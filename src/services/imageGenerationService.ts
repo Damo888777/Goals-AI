@@ -5,6 +5,7 @@ export type StyleOption = 'photorealistic' | 'anime' | 'watercolour' | 'cyberpun
 export interface ImageGenerationRequest {
   userText: string;
   style: StyleOption;
+  genderPreference?: 'man' | 'woman' | 'specify';
 }
 
 export interface ImageGenerationResult {
@@ -20,7 +21,13 @@ class ImageGenerationService {
       console.log('🖼️ [ImageGenerationService] Request:', { userText: request.userText, style: request.style });
       
       // Use proper API URL for both development and production
-      const apiUrl = getApiUrl(`/api/generate-image?userText=${encodeURIComponent(request.userText)}&style=${encodeURIComponent(request.style)}`);
+      let apiUrl = getApiUrl(`/api/generate-image?userText=${encodeURIComponent(request.userText)}&style=${encodeURIComponent(request.style)}`);
+      
+      // Add gender preference if provided
+      if (request.genderPreference && request.genderPreference !== 'specify') {
+        apiUrl += `&genderPreference=${encodeURIComponent(request.genderPreference)}`;
+      }
+      
       console.log('🖼️ [ImageGenerationService] API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {

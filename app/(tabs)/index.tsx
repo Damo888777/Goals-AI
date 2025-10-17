@@ -22,7 +22,7 @@ export default function TodayTab() {
   
   const { completeTask, createTask, deleteTask } = useTasks();
   const { completedTasks } = useTodaysCompletedTasks();
-  const { shouldShowSparkTutorial, completeSparkTutorial } = useOnboarding();
+  const { shouldShowSparkTutorial, completeSparkTutorial, userPreferences } = useOnboarding();
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -111,7 +111,7 @@ export default function TodayTab() {
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting */}
-        <GreetingMessage username="User" />
+        <GreetingMessage username={userPreferences?.name || "User"} />
 
         {/* Eat the Frog Section */}
         <EatTheFrogSection

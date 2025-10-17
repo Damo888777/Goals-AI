@@ -8,9 +8,10 @@ interface GreetingMessageProps {
 export function GreetingMessage({ username = 'User' }: GreetingMessageProps) {
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Morning';
-    if (hour < 18) return 'Afternoon';
-    return 'Evening';
+    if (hour >= 5 && hour < 12) return 'Morning';
+    if (hour >= 12 && hour < 17) return 'Afternoon';
+    if (hour >= 17 && hour < 22) return 'Evening';
+    return 'Night';
   };
 
   const getFormattedDate = () => {

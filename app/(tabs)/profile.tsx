@@ -18,6 +18,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
+import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { statsUtils } from '../../src/utils/database';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
@@ -98,8 +99,10 @@ export default function ProfileTab() {
   const { user } = useAuth();
   const { goals } = useGoals();
   const { tasks } = useTasks();
+  const { userPreferences, updateUserPreferences } = useOnboarding();
   
-  const [userName, setUserName] = useState('User');
+  const [userName, setUserName] = useState(userPreferences?.name || 'User');
+  const [originalUserName, setOriginalUserName] = useState(userPreferences?.name || 'User');
   const [isEditingName, setIsEditingName] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isPressed, setIsPressed] = useState<string | null>(null);
@@ -119,6 +122,13 @@ export default function ProfileTab() {
     loadStats();
     checkAuthStatus();
   }, [goals, tasks]);
+
+  useEffect(() => {
+    if (userPreferences?.name) {
+      setUserName(userPreferences.name);
+      setOriginalUserName(userPreferences.name);
+    }
+  }, [userPreferences]);
 
   const checkAuthStatus = async () => {
     try {
@@ -320,6 +330,25 @@ Best regards`;
     Linking.openURL('https://goals-ai.app/terms');
   };
 
+  const handleSaveUsername = async () => {
+    if (userName.trim() && userName !== originalUserName) {
+      try {
+        await updateUserPreferences({ name: userName.trim() });
+        setOriginalUserName(userName.trim());
+        setIsEditingName(false);
+        Alert.alert('Success', 'Username updated successfully!');
+      } catch (error) {
+        console.error('Error updating username:', error);
+        Alert.alert('Error', 'Failed to update username. Please try again.');
+      }
+    }
+  };
+
+  const handleCancelEditUsername = () => {
+    setUserName(originalUserName);
+    setIsEditingName(false);
+  };
+
   const handlePressIn = (id: string) => setIsPressed(id);
   const handlePressOut = () => setIsPressed(null);
 
@@ -357,11 +386,25 @@ Best regards`;
                       style={styles.nameInput}
                       value={userName}
                       onChangeText={setUserName}
-                      onBlur={() => setIsEditingName(false)}
-                      onSubmitEditing={() => setIsEditingName(false)}
                       autoFocus
                       placeholderTextColor="rgba(245,235,224,0.5)"
+                      placeholder="Enter your name"
                     />
+                    <View style={styles.nameEditButtons}>
+                      <Pressable
+                        style={[styles.nameEditButton, styles.cancelButton]}
+                        onPress={handleCancelEditUsername}
+                      >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.nameEditButton, styles.saveButton]}
+                        onPress={handleSaveUsername}
+                        disabled={!userName.trim() || userName === originalUserName}
+                      >
+                        <Text style={styles.saveButtonText}>Save</Text>
+                      </Pressable>
+                    </View>
                   </View>
                 ) : (
                   <Pressable
@@ -700,16 +743,33 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   nameEditContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 1,
+    gap: spacing.sm,
   },
   nameInput: {
-    flex: 1,
     fontSize: 20,
     fontWeight: '700',
     color: colors.text.primary,
     padding: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.text.primary,
+  },
+  nameEditButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  nameEditButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
   userName: {
     flex: 1,
@@ -777,6 +837,12 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#BC4B51',
+  },
+  cancelButton: {
+    backgroundColor: '#BC4B51', // Red background for cancel
+  },
+  saveButton: {
+    backgroundColor: colors.text.primary, // Dark blue background
   },
   signOutButtonText: {
     color: colors.secondary,
@@ -951,5 +1017,17 @@ const styles = StyleSheet.create({
   userIdText: {
     color: 'rgba(245,235,224,0.5)',
     fontWeight: '500',
+  },
+
+  // Username edit button styles
+  saveButtonText: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  cancelButtonText: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
