@@ -94,7 +94,7 @@ class SyncService {
         .eq('id', userId)
         .order('updated_at', { ascending: true })
 
-      if (profiles) {
+      if (profiles && Array.isArray(profiles)) {
         changes.profiles = profiles.map(this.transformSupabaseToLocal) as any[]
       }
 
@@ -110,7 +110,7 @@ class SyncService {
       }
 
       const { data: goals } = await goalsQuery
-      if (goals) {
+      if (goals && Array.isArray(goals)) {
         changes.goals = goals.map(this.transformSupabaseToLocal) as any[]
       }
 
@@ -126,7 +126,7 @@ class SyncService {
       }
 
       const { data: milestones } = await milestonesQuery
-      if (milestones) {
+      if (milestones && Array.isArray(milestones)) {
         changes.milestones = milestones.map(this.transformSupabaseToLocal) as any[]
       }
 
@@ -142,7 +142,7 @@ class SyncService {
       }
 
       const { data: tasks } = await tasksQuery
-      if (tasks) {
+      if (tasks && Array.isArray(tasks)) {
         changes.tasks = tasks.map(this.transformSupabaseToLocal) as any[]
       }
 
@@ -497,9 +497,16 @@ class SyncService {
               throw error
             }
           },
-          pushChanges: async ({ changes }) => {
+          push: async (changes) => {
             try {
               const typedChanges = changes as any
+              
+              // Check if there are actually changes to push
+              if (!this.hasChangesToPush(typedChanges)) {
+                console.log('🔄 No changes to push, skipping...')
+                return
+              }
+              
               console.log('🔄 Push changes:', {
                 profiles: {
                   created: typedChanges.profiles?.created?.length || 0,

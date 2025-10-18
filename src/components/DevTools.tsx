@@ -19,9 +19,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface DevToolsProps {
   visible: boolean;
   onClose: () => void;
+  onShowPaywall?: () => void;
+  onShowUpgradePaywall?: () => void;
 }
 
-export function DevTools({ visible, onClose }: DevToolsProps) {
+export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall }: DevToolsProps) {
   const { resetOnboarding, isOnboardingCompleted } = useOnboarding();
   const [isPressed, setIsPressed] = useState<string | null>(null);
 
@@ -86,6 +88,10 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
                   
                   for (const collectionName of collections) {
                     try {
+                      if (!database) {
+                        console.warn(`⚠️ Database not available, skipping ${collectionName}`);
+                        return;
+                      }
                       const collection = database.get(collectionName);
                       const allRecords = await collection.query().fetch();
                       
@@ -120,6 +126,7 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
       ]
     );
   };
+
 
   return (
     <Modal
@@ -181,6 +188,16 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
 
           <View style={styles.section}>
             <Text style={[typography.cardTitle, styles.sectionTitle]}>
+              Subscription Testing
+            </Text>
+            <Text style={[typography.caption, styles.statusText]}>
+              Test RevenueCat integration and paywalls
+            </Text>
+            
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[typography.cardTitle, styles.sectionTitle]}>
               App Info
             </Text>
             <Text style={[typography.caption, styles.infoText]}>
@@ -190,6 +207,50 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
               Environment: Development
             </Text>
           </View>
+
+          {/* Paywall Testing Section */}
+          <View style={styles.section}>
+            <Text style={[typography.cardTitle, styles.sectionTitle]}>
+              Paywall Testing
+            </Text>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'onboarding-paywall' && styles.buttonPressed
+              ]}
+              onPress={() => {
+                onClose();
+                router.push('/paywall?type=onboarding');
+              }}
+              onPressIn={() => setIsPressed('onboarding-paywall')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="card" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Show Onboarding Paywall
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'upgrade-paywall' && styles.buttonPressed
+              ]}
+              onPress={() => {
+                onClose();
+                router.push('/paywall?type=feature_upgrade');
+              }}
+              onPressIn={() => setIsPressed('upgrade-paywall')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="arrow-up" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Show Feature Upgrade Paywall
+              </Text>
+            </Pressable>
+          </View>
+
         </View>
       </View>
     </Modal>
@@ -282,5 +343,41 @@ const styles = StyleSheet.create({
   infoText: {
     color: colors.text.primary,
     opacity: 0.7,
+  },
+  paywallButton: {
+    backgroundColor: '#6A5ACD',
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    shadowColor: '#6A5ACD',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  paywallButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  upgradeButton: {
+    backgroundColor: '#228B22',
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    shadowColor: '#228B22',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  upgradeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });

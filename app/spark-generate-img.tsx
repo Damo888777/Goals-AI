@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { useOnboarding } from '../src/hooks/useOnboarding';
+import { useSubscription } from '../src/hooks/useSubscription';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import * as FileSystem from 'expo-file-system';
@@ -86,6 +87,7 @@ export default function SparkGenerateIMGScreen() {
   const insets = useSafeAreaInsets();
   const { addVisionImage } = useVisionImages();
   const { userPreferences } = useOnboarding();
+  const { canUseSparkAIVision } = useSubscription();
   const [visionText, setVisionText] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>('photorealistic');
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');
@@ -132,6 +134,15 @@ export default function SparkGenerateIMGScreen() {
 
     if (isGenerating) {
       return; // Prevent multiple simultaneous generations
+    }
+
+    // Check subscription access for Vision image generation
+    // Get current usage count (you may need to implement this based on your database)
+    const currentUsage = 0; // TODO: Get actual usage count from database
+    if (!canUseSparkAIVision(currentUsage)) {
+      // Trigger paywall for feature upgrade
+      router.push('/paywall?type=feature_upgrade');
+      return;
     }
 
     try {

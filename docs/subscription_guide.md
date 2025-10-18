@@ -1,70 +1,124 @@
-1. Project Goal
-Implement a complete, production-ready subscription and paywall system for the "Goals AI" iOS app using React Native, TypeScript, and RevenueCat. The system must handle a 7-day free trial and manage access to features based on three distinct subscription tiers.
-2. Subscription Tiers & Entitlements
-Tier: Starter
-Features:
-Active Goals: 3
-Spark AI Voice Inputs: 40 / Month
-Spark AI Vision Images: 10 / Month
-Pomodoro Sessions: Unlimited
-Home Screen Widgets: No
-Entitlement ID: tier_starter
-Product IDs: tier_starter (Monthly), tier_starter_annual (Annual)
-Tier: Achiever
-Features:
-Active Goals: 10
-Spark AI Voice Inputs: 150 / Month
-Spark AI Vision Images: 20 / Month
-Pomodoro Sessions: Unlimited
-Home Screen Widgets: Yes
-Entitlement ID: tier_achiever
-Product IDs: tier_achiever (Monthly), tier_achiever_annual (Annual)
-Tier: Visionary
-Features:
-Active Goals: Unlimited
-Spark AI Voice Inputs: 500 / Month
-Spark AI Vision Images: 60 / Month
-Pomodoro Sessions: Unlimited
-Home Screen Widgets: Yes
-Entitlement ID: tier_visionary
-Product IDs: tier_visionary (Monthly), tier_visionary_annual (Annual)
-3. Paywall Design & UI Preferences
-The paywall should be clean, professional, and adhere to the app's established design language.
-Paywall Background Color: #364958
-Text & Card Background Color: #F5EBE0
-Font Family: Helvetica Neue (or system default San Francisco)
-Font Weights:
-Titles: Bold
-Descriptions/Body: Light
-4. Core Logic & Requirements (Paywall Behavior)
-This is the most critical part. The logic must be implemented exactly as described.
-Initial Paywall: The main paywall must be displayed immediately after the user's 7-day free trial expires.
-No Bypass: It must be impossible to dismiss the initial paywall without successfully purchasing a subscription.
-Read-Only Mode (for Lapsed/Cancelled Subscriptions): If a user does not have a valid subscription, the app must enter a "Read-Only" mode.
-The user can still view all their existing data (goals, tasks, etc.).
-However, any action that creates, modifies, oder interacts with data must be blocked. This includes, but is not limited to:
-Creating a new goal, milestone, or task (both manually and with Spark).
-Editing an existing goal, milestone, or task.
-Marking a task as complete.
-Starting a Pomodoro Session.
-Generating a new vision image.
-Attempting any of these blocked actions must immediately display the paywall.
-Full Access with Subscription: A user with a valid subscription must have full read and write access to all features included in their purchased tier.
-Upgrade Paywall: If a user on a lower tier attempts to access a feature or exceed a limit of a higher tier (e.g., creating their 4th active goal on the Starter plan), a context-specific upgrade paywall must be displayed. A permanent "Upgrade" button must also be visible in the user's profile (unless they are already on the highest tier).
-5. Essential Documentation & Guidelines
-Strict adherence to these documents is required.
-RevenueCat Documentation (Crucial for Implementation):
-Displaying Products: Read this to understand how to fetch and display the subscription packages from RevenueCat.
-https://www.revenuecat.com/docs/getting-started/displaying-products
-Entitlements: This is the core logic. Read this to understand how to check a user's access level (tier_starter, tier_achiever, etc.).
-https://www.revenuecat.com/docs/getting-started/entitlements
-Restoring Purchases: A "Restore Purchases" button is mandatory for Apple. Read this to implement it correctly.
-https://www.revenuecat.com/docs/getting-started/restoring-purchases
-Custom Paywalls: Review this for best practices on building the UI.
-https://www.revenuecat.com/docs/paywalls/custom-paywalls-index
-Apple Review Guidelines (Mandatory):
-Pay special attention to section 3.1.1 regarding In-App Purchases and the user's ability to restore purchases.
-https://developer.apple.com/app-store/review/guidelines/
-Legal Documents (Links must be included on the paywall):
-Terms & Conditions: https://goals-ai.app/terms
-Privacy Policy: https://goals-ai.app/privacy
+# React Native Goals AI - RevenueCat Subscription System Context
+
+## Project Overview
+
+The Goals AI iOS application requires a comprehensive subscription and paywall implementation using React Native, TypeScript, and RevenueCat. The system manages a 7-day free trial period and controls feature access across three subscription tiers with strict enforcement of subscription status.
+
+## Subscription Architecture
+
+### Available Tiers
+
+**Starter Tier**
+- Maximum Active Goals: 3
+- Spark AI Voice Inputs: 40 per month
+- Spark AI Vision Images: 10 per month
+- Pomodoro Sessions: Unlimited
+- Home Screen Widgets: Not available
+
+**Achiever Tier**
+- Maximum Active Goals: 10
+- Spark AI Voice Inputs: 150 per month
+- Spark AI Vision Images: 20 per month
+- Pomodoro Sessions: Unlimited
+- Home Screen Widgets: Available
+
+**Visionary Tier**
+- Maximum Active Goals: Unlimited
+- Spark AI Voice Inputs: 500 per month
+- Spark AI Vision Images: 60 per month
+- Pomodoro Sessions: Unlimited
+- Home Screen Widgets: Available
+
+## RevenueCat Configuration
+
+### Offering Structure
+- Primary Offering ID: `tier_subscriptions`
+
+### Package Identifiers
+- `starter_monthly` - Starter tier monthly subscription
+- `starter_annual` - Starter tier annual subscription
+- `achiever_monthly` - Achiever tier monthly subscription
+- `achiever_annual` - Achiever tier annual subscription
+- `visionary_monthly` - Visionary tier monthly subscription
+- `visionary_annual` - Visionary tier annual subscription
+
+### Product Identifiers
+- `tier_starter` - Monthly Starter product
+- `tier_starter_annual` - Annual Starter product
+- `tier_achiever` - Monthly Achiever product
+- `tier_achiever_annual` - Annual Achiever product
+- `tier_visionary` - Monthly Visionary product
+- `tier_visionary_annual` - Annual Visionary product
+
+### Entitlement Identifiers
+- `tier_starter` - Starter tier entitlement
+- `tier_achiever` - Achiever tier entitlement
+- `tier_visionary` - Visionary tier entitlement
+
+## Paywall Implementation
+
+### Paywall Types
+
+**Default Onboarding Paywall**
+- Display Context: Shown as a full screen after user completes onboarding
+- Dismissal Policy: Cannot be dismissed without successful subscription purchase
+- Title: Your Vision is Worth It.
+- Description: You've experienced the clarity of a guided plan. A subscription gives you the complete system to turn your vision into daily, meaningful action.
+
+
+**Feature Upgrade Paywall**
+- Display Context: Presented as a modal when users attempt to access features beyond their current tier or exceed tier limits
+- Trigger Examples: Creating a 4th goal on Starter tier, attempting to use Home Screen Widgets on Starter tier
+- Title: Ready for the Next Level?
+- Description: Our higher tiers are designed for ambitious users who are ready to achieve more. Explore the plans below.
+
+## Access Control System
+
+### Read-Only Mode for Non-Subscribers
+
+Users without valid subscriptions enter a restricted read-only state where they can view existing data but cannot perform any data modifications or interactions.
+
+**Permitted Actions in Read-Only Mode:**
+- View existing goals, milestones, and tasks
+- Browse historical data and completed items
+- Access app settings and profile information
+- Delete Authenticated Account
+
+**Blocked Actions Triggering Paywall:**
+- Creating new goals, milestones, or tasks (manual or AI-assisted)
+- Editing existing goals, milestones, or tasks
+- Marking tasks or milestones as complete
+- Initiating Pomodoro Sessions
+- Generating new vision images through AI
+- Uploading custom vision images
+- Any data modification or feature interaction attempt
+
+### Full Access for Active Subscribers
+
+Users with valid subscriptions receive complete read, delete and write access to all features within their subscription tier limits. Access automatically adjusts based on the active entitlement level.
+
+### Upgrade Flow Integration
+
+The application maintains persistent upgrade paths through:
+- Contextual upgrade paywalls when tier limits are reached
+- Permanent upgrade button in user profile (hidden for Visionary tier subscribers)
+- Smart detection of feature access attempts beyond current tier capabilities
+
+
+## Technical Requirements
+
+### Platform Dependencies
+- React Native with TypeScript
+- EAS Build system for iOS deployment
+- RevenueCat SDK for subscription management
+
+### Critical Implementation Notes
+- Subscription status must be validated on app launch and resume
+- Entitlement checks required before all feature access attempts
+- Offline capability considerations for subscription status caching
+- Proper handling of subscription restoration flows
+- Grace period management for payment failures
+
+### Terms & Privacy of Goals AI
+https://goals-ai.app/privacy
+https://goals-ai.app/terms

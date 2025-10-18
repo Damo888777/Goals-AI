@@ -9,10 +9,13 @@ import { images } from '../src/constants/images';
 import { useAudioRecording } from '../src/hooks/useAudioRecording';
 import { InfoPopup } from '../src/components/InfoPopup';
 import { INFO_CONTENT } from '../src/constants/infoContent';
+import { useAccessControl } from '../src/components/AccessControl';
+import { SubscriptionGate } from '../src/components/SubscriptionGate';
 
 export default function SparkAIScreen() {
   const insets = useSafeAreaInsets();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const { requireAccess } = useAccessControl();
   
   // Use the audio recording hook for AI functionality
   const {
@@ -286,6 +289,11 @@ export default function SparkAIScreen() {
   };
 
   const handleMicrophonePress = () => {
+    // Check subscription access before allowing Spark AI voice usage
+    if (!requireAccess('spark_ai_voice', { currentUsage: 0 })) {
+      return;
+    }
+    
     // Trigger haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     

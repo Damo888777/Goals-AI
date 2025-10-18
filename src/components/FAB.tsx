@@ -6,6 +6,8 @@ import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { images } from '../constants/images';
 import { Button } from './Button';
+import { useAccessControl } from './AccessControl';
+import { useGoals } from '../hooks/useDatabase';
 
 interface FABProps {
   onPress?: () => void;
@@ -16,6 +18,8 @@ export function FAB({ onPress, onLongPress }: FABProps) {
   const insets = useSafeAreaInsets();
   const [showMenu, setShowMenu] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const { requireAccess } = useAccessControl();
+  const { goals } = useGoals();
   
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -46,16 +50,25 @@ export function FAB({ onPress, onLongPress }: FABProps) {
     setShowMenu(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
+    // Check subscription access before allowing actions
+    const currentGoalCount = goals?.length || 0;
+    
     // Handle menu item actions
     switch (action) {
       case 'task':
-        router.push('/manual-task');
+        if (requireAccess('modify_data')) {
+          router.push('/manual-task');
+        }
         break;
       case 'goal':
-        router.push('/manual-goal');
+        if (requireAccess('create_goal', { currentGoalCount })) {
+          router.push('/manual-goal');
+        }
         break;
       case 'milestone':
-        router.push('/manual-milestone');
+        if (requireAccess('modify_data')) {
+          router.push('/manual-milestone');
+        }
         break;
     }
   };

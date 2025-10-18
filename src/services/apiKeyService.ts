@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 interface ApiKeys {
   openai_api_key?: string
   google_api_key?: string
+  revenuecat_api_key?: string
 }
 
 class ApiKeyService {
@@ -29,8 +30,9 @@ class ApiKeyService {
         throw new Error('User not authenticated')
       }
 
-      // Call the edge function
+      // Call the edge function with GET method
       const { data, error } = await supabase.functions.invoke('get-api-keys', {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -73,6 +75,17 @@ class ApiKeyService {
     }
   }
 
+  // Get RevenueCat API key
+  async getRevenueCatApiKey(): Promise<string | null> {
+    try {
+      const keys = await this.getApiKeys()
+      return keys.revenuecat_api_key || null
+    } catch (error) {
+      console.error('Error getting RevenueCat API key:', error)
+      return null
+    }
+  }
+
   // Clear cache (useful for testing or when keys are updated)
   clearCache(): void {
     this.cachedKeys = null
@@ -80,18 +93,20 @@ class ApiKeyService {
   }
 
   // Check if API keys are available
-  async hasApiKeys(): Promise<{ hasOpenAI: boolean; hasGoogle: boolean }> {
+  async hasApiKeys(): Promise<{ hasOpenAI: boolean; hasGoogle: boolean; hasRevenueCat: boolean }> {
     try {
       const keys = await this.getApiKeys()
       return {
         hasOpenAI: !!keys.openai_api_key,
         hasGoogle: !!keys.google_api_key,
+        hasRevenueCat: !!keys.revenuecat_api_key,
       }
     } catch (error) {
       console.error('Error checking API keys availability:', error)
       return {
         hasOpenAI: false,
         hasGoogle: false,
+        hasRevenueCat: false,
       }
     }
   }
@@ -130,5 +145,6 @@ export const useApiKeys = () => {
     fetchKeys,
     hasOpenAI: !!keys?.openai_api_key,
     hasGoogle: !!keys?.google_api_key,
+    hasRevenueCat: !!keys?.revenuecat_api_key,
   }
 }

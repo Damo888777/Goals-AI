@@ -17,14 +17,17 @@ import { Clipboard } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
+// import { useSubscription } from '../../src/hooks/useSubscription';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
 import { spacing, borderRadius } from '../../src/constants/spacing';
 import { images } from '../../src/constants/images';
 import { DevTools } from '../../src/components/DevTools';
+// import { SUBSCRIPTION_TIERS } from '../../src/types/subscription';
 
 interface Stats {
   eatTheFrogStreak: number;
@@ -99,6 +102,7 @@ export default function ProfileTab() {
   const { goals } = useGoals();
   const { tasks } = useTasks();
   const { userPreferences, updateUserPreferences } = useOnboarding();
+  // const { subscription, isLoading: isSubscriptionLoading, refreshSubscription } = useSubscription();
   
   const [userName, setUserName] = useState(userPreferences?.name || 'User');
   const [originalUserName, setOriginalUserName] = useState(userPreferences?.name || 'User');
@@ -108,6 +112,8 @@ export default function ProfileTab() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showUpgradePaywall, setShowUpgradePaywall] = useState(false);
   const [stats, setStats] = useState<Stats>({
     eatTheFrogStreak: 0,
     goalsAchieved: 0,
@@ -474,6 +480,26 @@ Best regards`;
           </View>
         </View>
 
+        {/* Subscription Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="diamond" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Subscription</Text>
+            </View>
+          </View>
+          
+          <View style={styles.subscriptionCard}>
+            <Pressable
+              style={[styles.subscriptionButton, styles.upgradeButton]}
+              onPress={() => router.push('/paywall?type=feature_upgrade')}
+            >
+              <Text style={styles.upgradeButtonText}>View Subscription Plans</Text>
+              <Ionicons name="arrow-up" size={16} color="#F5EBE0" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* Your Journey Stats */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -676,9 +702,12 @@ Best regards`;
         </View>
       </ScrollView>
 
+
       <DevTools 
         visible={showDevTools} 
-        onClose={() => setShowDevTools(false)} 
+        onClose={() => setShowDevTools(false)}
+        onShowPaywall={() => setShowPaywall(true)}
+        onShowUpgradePaywall={() => setShowUpgradePaywall(true)}
       />
     </View>
   );
@@ -1028,5 +1057,133 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 14,
     fontWeight: '600',
+  },
+
+  // Subscription Section Styles
+  subscriptionCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  subscriptionLoading: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+  },
+  subscriptionLoadingText: {
+    color: colors.text.primary,
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  subscriptionInfo: {
+    flex: 1,
+  },
+  subscriptionTier: {
+    color: colors.text.primary,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  subscriptionStatus: {
+    color: colors.text.primary,
+    opacity: 0.8,
+    marginTop: 4,
+  },
+  subscriptionBadge: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  subscriptionFeatures: {
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  subscriptionFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  subscriptionFeatureText: {
+    fontSize: 14,
+    fontWeight: '300',
+    color: colors.text.primary,
+    flex: 1,
+    fontFamily: 'Helvetica',
+  },
+  subscriptionActions: {
+    alignItems: 'center',
+  },
+  subscriptionButton: {
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    minWidth: '100%',
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  activateButton: {
+    backgroundColor: '#8FBC8F',
+  },
+  activateButtonText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Helvetica',
+  },
+  upgradeButton: {
+    backgroundColor: colors.text.primary,
+  },
+  upgradeButtonText: {
+    color: colors.secondary,
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Helvetica',
+  },
+  maxTierIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  maxTierText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    fontWeight: '300',
+    fontFamily: 'Helvetica',
+  },
+  subscriptionError: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    gap: spacing.sm,
+  },
+  subscriptionErrorText: {
+    color: colors.text.primary,
+  },
+  retryButton: {
+    backgroundColor: colors.text.primary,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+  },
+  retryButtonText: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Helvetica',
   },
 });
