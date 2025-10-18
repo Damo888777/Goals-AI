@@ -156,22 +156,26 @@ export default function OnboardingScreen() {
       }
     };
     initializeSession();
-  }, [currentSession, startOnboardingSession]);
+  }, []);
 
   // Update session data when local data changes
   useEffect(() => {
-    if (currentSession && data.name !== currentSession.userName) {
+    if (currentSession && currentSession.id && data.name !== currentSession.userName && data.name) {
       const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
-      updateOnboardingStep(stepNumber, { userName: data.name });
+      updateOnboardingStep(stepNumber, { userName: data.name }).catch(error => {
+        console.log('Session update failed (non-critical):', error.message);
+      });
     }
-  }, [data.name, currentSession, currentStep, updateOnboardingStep]);
+  }, [data.name, currentSession?.userName, currentStep]);
 
   useEffect(() => {
-    if (currentSession && data.personalization !== currentSession.genderPreference) {
+    if (currentSession && currentSession.id && data.personalization !== currentSession.genderPreference && data.personalization) {
       const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
-      updateOnboardingStep(stepNumber, { genderPreference: data.personalization || undefined });
+      updateOnboardingStep(stepNumber, { genderPreference: data.personalization }).catch(error => {
+        console.log('Session update failed (non-critical):', error.message);
+      });
     }
-  }, [data.personalization, currentSession, currentStep, updateOnboardingStep]);
+  }, [data.personalization, currentSession?.genderPreference, currentStep]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');

@@ -100,7 +100,14 @@ class OnboardingService {
    */
   async startOnboardingSession(): Promise<OnboardingSessionData> {
     console.log('🚀 Starting onboarding session...');
-    const currentUser = authService.getCurrentUser();
+    
+    // Ensure user is authenticated before creating session
+    let currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      console.log('🔄 No current user, initializing auth...');
+      currentUser = await authService.initialize();
+    }
+    
     if (!currentUser) {
       console.error('❌ No authenticated user found for onboarding session');
       throw new Error('No authenticated user found');
@@ -117,6 +124,7 @@ class OnboardingService {
     // Save to Supabase if available (including anonymous users)
     if (isSupabaseConfigured && supabase) {
       try {
+        console.log('💾 Attempting to save session to Supabase with user_id:', currentUser.id);
         const { data, error } = await supabase
           .from('onboarding_sessions')
           .insert({
@@ -352,6 +360,11 @@ class OnboardingService {
             .eq('user_id', currentUser.id);
         }
       }
+      
+      // Re-initialize auth to ensure user is properly authenticated after reset
+      await authService.initialize();
+      
+      console.log('✅ Onboarding reset completed');
     } catch (error) {
       console.error('Error resetting onboarding:', error);
     }

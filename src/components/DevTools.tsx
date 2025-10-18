@@ -13,6 +13,8 @@ import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius } from '../constants/spacing';
 import { useOnboarding } from '../hooks/useOnboarding';
+import database from '../db';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface DevToolsProps {
   visible: boolean;
@@ -43,6 +45,75 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
             } catch (error) {
               Alert.alert('Error', 'Failed to reset onboarding');
               console.error('Reset onboarding error:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleCompleteReset = () => {
+    Alert.alert(
+      'COMPLETE DATA WIPE',
+      '⚠️ This will permanently delete ALL app data including:\n\n• All goals, milestones, and tasks\n• All vision board images\n• Onboarding data\n• User preferences\n• Focus history\n• All local storage\n\nThis action cannot be undone! Continue?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'WIPE ALL DATA',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('🔥 Starting complete data wipe...');
+              
+              // Clear all AsyncStorage
+              await AsyncStorage.clear();
+              console.log('✅ AsyncStorage cleared');
+              
+              // Clear all database tables
+              if (database) {
+                await database.write(async () => {
+                  // Delete all records from all tables
+                  const collections = [
+                    'goals',
+                    'milestones', 
+                    'tasks',
+                    'vision_images',
+                    'focus_sessions'
+                  ];
+                  
+                  for (const collectionName of collections) {
+                    try {
+                      const collection = database.get(collectionName);
+                      const allRecords = await collection.query().fetch();
+                      
+                      for (const record of allRecords) {
+                        await record.destroyPermanently();
+                      }
+                      
+                      console.log(`✅ Cleared ${collectionName}: ${allRecords.length} records deleted`);
+                    } catch (error) {
+                      console.error(`❌ Error clearing ${collectionName}:`, error);
+                    }
+                  }
+                });
+              }
+              
+              // Reset onboarding last to ensure fresh start
+              await resetOnboarding();
+              
+              console.log('🚀 Complete data wipe finished, restarting app...');
+              
+              onClose(); // Close modal
+              router.replace('/onboarding'); // Force restart onboarding
+              
+              Alert.alert('Success', 'All data has been wiped. The app has been reset to first-time use state.');
+              
+            } catch (error) {
+              console.error('❌ Error during complete reset:', error);
+              Alert.alert('Error', 'Failed to complete data wipe. Check console for details.');
             }
           },
         },
@@ -89,6 +160,21 @@ export function DevTools({ visible, onClose }: DevToolsProps) {
               <Ionicons name="refresh" size={20} color={colors.secondary} />
               <Text style={[typography.button, styles.buttonText]}>
                 Reset Onboarding
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.dangerButton,
+                isPressed === 'wipe' && styles.buttonPressed
+              ]}
+              onPress={handleCompleteReset}
+              onPressIn={() => setIsPressed('wipe')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="trash" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.dangerButtonText]}>
+                WIPE ALL DATA
               </Text>
             </Pressable>
           </View>
@@ -174,6 +260,24 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.secondary,
+  },
+  dangerButton: {
+    backgroundColor: '#DC3545',
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    shadowColor: '#DC3545',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  dangerButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   infoText: {
     color: colors.text.primary,
