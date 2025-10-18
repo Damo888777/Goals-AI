@@ -20,7 +20,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
-// import { useSubscription } from '../../src/hooks/useSubscription';
+import { useSubscription } from '../../src/hooks/useSubscription';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
@@ -102,7 +102,15 @@ export default function ProfileTab() {
   const { goals } = useGoals();
   const { tasks } = useTasks();
   const { userPreferences, updateUserPreferences } = useOnboarding();
-  // const { subscription, isLoading: isSubscriptionLoading, refreshSubscription } = useSubscription();
+  const { 
+    currentTier, 
+    isSubscribed, 
+    isLoading: isSubscriptionLoading, 
+    customerInfo,
+    canUseSparkAIVoice,
+    canUseSparkAIVision,
+    getUsageLimits
+  } = useSubscription();
   
   const [userName, setUserName] = useState(userPreferences?.name || 'User');
   const [originalUserName, setOriginalUserName] = useState(userPreferences?.name || 'User');
@@ -490,13 +498,95 @@ Best regards`;
           </View>
           
           <View style={styles.subscriptionCard}>
-            <Pressable
-              style={[styles.subscriptionButton, styles.upgradeButton]}
-              onPress={() => router.push('/paywall?type=feature_upgrade')}
-            >
-              <Text style={styles.upgradeButtonText}>View Subscription Plans</Text>
-              <Ionicons name="arrow-up" size={16} color="#F5EBE0" />
-            </Pressable>
+            {isSubscriptionLoading ? (
+              <View style={styles.subscriptionLoading}>
+                <Text style={styles.subscriptionLoadingText}>Loading subscription...</Text>
+              </View>
+            ) : (
+              <>
+                {/* Subscription Header */}
+                <View style={styles.subscriptionHeader}>
+                  <View style={styles.subscriptionInfo}>
+                    <Text style={styles.subscriptionTier}>
+                      {currentTier?.name || 'Free Trial'}
+                    </Text>
+                    <Text style={styles.subscriptionStatus}>
+                      {isSubscribed 
+                        ? customerInfo?.latestExpirationDate 
+                          ? `Renewal at ${new Date(customerInfo.latestExpirationDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
+                          : 'Active Subscription'
+                        : `Free trial until ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
+                      }
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Usage Information */}
+                <View style={styles.subscriptionFeatures}>
+                  <View style={styles.subscriptionFeature}>
+                    <Ionicons name="mic" size={16} color={colors.text.primary} />
+                    <Text style={styles.subscriptionFeatureText}>
+                      <Text style={{ fontWeight: 'bold' }}>
+                        {/* TODO: Add actual usage tracking */}0
+                      </Text>
+                      <Text style={{ fontWeight: '300' }}>
+                        /{currentTier?.sparkAIVoiceInputs || 0} Spark AI Inputs
+                      </Text>
+                    </Text>
+                  </View>
+
+                  <View style={styles.subscriptionFeature}>
+                    <Ionicons name="image" size={16} color={colors.text.primary} />
+                    <Text style={styles.subscriptionFeatureText}>
+                      <Text style={{ fontWeight: 'bold' }}>
+                        {/* TODO: Add actual usage tracking */}0
+                      </Text>
+                      <Text style={{ fontWeight: '300' }}>
+                        /{currentTier?.sparkAIVisionImages || 0} Spark AI Visions
+                      </Text>
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Action Buttons */}
+                <View style={styles.subscriptionActions}>
+                  {/* Upgrade Button - only show if not on highest tier */}
+                  {currentTier?.id !== 'tier_visionary' && (
+                    <Pressable
+                      style={[styles.subscriptionButton, styles.upgradeButton]}
+                      onPress={() => router.push('/paywall')}
+                    >
+                      <Text style={styles.upgradeButtonText}>Upgrade Plan</Text>
+                      <Ionicons name="sparkles" size={16} color="#F5EBE0" />
+                    </Pressable>
+                  )}
+
+                  {/* Max tier indicator */}
+                  {currentTier?.id === 'tier_visionary' && (
+                    <View style={styles.maxTierIndicator}>
+                      <Ionicons name="checkmark-circle" size={20} color="#8FBC8F" />
+                      <Text style={styles.maxTierText}>You're on the highest tier!</Text>
+                    </View>
+                  )}
+
+                  {/* Manage Subscription Button */}
+                  <View style={styles.manageSubscriptionContainer}>
+                    <Pressable
+                      style={styles.manageButton}
+                      onPress={() => {
+                        if (Platform.OS === 'ios') {
+                          Linking.openURL('https://apps.apple.com/account/subscriptions');
+                        } else {
+                          Linking.openURL('https://play.google.com/store/account/subscriptions');
+                        }
+                      }}
+                    >
+                      <Text style={styles.manageButtonText}>Manage Subscription</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </View>
 
@@ -1097,6 +1187,8 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     opacity: 0.8,
     marginTop: 4,
+    fontWeight: '300',
+    fontFamily: 'Helvetica',
   },
   subscriptionBadge: {
     alignItems: 'center',
@@ -1185,5 +1277,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Helvetica',
+  },
+  manageSubscriptionContainer: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    justifyContent: 'center',
+  },
+  manageButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  manageButtonText: {
+    color: colors.text.primary,
+    fontSize: 14,
+    fontWeight: '300',
+    fontFamily: 'Helvetica',
+    textAlign: 'center',
   },
 });

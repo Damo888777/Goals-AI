@@ -96,7 +96,7 @@ export const useOnboarding = () => {
       // Trigger onboarding paywall after Spark tutorial completes
       // This is the final step of onboarding flow
       const { router } = await import('expo-router');
-      router.push('/paywall?type=onboarding');
+      router.push('/onboarding-paywall');
     } catch (error) {
       console.error('Error completing Spark tutorial:', error);
     }

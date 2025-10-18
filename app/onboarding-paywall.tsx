@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useSubscription } from '../src/hooks/useSubscription';
 import { SubscriptionCard } from '../src/components/SubscriptionCard';
 
-export default function PaywallScreen() {
+export default function OnboardingPaywallScreen() {
   const insets = useSafeAreaInsets();
   const [selectedPlan, setSelectedPlan] = useState<string | null>('tier_achiever');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
@@ -17,23 +16,11 @@ export default function PaywallScreen() {
     subscriptionPlans,
     purchasePackage,
     restorePurchases,
-    isLoading: subscriptionLoading,
-    currentTier,
-    isSubscribed
+    isLoading: subscriptionLoading
   } = useSubscription();
 
   const availablePlans = subscriptionPlans;
 
-  // Get paywall content - this is now feature upgrade only
-  const getPaywallContent = () => {
-    return {
-      title: 'Ready for the Next Level?',
-      description: 'Our higher tiers are designed for ambitious users who are ready to achieve more. Explore the plans below.',
-      canDismiss: true,
-    };
-  };
-
-  const { title, description } = getPaywallContent();
 
   const handlePurchase = async () => {
     if (!selectedPlan) return;
@@ -53,9 +40,9 @@ export default function PaywallScreen() {
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
         Alert.alert(
-          'Success!',
-          'Your subscription has been activated. Welcome to Goals AI!',
-          [{ text: 'Continue', onPress: () => router.back() }]
+          'Welcome to Goals AI!',
+          'Your subscription has been activated. Let\'s start building your vision!',
+          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
         );
       } else {
         // Handle different types of purchase errors
@@ -116,7 +103,7 @@ export default function PaywallScreen() {
         Alert.alert(
           'Purchases Restored',
           'Your previous purchases have been restored.',
-          [{ text: 'Continue', onPress: () => router.back() }]
+          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
         );
       } else {
         Alert.alert('Restore Failed', result.error || 'No previous purchases found.');
@@ -154,66 +141,14 @@ export default function PaywallScreen() {
     <View style={{ flex: 1, backgroundColor: '#364958' }}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: 20,
+          paddingTop: insets.top + 40,
           paddingHorizontal: 24,
           paddingBottom: insets.bottom + 40,
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Close Button */}
-        <View style={{
-          position: 'absolute',
-          top: 10,
-          right: 10,
-          zIndex: 20,
-        }}>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              width: 44,
-              height: 44,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Ionicons name="close" size={24} color="#F5EBE0" />
-          </Pressable>
-        </View>
-
-        {/* Current Subscription State */}
-        {isSubscribed && currentTier && (
-          <View style={{
-            backgroundColor: 'rgba(245, 235, 224, 0.1)',
-            borderRadius: 12,
-            padding: 16,
-            marginBottom: 32,
-            marginTop: 60,
-            borderWidth: 0.5,
-            borderColor: 'rgba(245, 235, 224, 0.3)',
-          }}>
-            <Text style={{
-              fontSize: 14,
-              color: '#F5EBE0',
-              opacity: 0.8,
-              fontWeight: '300',
-              textAlign: 'center',
-              marginBottom: 4,
-            }}>
-              Current Plan
-            </Text>
-            <Text style={{
-              fontSize: 18,
-              color: '#F5EBE0',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
-              {currentTier.name}
-            </Text>
-          </View>
-        )}
-
         {/* Hero Section */}
-        <View style={{ marginBottom: 48, alignItems: 'center', marginTop: isSubscribed && currentTier ? 0 : 60 }}>
+        <View style={{ marginBottom: 48, alignItems: 'center' }}>
           <View style={{
             marginBottom: 24,
           }}>
@@ -231,7 +166,7 @@ export default function PaywallScreen() {
             marginBottom: 16,
             lineHeight: 38,
           }}>
-            {title}
+            Invest in Yourself
           </Text>
           <Text style={{
             fontSize: 18,
@@ -242,7 +177,7 @@ export default function PaywallScreen() {
             lineHeight: 24,
             paddingHorizontal: 8,
           }}>
-            {description}
+            You've felt the clarity. Now unlock the full system to make it happen.
           </Text>
         </View>
 
@@ -368,7 +303,7 @@ export default function PaywallScreen() {
               color: selectedPlan && !isLoading ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
-              {isLoading ? 'Processing...' : 'Upgrade Plan'}
+              {isLoading ? 'Processing...' : 'Start 7-day free trial'}
             </Text>
           </Pressable>
 

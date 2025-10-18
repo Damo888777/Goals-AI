@@ -352,8 +352,8 @@ export default function OnboardingScreen() {
         firstTaskTitle: data.taskTitle,
       });
       
-      // Navigate to main app
-      router.replace('/(tabs)');
+      // Navigate to onboarding paywall
+      router.replace('/onboarding-paywall');
     } catch (error) {
       Alert.alert('Error', 'Failed to complete onboarding. Please try again.');
       console.error('Onboarding completion error:', error);

@@ -15,175 +15,201 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
   const isAnnual = billingPeriod === 'annual';
 
   const getBenefits = () => {
-    const benefits = [
-      `${tier.maxGoals === null ? 'Unlimited' : tier.maxGoals} Active Goals`,
-      `${tier.sparkAIVoiceInputs} Spark AI Voice Inputs/month`,
-      `${tier.sparkAIVisionImages} Spark AI Vision Images/month`,
-      'Unlimited Pomodoro Sessions',
-    ];
-
-    if (tier.homeScreenWidgets) {
-      benefits.push('Home Screen Widgets');
+    switch (tier.id) {
+      case 'tier_starter':
+        return [
+          { bold: '3', light: ' Active Goals', icon: 'flag' },
+          { bold: '40', light: ' Spark AI Inputs per month', icon: 'mic' },
+          { bold: '10', light: ' Spark AI Visions per month', icon: 'image' },
+          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
+          { bold: 'Locked', light: ' Home Screen Widget', icon: 'apps' }
+        ];
+      case 'tier_achiever':
+        return [
+          { bold: '10', light: ' Active Goals', icon: 'flag' },
+          { bold: '150', light: ' Spark AI Inputs per month', icon: 'mic' },
+          { bold: '20', light: ' Spark AI Visions per month', icon: 'image' },
+          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
+          { bold: 'Unlocked', light: ' Home Screen Widget', icon: 'apps' }
+        ];
+      case 'tier_visionary':
+        return [
+          { bold: 'Unlimited', light: ' Active Goals', icon: 'infinite' },
+          { bold: '500', light: ' Spark AI Inputs per month', icon: 'mic' },
+          { bold: '60', light: ' Spark AI Visions per month', icon: 'image' },
+          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
+          { bold: 'Unlocked', light: ' Home Screen Widget', icon: 'apps' }
+        ];
+      default:
+        return [];
     }
-
-    return benefits;
   };
 
   const getDisplayPrice = () => {
     if (isAnnual && annualPrice) {
-      const monthlyEquivalent = (parseFloat(annualPrice.replace(/[^0-9.]/g, '')) / 12).toFixed(2);
-      return `$${monthlyEquivalent}/month`;
+      return annualPrice + '/year';
     }
-    return monthlyPrice;
+    return monthlyPrice + '/month';
   };
 
-  const getFullPrice = () => {
-    if (isAnnual && annualPrice) {
-      return `${annualPrice}/year`;
-    }
-    return `${monthlyPrice}/month`;
-  };
 
   return (
     <Pressable
       onPress={onSelect}
       style={{
         backgroundColor: '#F5EBE0',
-        borderRadius: 16,
-        padding: 20,
-        borderWidth: isSelected ? 1 : 0.5,
-        borderColor: '#364958',
-        shadowColor: '#364958',
-        shadowOffset: { width: 0, height: 4 },
+        borderRadius: 15,
+        padding: 32,
+        minHeight: 280,
+        borderWidth: isSelected ? 3 : 0.5,
+        borderColor: isSelected ? '#E9EDC9' : '#A3B18A',
+        shadowColor: '#F5EBE0',
+        shadowOffset: { width: 0, height: isSelected ? 8 : 4 },
         shadowOpacity: 0.75,
         shadowRadius: 0,
-        elevation: 4,
-        opacity: isSelected ? 1 : 0.9,
+        elevation: isSelected ? 8 : 4,
+        opacity: isSelected ? 1 : 0.7,
+        transform: [{ scale: isSelected ? 1.03 : 1 }],
+        position: 'relative',
+        overflow: 'visible',
       }}
     >
+      {/* Badges */}
+      {tier.id === 'tier_achiever' && (
+        <View style={{
+          position: 'absolute',
+          top: -12,
+          right: 20,
+          backgroundColor: '#E9EDC9',
+          paddingHorizontal: 16,
+          paddingVertical: 6,
+          borderRadius: 16,
+          shadowColor: '#F5EBE0',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.75,
+          shadowRadius: 0,
+          elevation: 6,
+          zIndex: 10,
+        }}>
+          <Text style={{
+            color: '#364958',
+            fontSize: 12,
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+          }}>POPULAR</Text>
+        </View>
+      )}
+      {tier.id === 'tier_visionary' && isAnnual && savings && (
+        <View style={{
+          position: 'absolute',
+          top: -12,
+          right: 20,
+          backgroundColor: '#bc4b51',
+          paddingHorizontal: 16,
+          paddingVertical: 6,
+          borderRadius: 16,
+          shadowColor: '#F5EBE0',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.75,
+          shadowRadius: 0,
+          elevation: 6,
+          zIndex: 10,
+        }}>
+          <Text style={{
+            color: '#F5EBE0',
+            fontSize: 12,
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+          }}>BEST DEAL</Text>
+        </View>
+      )}
+
       {/* Header with tier name and pricing */}
       <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 16,
+        marginBottom: 24,
+        marginTop: 8,
       }}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <Text style={{
-            fontSize: 20,
-            fontWeight: '700',
+            fontSize: 24,
+            fontWeight: 'bold',
             color: '#364958',
-            fontFamily: 'Helvetica',
-            marginBottom: 4,
+            textAlign: 'left',
           }}>
             {tier.name}
           </Text>
-          
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-            <Text style={{
-              fontSize: 24,
-              fontWeight: '800',
-              color: '#364958',
-              fontFamily: 'Helvetica',
-            }}>
-              {getDisplayPrice()}
-            </Text>
-            
-            {isAnnual && savings && (
-              <View style={{
-                backgroundColor: '#364958',
-                paddingHorizontal: 8,
-                paddingVertical: 2,
-                borderRadius: 12,
-              }}>
-                <Text style={{
-                  fontSize: 12,
-                  fontWeight: '600',
-                  color: '#F5EBE0',
-                  fontFamily: 'Helvetica',
-                }}>
-                  Save {savings}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {isAnnual && (
-            <Text style={{
-              fontSize: 14,
-              color: '#364958',
-              opacity: 0.7,
-              fontFamily: 'Helvetica',
-              marginTop: 2,
-            }}>
-              {getFullPrice()}
-            </Text>
-          )}
-        </View>
-
-        {/* Selection indicator */}
-        <View style={{
-          width: 24,
-          height: 24,
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: '#364958',
-          backgroundColor: isSelected ? '#364958' : 'transparent',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
           {isSelected && (
-            <Ionicons name="checkmark" size={14} color="#F5EBE0" />
+            <View style={{
+              backgroundColor: '#364958',
+              borderRadius: 12,
+              padding: 4,
+            }}>
+              <Ionicons name="checkmark" size={16} color="#F5EBE0" />
+            </View>
           )}
         </View>
+        <Text style={{
+          fontSize: 20,
+          color: '#364958',
+          fontWeight: '300',
+          textAlign: 'left',
+          marginBottom: 6,
+        }}>
+          {getDisplayPrice()}
+        </Text>
+        {isAnnual && savings && (
+          <View style={{
+            backgroundColor: '#bc4b51',
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 8,
+            alignSelf: 'flex-start',
+          }}>
+            <Text style={{
+              fontSize: 12,
+              color: '#FFFFFF',
+              fontWeight: 'bold',
+              textAlign: 'left',
+            }}>
+              Save {savings}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Benefits list */}
-      <View style={{ gap: 12 }}>
+      <View style={{ gap: 18 }}>
         {getBenefits().map((benefit, index) => (
           <View key={index} style={{
             flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
           }}>
-            <Ionicons 
-              name="checkmark-circle" 
-              size={20} 
-              color="#364958" 
-            />
+            <View style={{
+              backgroundColor: '#364958',
+              borderRadius: 10,
+              padding: 6,
+            }}>
+              <Ionicons 
+                name={benefit.icon as any}
+                size={14} 
+                color="#F5EBE0" 
+              />
+            </View>
             <Text style={{
               fontSize: 15,
               color: '#364958',
-              fontFamily: 'Helvetica',
               flex: 1,
+              textAlign: 'left',
+              lineHeight: 20,
             }}>
-              {benefit}
+              <Text style={{ fontWeight: 'bold' }}>{benefit.bold}</Text>
+              <Text style={{ fontWeight: '300' }}>{benefit.light}</Text>
             </Text>
           </View>
         ))}
       </View>
 
-      {/* Popular badge for middle tier */}
-      {tier.id === 'tier_achiever' && (
-        <View style={{
-          position: 'absolute',
-          top: -8,
-          right: 20,
-          backgroundColor: '#364958',
-          paddingHorizontal: 12,
-          paddingVertical: 4,
-          borderRadius: 12,
-        }}>
-          <Text style={{
-            fontSize: 12,
-            fontWeight: '600',
-            color: '#F5EBE0',
-            fontFamily: 'Helvetica',
-          }}>
-            Most Popular
-          </Text>
-        </View>
-      )}
     </Pressable>
   );
 }

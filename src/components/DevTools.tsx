@@ -6,6 +6,7 @@ import {
   Pressable,
   Alert,
   Modal,
+  ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -146,7 +147,8 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
           </Pressable>
         </View>
 
-        <View style={styles.content}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={{ gap: spacing.xxl }}>
           <View style={styles.section}>
             <Text style={[typography.cardTitle, styles.sectionTitle]}>
               Onboarding
@@ -221,7 +223,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
               ]}
               onPress={() => {
                 onClose();
-                router.push('/paywall?type=onboarding');
+                router.push('/onboarding-paywall');
               }}
               onPressIn={() => setIsPressed('onboarding-paywall')}
               onPressOut={() => setIsPressed(null)}
@@ -249,9 +251,28 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                 Show Feature Upgrade Paywall
               </Text>
             </Pressable>
+            
+            <Pressable
+              style={[
+                styles.paywallButton,
+                isPressed === 'force-paywall' && styles.buttonPressed
+              ]}
+              onPress={() => {
+                onClose();
+                router.push('/onboarding-paywall');
+              }}
+              onPressIn={() => setIsPressed('force-paywall')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="flash" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.paywallButtonText]}>
+                Force Onboarding Paywall
+              </Text>
+            </Pressable>
+          </View>
           </View>
 
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
@@ -278,8 +299,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing.xl,
-    gap: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxxl,
   },
   section: {
     backgroundColor: colors.background.primary,
