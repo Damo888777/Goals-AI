@@ -9,6 +9,9 @@ interface SyncPullResult {
     goals: any[]
     milestones: any[]
     tasks: any[]
+    vision_images: any[]
+    pomodoro_sessions: any[]
+    task_time_tracking: any[]
     subscriptions: any[]
     subscription_usage: any[]
   }
@@ -32,6 +35,21 @@ interface SyncPushChanges {
     deleted: string[]
   }
   tasks: {
+    created: any[]
+    updated: any[]
+    deleted: string[]
+  }
+  vision_images: {
+    created: any[]
+    updated: any[]
+    deleted: string[]
+  }
+  pomodoro_sessions: {
+    created: any[]
+    updated: any[]
+    deleted: string[]
+  }
+  task_time_tracking: {
     created: any[]
     updated: any[]
     deleted: string[]
@@ -60,11 +78,12 @@ class SyncService {
     this.database = db
   }
 
-  // Check if user is authenticated
+  // Check if user is authenticated (not anonymous)
   private async isAuthenticated(): Promise<boolean> {
     if (!isSupabaseConfigured || !supabase) return false
     const { data: { user } } = await supabase.auth.getUser()
-    return !!user
+    // Only return true for real authenticated users, not anonymous
+    return !!user && !user.is_anonymous
   }
 
   // Get current user ID
@@ -91,6 +110,9 @@ class SyncService {
       goals: [] as any[],
       milestones: [] as any[],
       tasks: [] as any[],
+      vision_images: [] as any[],
+      pomodoro_sessions: [] as any[],
+      task_time_tracking: [] as any[],
       subscriptions: [] as any[],
       subscription_usage: [] as any[]
     }
@@ -108,9 +130,9 @@ class SyncService {
         .eq('id', userId)
         .order('updated_at', { ascending: true })
 
-      if (profiles && Array.isArray(profiles)) {
-        changes.profiles = profiles.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.profiles = (profiles && Array.isArray(profiles)) 
+        ? profiles.map(this.transformSupabaseToLocal) 
+        : []
 
       // Pull goals
       let goalsQuery = supabase
@@ -124,9 +146,9 @@ class SyncService {
       }
 
       const { data: goals } = await goalsQuery
-      if (goals && Array.isArray(goals)) {
-        changes.goals = goals.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.goals = (goals && Array.isArray(goals)) 
+        ? goals.map(this.transformSupabaseToLocal) 
+        : []
 
       // Pull milestones
       let milestonesQuery = supabase
@@ -140,9 +162,9 @@ class SyncService {
       }
 
       const { data: milestones } = await milestonesQuery
-      if (milestones && Array.isArray(milestones)) {
-        changes.milestones = milestones.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.milestones = (milestones && Array.isArray(milestones)) 
+        ? milestones.map(this.transformSupabaseToLocal) 
+        : []
 
       // Pull tasks
       let tasksQuery = supabase
@@ -156,9 +178,9 @@ class SyncService {
       }
 
       const { data: tasks } = await tasksQuery
-      if (tasks && Array.isArray(tasks)) {
-        changes.tasks = tasks.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.tasks = (tasks && Array.isArray(tasks)) 
+        ? tasks.map(this.transformSupabaseToLocal) 
+        : []
 
       // Pull subscriptions
       let subscriptionsQuery = supabase
@@ -172,9 +194,9 @@ class SyncService {
       }
 
       const { data: subscriptions } = await subscriptionsQuery
-      if (subscriptions && Array.isArray(subscriptions)) {
-        changes.subscriptions = subscriptions.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.subscriptions = (subscriptions && Array.isArray(subscriptions)) 
+        ? subscriptions.map(this.transformSupabaseToLocal) 
+        : []
 
       // Pull subscription usage
       let subscriptionUsageQuery = supabase
@@ -188,9 +210,14 @@ class SyncService {
       }
 
       const { data: subscriptionUsage } = await subscriptionUsageQuery
-      if (subscriptionUsage && Array.isArray(subscriptionUsage)) {
-        changes.subscription_usage = subscriptionUsage.map(this.transformSupabaseToLocal) as any[]
-      }
+      changes.subscription_usage = (subscriptionUsage && Array.isArray(subscriptionUsage)) 
+        ? subscriptionUsage.map(this.transformSupabaseToLocal) 
+        : []
+
+      // Initialize remaining tables as empty arrays (these tables don't sync from Supabase)
+      changes.vision_images = []
+      changes.pomodoro_sessions = []
+      changes.task_time_tracking = []
 
       return { changes, timestamp }
     } catch (error) {
@@ -201,32 +228,66 @@ class SyncService {
 
   // Push changes to Supabase
   private async pushChanges(changes: SyncPushChanges): Promise<void> {
+    console.log('🔍 [SYNC DEBUG] pushChanges - entry point, changes:', changes)
+    
     if (!isSupabaseConfigured || !supabase) {
+      console.log('🔍 [SYNC DEBUG] pushChanges - Supabase not configured')
       throw new Error('Supabase not configured')
     }
 
+    console.log('🔍 [SYNC DEBUG] pushChanges - getting current user ID...')
     const userId = await this.getCurrentUserId()
+    console.log('🔍 [SYNC DEBUG] pushChanges - userId:', userId)
+    
     if (!userId) {
+      console.log('🔍 [SYNC DEBUG] pushChanges - User not authenticated')
       throw new Error('User not authenticated')
     }
 
-    // Validate changes structure
+    // Validate changes structure and ensure all arrays are defined
     if (!changes || typeof changes !== 'object') {
       console.warn('⚠️ Invalid changes object received:', changes)
       return
     }
 
+    // Ensure all table changes have proper structure with empty arrays as fallback
+    const safeChanges = {
+      profiles: changes.profiles || { created: [], updated: [], deleted: [] },
+      goals: changes.goals || { created: [], updated: [], deleted: [] },
+      milestones: changes.milestones || { created: [], updated: [], deleted: [] },
+      tasks: changes.tasks || { created: [], updated: [], deleted: [] },
+      vision_images: changes.vision_images || { created: [], updated: [], deleted: [] },
+      pomodoro_sessions: changes.pomodoro_sessions || { created: [], updated: [], deleted: [] },
+      task_time_tracking: changes.task_time_tracking || { created: [], updated: [], deleted: [] },
+      subscriptions: changes.subscriptions || { created: [], updated: [], deleted: [] },
+      subscription_usage: changes.subscription_usage || { created: [], updated: [], deleted: [] }
+    }
+
+    // Ensure each table's arrays are properly initialized
+    Object.keys(safeChanges).forEach(table => {
+      const tableChanges = safeChanges[table as keyof typeof safeChanges]
+      if (!tableChanges.created || !Array.isArray(tableChanges.created)) {
+        tableChanges.created = []
+      }
+      if (!tableChanges.updated || !Array.isArray(tableChanges.updated)) {
+        tableChanges.updated = []
+      }
+      if (!tableChanges.deleted || !Array.isArray(tableChanges.deleted)) {
+        tableChanges.deleted = []
+      }
+    })
+
     try {
       // Push profiles
-      if (changes.profiles?.created && Array.isArray(changes.profiles.created) && changes.profiles.created.length > 0) {
+      if (safeChanges.profiles.created.length > 0) {
         const { error } = await supabase
           .from('profiles')
-          .upsert(changes.profiles.created.map(this.transformLocalToSupabase))
+          .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.profiles?.updated && Array.isArray(changes.profiles.updated) && changes.profiles.updated.length > 0) {
-        for (const profile of changes.profiles.updated) {
+      if (safeChanges.profiles.updated.length > 0) {
+        for (const profile of safeChanges.profiles.updated) {
           const { error } = await supabase
             .from('profiles')
             .update(this.transformLocalToSupabase(profile))
@@ -236,8 +297,8 @@ class SyncService {
       }
 
       // Push goals
-      if (changes.goals?.created && Array.isArray(changes.goals.created) && changes.goals.created.length > 0) {
-        const transformedGoals = changes.goals.created.map(this.transformLocalToSupabase.bind(this))
+      if (safeChanges.goals.created.length > 0) {
+        const transformedGoals = safeChanges.goals.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing goals:', transformedGoals.length)
         
         const { error } = await supabase
@@ -249,8 +310,8 @@ class SyncService {
         }
       }
 
-      if (changes.goals?.updated && Array.isArray(changes.goals.updated) && changes.goals.updated.length > 0) {
-        for (const goal of changes.goals.updated) {
+      if (safeChanges.goals.updated.length > 0) {
+        for (const goal of safeChanges.goals.updated) {
           const { error } = await supabase
             .from('goals')
             .update(this.transformLocalToSupabase(goal))
@@ -259,17 +320,17 @@ class SyncService {
         }
       }
 
-      if (changes.goals?.deleted && Array.isArray(changes.goals.deleted) && changes.goals.deleted.length > 0) {
+      if (safeChanges.goals.deleted.length > 0) {
         const { error } = await supabase
           .from('goals')
           .delete()
-          .in('id', changes.goals.deleted)
+          .in('id', safeChanges.goals.deleted)
         if (error) throw error
       }
 
       // Push milestones
-      if (changes.milestones?.created && Array.isArray(changes.milestones.created) && changes.milestones.created.length > 0) {
-        const transformedMilestones = changes.milestones.created.map(this.transformLocalToSupabase.bind(this))
+      if (safeChanges.milestones.created.length > 0) {
+        const transformedMilestones = safeChanges.milestones.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing milestones:', transformedMilestones.length)
         
         const { error } = await supabase
@@ -281,8 +342,8 @@ class SyncService {
         }
       }
 
-      if (changes.milestones?.updated && Array.isArray(changes.milestones.updated) && changes.milestones.updated.length > 0) {
-        for (const milestone of changes.milestones.updated) {
+      if (safeChanges.milestones.updated.length > 0) {
+        for (const milestone of safeChanges.milestones.updated) {
           const { error } = await supabase
             .from('milestones')
             .update(this.transformLocalToSupabase(milestone))
@@ -291,17 +352,17 @@ class SyncService {
         }
       }
 
-      if (changes.milestones?.deleted && Array.isArray(changes.milestones.deleted) && changes.milestones.deleted.length > 0) {
+      if (safeChanges.milestones.deleted.length > 0) {
         const { error } = await supabase
           .from('milestones')
           .delete()
-          .in('id', changes.milestones.deleted)
+          .in('id', safeChanges.milestones.deleted)
         if (error) throw error
       }
 
       // Push tasks
-      if (changes.tasks?.created && Array.isArray(changes.tasks.created) && changes.tasks.created.length > 0) {
-        const transformedTasks = changes.tasks.created.map(this.transformLocalToSupabase.bind(this))
+      if (safeChanges.tasks.created.length > 0) {
+        const transformedTasks = safeChanges.tasks.created.map(this.transformLocalToSupabase.bind(this))
         console.log('Pushing tasks:', transformedTasks.length)
         
         const { error } = await supabase
@@ -313,8 +374,8 @@ class SyncService {
         }
       }
 
-      if (changes.tasks?.updated && Array.isArray(changes.tasks.updated) && changes.tasks.updated.length > 0) {
-        for (const task of changes.tasks.updated) {
+      if (safeChanges.tasks.updated.length > 0) {
+        for (const task of safeChanges.tasks.updated) {
           const { error } = await supabase
             .from('tasks')
             .update(this.transformLocalToSupabase(task))
@@ -323,24 +384,24 @@ class SyncService {
         }
       }
 
-      if (changes.tasks?.deleted && Array.isArray(changes.tasks.deleted) && changes.tasks.deleted.length > 0) {
+      if (safeChanges.tasks.deleted.length > 0) {
         const { error } = await supabase
           .from('tasks')
           .delete()
-          .in('id', changes.tasks.deleted)
+          .in('id', safeChanges.tasks.deleted)
         if (error) throw error
       }
 
       // Push subscriptions (usually managed by RevenueCat, but sync for consistency)
-      if (changes.subscriptions?.created && Array.isArray(changes.subscriptions.created) && changes.subscriptions.created.length > 0) {
+      if (safeChanges.subscriptions.created.length > 0) {
         const { error } = await supabase
           .from('subscriptions')
-          .upsert(changes.subscriptions.created.map(this.transformLocalToSupabase))
+          .upsert(safeChanges.subscriptions.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.subscriptions?.updated && Array.isArray(changes.subscriptions.updated) && changes.subscriptions.updated.length > 0) {
-        for (const subscription of changes.subscriptions.updated) {
+      if (safeChanges.subscriptions.updated.length > 0) {
+        for (const subscription of safeChanges.subscriptions.updated) {
           const { error } = await supabase
             .from('subscriptions')
             .update(this.transformLocalToSupabase(subscription))
@@ -350,15 +411,15 @@ class SyncService {
       }
 
       // Push subscription usage
-      if (changes.subscription_usage?.created && Array.isArray(changes.subscription_usage.created) && changes.subscription_usage.created.length > 0) {
+      if (safeChanges.subscription_usage.created.length > 0) {
         const { error } = await supabase
           .from('subscription_usage')
-          .upsert(changes.subscription_usage.created.map(this.transformLocalToSupabase))
+          .upsert(safeChanges.subscription_usage.created.map(this.transformLocalToSupabase))
         if (error) throw error
       }
 
-      if (changes.subscription_usage?.updated && Array.isArray(changes.subscription_usage.updated) && changes.subscription_usage.updated.length > 0) {
-        for (const usage of changes.subscription_usage.updated) {
+      if (safeChanges.subscription_usage.updated.length > 0) {
+        for (const usage of safeChanges.subscription_usage.updated) {
           const { error } = await supabase
             .from('subscription_usage')
             .update(this.transformLocalToSupabase(usage))
@@ -527,6 +588,21 @@ class SyncService {
           updated: [],
           deleted: []
         },
+        vision_images: {
+          created: [],
+          updated: [],
+          deleted: []
+        },
+        pomodoro_sessions: {
+          created: [],
+          updated: [],
+          deleted: []
+        },
+        task_time_tracking: {
+          created: [],
+          updated: [],
+          deleted: []
+        },
         subscriptions: {
           created: Array.isArray(userSubscriptions) ? userSubscriptions : [],
           updated: [],
@@ -565,8 +641,12 @@ class SyncService {
       }
     }
 
-    if (!(await this.isAuthenticated())) {
-      console.log('⏭️ User not authenticated, skipping sync')
+    const isAuth = await this.isAuthenticated()
+    
+    // For anonymous users: push-only sync (no pulling)
+    if (!isAuth) {
+      console.log('🔄 Anonymous user - push-only sync (no pulling from Supabase)')
+      await this.pushOnlySync()
       return
     }
 
@@ -588,7 +668,12 @@ class SyncService {
                 profiles: result.changes?.profiles?.length || 0,
                 goals: result.changes?.goals?.length || 0,
                 milestones: result.changes?.milestones?.length || 0,
-                tasks: result.changes?.tasks?.length || 0
+                tasks: result.changes?.tasks?.length || 0,
+                vision_images: result.changes?.vision_images?.length || 0,
+                pomodoro_sessions: result.changes?.pomodoro_sessions?.length || 0,
+                task_time_tracking: result.changes?.task_time_tracking?.length || 0,
+                subscriptions: result.changes?.subscriptions?.length || 0,
+                subscription_usage: result.changes?.subscription_usage?.length || 0
               })
               return result
             } catch (error) {
@@ -598,55 +683,91 @@ class SyncService {
           },
           pushChanges: async ({ changes, lastPulledAt }) => {
             try {
+              console.log('🔍 [SYNC DEBUG] Raw changes object:', JSON.stringify(changes, null, 2))
+              console.log('🔍 [SYNC DEBUG] Changes type:', typeof changes)
+              console.log('🔍 [SYNC DEBUG] Changes keys:', changes ? Object.keys(changes) : 'null/undefined')
+              
+              // Log each table before accessing
+              console.log('🔍 [SYNC DEBUG] profiles raw:', (changes as any)?.profiles)
+              console.log('🔍 [SYNC DEBUG] goals raw:', (changes as any)?.goals)
+              console.log('🔍 [SYNC DEBUG] milestones raw:', (changes as any)?.milestones)
+              console.log('🔍 [SYNC DEBUG] tasks raw:', (changes as any)?.tasks)
+              console.log('🔍 [SYNC DEBUG] subscriptions raw:', (changes as any)?.subscriptions)
+              console.log('🔍 [SYNC DEBUG] subscription_usage raw:', (changes as any)?.subscription_usage)
+              
               // Transform WatermelonDB changes to our format
               const syncChanges: SyncPushChanges = {
                 profiles: (changes as any).profiles || { created: [], updated: [], deleted: [] },
                 goals: (changes as any).goals || { created: [], updated: [], deleted: [] },
                 milestones: (changes as any).milestones || { created: [], updated: [], deleted: [] },
                 tasks: (changes as any).tasks || { created: [], updated: [], deleted: [] },
+                vision_images: (changes as any).vision_images || { created: [], updated: [], deleted: [] },
+                pomodoro_sessions: (changes as any).pomodoro_sessions || { created: [], updated: [], deleted: [] },
+                task_time_tracking: (changes as any).task_time_tracking || { created: [], updated: [], deleted: [] },
                 subscriptions: (changes as any).subscriptions || { created: [], updated: [], deleted: [] },
                 subscription_usage: (changes as any).subscription_usage || { created: [], updated: [], deleted: [] }
               }
               
+              console.log('🔍 [SYNC DEBUG] syncChanges created successfully:', {
+                profiles: syncChanges.profiles ? 'defined' : 'undefined',
+                goals: syncChanges.goals ? 'defined' : 'undefined',
+                milestones: syncChanges.milestones ? 'defined' : 'undefined',
+                tasks: syncChanges.tasks ? 'defined' : 'undefined',
+                subscriptions: syncChanges.subscriptions ? 'defined' : 'undefined',
+                subscription_usage: syncChanges.subscription_usage ? 'defined' : 'undefined'
+              })
+              
               // Check if there are actually changes to push
-              if (!this.hasChangesToPush(syncChanges)) {
+              console.log('🔍 [SYNC DEBUG] About to call hasChangesToPush...')
+              const hasChanges = this.hasChangesToPush(syncChanges)
+              console.log('🔍 [SYNC DEBUG] hasChangesToPush result:', hasChanges)
+              
+              if (!hasChanges) {
                 console.log('🔄 No changes to push, skipping...')
                 return
               }
               
-              console.log('🔄 Push changes:', {
-                profiles: {
-                  created: syncChanges.profiles?.created?.length || 0,
-                  updated: syncChanges.profiles?.updated?.length || 0,
-                  deleted: syncChanges.profiles?.deleted?.length || 0
-                },
-                goals: {
-                  created: syncChanges.goals?.created?.length || 0,
-                  updated: syncChanges.goals?.updated?.length || 0,
-                  deleted: syncChanges.goals?.deleted?.length || 0
-                },
-                milestones: {
-                  created: syncChanges.milestones?.created?.length || 0,
-                  updated: syncChanges.milestones?.updated?.length || 0,
-                  deleted: syncChanges.milestones?.deleted?.length || 0
-                },
-                tasks: {
-                  created: syncChanges.tasks?.created?.length || 0,
-                  updated: syncChanges.tasks?.updated?.length || 0,
-                  deleted: syncChanges.tasks?.deleted?.length || 0
-                },
-                subscriptions: {
-                  created: syncChanges.subscriptions?.created?.length || 0,
-                  updated: syncChanges.subscriptions?.updated?.length || 0,
-                  deleted: syncChanges.subscriptions?.deleted?.length || 0
-                },
-                subscription_usage: {
-                  created: syncChanges.subscription_usage?.created?.length || 0,
-                  updated: syncChanges.subscription_usage?.updated?.length || 0,
-                  deleted: syncChanges.subscription_usage?.deleted?.length || 0
-                }
-              })
+              console.log('🔍 [SYNC DEBUG] About to log push changes details...')
+              try {
+                console.log('🔄 Push changes:', {
+                  profiles: {
+                    created: syncChanges.profiles?.created?.length || 0,
+                    updated: syncChanges.profiles?.updated?.length || 0,
+                    deleted: syncChanges.profiles?.deleted?.length || 0
+                  },
+                  goals: {
+                    created: syncChanges.goals?.created?.length || 0,
+                    updated: syncChanges.goals?.updated?.length || 0,
+                    deleted: syncChanges.goals?.deleted?.length || 0
+                  },
+                  milestones: {
+                    created: syncChanges.milestones?.created?.length || 0,
+                    updated: syncChanges.milestones?.updated?.length || 0,
+                    deleted: syncChanges.milestones?.deleted?.length || 0
+                  },
+                  tasks: {
+                    created: syncChanges.tasks?.created?.length || 0,
+                    updated: syncChanges.tasks?.updated?.length || 0,
+                    deleted: syncChanges.tasks?.deleted?.length || 0
+                  },
+                  subscriptions: {
+                    created: syncChanges.subscriptions?.created?.length || 0,
+                    updated: syncChanges.subscriptions?.updated?.length || 0,
+                    deleted: syncChanges.subscriptions?.deleted?.length || 0
+                  },
+                  subscription_usage: {
+                    created: syncChanges.subscription_usage?.created?.length || 0,
+                    updated: syncChanges.subscription_usage?.updated?.length || 0,
+                    deleted: syncChanges.subscription_usage?.deleted?.length || 0
+                  }
+                })
+                console.log('🔍 [SYNC DEBUG] Push changes log completed, calling pushChanges...')
+              } catch (logError) {
+                console.error('🔍 [SYNC DEBUG] Error in push changes logging:', logError)
+              }
+              
               await this.pushChanges(syncChanges)
+              console.log('🔍 [SYNC DEBUG] pushChanges completed successfully')
             } catch (error) {
               console.error('❌ Error in pushChanges:', error)
               throw error
@@ -699,21 +820,83 @@ class SyncService {
 
   // Check if there are any changes to push
   private hasChangesToPush(changes: any): boolean {
+    console.log('🔍 [SYNC DEBUG] hasChangesToPush - input changes:', changes)
+    console.log('🔍 [SYNC DEBUG] hasChangesToPush - changes type:', typeof changes)
+    
     if (!changes || typeof changes !== 'object') {
+      console.log('🔍 [SYNC DEBUG] hasChangesToPush - changes is null/undefined or not object, returning false')
       return false
     }
     
-    return Object.values(changes).some((table: any) => {
-      if (!table || typeof table !== 'object') {
-        return false
+    console.log('🔍 [SYNC DEBUG] hasChangesToPush - Object.keys(changes):', Object.keys(changes))
+    console.log('🔍 [SYNC DEBUG] hasChangesToPush - Object.values(changes):', Object.values(changes))
+    
+    try {
+      const result = Object.values(changes).some((table: any, index: number) => {
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - processing table ${index}:`, table)
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table type:`, typeof table)
+        
+        if (!table || typeof table !== 'object') {
+          console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} is null/undefined or not object`)
+          return false
+        }
+        
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} keys:`, Object.keys(table))
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} created:`, table.created)
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} updated:`, table.updated)
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} deleted:`, table.deleted)
+        
+        const created = Array.isArray(table.created) ? table.created : []
+        const updated = Array.isArray(table.updated) ? table.updated : []
+        const deleted = Array.isArray(table.deleted) ? table.deleted : []
+        
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} lengths: created=${created.length}, updated=${updated.length}, deleted=${deleted.length}`)
+        
+        const hasChanges = created.length > 0 || updated.length > 0 || deleted.length > 0
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} hasChanges:`, hasChanges)
+        
+        return hasChanges
+      })
+      
+      console.log('🔍 [SYNC DEBUG] hasChangesToPush - final result:', result)
+      return result
+    } catch (error) {
+      console.error('🔍 [SYNC DEBUG] hasChangesToPush - error occurred:', error)
+      return false
+    }
+  }
+
+  // Push-only sync for anonymous users (no pulling)
+  private async pushOnlySync(): Promise<void> {
+    if (this.syncInProgress) {
+      console.log('⏭️ Push-only sync already in progress, skipping')
+      return
+    }
+
+    this.syncInProgress = true
+    
+    try {
+      // Get local changes to push
+      const localChanges = await this.getLocalChanges()
+      
+      // Check if there are changes to push
+      if (!this.hasChangesToPush(localChanges)) {
+        console.log('🔄 No local changes to push for anonymous user')
+        return
       }
       
-      const created = Array.isArray(table.created) ? table.created : []
-      const updated = Array.isArray(table.updated) ? table.updated : []
-      const deleted = Array.isArray(table.deleted) ? table.deleted : []
+      console.log('🔄 Pushing anonymous user data to Supabase...')
+      await this.pushChanges(localChanges)
       
-      return created.length > 0 || updated.length > 0 || deleted.length > 0
-    })
+      this.lastSyncTime = new Date()
+      console.log('✅ Anonymous push-only sync completed')
+      
+    } catch (error) {
+      console.error('❌ Anonymous push-only sync failed:', error)
+      // Don't throw error to prevent app crashes for anonymous users
+    } finally {
+      this.syncInProgress = false
+    }
   }
 
   // Set online/offline status
