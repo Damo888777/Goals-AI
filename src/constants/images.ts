@@ -5,6 +5,7 @@ export const images = {
     tomato: 'https://www.figma.com/api/mcp/asset/3f0b35fc-b4c0-46cb-a44b-2b9a6d454f3f',
     notes: 'https://www.figma.com/api/mcp/asset/09f94197-b689-430a-90d0-f27cb271be3a',
     sparkFab: 'https://www.figma.com/api/mcp/asset/84d7d9cc-68b1-4177-9360-b15c5d4ca56a',
+    sparkle: 'https://www.figma.com/api/mcp/asset/6b81ae0e-f8a1-40ba-9869-ad9b25b6b797',
     // Microphone icon from Figma (icon/Microphone)
     microphone: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDEuNUM5Ljc5IDEuNSA4IDMuMjkgOCA1LjVWMTEuNUM4IDEzLjcxIDkuNzkgMTUuNSAxMiAxNS41QzE0LjIxIDE1LjUgMTYgMTMuNzEgMTYgMTEuNVY1LjVDMTYgMy4yOSAxNC4yMSAxLjUgMTIgMS41WiIgZmlsbD0iY3VycmVudENvbG9yIi8+CjxwYXRoIGQ9Ik0xOSAxMC41VjExLjVDMTkgMTUuMzYgMTUuODYgMTguNSAxMiAxOC41QzguMTQgMTguNSA1IDE1LjM2IDUgMTEuNVYxMC41SDNWMTEuNUMzIDE2LjQ3IDYuODEgMjAuNSAxMS41IDIwLjk0VjIzSDEyLjVWMjAuOTRDMTcuMTkgMjAuNSAyMSAxNi40NyAyMSAxMS41VjEwLjVIMTlaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+',
     // SparkAI icon from assets

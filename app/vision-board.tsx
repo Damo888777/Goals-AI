@@ -448,8 +448,12 @@ export default function VisionBoardScreen() {
               }}
             >
             <Image 
-              source={{ uri: images.icons.createVision }} 
-              style={{ width: 16, height: 16 }}
+              source={{ uri: images.icons.sparkle }} 
+              style={{ 
+                width: 16, 
+                height: 16,
+                tintColor: '#F5EBE0',
+              }}
               contentFit="contain"
             />
             <Text

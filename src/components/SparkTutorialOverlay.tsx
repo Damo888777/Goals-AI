@@ -131,8 +131,8 @@ export function SparkTutorialOverlay({
           
           {/* Main content */}
           <Text style={[typography.body, styles.tooltipBody]}>
-            Tap to speak naturally, like: "Finish the marketing report by Friday." 
-            Spark will understand the task, title, and date for you—automatically.
+            Speak a single goal, milestone, or task: 'Marketing report by Friday.'
+            Spark handles the rest automatically.
           </Text>
           
           {/* Sub-note */}

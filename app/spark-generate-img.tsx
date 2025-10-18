@@ -13,6 +13,7 @@ import { BackChevronButton } from '../src/components/ChevronButton';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { useVisionImages } from '../src/hooks/useDatabase';
+import { images } from '../src/constants/images';
 
 
 interface StyleButtonProps {
@@ -392,15 +393,15 @@ export default function SparkGenerateIMGScreen() {
               }}
               disabled={isGenerating}
             >
-            <View style={{ width: 20, height: 20 }}>
-              <Image 
-                source={{ 
-                  uri: 'https://s3-alpha-sig.figma.com/img/f3ca/910e/67ed334fefa5709829303118cfda1a07?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=brlfYbH8KyZQB0EbF5VpV5uvxZg0X5rbH--IHFifnrI6ah-13IWHYm4-OJjt2YtCeH1xY4MFLt~smHvxgIRVi8m5BzfWY5xZQx-xVCoY9aL-gG3wOKr37ggVxgb1rc90gz-R3QpO5ZQIxt8hjovDg4KA6S8EZTjAS57Oc8sZW2gL7IDO1JB6nrTDbFCvtofpjUjLdKHkrbZqfg4GFJMlt8jIDTVA5YPY-opiNWDRcZ39LAKmgPvnqcC03JItsZ3IlaVLRvqIRPjB3-2y7nyWGxSqNQlH0AEivG7b~0OLID3dwnhEwe1HikBvooZA7WjD4ywtpKsy-QaanDMg-1wVcQ__'
-                }} 
-                style={{ width: '100%', height: '100%' }}
-                contentFit="contain"
-              />
-            </View>
+            <Image
+              source={{ uri: images.icons.sparkle }}
+              style={{ 
+                width: 20, 
+                height: 20,
+                tintColor: '#F5EBE0',
+              }}
+              contentFit="contain"
+            />
             <Text style={{
               color: '#F5EBE0',
               fontSize: 15,
@@ -610,16 +611,29 @@ export default function SparkGenerateIMGScreen() {
                   borderWidth: 1,
                   borderColor: '#9B9B9B',
                   borderRadius: 10,
-                  paddingVertical: 15,
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 10,
                 }}
               >
+                <Image
+                  source={{ uri: images.icons.sparkle }}
+                  style={{ 
+                    width: 20, 
+                    height: 20,
+                    tintColor: '#F5EBE0',
+                  }}
+                  contentFit="contain"
+                />
                 <Text style={{
                   color: '#F5EBE0',
-                  fontSize: 16,
+                  fontSize: 15,
                   fontFamily: 'Helvetica-Bold',
                 }}>
-                  Try Again
+                  Recreate Image
                 </Text>
               </Pressable>
             </View>

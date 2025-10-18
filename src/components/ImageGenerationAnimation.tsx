@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { Image } from 'expo-image';
+import { images } from '../constants/images';
 
 export type ImageGenerationState = 'idle' | 'generating' | 'completed' | 'error' | 'preview';
 
@@ -223,40 +224,64 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
                   position: 'absolute',
                   top: -5,
                   right: -5,
-                  width: 12,
-                  height: 12,
-                  backgroundColor: '#A3B18A',
-                  borderRadius: 6,
+                  width: 20,
+                  height: 20,
                   opacity: sparkleOpacity,
                   transform: [{ scale: sparkleScale }],
                 }}
-              />
+              >
+                <Image
+                  source={{ uri: images.icons.sparkle }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    tintColor: '#A3B18A',
+                  }}
+                  contentFit="contain"
+                />
+              </Animated.View>
               <Animated.View
                 style={{
                   position: 'absolute',
                   bottom: 5,
                   left: -8,
-                  width: 8,
-                  height: 8,
-                  backgroundColor: '#F5EBE0',
-                  borderRadius: 4,
+                  width: 16,
+                  height: 16,
                   opacity: sparkleOpacity,
                   transform: [{ scale: sparkleScale }],
                 }}
-              />
+              >
+                <Image
+                  source={{ uri: images.icons.sparkle }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    tintColor: '#F5EBE0',
+                  }}
+                  contentFit="contain"
+                />
+              </Animated.View>
               <Animated.View
                 style={{
                   position: 'absolute',
                   top: 20,
                   left: -10,
-                  width: 6,
-                  height: 6,
-                  backgroundColor: '#A3B18A',
-                  borderRadius: 3,
+                  width: 14,
+                  height: 14,
                   opacity: sparkleOpacity,
                   transform: [{ scale: sparkleScale }],
                 }}
-              />
+              >
+                <Image
+                  source={{ uri: images.icons.sparkle }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    tintColor: '#A3B18A',
+                  }}
+                  contentFit="contain"
+                />
+              </Animated.View>
             </>
           )}
         </View>

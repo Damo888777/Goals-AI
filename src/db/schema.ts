@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 7,
+  version: 8,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -91,6 +91,48 @@ export default appSchema({
         { name: 'total_pomodoro_sessions', type: 'number' },
         { name: 'total_minutes_focused', type: 'number' },
         { name: 'last_session_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
+    tableSchema({
+      name: 'subscriptions',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'subscription_tier', type: 'string' }, // 'starter', 'achiever', 'visionary'
+        { name: 'product_id', type: 'string' },
+        { name: 'transaction_id', type: 'string' },
+        { name: 'original_transaction_id', type: 'string' },
+        { name: 'purchased_at', type: 'number' }, // Unix timestamp
+        { name: 'expires_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'is_active', type: 'boolean' },
+        { name: 'is_trial', type: 'boolean' },
+        { name: 'is_cancelled', type: 'boolean' },
+        { name: 'cancelled_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'cancel_reason', type: 'string', isOptional: true },
+        { name: 'expired_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'has_billing_issue', type: 'boolean' },
+        { name: 'billing_issue_detected_at', type: 'number', isOptional: true }, // Unix timestamp
+        { name: 'environment', type: 'string' }, // 'production', 'sandbox'
+        { name: 'store', type: 'string' }, // 'app_store', 'play_store'
+        { name: 'country_code', type: 'string', isOptional: true },
+        { name: 'currency', type: 'string', isOptional: true },
+        { name: 'price', type: 'number', isOptional: true },
+        { name: 'entitlement_ids', type: 'string', isOptional: true }, // JSON string for array
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ]
+    }),
+    tableSchema({
+      name: 'subscription_usage',
+      columns: [
+        { name: 'user_id', type: 'string', isIndexed: true },
+        { name: 'subscription_tier', type: 'string' }, // 'starter', 'achiever', 'visionary'
+        { name: 'spark_ai_voice_inputs_used', type: 'number' },
+        { name: 'spark_ai_vision_images_used', type: 'number' },
+        { name: 'active_goals_count', type: 'number' },
+        { name: 'period_start', type: 'number' }, // Unix timestamp
+        { name: 'period_end', type: 'number', isOptional: true }, // Unix timestamp
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]

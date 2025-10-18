@@ -9,6 +9,8 @@ import Task from './models/Task'
 import VisionImage from './models/VisionImage'
 import PomodoroSession from './models/PomodoroSession'
 import TaskTimeTracking from './models/TaskTimeTracking'
+import Subscription from './models/Subscription'
+import SubscriptionUsage from './models/SubscriptionUsage'
 
 let database: Database | null = null;
 
@@ -33,6 +35,8 @@ if (DB_CONFIG.USE_WATERMELON) {
         VisionImage,
         PomodoroSession,
         TaskTimeTracking,
+        Subscription,
+        SubscriptionUsage,
       ],
     });
     

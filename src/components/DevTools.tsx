@@ -58,7 +58,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
   const handleCompleteReset = () => {
     Alert.alert(
       'COMPLETE DATA WIPE',
-      '⚠️ This will permanently delete ALL app data including:\n\n• All goals, milestones, and tasks\n• All vision board images\n• Onboarding data\n• User preferences\n• Focus history\n• All local storage\n\nThis action cannot be undone! Continue?',
+      '⚠️ This will permanently delete ALL app data including:\n\n• All goals, milestones, and tasks\n• All vision board images\n• Onboarding data\n• User preferences\n• Focus history\n• All subscription and payment data\n• All local storage\n\nThis action cannot be undone! Continue?',
       [
         {
           text: 'Cancel',
@@ -84,7 +84,9 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                     'milestones', 
                     'tasks',
                     'vision_images',
-                    'focus_sessions'
+                    'focus_sessions',
+                    'subscriptions',
+                    'subscription_usage'
                   ];
                   
                   for (const collectionName of collections) {
