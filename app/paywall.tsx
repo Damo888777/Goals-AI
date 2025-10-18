@@ -22,7 +22,19 @@ export default function PaywallScreen() {
     isSubscribed
   } = useSubscription();
 
-  const availablePlans = subscriptionPlans;
+  // Define tier hierarchy (lower index = lower tier)
+  const tierHierarchy = ['tier_starter', 'tier_achiever', 'tier_visionary'];
+  
+  // Filter plans to show higher tiers OR same tier with different billing period
+  const availablePlans = subscriptionPlans.filter(plan => {
+    if (!currentTier) return true; // Show all if no current tier
+    
+    const currentTierIndex = tierHierarchy.indexOf(currentTier.id);
+    const planTierIndex = tierHierarchy.indexOf(plan.tier.id);
+    
+    // Show plans that are higher tier OR same tier (for billing period switching)
+    return planTierIndex >= currentTierIndex;
+  });
 
   // Get paywall content - this is now feature upgrade only
   const getPaywallContent = () => {
@@ -327,7 +339,10 @@ export default function PaywallScreen() {
                 fontFamily: 'Helvetica',
                 fontWeight: '600',
               }}>
-                No subscription plans available. Please check your RevenueCat configuration.
+                {isSubscribed && currentTier ? 
+                  `You're already on the highest available tier (${currentTier.name}). To change billing frequency, please manage your subscription in your App Store settings.` :
+                  'No subscription plans available. Please check your RevenueCat configuration.'
+                }
               </Text>
             </View>
           ) : (

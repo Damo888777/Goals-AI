@@ -105,6 +105,7 @@ export default function ProfileTab() {
   const { 
     currentTier, 
     isSubscribed, 
+    isCurrentSubscriptionAnnual,
     isLoading: isSubscriptionLoading, 
     customerInfo,
     canUseSparkAIVoice,
@@ -550,19 +551,21 @@ Best regards`;
 
                 {/* Action Buttons */}
                 <View style={styles.subscriptionActions}>
-                  {/* Upgrade Button - only show if not on highest tier */}
-                  {currentTier?.id !== 'tier_visionary' && (
+                  {/* Upgrade Button - only show if not on highest tier OR not on annual billing */}
+                  {(currentTier?.id !== 'tier_visionary' || !isCurrentSubscriptionAnnual) && (
                     <Pressable
                       style={[styles.subscriptionButton, styles.upgradeButton]}
                       onPress={() => router.push('/paywall')}
                     >
-                      <Text style={styles.upgradeButtonText}>Upgrade Plan</Text>
+                      <Text style={styles.upgradeButtonText}>
+                        {currentTier?.id === 'tier_visionary' && !isCurrentSubscriptionAnnual ? 'Switch to Annual' : 'Upgrade Plan'}
+                      </Text>
                       <Ionicons name="sparkles" size={16} color="#F5EBE0" />
                     </Pressable>
                   )}
 
-                  {/* Max tier indicator */}
-                  {currentTier?.id === 'tier_visionary' && (
+                  {/* Max tier indicator - only show for Visionary Annual */}
+                  {currentTier?.id === 'tier_visionary' && isCurrentSubscriptionAnnual && (
                     <View style={styles.maxTierIndicator}>
                       <Ionicons name="checkmark-circle" size={20} color="#8FBC8F" />
                       <Text style={styles.maxTierText}>You're on the highest tier!</Text>

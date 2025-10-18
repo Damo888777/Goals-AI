@@ -136,6 +136,22 @@ class SubscriptionService {
     return this.getCurrentTier() !== null;
   }
 
+  isCurrentSubscriptionAnnual(): boolean {
+    if (!this.customerInfo) return false;
+    
+    const { entitlements } = this.customerInfo;
+    
+    // Check active entitlements for annual indicators
+    for (const entitlementId of Object.values(ENTITLEMENT_IDS)) {
+      const entitlement = entitlements.active[entitlementId];
+      if (entitlement && entitlement.productIdentifier.includes('annual')) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
   hasActiveEntitlement(entitlementId: string): boolean {
     if (!this.customerInfo) return false;
     return typeof this.customerInfo.entitlements.active[entitlementId] !== 'undefined';

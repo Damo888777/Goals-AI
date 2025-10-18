@@ -9,6 +9,7 @@ interface SubscriptionContextType {
   customerInfo: CustomerInfo | null;
   currentTier: SubscriptionTier | null;
   isSubscribed: boolean;
+  isCurrentSubscriptionAnnual: boolean;
   subscriptionPlans: SubscriptionPlan[];
   
   // Actions
@@ -35,6 +36,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [currentTier, setCurrentTier] = useState<SubscriptionTier | null>(null);
+  const [isCurrentSubscriptionAnnual, setIsCurrentSubscriptionAnnual] = useState(false);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
 
   // Initialize and refresh subscription data
@@ -57,6 +59,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       // Update state
       setCustomerInfo(newCustomerInfo);
       setCurrentTier(subscriptionService.getCurrentTier());
+      setIsCurrentSubscriptionAnnual(subscriptionService.isCurrentSubscriptionAnnual());
       
       const plans = subscriptionService.getSubscriptionPlans();
       console.log('Generated subscription plans:', plans);
@@ -162,6 +165,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     customerInfo,
     currentTier,
     isSubscribed: currentTier !== null,
+    isCurrentSubscriptionAnnual,
     subscriptionPlans,
     
     // Actions
