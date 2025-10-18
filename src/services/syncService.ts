@@ -1,6 +1,6 @@
 import { Database } from '@nozbe/watermelondb'
-import { synchronize } from '@nozbe/watermelondb/sync'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import database from '../db'
 
 interface SyncPullResult {
@@ -73,6 +73,7 @@ class SyncService {
   private lastSyncTime: Date | null = null
   private syncCooldown: number = 5000 // 5 seconds between syncs
   private pendingSyncTimeout: NodeJS.Timeout | null = null
+  private syncTimeout: NodeJS.Timeout | null = null
 
   constructor(db: Database) {
     this.database = db
@@ -236,7 +237,8 @@ class SyncService {
     }
 
     console.log('🔍 [SYNC DEBUG] pushChanges - getting current user ID...')
-    const userId = await this.getCurrentUserId()
+    const { authService } = await import('./authService')
+    const userId = authService.getEffectiveUserId()
     console.log('🔍 [SYNC DEBUG] pushChanges - userId:', userId)
     
     if (!userId) {
@@ -282,7 +284,7 @@ class SyncService {
       if (safeChanges.profiles.created.length > 0) {
         const { error } = await supabase
           .from('profiles')
-          .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase))
+          .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase.bind(this)))
         if (error) throw error
       }
 
@@ -290,7 +292,7 @@ class SyncService {
         for (const profile of safeChanges.profiles.updated) {
           const { error } = await supabase
             .from('profiles')
-            .update(this.transformLocalToSupabase(profile))
+            .update(this.transformLocalToSupabase.bind(this)(profile))
             .eq('id', profile.id)
           if (error) throw error
         }
@@ -314,7 +316,7 @@ class SyncService {
         for (const goal of safeChanges.goals.updated) {
           const { error } = await supabase
             .from('goals')
-            .update(this.transformLocalToSupabase(goal))
+            .update(this.transformLocalToSupabase.bind(this)(goal))
             .eq('id', goal.id)
           if (error) throw error
         }
@@ -346,7 +348,7 @@ class SyncService {
         for (const milestone of safeChanges.milestones.updated) {
           const { error } = await supabase
             .from('milestones')
-            .update(this.transformLocalToSupabase(milestone))
+            .update(this.transformLocalToSupabase.bind(this)(milestone))
             .eq('id', milestone.id)
           if (error) throw error
         }
@@ -378,7 +380,7 @@ class SyncService {
         for (const task of safeChanges.tasks.updated) {
           const { error } = await supabase
             .from('tasks')
-            .update(this.transformLocalToSupabase(task))
+            .update(this.transformLocalToSupabase.bind(this)(task))
             .eq('id', task.id)
           if (error) throw error
         }
@@ -394,17 +396,40 @@ class SyncService {
 
       // Push subscriptions (usually managed by RevenueCat, but sync for consistency)
       if (safeChanges.subscriptions.created.length > 0) {
-        const { error } = await supabase
-          .from('subscriptions')
-          .upsert(safeChanges.subscriptions.created.map(this.transformLocalToSupabase))
-        if (error) throw error
+        // Filter out already synced subscription records
+        const syncedIds = await this.getSyncedRecordIds()
+        const unsyncedSubscriptions = safeChanges.subscriptions.created.filter(s => 
+          !syncedIds.has(`subscriptions:${s.id}`)
+        )
+        
+        if (unsyncedSubscriptions.length > 0) {
+          console.log(`🔄 Syncing ${unsyncedSubscriptions.length} new subscription records`)
+          
+          // Use upsert with proper conflict resolution for user_id constraint
+          const { error } = await supabase
+            .from('subscriptions')
+            .upsert(
+              unsyncedSubscriptions.map(this.transformLocalToSupabase.bind(this)),
+              { 
+                onConflict: 'user_id',
+                ignoreDuplicates: false 
+              }
+            )
+          if (error) throw error
+          
+          // Mark subscription records as synced to prevent duplicates
+          const subscriptionIds = unsyncedSubscriptions.map(s => `subscriptions:${s.id}`)
+          await this.markRecordsAsSynced(subscriptionIds)
+        } else {
+          console.log('🔄 All subscription records already synced, skipping')
+        }
       }
 
       if (safeChanges.subscriptions.updated.length > 0) {
         for (const subscription of safeChanges.subscriptions.updated) {
           const { error } = await supabase
             .from('subscriptions')
-            .update(this.transformLocalToSupabase(subscription))
+            .update(this.transformLocalToSupabase.bind(this)(subscription))
             .eq('id', subscription.id)
           if (error) throw error
         }
@@ -414,7 +439,7 @@ class SyncService {
       if (safeChanges.subscription_usage.created.length > 0) {
         const { error } = await supabase
           .from('subscription_usage')
-          .upsert(safeChanges.subscription_usage.created.map(this.transformLocalToSupabase))
+          .upsert(safeChanges.subscription_usage.created.map(this.transformLocalToSupabase.bind(this)))
         if (error) throw error
       }
 
@@ -422,7 +447,7 @@ class SyncService {
         for (const usage of safeChanges.subscription_usage.updated) {
           const { error } = await supabase
             .from('subscription_usage')
-            .update(this.transformLocalToSupabase(usage))
+            .update(this.transformLocalToSupabase.bind(this)(usage))
             .eq('id', usage.id)
           if (error) throw error
         }
@@ -455,10 +480,46 @@ class SyncService {
     }
   }
 
+  // Generate a UUID v4 compatible string
+  private generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  // Get synced record IDs from AsyncStorage to prevent duplicate syncs
+  private async getSyncedRecordIds(): Promise<Set<string>> {
+    try {
+      const syncedIds = await AsyncStorage.getItem('synced_record_ids')
+      return new Set(syncedIds ? JSON.parse(syncedIds) : [])
+    } catch (error) {
+      console.error('Error getting synced record IDs:', error)
+      return new Set()
+    }
+  }
+
+  // Mark records as synced to prevent future duplicates
+  private async markRecordsAsSynced(recordIds: string[]): Promise<void> {
+    try {
+      const existingSyncedIds = await this.getSyncedRecordIds()
+      recordIds.forEach(id => existingSyncedIds.add(id))
+      await AsyncStorage.setItem('synced_record_ids', JSON.stringify([...existingSyncedIds]))
+    } catch (error) {
+      console.error('Error marking records as synced:', error)
+    }
+  }
+
   // Transform WatermelonDB data to Supabase format
   private transformLocalToSupabase(record: any): any {
+    // Generate proper UUID for record ID if it's not already a UUID
+    // WatermelonDB uses string IDs like "fN3btwDWg6iY7r78" but Supabase expects UUID format
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(record.id);
+    const recordId = isUUID ? record.id : this.generateUUID();
+    
     const base = {
-      id: record.id,
+      id: recordId,
       created_at: record.createdAt,
       updated_at: record.updatedAt,
     }
@@ -516,6 +577,47 @@ class SyncService {
       }
     }
 
+    // Handle subscription records (RevenueCat data)
+    if (record.table === 'subscriptions' || record.revenuecatCustomerId !== undefined || record.activeEntitlements !== undefined) {
+      // Map tier IDs to valid subscription_tier values
+      let subscriptionTier = 'starter'; // Default fallback
+      if (record.currentTier) {
+        if (record.currentTier.includes('starter')) subscriptionTier = 'starter';
+        else if (record.currentTier.includes('achiever')) subscriptionTier = 'achiever';
+        else if (record.currentTier.includes('visionary')) subscriptionTier = 'visionary';
+      }
+      
+      return {
+        ...base,
+        user_id: record.userId,
+        subscription_tier: subscriptionTier, // Must be 'starter', 'achiever', or 'visionary'
+        product_id: record.revenuecatCustomerId || 'unknown',
+        transaction_id: record.revenuecatCustomerId || 'unknown',
+        original_transaction_id: record.revenuecatCustomerId || 'unknown',
+        purchased_at: new Date().toISOString(),
+        environment: 'sandbox',
+        store: 'app_store',
+        revenuecat_customer_id: record.revenuecatCustomerId,
+        active_entitlements: record.activeEntitlements,
+        current_tier: record.currentTier,
+        is_active: record.isActive,
+        last_updated: record.lastUpdated,
+        creation_source: record.creationSource || 'revenuecat'
+      }
+    }
+
+    // Handle subscription usage records
+    if (record.table === 'subscription_usage' || record.usageType !== undefined) {
+      return {
+        ...base,
+        user_id: record.userId,
+        usage_type: record.usageType,
+        usage_count: record.usageCount || 0,
+        period_start: record.periodStart,
+        period_end: record.periodEnd
+      }
+    }
+
     // Fallback for unknown record types (basic fields only)
     return {
       ...base,
@@ -528,9 +630,11 @@ class SyncService {
 
   // Get local changes that need to be synced
   private async getLocalChanges(): Promise<SyncPushChanges> {
-    const userId = await this.getCurrentUserId()
+    // Use effective user ID which includes persistent anonymous IDs
+    const { authService } = await import('./authService')
+    const userId = authService.getEffectiveUserId()
     if (!userId) {
-      throw new Error('User not authenticated')
+      throw new Error('No user ID available (neither authenticated nor anonymous)')
     }
 
     // Get the last sync timestamp
@@ -565,26 +669,35 @@ class SyncService {
       const userSubscriptions = subscriptions.filter(s => (s as any).userId === userId)
       const userSubscriptionUsage = subscriptionUsage.filter(u => (u as any).userId === userId)
 
-      // For simplicity, treat all local records as "created" since we're doing push-only sync
-      // In a full implementation, you'd track sync state per record
+      // Get synced record IDs from AsyncStorage to prevent duplicates
+      const syncedRecordIds = await this.getSyncedRecordIds()
+      
+      // Only include records that haven't been synced yet
+      const unsyncedProfiles = userProfiles.filter(p => !syncedRecordIds.has(`profiles:${p.id}`))
+      const unsyncedGoals = userGoals.filter(g => !syncedRecordIds.has(`goals:${g.id}`))
+      const unsyncedMilestones = userMilestones.filter(m => !syncedRecordIds.has(`milestones:${m.id}`))
+      const unsyncedTasks = userTasks.filter(t => !syncedRecordIds.has(`tasks:${t.id}`))
+      const unsyncedSubscriptions = userSubscriptions.filter(s => !syncedRecordIds.has(`subscriptions:${s.id}`))
+      const unsyncedSubscriptionUsage = userSubscriptionUsage.filter(u => !syncedRecordIds.has(`subscription_usage:${u.id}`))
+
       return {
         profiles: {
-          created: Array.isArray(userProfiles) ? userProfiles : [],
+          created: Array.isArray(unsyncedProfiles) ? unsyncedProfiles : [],
           updated: [],
           deleted: []
         },
         goals: {
-          created: Array.isArray(userGoals) ? userGoals : [],
+          created: Array.isArray(unsyncedGoals) ? unsyncedGoals : [],
           updated: [],
           deleted: []
         },
         milestones: {
-          created: Array.isArray(userMilestones) ? userMilestones : [],
+          created: Array.isArray(unsyncedMilestones) ? unsyncedMilestones : [],
           updated: [],
           deleted: []
         },
         tasks: {
-          created: Array.isArray(userTasks) ? userTasks : [],
+          created: Array.isArray(unsyncedTasks) ? unsyncedTasks : [],
           updated: [],
           deleted: []
         },
@@ -604,12 +717,12 @@ class SyncService {
           deleted: []
         },
         subscriptions: {
-          created: Array.isArray(userSubscriptions) ? userSubscriptions : [],
+          created: Array.isArray(unsyncedSubscriptions) ? unsyncedSubscriptions : [],
           updated: [],
           deleted: []
         },
         subscription_usage: {
-          created: Array.isArray(userSubscriptionUsage) ? userSubscriptionUsage : [],
+          created: Array.isArray(unsyncedSubscriptionUsage) ? unsyncedSubscriptionUsage : [],
           updated: [],
           deleted: []
         }
@@ -658,212 +771,87 @@ class SyncService {
 
     while (retryCount < maxRetries) {
       try {
-        await synchronize({
-          database: this.database,
-          pullChanges: async ({ lastPulledAt }) => {
-            try {
-              const result = await this.pullChanges(lastPulledAt)
-              console.log('🔄 Pull changes result:', {
-                timestamp: result.timestamp,
-                profiles: result.changes?.profiles?.length || 0,
-                goals: result.changes?.goals?.length || 0,
-                milestones: result.changes?.milestones?.length || 0,
-                tasks: result.changes?.tasks?.length || 0,
-                vision_images: result.changes?.vision_images?.length || 0,
-                pomodoro_sessions: result.changes?.pomodoro_sessions?.length || 0,
-                task_time_tracking: result.changes?.task_time_tracking?.length || 0,
-                subscriptions: result.changes?.subscriptions?.length || 0,
-                subscription_usage: result.changes?.subscription_usage?.length || 0
-              })
-              return result
-            } catch (error) {
-              console.error('❌ Error in pullChanges:', error)
-              throw error
-            }
-          },
-          pushChanges: async ({ changes, lastPulledAt }) => {
-            try {
-              console.log('🔍 [SYNC DEBUG] Raw changes object:', JSON.stringify(changes, null, 2))
-              console.log('🔍 [SYNC DEBUG] Changes type:', typeof changes)
-              console.log('🔍 [SYNC DEBUG] Changes keys:', changes ? Object.keys(changes) : 'null/undefined')
-              
-              // Log each table before accessing
-              console.log('🔍 [SYNC DEBUG] profiles raw:', (changes as any)?.profiles)
-              console.log('🔍 [SYNC DEBUG] goals raw:', (changes as any)?.goals)
-              console.log('🔍 [SYNC DEBUG] milestones raw:', (changes as any)?.milestones)
-              console.log('🔍 [SYNC DEBUG] tasks raw:', (changes as any)?.tasks)
-              console.log('🔍 [SYNC DEBUG] subscriptions raw:', (changes as any)?.subscriptions)
-              console.log('🔍 [SYNC DEBUG] subscription_usage raw:', (changes as any)?.subscription_usage)
-              
-              // Transform WatermelonDB changes to our format
-              const syncChanges: SyncPushChanges = {
-                profiles: (changes as any).profiles || { created: [], updated: [], deleted: [] },
-                goals: (changes as any).goals || { created: [], updated: [], deleted: [] },
-                milestones: (changes as any).milestones || { created: [], updated: [], deleted: [] },
-                tasks: (changes as any).tasks || { created: [], updated: [], deleted: [] },
-                vision_images: (changes as any).vision_images || { created: [], updated: [], deleted: [] },
-                pomodoro_sessions: (changes as any).pomodoro_sessions || { created: [], updated: [], deleted: [] },
-                task_time_tracking: (changes as any).task_time_tracking || { created: [], updated: [], deleted: [] },
-                subscriptions: (changes as any).subscriptions || { created: [], updated: [], deleted: [] },
-                subscription_usage: (changes as any).subscription_usage || { created: [], updated: [], deleted: [] }
-              }
-              
-              console.log('🔍 [SYNC DEBUG] syncChanges created successfully:', {
-                profiles: syncChanges.profiles ? 'defined' : 'undefined',
-                goals: syncChanges.goals ? 'defined' : 'undefined',
-                milestones: syncChanges.milestones ? 'defined' : 'undefined',
-                tasks: syncChanges.tasks ? 'defined' : 'undefined',
-                subscriptions: syncChanges.subscriptions ? 'defined' : 'undefined',
-                subscription_usage: syncChanges.subscription_usage ? 'defined' : 'undefined'
-              })
-              
-              // Check if there are actually changes to push
-              console.log('🔍 [SYNC DEBUG] About to call hasChangesToPush...')
-              const hasChanges = this.hasChangesToPush(syncChanges)
-              console.log('🔍 [SYNC DEBUG] hasChangesToPush result:', hasChanges)
-              
-              if (!hasChanges) {
-                console.log('🔄 No changes to push, skipping...')
-                return
-              }
-              
-              console.log('🔍 [SYNC DEBUG] About to log push changes details...')
-              try {
-                console.log('🔄 Push changes:', {
-                  profiles: {
-                    created: syncChanges.profiles?.created?.length || 0,
-                    updated: syncChanges.profiles?.updated?.length || 0,
-                    deleted: syncChanges.profiles?.deleted?.length || 0
-                  },
-                  goals: {
-                    created: syncChanges.goals?.created?.length || 0,
-                    updated: syncChanges.goals?.updated?.length || 0,
-                    deleted: syncChanges.goals?.deleted?.length || 0
-                  },
-                  milestones: {
-                    created: syncChanges.milestones?.created?.length || 0,
-                    updated: syncChanges.milestones?.updated?.length || 0,
-                    deleted: syncChanges.milestones?.deleted?.length || 0
-                  },
-                  tasks: {
-                    created: syncChanges.tasks?.created?.length || 0,
-                    updated: syncChanges.tasks?.updated?.length || 0,
-                    deleted: syncChanges.tasks?.deleted?.length || 0
-                  },
-                  subscriptions: {
-                    created: syncChanges.subscriptions?.created?.length || 0,
-                    updated: syncChanges.subscriptions?.updated?.length || 0,
-                    deleted: syncChanges.subscriptions?.deleted?.length || 0
-                  },
-                  subscription_usage: {
-                    created: syncChanges.subscription_usage?.created?.length || 0,
-                    updated: syncChanges.subscription_usage?.updated?.length || 0,
-                    deleted: syncChanges.subscription_usage?.deleted?.length || 0
-                  }
-                })
-                console.log('🔍 [SYNC DEBUG] Push changes log completed, calling pushChanges...')
-              } catch (logError) {
-                console.error('🔍 [SYNC DEBUG] Error in push changes logging:', logError)
-              }
-              
-              await this.pushChanges(syncChanges)
-              console.log('🔍 [SYNC DEBUG] pushChanges completed successfully')
-            } catch (error) {
-              console.error('❌ Error in pushChanges:', error)
-              throw error
-            }
-          },
-        })
-
-        this.lastSyncTime = new Date()
+        // Use push-only sync for anonymous users
+        const changes = await this.getLocalChanges()
+        if (this.hasChangesToPush(changes)) {
+          await this.pushChanges(changes)
+        }
+        
+        // Mark sync as successful
+        this.syncInProgress = false
         console.log('✅ Sync completed successfully')
-        return // Success, exit retry loop
-      } catch (error: any) {
+        return
+        
+      } catch (error) {
+        console.error('❌ Sync failed:', error)
         retryCount++
         
-        // Check if it's a network error
-        const isNetworkError = error.message?.includes('Network') || 
-                              error.message?.includes('fetch') ||
-                              error.message?.includes('unavailable') ||
-                              error.code === 'NETWORK_ERROR'
-        
-        if (isNetworkError && retryCount < maxRetries) {
-          const backoffDelay = Math.pow(2, retryCount) * 1000 // Exponential backoff
-          console.log(`🔄 Network error during sync, retrying in ${backoffDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`)
-          await new Promise(resolve => setTimeout(resolve, backoffDelay))
-        } else {
-          console.error(`❌ Sync failed (attempt ${retryCount}/${maxRetries}):`, error)
-          if (retryCount >= maxRetries) {
-            // Don't throw error to prevent app crashes, just log and continue
-            console.log('🔄 Sync failed after all retries, continuing without sync')
-            break
-          }
+        if (retryCount >= maxRetries) {
+          console.error(`❌ Sync failed after ${maxRetries} attempts`)
+          this.syncInProgress = false
+          throw error
         }
+        
+        console.log(`🔄 Retrying sync (${retryCount}/${maxRetries})...`)
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
       }
     }
-    
-    this.syncInProgress = false
   }
 
-  // Schedule a delayed sync (debounced)
-  scheduleSync(delayMs: number = 2000): void {
-    if (this.pendingSyncTimeout) {
-      clearTimeout(this.pendingSyncTimeout)
-    }
-    
-    this.pendingSyncTimeout = setTimeout(() => {
-      this.sync().catch(error => {
-        console.log('Scheduled sync failed (non-critical):', error.message)
-      })
-    }, delayMs)
-  }
-
-  // Check if there are any changes to push
-  private hasChangesToPush(changes: any): boolean {
+  // Check if there are changes to push
+  private hasChangesToPush(changes: SyncPushChanges): boolean {
     console.log('🔍 [SYNC DEBUG] hasChangesToPush - input changes:', changes)
     console.log('🔍 [SYNC DEBUG] hasChangesToPush - changes type:', typeof changes)
     
     if (!changes || typeof changes !== 'object') {
-      console.log('🔍 [SYNC DEBUG] hasChangesToPush - changes is null/undefined or not object, returning false')
+      console.log('🔍 [SYNC DEBUG] hasChangesToPush - invalid changes object')
       return false
     }
     
     console.log('🔍 [SYNC DEBUG] hasChangesToPush - Object.keys(changes):', Object.keys(changes))
     console.log('🔍 [SYNC DEBUG] hasChangesToPush - Object.values(changes):', Object.values(changes))
     
-    try {
-      const result = Object.values(changes).some((table: any, index: number) => {
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - processing table ${index}:`, table)
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table type:`, typeof table)
-        
-        if (!table || typeof table !== 'object') {
-          console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} is null/undefined or not object`)
-          return false
-        }
-        
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} keys:`, Object.keys(table))
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} created:`, table.created)
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} updated:`, table.updated)
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} deleted:`, table.deleted)
-        
-        const created = Array.isArray(table.created) ? table.created : []
-        const updated = Array.isArray(table.updated) ? table.updated : []
-        const deleted = Array.isArray(table.deleted) ? table.deleted : []
-        
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} lengths: created=${created.length}, updated=${updated.length}, deleted=${deleted.length}`)
-        
-        const hasChanges = created.length > 0 || updated.length > 0 || deleted.length > 0
-        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${index} hasChanges:`, hasChanges)
-        
-        return hasChanges
-      })
+    const tables = Object.values(changes)
+    for (let i = 0; i < tables.length; i++) {
+      const table = tables[i]
+      console.log(`🔍 [SYNC DEBUG] hasChangesToPush - processing table ${i}:`, table)
+      console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table type:`, typeof table)
       
-      console.log('🔍 [SYNC DEBUG] hasChangesToPush - final result:', result)
-      return result
-    } catch (error) {
-      console.error('🔍 [SYNC DEBUG] hasChangesToPush - error occurred:', error)
-      return false
+      if (table && typeof table === 'object') {
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} keys:`, Object.keys(table))
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} created:`, (table as any).created)
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} updated:`, (table as any).updated)
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} deleted:`, (table as any).deleted)
+        
+        const created = (table as any).created || []
+        const updated = (table as any).updated || []
+        const deleted = (table as any).deleted || []
+        
+        console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} lengths: created=${created.length}, updated=${updated.length}, deleted=${deleted.length}`)
+        
+        if (created.length > 0 || updated.length > 0 || deleted.length > 0) {
+          console.log(`🔍 [SYNC DEBUG] hasChangesToPush - table ${i} hasChanges: true`)
+          console.log('🔍 [SYNC DEBUG] hasChangesToPush - final result: true')
+          return true
+        }
+      }
     }
+    
+    console.log('🔍 [SYNC DEBUG] hasChangesToPush - final result: false')
+    return false
+  }
+
+  // Schedule a sync with delay
+  scheduleSync(delayMs: number = 0): void {
+    if (this.syncTimeout) {
+      clearTimeout(this.syncTimeout)
+    }
+    
+    this.syncTimeout = setTimeout(() => {
+      this.sync().catch((error) => {
+        console.error('❌ Scheduled sync failed:', error)
+      })
+    }, delayMs)
   }
 
   // Push-only sync for anonymous users (no pulling)
@@ -902,11 +890,6 @@ class SyncService {
   // Set online/offline status
   setOnlineStatus(isOnline: boolean): void {
     this.isOnline = isOnline
-  }
-
-  // Check if sync is in progress
-  get isSyncing(): boolean {
-    return this.syncInProgress
   }
 }
 

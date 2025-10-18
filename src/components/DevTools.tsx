@@ -71,15 +71,15 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
             try {
               console.log('🔥 Starting complete data wipe...');
               
-              // Clear all AsyncStorage
-              await AsyncStorage.clear();
-              console.log('✅ AsyncStorage cleared');
+              // Import authService to access reset functionality
+              const { authService } = await import('../services/authService');
               
-              // Clear all database tables
+              // Clear all database tables first (including profiles)
               if (database) {
                 await database.write(async () => {
-                  // Delete all records from all tables
+                  // Delete all records from all tables including profiles
                   const collections = [
+                    'profiles',
                     'goals',
                     'milestones', 
                     'tasks',
@@ -110,8 +110,16 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                 });
               }
               
-              // Reset onboarding last to ensure fresh start
+              // Clear all AsyncStorage (including persistent anonymous ID)
+              await AsyncStorage.clear();
+              console.log('✅ AsyncStorage cleared (including persistent anonymous ID)');
+              
+              // Reset onboarding data
               await resetOnboarding();
+              
+              // Force auth service to create a completely new anonymous user
+              // This will generate a new persistent anonymous ID
+              await authService.initialize();
               
               console.log('🚀 Complete data wipe finished, restarting app...');
               

@@ -123,7 +123,8 @@ class AuthService {
   private async createOfflineUser(): Promise<AuthUser> {
     // Use persistent anonymous ID if available, otherwise create new one
     if (!this.persistentAnonymousId) {
-      this.persistentAnonymousId = 'offline-user-' + Date.now()
+      // Generate a UUID-compatible offline ID to avoid Supabase validation errors
+      this.persistentAnonymousId = this.generateOfflineUUID()
       await this.savePersistentAnonymousId()
     }
     
@@ -139,6 +140,17 @@ class AuthService {
     
     console.log('✅ Created offline user:', this.persistentAnonymousId)
     return this.currentUser
+  }
+
+  // Generate a UUID-compatible offline ID
+  private generateOfflineUUID(): string {
+    // Generate a UUID v4 compatible string for offline users
+    // This ensures compatibility with Supabase UUID fields
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   // Sign out from authenticated session but maintain anonymous user

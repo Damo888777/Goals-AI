@@ -93,10 +93,12 @@ export const useOnboarding = () => {
       await onboardingService.markSparkTutorialShown();
       setShouldShowSparkTutorial(false);
       
-      // Trigger onboarding paywall after Spark tutorial completes
-      // This is the final step of onboarding flow
-      const { router } = await import('expo-router');
-      router.push('/onboarding-paywall');
+      // Only show paywall if onboarding is not yet completed
+      // If onboarding is already completed, this is just a tutorial completion
+      if (!isOnboardingCompleted) {
+        const { router } = await import('expo-router');
+        router.push('/onboarding-paywall');
+      }
     } catch (error) {
       console.error('Error completing Spark tutorial:', error);
     }

@@ -231,6 +231,10 @@ class SubscriptionService {
       const { customerInfo } = await Purchases.purchasePackage(pkg);
       this.customerInfo = customerInfo;
       console.log('Purchase successful, customerInfo updated');
+      
+      // Persist subscription data to local database for sync
+      await this.persistSubscriptionData(customerInfo);
+      
       return { success: true, customerInfo };
     } catch (error: any) {
       console.error('Purchase failed:', error);
@@ -246,10 +250,78 @@ class SubscriptionService {
     try {
       const customerInfo = await Purchases.restorePurchases();
       this.customerInfo = customerInfo;
+      
+      // Persist restored subscription data to local database
+      await this.persistSubscriptionData(customerInfo);
+      
       return customerInfo;
     } catch (error) {
       console.error('Failed to restore purchases:', error);
       throw error;
+    }
+  }
+
+
+  // Persist subscription data to WatermelonDB for sync to Supabase
+  private async persistSubscriptionData(customerInfo: CustomerInfo): Promise<void> {
+    try {
+      // Import database and authService
+      const database = (await import('../db')).default;
+      const { authService } = await import('./authService');
+      
+      if (!database) {
+        console.warn('Database not available, skipping subscription persistence');
+        return;
+      }
+
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        console.warn('No current user, skipping subscription persistence');
+        return;
+      }
+
+      await database.write(async () => {
+        const subscriptionsCollection = database!.get('subscriptions');
+        
+        // Check if subscription record already exists
+        const existingSubscriptions = await subscriptionsCollection
+          .query()
+          .fetch();
+        
+        const userSubscription = existingSubscriptions.find(s => (s as any).userId === currentUser.id);
+        
+        const subscriptionData = {
+          userId: currentUser.id,
+          revenuecatCustomerId: customerInfo.originalAppUserId,
+          activeEntitlements: JSON.stringify(Object.keys(customerInfo.entitlements.active)),
+          currentTier: this.getCurrentTier()?.id || null,
+          isActive: this.isSubscribed(),
+          lastUpdated: new Date()
+        };
+
+        if (userSubscription) {
+          // Update existing subscription
+          await userSubscription.update(() => {
+            Object.assign(userSubscription, subscriptionData);
+          });
+          console.log('✅ Updated subscription record in database');
+        } else {
+          // Create new subscription record - let WatermelonDB generate the record ID
+          await subscriptionsCollection.create((subscription: any) => {
+            Object.assign(subscription, subscriptionData);
+          });
+          console.log('✅ Created new subscription record in database');
+        }
+      });
+
+      // Trigger sync to push subscription data to Supabase
+      const { syncService } = await import('./syncService');
+      syncService.scheduleSync(1000); // Sync after 1 second
+      console.log('📤 Scheduled sync to push subscription data to Supabase');
+      
+    } catch (error) {
+      console.error('❌ Failed to persist subscription data:', error);
+      // Don't throw error to avoid breaking the purchase flow
     }
   }
 
