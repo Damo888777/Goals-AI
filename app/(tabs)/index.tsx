@@ -10,6 +10,8 @@ import { SparkTutorialOverlay } from '../../src/components/SparkTutorialOverlay'
 import { useTodaysTasks } from '../../src/hooks/useTodaysTasks';
 import { useTasks, useTodaysCompletedTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
+import { useOverdueTasks } from '../../src/hooks/useOverdueTasks';
+import { OverdueTasksModal } from '../../src/components/OverdueTasksModal';
 import type { Task } from '../../src/types';
 
 export default function TodayTab() {
@@ -20,9 +22,11 @@ export default function TodayTab() {
     setFrogTaskForToday: updateFrogTask
   } = useTodaysTasks();
   
-  const { completeTask, createTask, deleteTask } = useTasks();
+  const { completeTask, createTask, deleteTask, updateTask } = useTasks();
   const { completedTasks } = useTodaysCompletedTasks();
   const { shouldShowSparkTutorial, completeSparkTutorial, userPreferences } = useOnboarding();
+  const { overdueTasks, hasOverdueTasks } = useOverdueTasks();
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
 
   const handleFABLongPress = () => {
     console.log('FAB long pressed - Show context menu');
@@ -91,6 +95,46 @@ export default function TodayTab() {
     console.log('View all finished tasks');
   };
 
+  // Show overdue modal when overdue tasks are detected
+  useEffect(() => {
+    if (hasOverdueTasks && !showOverdueModal) {
+      setShowOverdueModal(true);
+    }
+  }, [hasOverdueTasks, showOverdueModal]);
+
+  const handleOverdueReschedule = async (taskIds: string[], newDate: Date) => {
+    try {
+      for (const taskId of taskIds) {
+        await updateTask(taskId, { scheduledDate: newDate.toISOString() });
+      }
+      console.log(`Rescheduled ${taskIds.length} tasks to ${newDate.toDateString()}`);
+    } catch (error) {
+      console.error('Error rescheduling tasks:', error);
+    }
+  };
+
+  const handleOverdueComplete = async (taskIds: string[]) => {
+    try {
+      for (const taskId of taskIds) {
+        await completeTask(taskId);
+      }
+      console.log(`Completed ${taskIds.length} overdue tasks`);
+    } catch (error) {
+      console.error('Error completing tasks:', error);
+    }
+  };
+
+  const handleOverdueDelete = async (taskIds: string[]) => {
+    try {
+      for (const taskId of taskIds) {
+        await deleteTask(taskId);
+      }
+      console.log(`Deleted ${taskIds.length} overdue tasks`);
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+    }
+  };
+
 
 
 
@@ -111,7 +155,7 @@ export default function TodayTab() {
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting */}
-        <GreetingMessage username={userPreferences?.name || userPreferences?.userName || "User"} />
+        <GreetingMessage username={userPreferences?.name || "User"} />
 
         {/* Eat the Frog Section */}
         <EatTheFrogSection
@@ -147,6 +191,16 @@ export default function TodayTab() {
       <SparkTutorialOverlay
         visible={shouldShowSparkTutorial}
         onComplete={completeSparkTutorial}
+      />
+
+      {/* Overdue Tasks Modal */}
+      <OverdueTasksModal
+        visible={showOverdueModal}
+        overdueTasks={overdueTasks}
+        onClose={() => setShowOverdueModal(false)}
+        onReschedule={handleOverdueReschedule}
+        onComplete={handleOverdueComplete}
+        onDelete={handleOverdueDelete}
       />
     </View>
   );
