@@ -762,6 +762,57 @@ Best regards`;
         </View>
 
 
+        {/* Widget Guide */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="apps" size={20} color={colors.secondary} />
+              <Text style={[typography.title, styles.sectionTitle]}>Home Screen Widget</Text>
+            </View>
+          </View>
+          
+          <View style={styles.widgetGuideCard}>
+            <View style={styles.widgetGuideHeader}>
+              <Ionicons name="phone-portrait" size={24} color={colors.text.primary} />
+              <Text style={[typography.cardTitle, styles.widgetGuideTitle]}>Add Goals AI Widget</Text>
+            </View>
+            
+            <Text style={[typography.caption, styles.widgetGuideDescription]}>
+              Add your task widget to the home screen to see your Eat the Frog task and daily progress at a glance.
+            </Text>
+            
+            <View style={styles.widgetSteps}>
+              <View style={styles.widgetStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>1</Text>
+                </View>
+                <Text style={styles.stepText}>Long press on your home screen</Text>
+              </View>
+              
+              <View style={styles.widgetStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>2</Text>
+                </View>
+                <Text style={styles.stepText}>Tap the "+" button in the top-left</Text>
+              </View>
+              
+              <View style={styles.widgetStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>3</Text>
+                </View>
+                <Text style={styles.stepText}>Search for "Goals AI"</Text>
+              </View>
+              
+              <View style={styles.widgetStep}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>4</Text>
+                </View>
+                <Text style={styles.stepText}>Select the Tasks widget and tap "Add Widget"</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Settings */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -1177,6 +1228,64 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.secondary,
+  },
+
+  // Widget Guide
+  widgetGuideCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 0.5,
+    borderColor: colors.border.primary,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  widgetGuideHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  widgetGuideTitle: {
+    color: colors.text.primary,
+    flex: 1,
+  },
+  widgetGuideDescription: {
+    color: colors.text.primary,
+    lineHeight: 18,
+    marginBottom: spacing.lg,
+    opacity: 0.8,
+  },
+  widgetSteps: {
+    gap: spacing.md,
+  },
+  widgetStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  stepNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.text.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumberText: {
+    color: colors.secondary,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  stepText: {
+    color: colors.text.primary,
+    fontSize: 14,
+    fontWeight: '400',
+    flex: 1,
+    lineHeight: 20,
   },
 
   // Settings
