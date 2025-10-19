@@ -24,6 +24,7 @@ export const useOverdueTasks = () => {
       try {
         const today = new Date()
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+        console.log('🔍 Checking for overdue tasks before:', todayStart.toISOString())
         
         const tasksCollection = database.get<Task>('tasks')
         
@@ -35,8 +36,32 @@ export const useOverdueTasks = () => {
           )
           .observe()
           .subscribe((tasks) => {
-            setOverdueTasks(tasks)
-            setHasOverdueTasks(tasks.length > 0)
+            console.log('🔍 Overdue tasks from database:', tasks.length)
+            
+            // Filter out invalid tasks
+            const validTasks = tasks.filter(task => {
+              const hasId = task.id && task.id !== undefined
+              const hasTitle = task.title && task.title.trim().length > 0
+              const hasValidDate = task.scheduledDate && task.scheduledDate !== null
+              const isBeforeToday = hasValidDate && task.scheduledDate && new Date(task.scheduledDate) < todayStart
+              
+              console.log(`🔍 Task ${task.id || 'NO_ID'}:`, {
+                id: task.id,
+                title: task.title || '(empty)',
+                scheduledDate: task.scheduledDate,
+                hasId,
+                hasTitle,
+                hasValidDate,
+                isBeforeToday,
+                valid: hasId && hasTitle && hasValidDate && isBeforeToday
+              })
+              
+              return hasId && hasTitle && hasValidDate && isBeforeToday
+            })
+            
+            console.log('🔍 Valid overdue tasks:', validTasks.length)
+            setOverdueTasks(validTasks)
+            setHasOverdueTasks(validTasks.length > 0)
           })
 
         return () => subscription.unsubscribe()

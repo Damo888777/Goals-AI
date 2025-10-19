@@ -26,6 +26,7 @@ interface OverdueTasksModalProps {
 
 interface SelectableTask extends Task {
   isSelected: boolean;
+  _raw?: any; // WatermelonDB raw data access
 }
 
 export function OverdueTasksModal({
@@ -47,6 +48,12 @@ export function OverdueTasksModal({
   // Initialize selectable tasks when modal opens
   React.useEffect(() => {
     if (visible && overdueTasks.length > 0) {
+      console.log('🔍 Modal: Received overdue tasks:', overdueTasks.map(t => ({
+        id: t.id,
+        title: t.title,
+        scheduledDate: t.scheduledDate
+      })));
+      
       setSelectableTasks(
         overdueTasks.map(task => ({ ...task, isSelected: false }))
       );
@@ -56,14 +63,15 @@ export function OverdueTasksModal({
   const toggleTaskSelection = (taskId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectableTasks(prev =>
-      prev.map(task =>
-        task.id === taskId ? { ...task, isSelected: !task.isSelected } : task
-      )
+      prev.map(task => {
+        const currentTaskId = task._raw?.id || task.id;
+        return currentTaskId === taskId ? { ...task, isSelected: !task.isSelected } : task;
+      })
     );
   };
 
   const getSelectedTaskIds = () => {
-    return selectableTasks.filter(task => task.isSelected).map(task => task.id);
+    return selectableTasks.filter(task => task.isSelected).map(task => task._raw?.id || task.id);
   };
 
   const handleAction = async (type: 'reschedule' | 'complete' | 'delete') => {
@@ -89,7 +97,7 @@ export function OverdueTasksModal({
             onPress: async () => {
               await onComplete(selectedIds);
               // Remove completed tasks from selection
-              setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task.id)));
+              setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task._raw?.id || task.id)));
             }
           }
         ]
@@ -106,7 +114,7 @@ export function OverdueTasksModal({
             onPress: async () => {
               await onDelete(selectedIds);
               // Remove deleted tasks from selection
-              setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task.id)));
+              setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task._raw?.id || task.id)));
             }
           }
         ]
@@ -121,7 +129,7 @@ export function OverdueTasksModal({
     if (actionType === 'reschedule' && selectedIds.length > 0) {
       await onReschedule(selectedIds, selectedDate);
       // Remove rescheduled tasks from selection
-      setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task.id)));
+      setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task._raw?.id || task.id)));
     }
     
     setActionType(null);
@@ -138,7 +146,7 @@ export function OverdueTasksModal({
     const today = new Date();
     await onReschedule(selectedIds, today);
     // Remove rescheduled tasks from selection
-    setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task.id)));
+    setSelectableTasks(prev => prev.filter(task => !selectedIds.includes(task._raw?.id || task.id)));
   };
 
   const formatDate = (dateString: string) => {
@@ -151,17 +159,27 @@ export function OverdueTasksModal({
     return `${month}.${day}.${year}`;
   };
 
-  const getProjectText = (task: Task) => {
-    if (task.milestoneId) {
-      const milestone = milestones.find(m => m.id === task.milestoneId);
+  const getProjectText = (task: SelectableTask) => {
+    const milestoneId = task._raw?.milestone_id || task.milestoneId;
+    const goalId = task._raw?.goal_id || task.goalId;
+    
+    if (milestoneId) {
+      const milestone = milestones.find(m => m.id === milestoneId);
       return milestone?.title || 'Milestone';
     }
-    if (task.goalId) {
-      const goal = goals.find(g => g.id === task.goalId);
+    if (goalId) {
+      const goal = goals.find(g => g.id === goalId);
       return goal?.title || 'Goal';
     }
     return 'No project linked';
   };
+
+  // Auto-close modal when no tasks remain
+  React.useEffect(() => {
+    if (visible && selectableTasks.length === 0 && overdueTasks.length === 0) {
+      onClose();
+    }
+  }, [selectableTasks.length, overdueTasks.length, visible, onClose]);
 
   if (!visible || selectableTasks.length === 0) return null;
 
@@ -184,31 +202,39 @@ export function OverdueTasksModal({
 
           {/* Tasks List */}
           <ScrollView style={styles.tasksList} showsVerticalScrollIndicator={false}>
-            {selectableTasks.map((task) => (
-              <TouchableOpacity
-                key={task.id}
-                style={[
-                  styles.taskCard,
-                  task.isSelected && styles.taskCardSelected
-                ]}
-                onPress={() => toggleTaskSelection(task.id)}
-              >
-                {/* Selection Checkbox */}
-                <View style={styles.taskCardContent}>
-                  <View style={[
-                    styles.checkbox,
-                    task.isSelected && styles.checkboxSelected
-                  ]}>
-                    {task.isSelected && (
-                      <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                    )}
-                  </View>
+            {selectableTasks.map((task) => {
+              console.log('🔍 Rendering task:', {
+                id: task._raw?.id || task.id,
+                title: task._raw?.title || task.title,
+                scheduledDate: task._raw?.scheduled_date || task.scheduledDate,
+                fullTask: task
+              });
+              
+              return (
+                <TouchableOpacity
+                  key={task._raw?.id || task.id}
+                  style={[
+                    styles.taskCard,
+                    task.isSelected && styles.taskCardSelected
+                  ]}
+                  onPress={() => toggleTaskSelection(task._raw?.id || task.id)}
+                >
+                  {/* Selection Checkbox */}
+                  <View style={styles.taskCardContent}>
+                    <View style={[
+                      styles.checkbox,
+                      task.isSelected && styles.checkboxSelected
+                    ]}>
+                      {task.isSelected && (
+                        <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                      )}
+                    </View>
 
-                  {/* Task Content */}
-                  <View style={styles.taskInfo}>
-                    <Text style={styles.taskTitle} numberOfLines={3}>
-                      {task.title}
-                    </Text>
+                    {/* Task Content */}
+                    <View style={styles.taskInfo}>
+                      <Text style={styles.taskTitle} numberOfLines={3}>
+                        {task._raw?.title || task.title || 'No Title'}
+                      </Text>
                     
                     <View style={styles.taskMeta}>
                       <View style={styles.metaRow}>
@@ -220,13 +246,13 @@ export function OverdueTasksModal({
                       <View style={styles.metaRow}>
                         <Ionicons name="calendar-outline" size={12} color="#BC4B51" />
                         <Text style={[styles.metaText, styles.overdueText]}>
-                          Due: {formatDate(task.scheduledDate || new Date().toISOString())}
+                          Due: {formatDate(task._raw?.scheduled_date || task.scheduledDate || new Date().toISOString())}
                         </Text>
                       </View>
                     </View>
 
                     {/* Frog Badge */}
-                    {task.isFrog && (
+                    {(task._raw?.is_frog || task.isFrog) && (
                       <View style={styles.frogBadge}>
                         <Image 
                           source={require('../../assets/frog.png')}
@@ -238,7 +264,8 @@ export function OverdueTasksModal({
                   </View>
                 </View>
               </TouchableOpacity>
-            ))}
+              );
+            })}
           </ScrollView>
 
           {/* Action Buttons */}
@@ -344,12 +371,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: '100%',
     maxWidth: 400,
-    maxHeight: '80%',
+    height: '85%',
     shadowColor: '#7C7C7C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
-    elevation: 8,
     borderWidth: 0.5,
     borderColor: '#A3B18A',
   },
@@ -374,7 +400,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   tasksList: {
-    maxHeight: 300,
+    maxHeight: 400,
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
@@ -539,7 +565,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
-    elevation: 8,
     borderWidth: 0.5,
     borderColor: '#A3B18A',
   },
