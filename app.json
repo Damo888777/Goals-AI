@@ -14,7 +14,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "pro.GoalAchieverAI",
-      "appleTeamId": "5PT3BWY2A5",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -25,7 +24,7 @@
       },
       "entitlements": {
         "aps-environment": "development",
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.onesignal", "group.pro.GoalAchieverAI.widgets"],
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.widgets"],
         "com.apple.developer.applesignin": ["Default"]
       }
     },
@@ -42,12 +41,6 @@
     },
     "scheme": "goals-ai",
     "plugins": [
-      [
-        "onesignal-expo-plugin",
-        {
-          "mode": "development"
-        }
-      ],
       "expo-router",
       "expo-secure-store",
       "expo-image-picker",
@@ -57,7 +50,7 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "18.0"
+            "deploymentTarget": "17.0"
           },
           "android": {
             "kotlinVersion": "1.8.10",

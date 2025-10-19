@@ -1,6 +1,6 @@
 import WidgetKit
 import SwiftUI
-import Intents
+import AppIntents
 
 // MARK: - Task Data Models
 struct TaskEntry: TimelineEntry {
@@ -9,14 +9,10 @@ struct TaskEntry: TimelineEntry {
     let todaysTasks: [TaskData]
 }
 
-struct TaskData: Identifiable {
-    let id: String
-    let title: String
-    let isCompleted: Bool
-    let isEatTheFrog: Bool
-}
+// TaskData is now imported from Attributes.swift to avoid duplication
 
 // MARK: - Widget Intent for Interactivity
+@available(iOS 17.0, *)
 struct CompleteTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Complete Task"
     static var description = IntentDescription("Mark a task as completed")
@@ -203,7 +199,29 @@ struct TaskRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             // Complete button
-            Button(intent: CompleteTaskIntent(taskId: task.id)) {
+            if #available(iOS 17.0, *) {
+                Button(intent: CompleteTaskIntent(taskId: task.id)) {
+                    ZStack {
+                    Circle()
+                        .fill(completeButtonOuter)
+                        .frame(width: 24, height: 24)
+                        .overlay(
+                            Circle()
+                                .stroke(strokeColor, lineWidth: 1)
+                        )
+                    
+                    if task.isCompleted {
+                        Circle()
+                            .fill(completeButtonInner)
+                            .frame(width: 16, height: 16)
+                            .overlay(
+                                Circle()
+                                    .stroke(strokeColor, lineWidth: 1)
+                            )
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+            } else {   // Fallback for iOS 16 - non-interactive button
                 ZStack {
                     Circle()
                         .fill(completeButtonOuter)
@@ -224,7 +242,6 @@ struct TaskRowView: View {
                     }
                 }
             }
-            .buttonStyle(PlainButtonStyle())
             
             // Task title
             Text(task.title)

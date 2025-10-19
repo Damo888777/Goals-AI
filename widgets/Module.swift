@@ -1,5 +1,6 @@
 import Foundation
 import React
+import WidgetKit
 
 @objc(TaskWidgetModule)
 class TaskWidgetModule: NSObject {
