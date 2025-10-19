@@ -109,10 +109,16 @@ class NotificationService {
       const timezone = this.getUserTimezone();
       const timezoneOffset = this.getTimezoneOffset();
       
+      // Convert all values to strings as required by OneSignal v5
+      const stringTags: Record<string, string> = {};
+      for (const [key, value] of Object.entries(tags)) {
+        stringTags[key] = String(value);
+      }
+      
       const tagsWithTimezone = {
-        ...tags,
+        ...stringTags,
         timezone,
-        timezone_offset: timezoneOffset
+        timezone_offset: String(timezoneOffset)
       };
       
       OneSignal.User.addTags(tagsWithTimezone);
@@ -136,7 +142,7 @@ class NotificationService {
       
       await this.updateUserTags({
         timezone,
-        timezone_offset: timezoneOffset
+        timezone_offset: String(timezoneOffset)
       });
       
       console.log(`User timezone initialized: ${timezone} (UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset})`);
@@ -200,6 +206,49 @@ class NotificationService {
   }
 
   /**
+   * Get OneSignal subscription ID (alias for getPlayerId for consistency)
+   */
+  async getSubscriptionId(): Promise<string | null> {
+    return this.getPlayerId();
+  }
+
+  /**
+   * Get OneSignal app ID
+   */
+  async getAppId(): Promise<string | null> {
+    return this.appId || null;
+  }
+
+  /**
+   * Debug notification status and permissions
+   */
+  async debugNotificationStatus(): Promise<void> {
+    try {
+      console.log('🔍 [Notification Debug] Starting debug check...');
+      
+      // Check permission status
+      const hasPermission = await OneSignal.Notifications.hasPermission();
+      console.log('🔍 [Notification Debug] Has permission:', hasPermission);
+      
+      // Check if user is subscribed
+      const subscriptionState = OneSignal.User.pushSubscription;
+      console.log('🔍 [Notification Debug] Subscription state:', subscriptionState);
+      
+      // Get subscription ID
+      const subscriptionId = await this.getSubscriptionId();
+      console.log('🔍 [Notification Debug] Subscription ID:', subscriptionId ? 'EXISTS' : 'MISSING');
+      
+      // Check app ID
+      const appId = await this.getAppId();
+      console.log('🔍 [Notification Debug] App ID:', appId ? 'CONFIGURED' : 'MISSING');
+      
+      console.log('🔍 [Notification Debug] Debug complete');
+    } catch (error) {
+      console.error('🔍 [Notification Debug] Error:', error);
+    }
+  }
+
+  /**
    * Log out current user (for sign out)
    */
   async logoutUser(): Promise<void> {
@@ -218,7 +267,7 @@ class NotificationService {
     try {
       const timestamp = Date.now();
       await this.updateUserTags({
-        last_activity: timestamp,
+        last_activity: String(timestamp),
         last_activity_date: new Date().toISOString().split('T')[0]
       });
     } catch (error) {
@@ -232,8 +281,8 @@ class NotificationService {
   async updateFrogTaskStatus(completed: boolean, streakCount: number): Promise<void> {
     try {
       const tags: Record<string, string | number | boolean> = {
-        frog_task_completed_today: completed,
-        frog_streak_count: streakCount
+        frog_task_completed_today: String(completed),
+        frog_streak_count: String(streakCount)
       };
       
       if (completed) {

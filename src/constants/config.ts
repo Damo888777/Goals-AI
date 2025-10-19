@@ -34,6 +34,7 @@ export const API_CONFIG = {
     whisper: '/api/whisper',
     gemini: '/api/gemini',
     generateImage: '/api/generate-image',
+    sendNotification: '/api/send-notification',
   },
   
   // Helper to get full API URL

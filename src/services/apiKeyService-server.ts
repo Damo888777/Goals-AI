@@ -23,9 +23,16 @@ class ServerApiKeyService {
   }
 
   /**
+   * Get OneSignal API key from Supabase Edge Function (server-side)
+   */
+  async getOneSignalApiKey(): Promise<string | null> {
+    return this.getApiKey('onesignal')
+  }
+
+  /**
    * Generic method to fetch API keys from Supabase Edge Function
    */
-  private async getApiKey(provider: 'openai' | 'google'): Promise<string | null> {
+  private async getApiKey(provider: 'openai' | 'google' | 'onesignal'): Promise<string | null> {
     const cacheKey = `${provider}_api_key`
     
     // Check cache first
@@ -35,6 +42,8 @@ class ServerApiKeyService {
     }
 
     try {
+      console.log(`[Server API Key Service] Calling get-api-keys edge function for ${provider}...`)
+      
       // Call Supabase Edge Function to get API keys (GET request)
       const { data, error } = await supabaseServer.functions.invoke('get-api-keys', {
         method: 'GET',
@@ -44,6 +53,8 @@ class ServerApiKeyService {
           'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
         }
       })
+
+      console.log(`[Server API Key Service] Edge function response:`, { data, error })
 
       if (error) {
         console.error(`[Server API Key Service] Error fetching ${provider} API key:`, error)
@@ -55,10 +66,17 @@ class ServerApiKeyService {
         return null
       }
 
-      const apiKey = provider === 'openai' ? data.openai_api_key : data.google_api_key
+      console.log(`[Server API Key Service] Available keys in response:`, Object.keys(data))
+
+      const apiKey = provider === 'openai' ? data.openai_api_key : 
+                     provider === 'google' ? data.google_api_key : 
+                     data.onesignal_api_key
+
+      console.log(`[Server API Key Service] Looking for ${provider} key, found:`, !!apiKey)
 
       if (!apiKey) {
         console.error(`[Server API Key Service] ${provider} API key not found in response`)
+        console.error(`[Server API Key Service] Response data:`, data)
         return null
       }
 

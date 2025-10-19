@@ -402,12 +402,48 @@ class NotificationScheduler {
    */
   private async sendNotification(notification: NotificationData): Promise<void> {
     try {
-      // In a real implementation, you would use OneSignal's REST API to send notifications
-      // For now, we'll log the notification that would be sent
-      console.log('Notification would be sent:', notification);
+      // Get OneSignal subscription ID from notification service
+      const subscriptionId = await notificationService.getSubscriptionId();
       
-      // You could implement server-side notification sending here
-      // or use OneSignal's REST API directly
+      if (!subscriptionId) {
+        console.warn('No OneSignal subscription ID available, cannot send notification');
+        return;
+      }
+
+      // Get OneSignal app ID from config
+      const appId = await notificationService.getAppId();
+      
+      if (!appId) {
+        console.error('OneSignal app ID not configured');
+        return;
+      }
+
+      console.log('🔔 Sending notification via API endpoint:', notification);
+
+      // Call our API endpoint to send the notification
+      const { getApiUrl } = await import('../constants/config');
+      const response = await fetch(getApiUrl('/api/send-notification'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          app_id: appId,
+          include_subscription_ids: [subscriptionId],
+          headings: { en: notification.title },
+          contents: { en: notification.body },
+          data: notification.data || {}
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Notification sent successfully:', result);
+      } else {
+        console.error('❌ Failed to send notification:', result.error);
+      }
+      
     } catch (error) {
       console.error('Failed to send notification:', error);
     }
@@ -456,6 +492,31 @@ class NotificationScheduler {
       const enabled = await AsyncStorage.getItem('notifications_enabled');
       return enabled === 'true';
     } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Send test notification immediately (for testing purposes)
+   */
+  async sendTestNotification(): Promise<boolean> {
+    try {
+      const testNotification: NotificationData = {
+        type: 'morning_kickstart',
+        title: 'Test Notification 🧪',
+        body: 'This is a test notification to verify OneSignal integration is working correctly.',
+        data: {
+          type: 'test',
+          scenario: 'test_notification',
+          date: new Date().toISOString().split('T')[0]
+        }
+      };
+
+      console.log('🧪 Sending test notification...');
+      await this.sendNotification(testNotification);
+      return true;
+    } catch (error) {
+      console.error('Failed to send test notification:', error);
       return false;
     }
   }

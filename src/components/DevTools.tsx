@@ -220,6 +220,376 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
             </Text>
           </View>
 
+          {/* Notification Testing Section */}
+          <View style={styles.section}>
+            <Text style={[typography.cardTitle, styles.sectionTitle]}>
+              Notification Testing
+            </Text>
+            <Text style={[typography.caption, styles.statusText]}>
+              Test push notifications on your device
+            </Text>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'test-permission' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { notificationService } = await import('../services/notificationService');
+                  const permission = await notificationService.requestPermission();
+                  Alert.alert('Permission Result', permission ? 'Granted!' : 'Denied');
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to request permission');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-permission')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="notifications" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Request Notification Permission
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'test-morning' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { OneSignal } = await import('react-native-onesignal');
+                  const playerId = await OneSignal.User.pushSubscription.getIdAsync();
+                  if (playerId) {
+                    // Send a test morning notification using OneSignal REST API
+                    const notification = {
+                      app_id: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID,
+                      include_subscription_ids: [playerId],
+                      headings: { en: '🌅 Good Morning!' },
+                      contents: { en: 'Ready to tackle your most important task today?' },
+                      data: {
+                        type: 'morning_kickstart',
+                        scenario: 'test'
+                      }
+                    };
+                    
+                    Alert.alert(
+                      'Notification Scheduled',
+                      'Morning notification will be sent in 30 seconds. Close the app now to test background notifications!',
+                      [{ text: 'OK' }]
+                    );
+                    
+                    // Delay for 30 seconds to allow user to close the app
+                    setTimeout(async () => {
+                      try {
+                        // Use the new API endpoint instead of direct OneSignal API call
+                        const { getApiUrl } = await import('../constants/config');
+                        const response = await fetch(getApiUrl('/api/send-notification'), {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            app_id: notification.app_id,
+                            include_subscription_ids: notification.include_subscription_ids,
+                            headings: notification.headings,
+                            contents: notification.contents,
+                            data: notification.data || {}
+                          })
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Morning notification sent:', response.ok ? 'Success' : 'Failed', result);
+                        
+                        if (!response.ok) {
+                          console.error('OneSignal API Error:', result);
+                        }
+                      } catch (error) {
+                        console.error('Failed to send morning notification:', error);
+                      }
+                    }, 30000);
+                  } else {
+                    Alert.alert('Error', 'No push subscription found. Make sure notifications are enabled.');
+                  }
+                } catch (error) {
+                  console.error('Notification test error:', error);
+                  Alert.alert('Error', 'Failed to send test notification');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-morning')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="sunny" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Test Morning Notification
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'test-evening' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { OneSignal } = await import('react-native-onesignal');
+                  const playerId = await OneSignal.User.pushSubscription.getIdAsync();
+                  if (playerId) {
+                    const notification = {
+                      app_id: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID,
+                      include_subscription_ids: [playerId],
+                      headings: { en: '🌙 Evening Check-in' },
+                      contents: { en: 'How did your day go? Ready to plan tomorrow?' },
+                      data: {
+                        type: 'evening_checkin',
+                        scenario: 'test'
+                      }
+                    };
+                    
+                    Alert.alert(
+                      'Notification Scheduled',
+                      'Evening notification will be sent in 30 seconds. Close the app now to test background notifications!',
+                      [{ text: 'OK' }]
+                    );
+                    
+                    // Delay for 30 seconds to allow user to close the app
+                    setTimeout(async () => {
+                      try {
+                        // Use the new API endpoint instead of direct OneSignal API call
+                        const { getApiUrl } = await import('../constants/config');
+                        const response = await fetch(getApiUrl('/api/send-notification'), {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            app_id: notification.app_id,
+                            include_subscription_ids: notification.include_subscription_ids,
+                            headings: notification.headings,
+                            contents: notification.contents,
+                            data: notification.data || {}
+                          })
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Evening notification sent:', response.ok ? 'Success' : 'Failed', result);
+                        
+                        if (!response.ok) {
+                          console.error('OneSignal API Error:', result);
+                        }
+                      } catch (error) {
+                        console.error('Failed to send evening notification:', error);
+                      }
+                    }, 30000);
+                  } else {
+                    Alert.alert('Error', 'No push subscription found. Make sure notifications are enabled.');
+                  }
+                } catch (error) {
+                  console.error('Notification test error:', error);
+                  Alert.alert('Error', 'Failed to send test notification');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-evening')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="moon" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Test Evening Notification
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.actionButton,
+                isPressed === 'test-frog' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { OneSignal } = await import('react-native-onesignal');
+                  const playerId = await OneSignal.User.pushSubscription.getIdAsync();
+                  if (playerId) {
+                    const notification = {
+                      app_id: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID,
+                      include_subscription_ids: [playerId],
+                      headings: { en: '🐸 Frog Streak!' },
+                      contents: { en: 'You\'re on a roll! Keep eating those frogs!' },
+                      data: {
+                        type: 'frog_streak',
+                        scenario: 'test',
+                        streakCount: '5'
+                      }
+                    };
+                    
+                    Alert.alert(
+                      'Notification Scheduled',
+                      'Frog streak notification will be sent in 30 seconds. Close the app now to test background notifications!',
+                      [{ text: 'OK' }]
+                    );
+                    
+                    // Delay for 30 seconds to allow user to close the app
+                    setTimeout(async () => {
+                      try {
+                        // Use the new API endpoint instead of direct OneSignal API call
+                        const { getApiUrl } = await import('../constants/config');
+                        const response = await fetch(getApiUrl('/api/send-notification'), {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            app_id: notification.app_id,
+                            include_subscription_ids: notification.include_subscription_ids,
+                            headings: notification.headings,
+                            contents: notification.contents,
+                            data: notification.data || {}
+                          })
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Frog streak notification sent:', response.ok ? 'Success' : 'Failed', result);
+                        
+                        if (!response.ok) {
+                          console.error('OneSignal API Error:', result);
+                        }
+                      } catch (error) {
+                        console.error('Failed to send frog streak notification:', error);
+                      }
+                    }, 30000);
+                  } else {
+                    Alert.alert('Error', 'No push subscription found. Make sure notifications are enabled.');
+                  }
+                } catch (error) {
+                  console.error('Notification test error:', error);
+                  Alert.alert('Error', 'Failed to send test notification');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-frog')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="trophy" size={20} color={colors.secondary} />
+              <Text style={[typography.button, styles.buttonText]}>
+                Test Frog Streak Notification
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.paywallButton,
+                isPressed === 'test-scheduler' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { notificationScheduler } = await import('../services/notificationScheduler');
+                  
+                  // Test the notification scheduler service
+                  const morningNotification = await notificationScheduler.generateMorningNotification();
+                  const eveningNotification = await notificationScheduler.generateEveningNotification();
+                  const visionNotification = await notificationScheduler.generateVisionBoardNotification();
+                  
+                  Alert.alert(
+                    'Notification Scheduler Test',
+                    `Generated notifications:\n\n` +
+                    `Morning: ${morningNotification.title}\n` +
+                    `Evening: ${eveningNotification.title}\n` +
+                    `Vision: ${visionNotification.title}`,
+                    [{ text: 'OK' }]
+                  );
+                  
+                  console.log('Generated notifications:', {
+                    morning: morningNotification,
+                    evening: eveningNotification,
+                    vision: visionNotification
+                  });
+                } catch (error) {
+                  console.error('Notification scheduler test error:', error);
+                  Alert.alert('Error', 'Failed to test notification scheduler');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-scheduler')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="cog" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.paywallButtonText]}>
+                Test Notification Scheduler
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.paywallButton,
+                isPressed === 'test-local' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  // Test local notification using Expo Notifications
+                  const { scheduleNotificationAsync, requestPermissionsAsync } = await import('expo-notifications');
+                  
+                  await requestPermissionsAsync();
+                  
+                  await scheduleNotificationAsync({
+                    content: {
+                      title: '🗺️ Local Test Notification',
+                      body: 'This is a test notification sent locally!',
+                      data: { test: true },
+                    },
+                    trigger: { seconds: 10 },
+                  });
+                  
+                  Alert.alert('Local Test Scheduled!', 'Local notification will appear in 10 seconds. Close the app to test!');
+                } catch (error) {
+                  console.error('Local notification error:', error);
+                  Alert.alert('Error', 'Failed to send local notification');
+                }
+              }}
+              onPressIn={() => setIsPressed('test-local')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="phone-portrait" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.paywallButtonText]}>
+                Test Local Notification
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.upgradeButton,
+                isPressed === 'show-player-id' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  const { OneSignal } = await import('react-native-onesignal');
+                  const playerId = await OneSignal.User.pushSubscription.getIdAsync();
+                  const { notificationService } = await import('../services/notificationService');
+                  
+                  // Run debug check
+                  await notificationService.debugNotificationStatus();
+                  
+                  let statusInfo = `Player ID: ${playerId || 'None'}\n`;
+                  
+                  // Check permission status
+                  const hasRequested = await notificationService.hasRequestedPermission();
+                  statusInfo += `Permission Requested: ${hasRequested ? 'Yes' : 'No'}\n`;
+                  
+                  // Get timezone info
+                  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                  statusInfo += `Timezone: ${timezone}`;
+                  
+                  Alert.alert('Notification Status', statusInfo);
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to get notification status');
+                }
+              }}
+              onPressIn={() => setIsPressed('show-player-id')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="information-circle" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.upgradeButtonText]}>
+                Show Notification Status
+              </Text>
+            </Pressable>
+          </View>
+
           {/* Paywall Testing Section */}
           <View style={styles.section}>
             <Text style={[typography.cardTitle, styles.sectionTitle]}>
