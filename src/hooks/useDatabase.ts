@@ -480,6 +480,24 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
 
     await database.write(async () => {
       const tasksCollection = database!.get<Task>('tasks')
+      
+      // If creating a frog task, clear existing frog tasks
+      if (taskData.isFrog) {
+        const existingFrogTasks = await tasksCollection
+          .query(
+            Q.where('user_id', userId),
+            Q.where('is_frog', true),
+            Q.where('is_complete', false)
+          )
+          .fetch()
+        
+        for (const existingFrogTask of existingFrogTasks) {
+          await existingFrogTask.update(() => {
+            existingFrogTask.isFrog = false
+          })
+        }
+      }
+      
       const newTask = await tasksCollection.create((task) => {
         task.userId = userId
         task.title = taskData.title
@@ -505,8 +523,33 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     if (!database) throw new Error('WatermelonDB not available')
     
+    const userId = await getCurrentUserId()
+    if (!userId) throw new Error('User not authenticated')
+    
     await database.write(async () => {
       const task = await database!.get<Task>('tasks').find(taskId)
+      
+      // If trying to set this task as frog, check for existing frog tasks
+      if (updates.isFrog === true) {
+        const tasksCollection = database!.get<Task>('tasks')
+        const existingFrogTasks = await tasksCollection
+          .query(
+            Q.where('user_id', userId),
+            Q.where('is_frog', true),
+            Q.where('is_complete', false)
+          )
+          .fetch()
+        
+        // Clear all existing frog tasks (only one active frog allowed)
+        for (const existingFrogTask of existingFrogTasks) {
+          if (existingFrogTask.id !== taskId) {
+            await existingFrogTask.update(() => {
+              existingFrogTask.isFrog = false
+            })
+          }
+        }
+      }
+      
       await task.update(() => {
         if (updates.title !== undefined) task.title = updates.title
         if (updates.notes !== undefined) task.notes = updates.notes
@@ -542,12 +585,36 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
     })
   }
 
+  const checkExistingFrogTask = async (): Promise<Task | null> => {
+    if (!database) return null
+    
+    const userId = await getCurrentUserId()
+    if (!userId) return null
+    
+    try {
+      const tasksCollection = database.get<Task>('tasks')
+      const existingFrogTasks = await tasksCollection
+        .query(
+          Q.where('user_id', userId),
+          Q.where('is_frog', true),
+          Q.where('is_complete', false)
+        )
+        .fetch()
+      
+      return existingFrogTasks[0] || null
+    } catch (error) {
+      console.error('Error checking existing frog task:', error)
+      return null
+    }
+  }
+
   return {
     tasks,
     createTask,
     updateTask,
     deleteTask,
     completeTask,
+    checkExistingFrogTask,
   }
 }
 

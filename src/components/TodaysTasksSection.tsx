@@ -53,7 +53,15 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
             <TaskCard
               key={task.id}
               task={task}
-              variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
+              variant={
+                task.isComplete 
+                  ? 'completed' 
+                  : task.isFrog 
+                    ? 'active-frog'
+                    : task.scheduledDate 
+                      ? 'active-with-date' 
+                      : 'active-without-date'
+              }
               onPress={() => onTaskPress?.(task)}
               onToggleComplete={onToggleComplete}
               onDelete={onDelete}

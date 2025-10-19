@@ -364,7 +364,7 @@ export default function PaywallScreen() {
             onPress={handlePurchase}
             disabled={!selectedPlan || isLoading}
             style={{
-              backgroundColor: selectedPlan && !isLoading ? '#F5EBE0' : 'rgba(245, 235, 224, 0.3)',
+              backgroundColor: selectedPlan ? '#F5EBE0' : 'rgba(245, 235, 224, 0.3)',
               paddingVertical: 20,
               paddingHorizontal: 32,
               borderRadius: 16,
@@ -380,7 +380,7 @@ export default function PaywallScreen() {
             <Text style={{
               fontSize: 18,
               fontWeight: 'bold',
-              color: selectedPlan && !isLoading ? '#364958' : 'rgba(54, 73, 88, 0.5)',
+              color: selectedPlan ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
               {isLoading ? 'Processing...' : 'Upgrade Plan'}

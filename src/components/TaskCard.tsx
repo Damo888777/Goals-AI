@@ -190,7 +190,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
 
   // Determine card styling based on variant
   const isCompleted = variant === 'completed';
-  const isFrog = variant === 'active-frog';
+  const isFrog = task?.isFrog || variant === 'active-frog';
   const hasDate = variant === 'active-with-date' || task?.scheduledDate;
   const showSparkBadge = creationSource === 'spark';
 
@@ -278,7 +278,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
             {isFrog && (
               <View style={styles.frogBadgeSmall}>
                 <Image 
-                  source={{ uri: 'https://s3-alpha-sig.figma.com/img/077f/e118/305b3d191f10f5d5855d5f074942d0d5?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MNj3ZK~tjl3RoKhbiLiUJX46IrmmSdSYBjovP3IP8WLxvj8jX9~CP9c95APsjf27TBc7mpqTjsrZI6VyovnQcFaQ2CqD2wP9ToNmM0rOYWllfHPR2VZy6OmvvCT-WsrgrIRrmYSIBEhOp43d8mRlZQEOmEu8sKm-7t2h0qhFXKDgMreHt9DF6jtbt1H~oJxzPqj2Qh8je2ImAQA-d6vVMrTLr1lm4va2QytH13yFdgeni5TqvaMZNDYnYhrn901gQyNgyJfUSg0A4zxHkNs-DQSA2TKlc2kmERUzwl38iaRT1FfEERIk7da3z9QOPNKyQSpLdLM4gbeDhvXV90OAtQ__' }}
+                  source={require('../../assets/frog.png')}
                   style={styles.frogIconSmall}
                   contentFit="contain"
                 />

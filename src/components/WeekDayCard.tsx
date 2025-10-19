@@ -81,7 +81,15 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
               <TaskCard
                 key={task.id}
                 task={task}
-                variant={task.isComplete ? 'completed' : (task.scheduledDate ? 'active-with-date' : 'active-without-date')}
+                variant={
+                  task.isComplete 
+                    ? 'completed' 
+                    : task.isFrog 
+                      ? 'active-frog'
+                      : task.scheduledDate 
+                        ? 'active-with-date' 
+                        : 'active-without-date'
+                }
                 onToggleComplete={onToggleComplete}
                 onDelete={onDeleteTask}
                 creationSource={task.creationSource}

@@ -42,37 +42,116 @@ interface UsageStats {
   activeGoalsCount: number;
 }
 
-// Animated Flame Component
+// Animated Flame Component with realistic burn effect
 const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const scaleXAnim = useRef(new Animated.Value(1)).current;
+  const scaleYAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
+  const translateXAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isActive) {
-      const createAnimation = () => {
+      const createFlameAnimation = () => {
         return Animated.loop(
-          Animated.sequence([
-            Animated.parallel([
-              Animated.timing(scaleAnim, {
-                toValue: 1.1,
-                duration: 800,
+          Animated.parallel([
+            // Flickering scale effect (width varies more than height for flame shape)
+            Animated.sequence([
+              Animated.timing(scaleXAnim, {
+                toValue: 0.85,
+                duration: 150,
                 useNativeDriver: true,
               }),
-              Animated.timing(opacityAnim, {
-                toValue: 0.8,
-                duration: 800,
+              Animated.timing(scaleXAnim, {
+                toValue: 1.15,
+                duration: 200,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleXAnim, {
+                toValue: 0.9,
+                duration: 180,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleXAnim, {
+                toValue: 1.05,
+                duration: 170,
                 useNativeDriver: true,
               }),
             ]),
-            Animated.parallel([
-              Animated.timing(scaleAnim, {
-                toValue: 0.9,
+            // Subtle height variation
+            Animated.sequence([
+              Animated.timing(scaleYAnim, {
+                toValue: 1.1,
+                duration: 300,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleYAnim, {
+                toValue: 0.95,
+                duration: 250,
+                useNativeDriver: true,
+              }),
+              Animated.timing(scaleYAnim, {
+                toValue: 1.05,
+                duration: 150,
+                useNativeDriver: true,
+              }),
+            ]),
+            // Gentle swaying motion
+            Animated.sequence([
+              Animated.timing(rotateAnim, {
+                toValue: 0.1,
+                duration: 400,
+                useNativeDriver: true,
+              }),
+              Animated.timing(rotateAnim, {
+                toValue: -0.08,
+                duration: 350,
+                useNativeDriver: true,
+              }),
+              Animated.timing(rotateAnim, {
+                toValue: 0.05,
+                duration: 250,
+                useNativeDriver: true,
+              }),
+            ]),
+            // Subtle horizontal drift
+            Animated.sequence([
+              Animated.timing(translateXAnim, {
+                toValue: 1,
                 duration: 600,
+                useNativeDriver: true,
+              }),
+              Animated.timing(translateXAnim, {
+                toValue: -0.5,
+                duration: 400,
+                useNativeDriver: true,
+              }),
+            ]),
+            // Opacity flickering for burning effect
+            Animated.sequence([
+              Animated.timing(opacityAnim, {
+                toValue: 0.7,
+                duration: 100,
                 useNativeDriver: true,
               }),
               Animated.timing(opacityAnim, {
                 toValue: 1,
-                duration: 600,
+                duration: 150,
+                useNativeDriver: true,
+              }),
+              Animated.timing(opacityAnim, {
+                toValue: 0.85,
+                duration: 120,
+                useNativeDriver: true,
+              }),
+              Animated.timing(opacityAnim, {
+                toValue: 1,
+                duration: 180,
+                useNativeDriver: true,
+              }),
+              Animated.timing(opacityAnim, {
+                toValue: 0.9,
+                duration: 150,
                 useNativeDriver: true,
               }),
             ]),
@@ -80,17 +159,29 @@ const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
         );
       };
       
-      createAnimation().start();
+      createFlameAnimation().start();
     } else {
-      scaleAnim.setValue(1);
+      // Reset all animations when not active
+      scaleXAnim.setValue(1);
+      scaleYAnim.setValue(1);
+      rotateAnim.setValue(0);
       opacityAnim.setValue(1);
+      translateXAnim.setValue(0);
     }
-  }, [isActive, scaleAnim, opacityAnim]);
+  }, [isActive, scaleXAnim, scaleYAnim, rotateAnim, opacityAnim, translateXAnim]);
 
   return (
     <Animated.View
       style={{
-        transform: [{ scale: scaleAnim }],
+        transform: [
+          { scaleX: scaleXAnim },
+          { scaleY: scaleYAnim },
+          { rotate: rotateAnim.interpolate({
+            inputRange: [-1, 1],
+            outputRange: ['-15deg', '15deg']
+          })},
+          { translateX: translateXAnim }
+        ],
         opacity: opacityAnim,
       }}
     >

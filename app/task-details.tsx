@@ -307,7 +307,36 @@ export default function TaskDetailsScreen() {
           </Text>
           <EatTheFrogSection 
             isSelected={isFrog} 
-            onToggle={() => setIsFrog(!isFrog)} 
+            onToggle={async () => {
+              if (!isFrog) {
+                // Check if there's already an active frog task
+                const existingFrogTask = tasks.find(t => t.isFrog && !t.isComplete && t.id !== task?.id);
+                if (existingFrogTask) {
+                  Alert.alert(
+                    'Replace Frog Task?',
+                    `You already have "${existingFrogTask.title}" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this task?`,
+                    [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                        onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                      },
+                      {
+                        text: 'Replace',
+                        onPress: () => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          setIsFrog(true);
+                        }
+                      }
+                    ]
+                  );
+                } else {
+                  setIsFrog(true);
+                }
+              } else {
+                setIsFrog(false);
+              }
+            }} 
           />
         </View>
 
@@ -989,7 +1018,7 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
           ]}
         >
           <Image 
-            source={{ uri: 'https://s3-alpha-sig.figma.com/img/077f/e118/305b3d191f10f5d5855d5f074942d0d5?Expires=1760313600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MNj3ZK~tjl3RoKhbiLiUJX46IrmmSdSYBjovP3IP8WLxvj8jX9~CP9c95APsjf27TBc7mpqTjsrZI6VyovnQcFaQ2CqD2wP9ToNmM0rOYWllfHPR2VZy6OmvvCT-WsrgrIRrmYSIBEhOp43d8mRlZQEOmEu8sKm-7t2h0qhFXKDgMreHt9DF6jtbt1H~oJxzPqj2Qh8je2ImAQA-d6vVMrTLr1lm4va2QytH13yFdgeni5TqvaMZNDYnYhrn901gQyNgyJfUSg0A4zxHkNs-DQSA2TKlc2kmERUzwl38iaRT1FfEERIk7da3z9QOPNKyQSpLdLM4gbeDhvXV90OAtQ__' }}
+            source={require('../assets/frog.png')}
             style={styles.frogIcon}
             contentFit="contain"
           />

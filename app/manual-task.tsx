@@ -366,7 +366,7 @@ export default function ManualTaskScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Database hooks
-  const { createTask } = useTasks();
+  const { createTask, checkExistingFrogTask } = useTasks();
   const { createGoal } = useGoals();
   const { createMilestone, milestones } = useMilestones();
   const { goals } = useGoals();
@@ -473,7 +473,36 @@ export default function ManualTaskScreen() {
           <View style={styles.sectionContainer}>
             <EatTheFrogSection 
               isSelected={isEatTheFrog} 
-              onToggle={() => setIsEatTheFrog(!isEatTheFrog)} 
+              onToggle={async () => {
+                if (!isEatTheFrog) {
+                  // Check if there's already an active frog task
+                  const existingFrogTask = await checkExistingFrogTask();
+                  if (existingFrogTask) {
+                    Alert.alert(
+                      'Replace Frog Task?',
+                      `You already have "${existingFrogTask.title}" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this new task?`,
+                      [
+                        {
+                          text: 'Cancel',
+                          style: 'cancel',
+                          onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                        },
+                        {
+                          text: 'Replace',
+                          onPress: () => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setIsEatTheFrog(true);
+                          }
+                        }
+                      ]
+                    );
+                  } else {
+                    setIsEatTheFrog(true);
+                  }
+                } else {
+                  setIsEatTheFrog(false);
+                }
+              }} 
             />
           </View>
         )}
