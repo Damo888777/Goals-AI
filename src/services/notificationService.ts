@@ -1,4 +1,4 @@
-import { OneSignal, LogLevel } from 'react-native-onesignal';
+import { OneSignal, LogLevel, NotificationClickEvent } from 'react-native-onesignal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from './authService';
 
@@ -11,7 +11,32 @@ class NotificationService {
   }
 
   /**
-   * Initialize OneSignal SDK
+   * Get user's timezone using JavaScript Intl API
+   */
+  private getUserTimezone(): string {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch (error) {
+      console.error('Failed to get timezone:', error);
+      return 'UTC';
+    }
+  }
+
+  /**
+   * Get timezone offset in hours
+   */
+  private getTimezoneOffset(): number {
+    try {
+      const offsetMinutes = new Date().getTimezoneOffset();
+      return -offsetMinutes / 60;
+    } catch (error) {
+      console.error('Failed to get timezone offset:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Initialize OneSignal SDK (v5 API)
    */
   async initialize(): Promise<void> {
     if (this.isInitialized || !this.appId) {
@@ -21,17 +46,13 @@ class NotificationService {
     try {
       // Enable verbose logging for debugging (remove in production)
       OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-
-      // Initialize with your OneSignal App ID
+      
+      // Initialize with OneSignal App ID
       OneSignal.initialize(this.appId);
-
-      // Set up event listeners
+      
       this.setupEventListeners();
-
-      // Link user if authenticated
-      await this.linkCurrentUser();
-
       this.isInitialized = true;
+      
       console.log('OneSignal initialized successfully');
     } catch (error) {
       console.error('Failed to initialize OneSignal:', error);
@@ -80,51 +101,77 @@ class NotificationService {
   }
 
   /**
-   * Update user tags for personalized notifications
+   * Update user tags for personalized notifications including timezone
    */
   async updateUserTags(tags: Record<string, string | number | boolean>): Promise<void> {
     try {
-      OneSignal.User.addTags(tags);
-      console.log('OneSignal tags updated:', tags);
+      // Add timezone information to tags
+      const timezone = this.getUserTimezone();
+      const timezoneOffset = this.getTimezoneOffset();
+      
+      const tagsWithTimezone = {
+        ...tags,
+        timezone,
+        timezone_offset: timezoneOffset
+      };
+      
+      OneSignal.User.addTags(tagsWithTimezone);
+      console.log('OneSignal tags updated with timezone:', tagsWithTimezone);
+      
+      // Store timezone locally for reference
+      await AsyncStorage.setItem('user_timezone', timezone);
+      await AsyncStorage.setItem('user_timezone_offset', timezoneOffset.toString());
     } catch (error) {
       console.error('Failed to update OneSignal tags:', error);
     }
   }
 
   /**
-   * Set up event listeners for push notifications
+   * Initialize user timezone tags
+   */
+  async initializeTimezone(): Promise<void> {
+    try {
+      const timezone = this.getUserTimezone();
+      const timezoneOffset = this.getTimezoneOffset();
+      
+      await this.updateUserTags({
+        timezone,
+        timezone_offset: timezoneOffset
+      });
+      
+      console.log(`User timezone initialized: ${timezone} (UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset})`);
+    } catch (error) {
+      console.error('Failed to initialize timezone:', error);
+    }
+  }
+
+  /**
+   * Set up event listeners for OneSignal
    */
   private setupEventListeners(): void {
-    // Listen for notification clicks
+    // Set up notification click listener
     OneSignal.Notifications.addEventListener('click', (event) => {
       console.log('OneSignal: notification clicked', event);
       this.handleNotificationClick(event);
     });
 
-    // Listen for notification received (when app is in foreground)
+    // Set up foreground notification listener
     OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
       console.log('OneSignal: notification received in foreground', event);
-      // Allow the notification to be displayed
-      event.getNotification().display();
     });
 
-    // Listen for permission changes
+    // Set up permission change listener
     OneSignal.Notifications.addEventListener('permissionChange', (granted) => {
       console.log('OneSignal: permission changed', granted);
-    });
-
-    // Listen for subscription changes
-    OneSignal.User.pushSubscription.addEventListener('change', (subscription) => {
-      console.log('OneSignal: subscription changed', subscription);
     });
   }
 
   /**
    * Handle notification click events
    */
-  private handleNotificationClick(event: any): void {
+  private handleNotificationClick(event: NotificationClickEvent): void {
     const notification = event.notification;
-    const data = notification.additionalData;
+    const data = notification.additionalData as any;
 
     // Handle different notification types based on data
     if (data?.type === 'morning_kickstart') {
@@ -144,7 +191,7 @@ class NotificationService {
    */
   async getPlayerId(): Promise<string | null> {
     try {
-      const subscription = OneSignal.User.pushSubscription.getPushSubscriptionId();
+      const subscription = await OneSignal.User.pushSubscription.getIdAsync();
       return subscription;
     } catch (error) {
       console.error('Failed to get OneSignal player ID:', error);
