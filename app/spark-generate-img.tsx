@@ -394,7 +394,7 @@ export default function SparkGenerateIMGScreen() {
               disabled={isGenerating}
             >
             <Image
-              source={{ uri: images.icons.sparkle }}
+              source={require('../assets/sparkle.png')}
               style={{ 
                 width: 20, 
                 height: 20,
@@ -620,7 +620,7 @@ export default function SparkGenerateIMGScreen() {
                 }}
               >
                 <Image
-                  source={{ uri: images.icons.sparkle }}
+                  source={require('../assets/sparkle.png')}
                   style={{ 
                     width: 20, 
                     height: 20,

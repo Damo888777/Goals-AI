@@ -21,6 +21,7 @@ import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { useSubscription } from '../../src/hooks/useSubscription';
+import { usageTrackingService } from '../../src/services/usageTrackingService';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
@@ -33,6 +34,12 @@ interface Stats {
   eatTheFrogStreak: number;
   goalsAchieved: number;
   totalFocusTime: number; // in minutes
+}
+
+interface UsageStats {
+  voiceInputsUsed: number;
+  visionImagesUsed: number;
+  activeGoalsCount: number;
 }
 
 // Animated Flame Component
@@ -128,12 +135,18 @@ export default function ProfileTab() {
     goalsAchieved: 0,
     totalFocusTime: 0,
   });
+  const [usageStats, setUsageStats] = useState<UsageStats>({
+    voiceInputsUsed: 0,
+    visionImagesUsed: 0,
+    activeGoalsCount: 0,
+  });
 
   // Generate mock user ID for now  
   const userId = user?.id || 'anon_' + Math.random().toString(36).substring(2, 11);
 
   useEffect(() => {
     loadStats();
+    loadUsageStats();
     checkAuthStatus();
   }, [goals, tasks]);
 
@@ -187,6 +200,21 @@ export default function ProfileTab() {
       });
     } catch (error) {
       console.error('Error loading stats:', error);
+    }
+  };
+
+  const loadUsageStats = async () => {
+    try {
+      const currentUsage = await usageTrackingService.getCurrentUsage();
+      if (currentUsage) {
+        setUsageStats({
+          voiceInputsUsed: currentUsage.voiceInputsUsed,
+          visionImagesUsed: currentUsage.visionImagesUsed,
+          activeGoalsCount: currentUsage.activeGoalsCount,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading usage stats:', error);
     }
   };
 
@@ -528,7 +556,7 @@ Best regards`;
                     <Ionicons name="mic" size={16} color={colors.text.primary} />
                     <Text style={styles.subscriptionFeatureText}>
                       <Text style={{ fontWeight: 'bold' }}>
-                        {/* TODO: Add actual usage tracking */}0
+                        {usageStats.voiceInputsUsed}
                       </Text>
                       <Text style={{ fontWeight: '300' }}>
                         /{currentTier?.sparkAIVoiceInputs || 0} Spark AI Inputs
@@ -540,7 +568,7 @@ Best regards`;
                     <Ionicons name="image" size={16} color={colors.text.primary} />
                     <Text style={styles.subscriptionFeatureText}>
                       <Text style={{ fontWeight: 'bold' }}>
-                        {/* TODO: Add actual usage tracking */}0
+                        {usageStats.visionImagesUsed}
                       </Text>
                       <Text style={{ fontWeight: '300' }}>
                         /{currentTier?.sparkAIVisionImages || 0} Spark AI Visions

@@ -589,7 +589,7 @@ export default function OnboardingScreen() {
             disabled={!data.visionPrompt.trim() || isGenerating}
           >
             <Image 
-              source={{ uri: images.icons.createVision }} 
+              source={require('../assets/sparkle.png')} 
               style={styles.sparkIcon}
               contentFit="contain"
             />
