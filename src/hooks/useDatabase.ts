@@ -581,6 +581,10 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
         task.isComplete = true
         task.completedAt = new Date()
         task.updatedAt = new Date()
+        // When completing a frog task, clear the frog status so new frogs can be set
+        if (task.isFrog) {
+          task.isFrog = false
+        }
       })
     })
   }
@@ -695,20 +699,35 @@ export const useTodaysTasks = () => {
         
         const tasksCollection = database.get<Task>('tasks')
         
-        const subscription = tasksCollection
+        // Separate queries for frog tasks and regular tasks
+        const frogSubscription = tasksCollection
           .query(
             Q.where('user_id', userId),
             Q.where('is_complete', false),
+            Q.where('is_frog', true)
+          )
+          .observe()
+          .subscribe((frogTasks) => {
+            setFrogTask(frogTasks[0] || null)
+          })
+
+        const regularTasksSubscription = tasksCollection
+          .query(
+            Q.where('user_id', userId),
+            Q.where('is_complete', false),
+            Q.where('is_frog', false), // Exclude frog tasks from regular tasks
             Q.where('scheduled_date', Q.gte(todayStart.toISOString())),
             Q.where('scheduled_date', Q.lte(todayEnd.toISOString()))
           )
           .observe()
           .subscribe((todaysTasks) => {
             setTasks(todaysTasks)
-            setFrogTask(todaysTasks.find(task => task.isFrog) || null)
           })
 
-        return () => subscription.unsubscribe()
+        return () => {
+          frogSubscription.unsubscribe()
+          regularTasksSubscription.unsubscribe()
+        }
       } catch (error) {
         console.error('Error fetching today\'s tasks:', error)
         setTasks([])
