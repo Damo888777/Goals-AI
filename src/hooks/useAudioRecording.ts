@@ -164,6 +164,24 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         return;
       }
       
+      // Track voice input usage after successful processing
+      try {
+        const { usageTrackingService } = await import('../services/usageTrackingService');
+        const tracked = await usageTrackingService.trackVoiceInputUsage();
+        if (!tracked) {
+          console.warn('⚠️ Voice input usage limit reached');
+          setError('Voice input limit reached for your subscription tier');
+          setRecordingState('error');
+          return;
+        }
+        console.log('📊 Voice input usage tracked successfully');
+      } catch (error) {
+        console.error('❌ Failed to track voice input usage:', error);
+        setError('Failed to track usage');
+        setRecordingState('error');
+        return;
+      }
+      
       setResult(aiResult);
       setRecordingState('completed');
 

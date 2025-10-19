@@ -439,7 +439,13 @@ class SyncService {
       if (safeChanges.subscription_usage.created.length > 0) {
         const { error } = await supabase
           .from('subscription_usage')
-          .upsert(safeChanges.subscription_usage.created.map(this.transformLocalToSupabase.bind(this)))
+          .upsert(
+            safeChanges.subscription_usage.created.map(this.transformLocalToSupabase.bind(this)),
+            { 
+              onConflict: 'user_id',
+              ignoreDuplicates: false 
+            }
+          )
         if (error) throw error
       }
 
@@ -607,14 +613,16 @@ class SyncService {
     }
 
     // Handle subscription usage records
-    if (record.table === 'subscription_usage' || record.usageType !== undefined) {
+    if (record.table === 'subscription_usage' || record.sparkAiVoiceInputsUsed !== undefined || record.sparkAiVisionImagesUsed !== undefined) {
       return {
         ...base,
         user_id: record.userId,
-        usage_type: record.usageType,
-        usage_count: record.usageCount || 0,
-        period_start: record.periodStart,
-        period_end: record.periodEnd
+        subscription_tier: record.subscriptionTier,
+        spark_ai_voice_inputs_used: record.sparkAiVoiceInputsUsed || 0,
+        spark_ai_vision_images_used: record.sparkAiVisionImagesUsed || 0,
+        active_goals_count: record.activeGoalsCount || 0,
+        period_start: record.periodStart ? record.periodStart.toISOString() : new Date().toISOString(),
+        period_end: record.periodEnd ? record.periodEnd.toISOString() : null
       }
     }
 

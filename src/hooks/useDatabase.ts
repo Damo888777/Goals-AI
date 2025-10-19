@@ -183,6 +183,19 @@ export const useGoals = () => {
       return
     }
 
+    // Check if user can create more goals before proceeding
+    try {
+      const { usageTrackingService } = await import('../services/usageTrackingService');
+      const canCreate = await usageTrackingService.canPerformAction('create_goal');
+      if (!canCreate) {
+        console.warn('⚠️ Goal creation limit reached');
+        throw new Error('Goal creation limit reached for your subscription tier');
+      }
+    } catch (error) {
+      console.error('❌ Failed to check goal creation limit:', error);
+      throw error;
+    }
+
     try {
       await database.write(async () => {
         const goalsCollection = database!.get<Goal>('goals')
@@ -197,6 +210,15 @@ export const useGoals = () => {
         })
         console.log('Goal created:', newGoal.id)
         
+        // Update active goals count in usage tracking
+        try {
+          const { usageTrackingService } = await import('../services/usageTrackingService');
+          await usageTrackingService.updateActiveGoalsCount();
+          console.log('📊 Active goals count updated after goal creation');
+        } catch (error) {
+          console.error('❌ Failed to update active goals count:', error);
+        }
+        
         // Schedule optimized sync after action
         setTimeout(() => {
           import('../services/syncService').then(({ syncService }) => {
@@ -206,6 +228,7 @@ export const useGoals = () => {
       })
     } catch (error) {
       console.error('Error creating goal:', error)
+      throw error
     }
   }
 
@@ -239,6 +262,15 @@ export const useGoals = () => {
     await database.write(async () => {
       const goal = await database!.get<Goal>('goals').find(goalId)
       await goal.markAsDeleted()
+      
+      // Update active goals count in usage tracking
+      try {
+        const { usageTrackingService } = await import('../services/usageTrackingService');
+        await usageTrackingService.updateActiveGoalsCount();
+        console.log('📊 Active goals count updated after goal deletion');
+      } catch (error) {
+        console.error('❌ Failed to update active goals count:', error);
+      }
     })
   }
 
@@ -248,6 +280,15 @@ export const useGoals = () => {
     await database.write(async () => {
       const goal = await database!.get<Goal>('goals').find(goalId)
       await goal.markCompleted()
+      
+      // Update active goals count in usage tracking
+      try {
+        const { usageTrackingService } = await import('../services/usageTrackingService');
+        await usageTrackingService.updateActiveGoalsCount();
+        console.log('📊 Active goals count updated after goal completion');
+      } catch (error) {
+        console.error('❌ Failed to update active goals count:', error);
+      }
     })
   }
 

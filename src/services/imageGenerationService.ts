@@ -61,6 +61,26 @@ class ImageGenerationService {
       const data = await response.json();
 
       if (data?.success && data?.imageBase64) {
+        // Track vision image usage after successful generation
+        try {
+          const { usageTrackingService } = await import('./usageTrackingService');
+          const tracked = await usageTrackingService.trackVisionImageUsage();
+          if (!tracked) {
+            console.warn('⚠️ Vision image usage limit reached');
+            return {
+              success: false,
+              error: 'Vision image generation limit reached for your subscription tier'
+            };
+          }
+          console.log('📊 Vision image usage tracked successfully');
+        } catch (error) {
+          console.error('❌ Failed to track vision image usage:', error);
+          return {
+            success: false,
+            error: 'Failed to track usage'
+          };
+        }
+
         return {
           success: true,
           imageBase64: data.imageBase64
