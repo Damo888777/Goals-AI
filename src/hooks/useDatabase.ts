@@ -219,6 +219,14 @@ export const useGoals = () => {
           console.error('❌ Failed to update active goals count:', error);
         }
         
+        // Update notification system with main goal for personalized notifications
+        try {
+          const { notificationService } = await import('../services/notificationService');
+          await notificationService.updateMainGoal(goalData.title);
+        } catch (error) {
+          console.error('Failed to update main goal for notifications:', error);
+        }
+        
         // Schedule optimized sync after action
         setTimeout(() => {
           import('../services/syncService').then(({ syncService }) => {
@@ -575,8 +583,12 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
   const completeTask = async (taskId: string) => {
     if (!database) throw new Error('WatermelonDB not available')
     
+    let wasFrogTask = false
+    
     await database.write(async () => {
       const task = await database!.get<Task>('tasks').find(taskId)
+      wasFrogTask = task.isFrog
+      
       await task.update(() => {
         task.isComplete = true
         task.completedAt = new Date()
@@ -587,6 +599,16 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
         }
       })
     })
+    
+    // Update notification system if this was a frog task
+    if (wasFrogTask) {
+      try {
+        const { notificationScheduler } = await import('../services/notificationScheduler')
+        await notificationScheduler.updateFrogStreak(true)
+      } catch (error) {
+        console.error('Failed to update frog streak:', error)
+      }
+    }
   }
 
   const checkExistingFrogTask = async (): Promise<Task | null> => {

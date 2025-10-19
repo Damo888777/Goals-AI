@@ -7,6 +7,8 @@ import { Animated } from 'react-native';
 import { SplashScreen } from '../src/components/SplashScreen';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { SubscriptionProvider } from '../src/hooks/useSubscription';
+import { notificationService } from '../src/services/notificationService';
+import { notificationScheduler } from '../src/services/notificationScheduler';
 import '../global.css';
 
 export default function RootLayout() {
@@ -19,6 +21,16 @@ export default function RootLayout() {
     setIsLoading(false);
   };
 
+  // Initialize OneSignal when app starts
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      await notificationService.initialize();
+      // Update last activity on app start
+      await notificationScheduler.updateLastActivity();
+    };
+    
+    initializeNotifications();
+  }, []);
 
   // Check if app is ready (splash finished and onboarding status loaded)
   useEffect(() => {
@@ -80,6 +92,7 @@ export default function RootLayout() {
             <Stack.Screen name="trophy" options={{ headerShown: false }} />
             <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
             <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
+            <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
           </Stack>
         </SubscriptionProvider>
       </SafeAreaProvider>

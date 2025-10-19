@@ -21,6 +21,7 @@ import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { useSubscription } from '../../src/hooks/useSubscription';
+import { useNotifications } from '../../src/hooks/useNotifications';
 import { usageTrackingService } from '../../src/services/usageTrackingService';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
@@ -211,10 +212,11 @@ export default function ProfileTab() {
     getUsageLimits
   } = useSubscription();
   
+  const { isEnabled: notificationsEnabled, enableNotifications, disableNotifications } = useNotifications();
+  
   const [userName, setUserName] = useState(userPreferences?.name || 'User');
   const [originalUserName, setOriginalUserName] = useState(userPreferences?.name || 'User');
   const [isEditingName, setIsEditingName] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isPressed, setIsPressed] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -779,7 +781,13 @@ Best regards`;
               </View>
               <Switch
                 value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
+                onValueChange={async (value) => {
+                  if (value) {
+                    await enableNotifications();
+                  } else {
+                    await disableNotifications();
+                  }
+                }}
                 trackColor={{ false: colors.textSecondary, true: colors.accent.frog }}
                 thumbColor={colors.secondary}
               />
