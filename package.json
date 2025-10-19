@@ -7,7 +7,11 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "generate-db": "node generate-db.js"
+    "generate-db": "node generate-db.js",
+    "plugin:build": "tsc -p ./plugin/tsconfig.json",
+    "plugin:watch": "expo-module build plugin",
+    "plugin:test": "expo-module test plugin",
+    "postinstall": "yarn plugin:build"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -64,18 +68,24 @@
     "react-native-screens": "~3.29.0",
     "react-native-svg": "14.1.0",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-widget-extension": "^0.2.0",
     "tailwindcss": "3.3.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/plugin-proposal-decorators": "^7.24.0",
+    "@expo/config-plugins": "^54.0.2",
     "@react-native-community/cli": "^13.6.6",
+    "@types/fs-extra": "^11.0.4",
+    "@types/glob": "^8.1.0",
     "@types/react": "~18.2.45",
     "babel-preset-expo": "~10.0.1",
     "better-sqlite3": "^9.4.3",
-    "typescript": "~5.3.3"
+    "expo-module-scripts": "^5.0.7",
+    "fs-extra": "^11.3.2",
+    "glob": "^11.0.3",
+    "typescript": "~5.3.3",
+    "xcode": "^3.0.1"
   },
   "private": true
 }
