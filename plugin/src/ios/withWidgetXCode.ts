@@ -6,7 +6,7 @@ import { WithWidgetProps } from "../index"
 
 const EXTENSION_TARGET_NAME = "widget"
 
-const TOP_LEVEL_FILES = ["Assets.xcassets", "Info.plist", "widget.swift"]
+const TOP_LEVEL_FILES = ["Assets.xcassets", "Info.plist", "widget.swift", "widget.entitlements", "SharedDataManager.swift", "TaskIntents.swift"]
 
 const BUILD_CONFIGURATION_SETTINGS = {
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
@@ -39,6 +39,7 @@ const BUILD_CONFIGURATION_SETTINGS = {
   SWIFT_OPTIMIZATION_LEVEL: "-Onone",
   SWIFT_VERSION: "5.0",
   TARGETED_DEVICE_FAMILY: '"1"',
+  CODE_SIGN_ENTITLEMENTS: "widget/widget.entitlements",
 }
 
 export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
@@ -118,7 +119,7 @@ async function updateXCodeProj(
 
     // add build phase
     xcodeProject.addBuildPhase(
-      ["widget.swift"],
+      ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"],
       "PBXSourcesBuildPhase",
       "Sources",
       widgetTarget.uuid,

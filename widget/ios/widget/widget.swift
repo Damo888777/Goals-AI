@@ -5,6 +5,7 @@
 
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 // MARK: - Data Models
 struct Task {
@@ -12,6 +13,20 @@ struct Task {
     let title: String
     let isCompleted: Bool
     let isFrog: Bool
+    
+    init(from widgetTaskData: WidgetTaskData) {
+        self.id = widgetTaskData.id
+        self.title = widgetTaskData.title
+        self.isCompleted = widgetTaskData.isCompleted
+        self.isFrog = widgetTaskData.isFrog
+    }
+    
+    init(id: String, title: String, isCompleted: Bool, isFrog: Bool) {
+        self.id = id
+        self.title = title
+        self.isCompleted = isCompleted
+        self.isFrog = isFrog
+    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -35,27 +50,47 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = placeholder(in: context)
-        completion(entry)
+        // For snapshot, use real data if available, otherwise placeholder
+        if let widgetData = SharedDataManager.shared.getWidgetData() {
+            let entry = createEntry(from: widgetData)
+            completion(entry)
+        } else {
+            let entry = placeholder(in: context)
+            completion(entry)
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        // TODO: In production, fetch real data from app group or shared container
         let currentDate = Date()
-        let entry = SimpleEntry(
-            date: currentDate,
-            frogTask: Task(id: "1", title: "Complete project presentation", isCompleted: false, isFrog: true),
-            regularTasks: [
-                Task(id: "2", title: "Review team feedback", isCompleted: false, isFrog: false),
-                Task(id: "3", title: "Update documentation", isCompleted: true, isFrog: false),
-                Task(id: "4", title: "Schedule client meeting", isCompleted: false, isFrog: false)
-            ]
-        )
         
-        // Update every hour
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: currentDate)!
+        // Fetch real data from shared container
+        let entry: SimpleEntry
+        if let widgetData = SharedDataManager.shared.getWidgetData() {
+            entry = createEntry(from: widgetData)
+        } else {
+            // Fallback to empty state
+            entry = SimpleEntry(
+                date: currentDate,
+                frogTask: nil,
+                regularTasks: []
+            )
+        }
+        
+        // Update every 15 minutes
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
+    }
+    
+    private func createEntry(from widgetData: WidgetData) -> SimpleEntry {
+        let frogTask = widgetData.frogTask.map { Task(from: $0) }
+        let regularTasks = widgetData.regularTasks.filter { !$0.isCompleted }.map { Task(from: $0) }
+        
+        return SimpleEntry(
+            date: Date(),
+            frogTask: frogTask?.isCompleted == true ? nil : frogTask,
+            regularTasks: regularTasks
+        )
     }
 }
 
@@ -107,19 +142,24 @@ struct widgetEntryView: View {
                 
                 // Bottom - Tasks container (Large widget)
                 VStack(spacing: 8) {
-                    // Eat the Frog Task
-                    if let frogTask = entry.frogTask {
-                        LargeFrogTaskView(task: frogTask)
-                    }
-                    
-                    // Regular Tasks (up to 10) - Reduced spacing
-                    VStack(spacing: 3) {
-                        ForEach(Array(entry.regularTasks.prefix(10).enumerated()), id: \.element.id) { index, task in
-                            LargeRegularTaskView(task: task)
+                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
+                        // Empty state
+                        LargeEmptyStateView()
+                    } else {
+                        // Eat the Frog Task
+                        if let frogTask = entry.frogTask {
+                            LargeFrogTaskView(task: frogTask)
                         }
+                        
+                        // Regular Tasks (up to 10) - Reduced spacing
+                        VStack(spacing: 3) {
+                            ForEach(Array(entry.regularTasks.prefix(10).enumerated()), id: \.element.id) { index, task in
+                                LargeRegularTaskView(task: task)
+                            }
+                        }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground) // Cream background
@@ -167,29 +207,34 @@ struct widgetEntryView: View {
                 
                 // Right side - Tasks container (Medium widget)
                 VStack(spacing: 6) {
-                    // Eat the Frog Task container
-                    if let frogTask = entry.frogTask {
-                        VStack(spacing: 6) {
-                            MediumFrogTaskView(task: frogTask)
+                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
+                        // Empty state
+                        MediumEmptyStateView()
+                    } else {
+                        // Eat the Frog Task container
+                        if let frogTask = entry.frogTask {
+                            VStack(spacing: 6) {
+                                MediumFrogTaskView(task: frogTask)
+                            }
+                            .padding(6)
+                            .background(Color.widgetFrogBackground) // #E9EDC9 background
+                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.widgetStrokeColor, lineWidth: 3)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
-                        .padding(6)
-                        .background(Color.widgetFrogBackground) // #E9EDC9 background
-                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.widgetStrokeColor, lineWidth: 3)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
-                    
-                    // Regular Tasks (up to 3)
-                    VStack(spacing: 4) {
-                        ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
-                            MediumRegularTaskView(task: task)
+                        
+                        // Regular Tasks (up to 3)
+                        VStack(spacing: 4) {
+                            ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
+                                MediumRegularTaskView(task: task)
+                            }
                         }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground) // Cream background
@@ -237,7 +282,7 @@ struct FrogTaskView: View {
     var body: some View {
         HStack(spacing: 12) {
             // Completion button
-            CompleteButton(isCompleted: task.isCompleted)
+            CompleteButton(task: task)
             
             // Task title
             Text(task.title)
@@ -264,7 +309,7 @@ struct RegularTaskView: View {
     var body: some View {
         HStack(spacing: 12) {
             // Completion button
-            CompleteButton(isCompleted: task.isCompleted)
+            CompleteButton(task: task)
             
             // Task title
             Text(task.title)
@@ -292,7 +337,7 @@ struct CompactFrogTaskView: View {
     var body: some View {
         HStack(spacing: 8) {
             // Completion button (smaller)
-            CompactCompleteButton(isCompleted: task.isCompleted)
+            CompactCompleteButton(task: task)
             
             // Task title
             Text(task.title)
@@ -319,7 +364,7 @@ struct CompactRegularTaskView: View {
     var body: some View {
         HStack(spacing: 8) {
             // Completion button (smaller)
-            CompactCompleteButton(isCompleted: task.isCompleted)
+            CompactCompleteButton(task: task)
             
             // Task title
             Text(task.title)
@@ -342,47 +387,53 @@ struct CompactRegularTaskView: View {
 
 // MARK: - Compact Complete Button (Medium Widget)
 struct CompactCompleteButton: View {
-    let isCompleted: Bool
+    let task: Task
     
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
-                .frame(width: 18, height: 18)
-            
-            if isCompleted {
+        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+            ZStack {
                 Circle()
-                    .fill(Color.widgetCompleteInner)
-                    .frame(width: 16, height: 16)
+                    .stroke(Color.widgetCompleteOuter, lineWidth: 1)
+                    .frame(width: 18, height: 18)
                 
-                Image(systemName: "checkmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.widgetTextColor)
+                if task.isCompleted {
+                    Circle()
+                        .fill(Color.widgetCompleteInner)
+                        .frame(width: 16, height: 16)
+                    
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.widgetTextColor)
+                }
             }
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
 // MARK: - Complete Button
 struct CompleteButton: View {
-    let isCompleted: Bool
+    let task: Task
     
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
-                .frame(width: 24, height: 24)
-            
-            if isCompleted {
+        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+            ZStack {
                 Circle()
-                    .fill(Color.widgetCompleteInner)
-                    .frame(width: 22, height: 22)
+                    .stroke(Color.widgetCompleteOuter, lineWidth: 1)
+                    .frame(width: 24, height: 24)
                 
-                Image(systemName: "checkmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.widgetTextColor)
+                if task.isCompleted {
+                    Circle()
+                        .fill(Color.widgetCompleteInner)
+                        .frame(width: 22, height: 22)
+                    
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.widgetTextColor)
+                }
             }
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -407,7 +458,7 @@ struct MediumFrogTaskView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            CompactCompleteButton(isCompleted: task.isCompleted)
+            CompactCompleteButton(task: task)
             
             Text(task.title)
                 .font(.custom("Helvetica-Bold", size: 12))
@@ -426,7 +477,7 @@ struct MediumRegularTaskView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            CompactCompleteButton(isCompleted: task.isCompleted)
+            CompactCompleteButton(task: task)
             
             Text(task.title)
                 .font(.custom("Helvetica", size: 12))
@@ -438,6 +489,50 @@ struct MediumRegularTaskView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(Color.clear)
+    }
+}
+
+// MARK: - Empty State Views
+struct MediumEmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 24, weight: .light))
+                .foregroundColor(.widgetTextColor.opacity(0.6))
+            
+            Text("All tasks completed!")
+                .font(.custom("Helvetica", size: 12))
+                .foregroundColor(.widgetTextColor.opacity(0.8))
+                .multilineTextAlignment(.center)
+            
+            Text("Great job today")
+                .font(.custom("Helvetica-Light", size: 10))
+                .foregroundColor(.widgetTextColor.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct LargeEmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 32, weight: .light))
+                .foregroundColor(.widgetTextColor.opacity(0.6))
+            
+            Text("All tasks completed!")
+                .font(.custom("Helvetica", size: 16))
+                .foregroundColor(.widgetTextColor.opacity(0.8))
+                .multilineTextAlignment(.center)
+            
+            Text("You've finished all your tasks for today. Great job!")
+                .font(.custom("Helvetica-Light", size: 14))
+                .foregroundColor(.widgetTextColor.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
