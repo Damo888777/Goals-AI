@@ -59,6 +59,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       )
       const bundleId = config.ios?.bundleIdentifier || ""
       const widgetBundleId = `${bundleId}.widget`
+      const appGroupId = options.appGroupId || `group.${bundleId}.widgetextension`
 
       const extensionFilesDir = path.join(
         platformProjectPath,
@@ -66,8 +67,22 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       )
       fs.copySync(widgetSourceDirPath, extensionFilesDir)
 
+      // Create/Update the widget.entitlements file with App Group
+      const entitlementsPath = path.join(extensionFilesDir, "widget.entitlements")
+      const entitlementsContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>${appGroupId}</string>
+    </array>
+</dict>
+</plist>`
+      fs.writeFileSync(entitlementsPath, entitlementsContent)
+
       const projPath = `${newConfig.modRequest.platformProjectRoot}/${projectName}.xcodeproj/project.pbxproj`
-      await updateXCodeProj(projPath, widgetBundleId, options.devTeamId)
+      await updateXCodeProj(projPath, widgetBundleId, options.devTeamId, appGroupId)
       return newConfig
     } catch (e) {
       console.error(e)
@@ -80,6 +95,7 @@ async function updateXCodeProj(
   projPath: string,
   widgetBundleId: string,
   developmentTeamId: string,
+  appGroupId: string,
 ) {
   const xcodeProject = xcode.project(projPath)
 
@@ -155,6 +171,17 @@ async function updateXCodeProj(
             PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
           }
         }
+      }
+    }
+
+    // Add App Groups capability to the widget target
+    const targetAttributes = xcodeProject.getFirstProject().firstProject.attributes.TargetAttributes
+    if (targetAttributes && targetAttributes[widgetTarget.uuid]) {
+      if (!targetAttributes[widgetTarget.uuid].SystemCapabilities) {
+        targetAttributes[widgetTarget.uuid].SystemCapabilities = {}
+      }
+      targetAttributes[widgetTarget.uuid].SystemCapabilities["com.apple.ApplicationGroups.iOS"] = {
+        enabled: 1
       }
     }
 
