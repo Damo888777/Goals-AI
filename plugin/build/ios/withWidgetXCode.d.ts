@@ -1,4 +1,3 @@
 import { ConfigPlugin } from "@expo/config-plugins";
-import { WithWidgetProps } from "../index";
-export declare const withWidgetXCode: ConfigPlugin<WithWidgetProps>;
+export declare const withWidgetXCode: ConfigPlugin<any>;
 //# sourceMappingURL=withWidgetXCode.d.ts.map
