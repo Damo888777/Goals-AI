@@ -25,7 +25,7 @@
       "entitlements": {
         "aps-environment": "development",
         "com.apple.developer.applesignin": ["Default"],
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI.widgetextension"]
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI"]
       }
     },
     "android": {
@@ -68,7 +68,7 @@
         "./app.plugin", 
         { 
           "devTeamId": "5PT3BWY2A5",
-          "appGroupId": "group.pro.GoalAchieverAI.widgetextension"
+          "appGroupId": "group.pro.GoalAchieverAI"
         }
       ]
     ],

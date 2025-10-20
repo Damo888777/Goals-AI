@@ -22,7 +22,7 @@ struct WidgetData: Codable {
 class SharedDataManager {
     static let shared = SharedDataManager()
     
-    private let appGroupId = "group.pro.GoalAchieverAI.widgetextension"
+    private let appGroupId = "group.pro.GoalAchieverAI"
     private let sharedTasksKey = "@goals_ai:widget_tasks"
     
     private init() {}
