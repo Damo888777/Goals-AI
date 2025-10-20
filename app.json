@@ -64,7 +64,13 @@
       ],
       "@morrowdigital/watermelondb-expo-plugin",
       "expo-font",
-      ["./app.plugin", { "devTeamId": "5PT3BWY2A5" }]
+      [
+        "./app.plugin", 
+        { 
+          "devTeamId": "5PT3BWY2A5",
+          "appGroupId": "group.pro.GoalAchieverAI.widgetextension"
+        }
+      ]
     ],
     "extra": {
       "router": {},
