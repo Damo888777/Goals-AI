@@ -29,7 +29,7 @@ const BUILD_CONFIGURATION_SETTINGS = {
     INFOPLIST_FILE: "widget/Info.plist",
     INFOPLIST_KEY_CFBundleDisplayName: "widget",
     INFOPLIST_KEY_NSHumanReadableCopyright: '""',
-    IPHONEOS_DEPLOYMENT_TARGET: "17.0",
+    IPHONEOS_DEPLOYMENT_TARGET: "16.2",
     LD_RUNPATH_SEARCH_PATHS: '"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"',
     MARKETING_VERSION: "1.0",
     MTL_ENABLE_DEBUG_INFO: "INCLUDE_SOURCE",
@@ -70,60 +70,72 @@ const withWidgetXCode = (config, options = {}) => {
 exports.withWidgetXCode = withWidgetXCode;
 async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
     const xcodeProject = xcode.project(projPath);
-    xcodeProject.parse(() => {
-        // Add PBX Group for widget files
-        const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
-        // Add the new PBXGroup to the top level group
-        const groups = xcodeProject.hash.project.objects.PBXGroup;
-        Object.keys(groups).forEach(function (groupKey) {
-            if (groups[groupKey].name === undefined) {
-                xcodeProject.addToPbxGroup(pbxGroup.uuid, groupKey);
+    return new Promise((resolve, reject) => {
+        xcodeProject.parse((err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            try {
+                // Add PBX Group for widget files
+                const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
+                // Add the new PBXGroup to the top level group
+                const groups = xcodeProject.hash.project.objects.PBXGroup;
+                Object.keys(groups).forEach(function (groupKey) {
+                    if (groups[groupKey].name === undefined) {
+                        xcodeProject.addToPbxGroup(pbxGroup.uuid, groupKey);
+                    }
+                });
+                // WORK AROUND for xcodeProject.addTarget BUG
+                const projObjects = xcodeProject.hash.project.objects;
+                projObjects["PBXTargetDependency"] = projObjects["PBXTargetDependency"] || {};
+                projObjects["PBXContainerItemProxy"] = projObjects["PBXContainerItemProxy"] || {};
+                // Add widget target
+                const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
+                // Add build phases for widget
+                xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
+                xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
+                xcodeProject.addBuildPhase(["Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid, undefined, "widget");
+                // Update build configurations
+                const configurations = xcodeProject.pbxXCBuildConfigurationSection();
+                for (const key in configurations) {
+                    if (typeof configurations[key].buildSettings !== "undefined") {
+                        const productName = configurations[key].buildSettings.PRODUCT_NAME;
+                        if (productName === `"${EXTENSION_TARGET_NAME}"`) {
+                            const buildSettings = {
+                                ...configurations[key].buildSettings,
+                                ...BUILD_CONFIGURATION_SETTINGS,
+                                PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
+                                ...(developmentTeamId && { DEVELOPMENT_TEAM: developmentTeamId }),
+                                LD_RUNPATH_SEARCH_PATHS: `"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"`,
+                                IPHONEOS_DEPLOYMENT_TARGET: "16.2",
+                            };
+                            configurations[key].buildSettings = buildSettings;
+                        }
+                    }
+                }
+                // Add ActivityKit framework to main app target
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                for (const targetKey in targets) {
+                    if (targets[targetKey].name && targets[targetKey].name.indexOf('quot') === -1) {
+                        const targetName = targets[targetKey].name.replace(/"/g, '');
+                        if (targetName === xcodeProject.productName) {
+                            // Add ActivityKit framework to main app
+                            xcodeProject.addFramework('ActivityKit.framework', {
+                                target: targetKey,
+                                link: true
+                            });
+                        }
+                    }
+                }
+                // Write the updated project file
+                fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
+                resolve();
+            }
+            catch (error) {
+                reject(error);
             }
         });
-        // WORK AROUND for xcodeProject.addTarget BUG
-        const projObjects = xcodeProject.hash.project.objects;
-        projObjects["PBXTargetDependency"] = projObjects["PBXTargetDependency"] || {};
-        projObjects["PBXContainerItemProxy"] = projObjects["PBXContainerItemProxy"] || {};
-        // Add widget target
-        const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
-        // Add build phases for widget
-        xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
-        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
-        xcodeProject.addBuildPhase(["Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid, undefined, "widget");
-        // Update build configurations
-        const configurations = xcodeProject.pbxXCBuildConfigurationSection();
-        for (const key in configurations) {
-            if (typeof configurations[key].buildSettings !== "undefined") {
-                const productName = configurations[key].buildSettings.PRODUCT_NAME;
-                if (productName === `"${EXTENSION_TARGET_NAME}"`) {
-                    const buildSettings = {
-                        ...configurations[key].buildSettings,
-                        ...BUILD_CONFIGURATION_SETTINGS,
-                        PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
-                        DEVELOPMENT_TEAM: developmentTeamId,
-                        LD_RUNPATH_SEARCH_PATHS: `"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"`,
-                        IPHONEOS_DEPLOYMENT_TARGET: "16.2",
-                    };
-                    configurations[key].buildSettings = buildSettings;
-                }
-            }
-        }
-        // Add ActivityKit framework to main app target
-        const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
-        for (const targetKey in targets) {
-            if (targets[targetKey].name && targets[targetKey].name.indexOf('quot') === -1) {
-                const targetName = targets[targetKey].name.replace(/"/g, '');
-                if (targetName === xcodeProject.productName) {
-                    // Add ActivityKit framework to main app
-                    xcodeProject.addFramework('ActivityKit.framework', {
-                        target: targetKey,
-                        link: true
-                    });
-                }
-            }
-        }
-        // Write the updated project file
-        fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });
 }
 //# sourceMappingURL=withWidgetXCode.js.map
