@@ -1,6 +1,6 @@
 import { ConfigPlugin } from "@expo/config-plugins";
 interface WithWidgetProps {
-    appGroupId?: string;
+    devTeamId?: string;
 }
 export declare const withWidgetXCode: ConfigPlugin<WithWidgetProps>;
 export {};
