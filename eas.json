@@ -9,7 +9,16 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "credentialsSource": "local"
+        "simulator": false,
+        "autoIncrement": true,
+        "buildConfiguration": "Debug",
+        "resourceClass": "m-medium",
+        "credentialsSource": "remote",
+        "distribution": "internal",
+        "clearCredentials": true
+      },
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
       }
     },
     "preview": {

@@ -6,7 +6,7 @@
 import AppIntents
 import WidgetKit
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 struct CompleteTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Complete Task"
     static var description = IntentDescription("Mark a task as completed")
@@ -31,7 +31,7 @@ struct CompleteTaskIntent: AppIntent {
     }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 struct TaskAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(

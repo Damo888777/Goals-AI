@@ -8,7 +8,7 @@ function getProjectName(config: any): string {
   return name.replace(/[^A-Za-z0-9]/g, "");
 }
 
-export const withWidgetXCode: ConfigPlugin<any> = (config) => {
+export const withWidgetXCode: ConfigPlugin<any> = (config, options = {}) => {
   return withXcodeProject(config, (projectConfig) => {
     const platformProjectRoot = projectConfig.modRequest.platformProjectRoot;
     const projectRoot = projectConfig.modRequest.projectRoot;
@@ -19,7 +19,7 @@ export const withWidgetXCode: ConfigPlugin<any> = (config) => {
 
     const targetName = "widget";
     const bundleIdentifier = `${config.ios!.bundleIdentifier!}.${targetName}`;
-    const appGroupId = `group.pro.GoalAchieverAI`;
+    const appGroupId = options.appGroupId || `group.${config.ios!.bundleIdentifier!}`;
 
     const widgetPath = path.join(platformProjectRoot, targetName);
     const sourcePath = path.join(projectRoot, "widget/ios/widget");

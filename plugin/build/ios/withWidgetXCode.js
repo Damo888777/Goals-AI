@@ -32,7 +32,7 @@ function getProjectName(config) {
     const { name } = config;
     return name.replace(/[^A-Za-z0-9]/g, "");
 }
-const withWidgetXCode = (config) => {
+const withWidgetXCode = (config, options = {}) => {
     return (0, config_plugins_1.withXcodeProject)(config, (projectConfig) => {
         const platformProjectRoot = projectConfig.modRequest.platformProjectRoot;
         const projectRoot = projectConfig.modRequest.projectRoot;
@@ -41,7 +41,7 @@ const withWidgetXCode = (config) => {
         const xcodeProject = projectConfig.modResults;
         const targetName = "widget";
         const bundleIdentifier = `${config.ios.bundleIdentifier}.${targetName}`;
-        const appGroupId = `group.pro.GoalAchieverAI`;
+        const appGroupId = options.appGroupId || `group.${config.ios.bundleIdentifier}`;
         const widgetPath = path.join(platformProjectRoot, targetName);
         const sourcePath = path.join(projectRoot, "widget/ios/widget");
         fs.copySync(sourcePath, widgetPath, { overwrite: true });

@@ -542,7 +542,7 @@ struct LargeFrogTaskView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            CompleteButton(isCompleted: task.isCompleted)
+            CompleteButton(task: task)
             
             Text(task.title)
                 .font(.custom("Helvetica-Bold", size: 14))
@@ -567,7 +567,7 @@ struct LargeRegularTaskView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            CompleteButton(isCompleted: task.isCompleted)
+            CompleteButton(task: task)
             
             Text(task.title)
                 .font(.custom("Helvetica", size: 14))

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Task from '../db/models/Task'
 
 // App Group identifier - must match widget entitlements
-const APP_GROUP_ID = 'group.pro.GoalAchieverAI.widgetextension'
+const APP_GROUP_ID = 'group.pro.GoalAchieverAI'
 
 // Key for shared data
 const SHARED_TASKS_KEY = '@goals_ai:widget_tasks'

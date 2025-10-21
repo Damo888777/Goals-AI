@@ -15,6 +15,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "pro.GoalAchieverAI",
       "usesAppleSignIn": true,
+      "teamId": "5PT3BWY2A5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
@@ -25,7 +26,8 @@
       "entitlements": {
         "aps-environment": "development",
         "com.apple.developer.applesignin": ["Default"],
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI"]
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI"],
+        "com.apple.security.application-groups.widget-extension": ["group.pro.GoalAchieverAI"]
       }
     },
     "android": {
