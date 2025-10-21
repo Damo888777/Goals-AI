@@ -86,9 +86,9 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
         projObjects["PBXContainerItemProxy"] = projObjects["PBXContainerItemProxy"] || {};
         // Add widget target
         const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
-        // Add build phases with files
+        // Add build phases for widget
         xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
-        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
+        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
         xcodeProject.addBuildPhase(["Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid, undefined, "widget");
         // Update build configurations
         const configurations = xcodeProject.pbxXCBuildConfigurationSection();
@@ -100,12 +100,25 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
                         ...configurations[key].buildSettings,
                         ...BUILD_CONFIGURATION_SETTINGS,
                         PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
+                        DEVELOPMENT_TEAM: developmentTeamId,
+                        LD_RUNPATH_SEARCH_PATHS: `"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"`,
+                        IPHONEOS_DEPLOYMENT_TARGET: "16.2",
                     };
-                    // Only set DEVELOPMENT_TEAM if it has a value
-                    if (developmentTeamId && developmentTeamId.trim()) {
-                        buildSettings.DEVELOPMENT_TEAM = developmentTeamId;
-                    }
                     configurations[key].buildSettings = buildSettings;
+                }
+            }
+        }
+        // Add ActivityKit framework to main app target
+        const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+        for (const targetKey in targets) {
+            if (targets[targetKey].name && targets[targetKey].name.indexOf('quot') === -1) {
+                const targetName = targets[targetKey].name.replace(/"/g, '');
+                if (targetName === xcodeProject.productName) {
+                    // Add ActivityKit framework to main app
+                    xcodeProject.addFramework('ActivityKit.framework', {
+                        target: targetKey,
+                        link: true
+                    });
                 }
             }
         }

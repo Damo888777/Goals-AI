@@ -5,7 +5,8 @@
 
 import WidgetKit
 import SwiftUI
-import AppIntents
+import Intents
+import ActivityKit
 
 // MARK: - Data Models
 struct Task {
@@ -625,6 +626,133 @@ struct MediumFrogEmptyView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color.clear)
+    }
+}
+
+// MARK: - Live Activity Attributes
+@available(iOS 16.1, *)
+struct PomodoroActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        let timeRemaining: Int // seconds
+        let totalDuration: Int // seconds  
+        let sessionType: String // "work", "shortBreak", "longBreak"
+        let isRunning: Bool
+        let completedPomodoros: Int
+        let taskTitle: String
+    }
+    
+    let startTime: Date
+}
+
+// MARK: - Live Activity Widget
+@available(iOS 16.1, *)
+struct PomodoroLiveActivityWidget: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
+            // Lock screen and notification center view
+            VStack(spacing: 8) {
+                HStack {
+                    Text(context.state.sessionType == "work" ? "🍅 Focus Time" : "☕ Break Time")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                    
+                    Spacer()
+                    
+                    Text(formatTime(context.state.timeRemaining))
+                        .font(.system(size: 20, weight: .bold, design: .monospaced))
+                        .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32))
+                }
+                
+                ProgressView(value: Double(context.state.totalDuration - context.state.timeRemaining), 
+                           total: Double(context.state.totalDuration))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.74, green: 0.29, blue: 0.32)))
+                
+                HStack {
+                    Text(context.state.taskTitle)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                        .lineLimit(1)
+                    
+                    Spacer()
+                    
+                    Text("🍅 \(context.state.completedPomodoros)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                }
+            }
+            .padding(16)
+            .background(Color(red: 0.96, green: 0.92, blue: 0.88))
+            .activityBackgroundTint(Color(red: 0.96, green: 0.92, blue: 0.88))
+            .activitySystemActionForegroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+        } dynamicIsland: { context in
+            DynamicIsland {
+                // Expanded view
+                DynamicIslandExpandedRegion(.leading) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(context.state.sessionType == "work" ? "Focus" : "Break")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                        
+                        Text("🍅 \(context.state.completedPomodoros)")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32))
+                    }
+                }
+                
+                DynamicIslandExpandedRegion(.trailing) {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(formatTime(context.state.timeRemaining))
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32))
+                        
+                        Text(context.state.isRunning ? "Running" : "Paused")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                    }
+                }
+                
+                DynamicIslandExpandedRegion(.bottom) {
+                    VStack(spacing: 4) {
+                        ProgressView(value: Double(context.state.totalDuration - context.state.timeRemaining), 
+                                   total: Double(context.state.totalDuration))
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.74, green: 0.29, blue: 0.32)))
+                        
+                        Text(context.state.taskTitle)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35))
+                            .lineLimit(1)
+                    }
+                }
+            } compactLeading: {
+                Text("🍅")
+                    .font(.system(size: 16))
+            } compactTrailing: {
+                Text(formatTime(context.state.timeRemaining))
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32))
+            } minimal: {
+                Text("🍅")
+                    .font(.system(size: 16))
+            }
+            .keylineTint(Color(red: 0.74, green: 0.29, blue: 0.32))
+        }
+    }
+    
+    private func formatTime(_ seconds: Int) -> String {
+        let mins = seconds / 60
+        let secs = seconds % 60
+        return String(format: "%02d:%02d", mins, secs)
+    }
+}
+
+// MARK: - Widget Bundle
+@main
+struct GoalsAIWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        widget()
+        if #available(iOS 16.1, *) {
+            PomodoroLiveActivityWidget()
+        }
     }
 }
 
