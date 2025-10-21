@@ -7,6 +7,7 @@ import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { liveActivityService } from '../src/services/liveActivityService';
 
 // Pomodoro session types
 type SessionType = 'work' | 'shortBreak' | 'longBreak';
@@ -36,6 +37,7 @@ export default function PomodoroScreen() {
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const [currentTask, setCurrentTask] = useState(taskTitle || '[Placeholder of Task Title]');
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
+  const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef(AppState.currentState);
   const backgroundTimeRef = useRef<number | null>(null);
@@ -70,7 +72,21 @@ export default function PomodoroScreen() {
             handleSessionComplete();
             return 0;
           }
-          return prev - 1;
+          const newTime = prev - 1;
+          
+          // Update Live Activity every 30 seconds or when less than 10 seconds remain
+          if (liveActivityService.isActive() && (newTime % 30 === 0 || newTime <= 10)) {
+            liveActivityService.updatePomodoroTimer({
+              sessionType: currentSession,
+              taskTitle: currentTask,
+              timeRemaining: newTime,
+              totalDuration: POMODORO_SESSIONS[currentSession].duration,
+              completedPomodoros,
+              isRunning: true,
+            }).catch(error => console.error('Failed to update Live Activity:', error));
+          }
+          
+          return newTime;
         });
       }, 1000);
     } else {
@@ -85,7 +101,7 @@ export default function PomodoroScreen() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, timeLeft]);
+  }, [isRunning, timeLeft, currentSession, currentTask, completedPomodoros]);
 
   // Play completion sound
   const playCompletionSound = async () => {
@@ -110,6 +126,16 @@ export default function PomodoroScreen() {
     // Add strong haptic vibration for completion
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     await playCompletionSound();
+
+    // End current Live Activity
+    if (liveActivityService.isActive()) {
+      try {
+        await liveActivityService.endPomodoroTimer();
+        setLiveActivityId(null);
+      } catch (error) {
+        console.error('Failed to end Live Activity:', error);
+      }
+    }
 
     if (currentSession === 'work') {
       const newCompletedPomodoros = completedPomodoros + 1;
@@ -140,13 +166,59 @@ export default function PomodoroScreen() {
 
   const toggleTimer = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsRunning(!isRunning);
+    const willStart = !isRunning;
+    setIsRunning(willStart);
+    
+    // Start or update Live Activity
+    if (willStart) {
+      try {
+        const success = await liveActivityService.startPomodoroTimer({
+          sessionType: currentSession,
+          taskTitle: currentTask,
+          timeRemaining: timeLeft,
+          totalDuration: POMODORO_SESSIONS[currentSession].duration,
+          completedPomodoros,
+          isRunning: true,
+        });
+        if (success) {
+          setLiveActivityId(liveActivityService.getCurrentActivityId());
+        }
+      } catch (error) {
+        console.error('Failed to start Live Activity:', error);
+      }
+    } else {
+      // Update Live Activity to paused state
+      if (liveActivityService.isActive()) {
+        try {
+          await liveActivityService.updatePomodoroTimer({
+            sessionType: currentSession,
+            taskTitle: currentTask,
+            timeRemaining: timeLeft,
+            totalDuration: POMODORO_SESSIONS[currentSession].duration,
+            completedPomodoros,
+            isRunning: false,
+          });
+        } catch (error) {
+          console.error('Failed to update Live Activity:', error);
+        }
+      }
+    }
   };
 
   const resetTimer = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsRunning(false);
     setTimeLeft(POMODORO_SESSIONS[currentSession].duration);
+    
+    // End Live Activity when resetting
+    if (liveActivityService.isActive()) {
+      try {
+        await liveActivityService.endPomodoroTimer();
+        setLiveActivityId(null);
+      } catch (error) {
+        console.error('Failed to end Live Activity:', error);
+      }
+    }
   };
 
   const skipSession = () => {

@@ -40,12 +40,8 @@ struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(
             date: Date(),
-            frogTask: Task(id: "1", title: "Eat the Frog Placeholder Title", isCompleted: false, isFrog: true),
-            regularTasks: [
-                Task(id: "2", title: "Task Title Placeholder", isCompleted: false, isFrog: false),
-                Task(id: "3", title: "Task Title Placeholder", isCompleted: false, isFrog: false),
-                Task(id: "4", title: "Task Title Placeholder", isCompleted: false, isFrog: false)
-            ]
+            frogTask: nil,
+            regularTasks: []
         )
     }
 
@@ -115,22 +111,10 @@ struct widgetEntryView: View {
     var body: some View {
         if widgetFamily == .systemLarge { // Large widget
             VStack(spacing: 0) {
-                // Top - Date section (Large widget) - Increased font sizes
+                // Top - Date section (Large widget) - Single line format
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Today")
+                    Text(largeDateString(from: entry.date))
                         .font(.custom("Helvetica-Bold", size: 20))
-                        .foregroundColor(.widgetTextColor)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(1)
-                    
-                    Text(currentDateString(from: entry.date))
-                        .font(.custom("Helvetica", size: 18))
-                        .foregroundColor(.widgetTextColor)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(1)
-                    
-                    Text(weekdayString(from: entry.date))
-                        .font(.custom("Helvetica-Light", size: 18))
                         .foregroundColor(.widgetTextColor)
                         .minimumScaleFactor(0.8)
                         .lineLimit(1)
@@ -146,10 +130,21 @@ struct widgetEntryView: View {
                         // Empty state
                         LargeEmptyStateView()
                     } else {
-                        // Eat the Frog Task
-                        if let frogTask = entry.frogTask {
-                            LargeFrogTaskView(task: frogTask)
+                        // Eat the Frog Task container - ALWAYS VISIBLE
+                        VStack(spacing: 0) {
+                            if let frogTask = entry.frogTask {
+                                LargeFrogTaskView(task: frogTask)
+                            } else {
+                                LargeFrogEmptyView()
+                            }
                         }
+                        .padding(8)
+                        .background(Color.widgetFrogBackground) // Green background for frog task
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                         
                         // Regular Tasks (up to 8 for better memory usage) - Reduced spacing
                         VStack(spacing: 3) {
@@ -169,12 +164,10 @@ struct widgetEntryView: View {
                         .stroke(Color.widgetStrokeColor, lineWidth: 3)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 0)
-                .padding(.bottom, 0)
             }
             .background(Color.widgetMainBackground)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 0)
                     .stroke(Color.widgetStrokeColor, lineWidth: 3)
             )
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -211,20 +204,22 @@ struct widgetEntryView: View {
                         // Empty state
                         MediumEmptyStateView()
                     } else {
-                        // Eat the Frog Task container
-                        if let frogTask = entry.frogTask {
-                            VStack(spacing: 6) {
+                        // Eat the Frog Task container - ALWAYS VISIBLE
+                        VStack(spacing: 6) {
+                            if let frogTask = entry.frogTask {
                                 MediumFrogTaskView(task: frogTask)
+                            } else {
+                                MediumFrogEmptyView()
                             }
-                            .padding(6)
-                            .background(Color.widgetFrogBackground) // #E9EDC9 background
-                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.widgetStrokeColor, lineWidth: 3)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
+                        .padding(6)
+                        .background(Color.widgetFrogBackground) // #E9EDC9 background
+                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.widgetStrokeColor, lineWidth: 3)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                         
                         // Regular Tasks (up to 3)
                         VStack(spacing: 4) {
@@ -272,6 +267,22 @@ struct widgetEntryView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
         return formatter.string(from: date)
+    }
+    
+    private func largeDateString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        let weekday = formatter.string(from: date)
+        
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "d"
+        let day = dayFormatter.string(from: date)
+        
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "MMMM"
+        let month = monthFormatter.string(from: date)
+        
+        return "Today \(day). \(month), \(weekday)"
     }
 }
 
@@ -552,13 +563,7 @@ struct LargeFrogTaskView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.widgetFrogBackground)
-        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.widgetStrokeColor, lineWidth: 3)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(Color.clear)
     }
 }
 
@@ -582,17 +587,54 @@ struct LargeRegularTaskView: View {
     }
 }
 
+// MARK: - Frog Empty State Views
+struct LargeFrogEmptyView: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            // Empty circle (no completion button)
+            Circle()
+                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
+                .frame(width: 24, height: 24)
+            
+            Text("Set your most important task!")
+                .font(.custom("Helvetica", size: 14))
+                .foregroundColor(.widgetFrogTextColor.opacity(0.7))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.clear)
+    }
+}
+
+struct MediumFrogEmptyView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            // Empty circle (smaller)
+            Circle()
+                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
+                .frame(width: 18, height: 18)
+            
+            Text("Set your frog task!")
+                .font(.custom("Helvetica", size: 12))
+                .foregroundColor(.widgetFrogTextColor.opacity(0.7))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.clear)
+    }
+}
+
 // MARK: - Previews
 struct widget_Previews: PreviewProvider {
     static var previews: some View {
         widgetEntryView(entry: SimpleEntry(
             date: Date(),
-            frogTask: Task(id: "1", title: "Complete project presentation", isCompleted: false, isFrog: true),
-            regularTasks: [
-                Task(id: "2", title: "Review team feedback", isCompleted: false, isFrog: false),
-                Task(id: "3", title: "Update documentation", isCompleted: true, isFrog: false),
-                Task(id: "4", title: "Schedule client meeting", isCompleted: false, isFrog: false)
-            ]
+            frogTask: nil,
+            regularTasks: []
         ))
         .previewContext(WidgetPreviewContext(family: .systemLarge))
     }

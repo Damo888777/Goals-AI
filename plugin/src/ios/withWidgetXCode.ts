@@ -10,7 +10,9 @@ interface WithWidgetProps {
 }
 
 const EXTENSION_TARGET_NAME = "widget";
+const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "Assets.xcassets", "Info.plist"];
+const LIVE_ACTIVITY_FILES = ["PomodoroLiveActivity.swift", "Info.plist"];
 
 const BUILD_CONFIGURATION_SETTINGS = {
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
@@ -61,9 +63,15 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       const widgetPath = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
       fs.copySync(sourcePath, widgetPath, { overwrite: true });
       
+      // Copy Live Activity files
+      const liveActivitySourcePath = path.join(projectPath, "widget", "ios", LIVE_ACTIVITY_TARGET_NAME);
+      const liveActivityPath = path.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
+      fs.copySync(liveActivitySourcePath, liveActivityPath, { overwrite: true });
+      
       // Update Xcode project
       const projPath = path.join(platformProjectPath, `${projectName}.xcodeproj`, "project.pbxproj");
-      await updateXCodeProj(projPath, bundleIdentifier, (config.ios as any)?.developmentTeam || "");
+      const liveActivityBundleId = `${config.ios!.bundleIdentifier!}.${LIVE_ACTIVITY_TARGET_NAME}`;
+      await updateXCodeProj(projPath, bundleIdentifier, liveActivityBundleId, (config.ios as any)?.developmentTeam || "");
       
       console.log("[withWidgetXCode] Widget target dependency added to main target.");
       return newConfig;
@@ -77,6 +85,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
 async function updateXCodeProj(
   projPath: string,
   widgetBundleId: string,
+  liveActivityBundleId: string,
   developmentTeamId: string,
 ) {
   const xcodeProject = xcode.project(projPath);
@@ -89,11 +98,19 @@ async function updateXCodeProj(
       EXTENSION_TARGET_NAME,
     );
 
-    // Add the new PBXGroup to the top level group
+    // Add PBX Group for Live Activity files
+    const liveActivityPbxGroup = xcodeProject.addPbxGroup(
+      LIVE_ACTIVITY_FILES,
+      LIVE_ACTIVITY_TARGET_NAME,
+      LIVE_ACTIVITY_TARGET_NAME,
+    );
+
+    // Add the new PBXGroups to the top level group
     const groups = xcodeProject.hash.project.objects.PBXGroup;
     Object.keys(groups).forEach(function (groupKey) {
       if (groups[groupKey].name === undefined) {
         xcodeProject.addToPbxGroup(pbxGroup.uuid, groupKey);
+        xcodeProject.addToPbxGroup(liveActivityPbxGroup.uuid, groupKey);
       }
     });
 
@@ -110,7 +127,15 @@ async function updateXCodeProj(
       widgetBundleId,
     );
 
-    // Add build phases with files
+    // Add Live Activity target
+    const liveActivityTarget = xcodeProject.addTarget(
+      LIVE_ACTIVITY_TARGET_NAME,
+      "app_extension",
+      LIVE_ACTIVITY_TARGET_NAME,
+      liveActivityBundleId,
+    );
+
+    // Add build phases for widget
     xcodeProject.addBuildPhase(
       ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"],
       "PBXSourcesBuildPhase",
@@ -136,6 +161,23 @@ async function updateXCodeProj(
       "widget",
     );
 
+    // Add build phases for Live Activity
+    xcodeProject.addBuildPhase(
+      ["PomodoroLiveActivity.swift"],
+      "PBXSourcesBuildPhase",
+      "Sources",
+      liveActivityTarget.uuid,
+      undefined,
+      LIVE_ACTIVITY_TARGET_NAME,
+    );
+    
+    xcodeProject.addBuildPhase(
+      ["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"],
+      "PBXFrameworksBuildPhase", 
+      "Frameworks",
+      liveActivityTarget.uuid,
+    );
+
     // Update build configurations
     const configurations = xcodeProject.pbxXCBuildConfigurationSection();
     for (const key in configurations) {
@@ -146,14 +188,36 @@ async function updateXCodeProj(
             ...configurations[key].buildSettings,
             ...BUILD_CONFIGURATION_SETTINGS,
             PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
+            DEVELOPMENT_TEAM: developmentTeamId,
+            LD_RUNPATH_SEARCH_PATHS: `"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"`,
           };
-          
-          // Only set DEVELOPMENT_TEAM if it has a value
-          if (developmentTeamId && developmentTeamId.trim()) {
-            buildSettings.DEVELOPMENT_TEAM = developmentTeamId;
-          }
-          
           configurations[key].buildSettings = buildSettings;
+        }
+        if (productName === `"${LIVE_ACTIVITY_TARGET_NAME}"`) {
+          const buildSettings = {
+            ...configurations[key].buildSettings,
+            ...BUILD_CONFIGURATION_SETTINGS,
+            PRODUCT_BUNDLE_IDENTIFIER: liveActivityBundleId,
+            DEVELOPMENT_TEAM: developmentTeamId,
+            LD_RUNPATH_SEARCH_PATHS: `"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"`,
+            IPHONEOS_DEPLOYMENT_TARGET: "16.2",
+          };
+          configurations[key].buildSettings = buildSettings;
+        }
+      }
+    }
+
+    // Add ActivityKit framework to main app target
+    const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+    for (const targetKey in targets) {
+      if (targets[targetKey].name && targets[targetKey].name.indexOf('quot') === -1) {
+        const targetName = targets[targetKey].name.replace(/"/g, '');
+        if (targetName === xcodeProject.productName) {
+          // Add ActivityKit framework to main app
+          xcodeProject.addFramework('ActivityKit.framework', {
+            target: targetKey,
+            link: true
+          });
         }
       }
     }

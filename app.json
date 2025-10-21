@@ -21,7 +21,8 @@
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice input features.",
         "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images.",
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification"],
+        "NSSupportsLiveActivities": true
       },
       "entitlements": {
         "aps-environment": "development",

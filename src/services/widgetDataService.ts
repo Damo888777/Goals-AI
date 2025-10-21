@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Platform } from 'react-native'
+import UserDefaults from 'react-native-user-defaults'
 import Task from '../db/models/Task'
 
 // App Group identifier - must match widget entitlements
@@ -22,8 +24,37 @@ export interface WidgetData {
 
 class WidgetDataService {
   private async getSharedStorage() {
-    // On iOS, this will use App Group shared container
-    // On development/testing, falls back to AsyncStorage
+    // Use App Group UserDefaults on iOS for widget compatibility
+    if (Platform.OS === 'ios') {
+      return {
+        setItem: async (key: string, value: string) => {
+          try {
+            await UserDefaults.setStringForAppGroup(key, value, APP_GROUP_ID)
+          } catch (error) {
+            console.warn('Failed to write to App Group, falling back to AsyncStorage:', error)
+            await AsyncStorage.setItem(key, value)
+          }
+        },
+        getItem: async (key: string) => {
+          try {
+            return await UserDefaults.getStringForAppGroup(key, APP_GROUP_ID)
+          } catch (error) {
+            console.warn('Failed to read from App Group, falling back to AsyncStorage:', error)
+            return await AsyncStorage.getItem(key)
+          }
+        },
+        removeItem: async (key: string) => {
+          try {
+            await UserDefaults.removeItemForAppGroup(key, APP_GROUP_ID)
+          } catch (error) {
+            console.warn('Failed to remove from App Group, falling back to AsyncStorage:', error)
+            await AsyncStorage.removeItem(key)
+          }
+        }
+      }
+    }
+    
+    // Fallback to AsyncStorage for development/Android
     return AsyncStorage
   }
 
@@ -48,9 +79,34 @@ class WidgetDataService {
       }
 
       await storage.setItem(SHARED_TASKS_KEY, JSON.stringify(widgetData))
+      
+      // Trigger widget reload on iOS
+      if (Platform.OS === 'ios') {
+        this.reloadWidgets()
+      }
+      
       console.log('Widget data updated successfully:', widgetData)
     } catch (error) {
       console.error('Failed to update widget data:', error)
+    }
+  }
+
+  private reloadWidgets(): void {
+    try {
+      if (Platform.OS === 'ios') {
+        // Import WidgetKit module dynamically
+        const { NativeModules } = require('react-native')
+        const { WidgetKitReloader } = NativeModules
+        
+        if (WidgetKitReloader?.reloadAllTimelines) {
+          WidgetKitReloader.reloadAllTimelines()
+          console.log('Widget reload triggered')
+        } else {
+          console.warn('WidgetKitReloader not available, widgets may not update immediately')
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to reload widgets:', error)
     }
   }
 
