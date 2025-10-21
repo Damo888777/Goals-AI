@@ -10,7 +10,7 @@ const path_1 = __importDefault(require("path"));
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const xcode = require("xcode");
 const EXTENSION_TARGET_NAME = "widget";
-const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "Assets.xcassets", "Info.plist"];
+const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m"];
 const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
 const BUILD_CONFIGURATION_SETTINGS = {
@@ -85,8 +85,14 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
     xcodeProject.parse(() => {
         // Add Live Activities and WidgetKit files to main app target
         const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
+        const mainTarget = xcodeProject.getFirstTarget();
         allNativeFiles.forEach(file => {
-            xcodeProject.addSourceFile(file, {}, xcodeProject.getFirstTarget().uuid);
+            try {
+                xcodeProject.addSourceFile(file, {}, mainTarget.uuid);
+            }
+            catch (error) {
+                console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error));
+            }
         });
         const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
         // Add the new PBXGroup to the top level group. This makes the
@@ -107,7 +113,7 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
         // add target
         const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
         // add build phase
-        xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
+        xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
         xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
         xcodeProject.addBuildPhase(["Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid, undefined, "widget");
         /* Update build configurations */

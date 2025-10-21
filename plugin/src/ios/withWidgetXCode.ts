@@ -105,8 +105,14 @@ async function updateXCodeProj(
   xcodeProject.parse(() => {
     // Add Live Activities and WidgetKit files to main app target
     const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
+    const mainTarget = xcodeProject.getFirstTarget()
+    
     allNativeFiles.forEach(file => {
-      xcodeProject.addSourceFile(file, {}, xcodeProject.getFirstTarget().uuid)
+      try {
+        xcodeProject.addSourceFile(file, {}, mainTarget.uuid)
+      } catch (error) {
+        console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error))
+      }
     })
     const pbxGroup = xcodeProject.addPbxGroup(
       TOP_LEVEL_FILES,
