@@ -38,12 +38,32 @@ class SharedDataManager {
             return nil
         }
         
+        // Validate data is not empty or corrupted
+        guard data.count > 0 else {
+            print("Widget data is empty")
+            return nil
+        }
+        
         do {
             let widgetData = try JSONDecoder().decode(WidgetData.self, from: data)
-            print("Successfully loaded widget data: \(widgetData)")
+            
+            // Validate data structure
+            guard widgetData.regularTasks.count <= 50 else {
+                print("Too many tasks in widget data, truncating to 50")
+                let truncatedData = WidgetData(
+                    frogTask: widgetData.frogTask,
+                    regularTasks: Array(widgetData.regularTasks.prefix(50)),
+                    lastUpdated: widgetData.lastUpdated
+                )
+                return truncatedData
+            }
+            
+            print("Successfully loaded widget data: \(widgetData.regularTasks.count) tasks")
             return widgetData
         } catch {
             print("Failed to decode widget data: \(error)")
+            // Clear corrupted data
+            userDefaults.removeObject(forKey: sharedTasksKey)
             return nil
         }
     }

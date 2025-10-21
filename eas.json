@@ -14,8 +14,7 @@
         "buildConfiguration": "Debug",
         "resourceClass": "m-medium",
         "credentialsSource": "remote",
-        "distribution": "internal",
-        "clearCredentials": true
+        "distribution": "internal"
       },
       "env": {
         "EXPO_NO_CAPABILITY_SYNC": "1"

@@ -106,6 +106,33 @@ class WidgetDataService {
       console.error('Failed to mark task as completed in widget data:', error)
     }
   }
+
+  // Method to sync widget changes back to WatermelonDB
+  async syncWidgetChangesToDatabase(): Promise<string[]> {
+    try {
+      const currentData = await this.getWidgetData()
+      if (!currentData) return []
+
+      const completedTaskIds: string[] = []
+
+      // Check frog task completion
+      if (currentData.frogTask?.isCompleted) {
+        completedTaskIds.push(currentData.frogTask.id)
+      }
+
+      // Check regular task completions
+      currentData.regularTasks.forEach(task => {
+        if (task.isCompleted) {
+          completedTaskIds.push(task.id)
+        }
+      })
+
+      return completedTaskIds
+    } catch (error) {
+      console.error('Failed to sync widget changes to database:', error)
+      return []
+    }
+  }
 }
 
 export const widgetDataService = new WidgetDataService()

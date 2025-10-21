@@ -84,12 +84,12 @@ struct Provider: TimelineProvider {
     
     private func createEntry(from widgetData: WidgetData) -> SimpleEntry {
         let frogTask = widgetData.frogTask.map { Task(from: $0) }
-        let regularTasks = widgetData.regularTasks.filter { !$0.isCompleted }.map { Task(from: $0) }
+        let regularTasks = widgetData.regularTasks.map { Task(from: $0) }
         
         return SimpleEntry(
             date: Date(),
             frogTask: frogTask?.isCompleted == true ? nil : frogTask,
-            regularTasks: regularTasks
+            regularTasks: regularTasks.filter { !$0.isCompleted }
         )
     }
 }
@@ -151,9 +151,9 @@ struct widgetEntryView: View {
                             LargeFrogTaskView(task: frogTask)
                         }
                         
-                        // Regular Tasks (up to 10) - Reduced spacing
+                        // Regular Tasks (up to 8 for better memory usage) - Reduced spacing
                         VStack(spacing: 3) {
-                            ForEach(Array(entry.regularTasks.prefix(10).enumerated()), id: \.element.id) { index, task in
+                            ForEach(Array(entry.regularTasks.prefix(8).enumerated()), id: \.element.id) { index, task in
                                 LargeRegularTaskView(task: task)
                             }
                         }

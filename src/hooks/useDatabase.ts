@@ -3,7 +3,7 @@ import { Q } from '@nozbe/watermelondb'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import database from '../db'
 import { authService, AuthUser } from '../services/authService'
-import { syncService, getCurrentUserId } from '../services/syncService'\nimport { widgetDataService } from '../services/widgetDataService'
+import { syncService, getCurrentUserId } from '../services/syncService'
 import Goal from '../db/models/Goal'
 import Milestone from '../db/models/Milestone'
 import Task from '../db/models/Task'
@@ -729,8 +729,17 @@ export const useTodaysTasks = () => {
             Q.where('is_frog', true)
           )
           .observe()
-          .subscribe((frogTasks) => {
-            setFrogTask(frogTasks[0] || null)
+          .subscribe(async (frogTasks) => {
+            const newFrogTask = frogTasks[0] || null
+            setFrogTask(newFrogTask)
+            
+            // Update widget data when frog task changes
+            try {
+              const { widgetDataService } = await import('../services/widgetDataService')
+              await widgetDataService.updateWidgetData(newFrogTask, tasks)
+            } catch (error) {
+              console.error('Failed to update widget data:', error)
+            }
           })
 
         const regularTasksSubscription = tasksCollection
@@ -742,8 +751,16 @@ export const useTodaysTasks = () => {
             Q.where('scheduled_date', Q.lte(todayEnd.toISOString()))
           )
           .observe()
-          .subscribe((todaysTasks) => {
+          .subscribe(async (todaysTasks) => {
             setTasks(todaysTasks)
+            
+            // Update widget data whenever tasks change
+            try {
+              const { widgetDataService } = await import('../services/widgetDataService')
+              await widgetDataService.updateWidgetData(frogTask, todaysTasks)
+            } catch (error) {
+              console.error('Failed to update widget data:', error)
+            }
           })
 
         return () => {

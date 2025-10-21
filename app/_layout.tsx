@@ -8,14 +8,18 @@ import { SplashScreen } from '../src/components/SplashScreen';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { SubscriptionProvider } from '../src/hooks/useSubscription';
 import { notificationService } from '../src/services/notificationService';
-import { notificationScheduler } from '../src/services/notificationScheduler';\nimport { useWidgetSync } from '../src/hooks/useWidgetSync';
+import { notificationScheduler } from '../src/services/notificationScheduler';
+import { useWidgetSync } from '../src/hooks/useWidgetSync';
 import '../global.css';
 
 export default function RootLayout() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAppReady, setIsAppReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();\n  \n  // Keep widget data in sync with app data\n  useWidgetSync();
+  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();
+  
+  // Keep widget data in sync with app data
+  useWidgetSync();
 
   const handleSplashFinish = () => {
     setIsLoading(false);
