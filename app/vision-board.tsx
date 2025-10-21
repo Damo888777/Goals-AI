@@ -251,7 +251,7 @@ export default function VisionBoardScreen() {
 
     // Launch image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: undefined, // Allow any aspect ratio
       quality: 0.8,
@@ -410,6 +410,7 @@ export default function VisionBoardScreen() {
           {/* Create Vision Button */}
           <View style={[
             {
+              backgroundColor: 'transparent', // Required for shadow efficiency
               shadowColor: '#F5EBE0',
               shadowOffset: {
                 width: 0,
@@ -471,6 +472,7 @@ export default function VisionBoardScreen() {
           {/* Upload Vision Button */}
           <View style={[
             {
+              backgroundColor: 'transparent', // Required for shadow efficiency
               shadowColor: '#F5EBE0',
               shadowOffset: {
                 width: 0,

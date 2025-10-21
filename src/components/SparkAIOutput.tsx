@@ -1021,6 +1021,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 0.5,
     marginRight: 11,
+    backgroundColor: '#d9d9d9', // Default background for shadow efficiency
     shadowColor: '#7c7c7c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,

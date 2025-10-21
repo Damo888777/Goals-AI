@@ -21,14 +21,15 @@
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice input features.",
         "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images.",
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": ["remote-notification", "background-app-refresh", "background-processing"],
         "NSSupportsLiveActivities": true
       },
       "entitlements": {
         "aps-environment": "development",
         "com.apple.developer.applesignin": ["Default"],
         "com.apple.security.application-groups": ["group.pro.GoalAchieverAI"],
-        "com.apple.security.application-groups.widget-extension": ["group.pro.GoalAchieverAI"]
+        "com.apple.security.application-groups.widget-extension": ["group.pro.GoalAchieverAI"],
+        "com.apple.developer.live-activities": true
       }
     },
     "android": {

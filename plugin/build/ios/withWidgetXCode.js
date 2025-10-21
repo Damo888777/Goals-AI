@@ -11,6 +11,8 @@ const path_1 = __importDefault(require("path"));
 const xcode = require("xcode");
 const EXTENSION_TARGET_NAME = "widget";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "Assets.xcassets", "Info.plist"];
+const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m"];
+const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
 const BUILD_CONFIGURATION_SETTINGS = {
     ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
     ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: "WidgetBackground",
@@ -42,6 +44,7 @@ const BUILD_CONFIGURATION_SETTINGS = {
     SWIFT_VERSION: "5.0",
     TARGETED_DEVICE_FAMILY: '"1,2"',
     CODE_SIGN_ENTITLEMENTS: "widget/widget.entitlements",
+    "com.apple.developer.live-activities": "YES",
 };
 const withWidgetXCode = (config, options = {}) => {
     return (0, config_plugins_1.withXcodeProject)(config, async (newConfig) => {
@@ -55,6 +58,17 @@ const withWidgetXCode = (config, options = {}) => {
             const widgetBundleId = `${bundleId}.widget`;
             const extensionFilesDir = path_1.default.join(platformProjectPath, EXTENSION_TARGET_NAME);
             fs_extra_1.default.copySync(widgetSourceDirPath, extensionFilesDir);
+            // Copy Live Activities and WidgetKit files to main app target
+            const nativeModulesSourceDir = path_1.default.join(projectPath, "plugin", "src", "ios");
+            const mainAppDir = platformProjectPath;
+            const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
+            allNativeFiles.forEach(file => {
+                const sourcePath = path_1.default.join(nativeModulesSourceDir, file);
+                const destPath = path_1.default.join(mainAppDir, file);
+                if (fs_extra_1.default.existsSync(sourcePath)) {
+                    fs_extra_1.default.copySync(sourcePath, destPath);
+                }
+            });
             const projPath = `${newConfig.modRequest.platformProjectRoot}/${projectName}.xcodeproj/project.pbxproj`;
             await updateXCodeProj(projPath, widgetBundleId, options.devTeamId || "");
             return newConfig;
@@ -69,6 +83,11 @@ exports.withWidgetXCode = withWidgetXCode;
 async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
     const xcodeProject = xcode.project(projPath);
     xcodeProject.parse(() => {
+        // Add Live Activities and WidgetKit files to main app target
+        const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
+        allNativeFiles.forEach(file => {
+            xcodeProject.addSourceFile(file, {}, xcodeProject.getFirstTarget().uuid);
+        });
         const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
         // Add the new PBXGroup to the top level group. This makes the
         // files / folder appear in the file explorer in Xcode.

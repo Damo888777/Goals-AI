@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Platform } from 'react-native'
-import UserDefaults from 'react-native-user-defaults'
+import { Platform, NativeModules } from 'react-native'
+import UserDefaults from 'react-native-userdefaults-ios'
 import Task from '../db/models/Task'
 
 // App Group identifier - must match widget entitlements
@@ -24,7 +24,7 @@ export interface WidgetData {
 
 class WidgetDataService {
   private async getSharedStorage() {
-    // Use App Group UserDefaults on iOS for widget compatibility
+    // Use App Group UserDefaults on iOS for proper widget data sharing
     if (Platform.OS === 'ios') {
       return {
         setItem: async (key: string, value: string) => {
@@ -54,7 +54,7 @@ class WidgetDataService {
       }
     }
     
-    // Fallback to AsyncStorage for development/Android
+    // Fallback to AsyncStorage for Android/development
     return AsyncStorage
   }
 
@@ -91,22 +91,27 @@ class WidgetDataService {
     }
   }
 
-  private reloadWidgets(): void {
+  private async reloadWidgets(): Promise<void> {
     try {
       if (Platform.OS === 'ios') {
-        // Import WidgetKit module dynamically
-        const { NativeModules } = require('react-native')
         const { WidgetKitReloader } = NativeModules
         
         if (WidgetKitReloader?.reloadAllTimelines) {
-          WidgetKitReloader.reloadAllTimelines()
-          console.log('Widget reload triggered')
+          await WidgetKitReloader.reloadAllTimelines()
+          console.log('✅ Widget timelines reloaded successfully')
         } else {
-          console.warn('WidgetKitReloader not available, widgets may not update immediately')
+          // Suppress warning in development builds where widgets aren't available
+          if (__DEV__) {
+            console.log('WidgetKitReloader not available in development build')
+          } else {
+            console.warn('WidgetKitReloader not available, widgets may not update immediately')
+          }
         }
       }
     } catch (error) {
-      console.warn('Failed to reload widgets:', error)
+      if (!__DEV__) {
+        console.error('Failed to reload widgets:', error)
+      }
     }
   }
 

@@ -47,7 +47,10 @@ class LiveActivityService {
    */
   async startPomodoroTimer(state: PomodoroActivityState): Promise<boolean> {
     if (!this.liveActivityModule) {
-      console.warn('Live Activities not supported on this platform')
+      // Suppress warning in development builds where Live Activities aren't available
+      if (!__DEV__) {
+        console.warn('Live Activities not supported on this platform')
+      }
       return false
     }
 

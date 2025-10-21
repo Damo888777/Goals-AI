@@ -5,6 +5,7 @@
 
 import WidgetKit
 import SwiftUI
+import AppIntents
 import Intents
 import ActivityKit
 
@@ -114,63 +115,54 @@ struct widgetEntryView: View {
             VStack(spacing: 0) {
                 // Top - Date section (Large widget) - Single line format
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(largeDateString(from: entry.date))
-                        .font(.custom("Helvetica-Bold", size: 20))
-                        .foregroundColor(.widgetTextColor)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(1)
+                    largeDateText(from: entry.date)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
                 
-                // Bottom - Tasks container (Large widget)
+                // Layer 2: Container Layer (cream background with drop shadow)
                 VStack(spacing: 8) {
-                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
-                        // Empty state
-                        LargeEmptyStateView()
-                    } else {
-                        // Eat the Frog Task container - ALWAYS VISIBLE
-                        VStack(spacing: 0) {
-                            if let frogTask = entry.frogTask {
-                                LargeFrogTaskView(task: frogTask)
-                            } else {
-                                LargeFrogEmptyView()
-                            }
+                    // Layer 3: Eat the Frog Container - ALWAYS VISIBLE
+                    VStack(spacing: 0) {
+                        if let frogTask = entry.frogTask {
+                            LargeFrogTaskView(task: frogTask)
+                        } else {
+                            LargeFrogEmptyView()
                         }
-                        .padding(8)
-                        .background(Color.widgetFrogBackground) // Green background for frog task
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.widgetStrokeColor, lineWidth: 2)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        
-                        // Regular Tasks (up to 8 for better memory usage) - Reduced spacing
+                    }
+                    .padding(8)
+                    .background(Color.widgetFrogBackground) // Green background for frog task
+                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    // Regular Tasks (up to 8 for better memory usage) - Reduced spacing
+                    if !entry.regularTasks.isEmpty {
                         VStack(spacing: 3) {
                             ForEach(Array(entry.regularTasks.prefix(8).enumerated()), id: \.element.id) { index, task in
                                 LargeRegularTaskView(task: task)
                             }
                         }
-                        
-                        Spacer()
                     }
+                    
+                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
+                        // Empty state for regular tasks
+                        LargeEmptyStateView()
+                    }
+                    
+                    Spacer()
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground) // Cream background
                 .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 3)
-                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .background(Color.widgetMainBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: 0)
-                    .stroke(Color.widgetStrokeColor, lineWidth: 3)
-            )
             .containerBackground(Color.widgetMainBackground, for: .widget)
         } else { // Medium widget
             HStack(spacing: 0) {
@@ -199,55 +191,49 @@ struct widgetEntryView: View {
                 .frame(width: 80)
                 .padding(.leading, 0)
                 
-                // Right side - Tasks container (Medium widget)
+                // Layer 2: Container Layer (cream background with drop shadow)
                 VStack(spacing: 6) {
-                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
-                        // Empty state
-                        MediumEmptyStateView()
-                    } else {
-                        // Eat the Frog Task container - ALWAYS VISIBLE
-                        VStack(spacing: 6) {
-                            if let frogTask = entry.frogTask {
-                                MediumFrogTaskView(task: frogTask)
-                            } else {
-                                MediumFrogEmptyView()
-                            }
+                    // Layer 3: Eat the Frog Container - ALWAYS VISIBLE
+                    VStack(spacing: 6) {
+                        if let frogTask = entry.frogTask {
+                            MediumFrogTaskView(task: frogTask)
+                        } else {
+                            MediumFrogEmptyView()
                         }
-                        .padding(6)
-                        .background(Color.widgetFrogBackground) // #E9EDC9 background
-                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.widgetStrokeColor, lineWidth: 3)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        
-                        // Regular Tasks (up to 3)
+                    }
+                    .padding(6)
+                    .background(Color.widgetFrogBackground) // #E9EDC9 background
+                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
+                    // Regular Tasks (up to 3)
+                    if !entry.regularTasks.isEmpty {
                         VStack(spacing: 4) {
                             ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
                                 MediumRegularTaskView(task: task)
                             }
                         }
-                        
-                        Spacer()
                     }
+                    
+                    if entry.frogTask == nil && entry.regularTasks.isEmpty {
+                        // Empty state
+                        MediumEmptyStateView()
+                    }
+                    
+                    Spacer()
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground) // Cream background
                 .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 3)
-                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.trailing, 0)
                 .padding(.vertical, 0)
             }
             .background(Color.widgetMainBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.widgetStrokeColor, lineWidth: 3)
-            )
             .containerBackground(Color.widgetMainBackground, for: .widget)
         }
     }
@@ -268,6 +254,36 @@ struct widgetEntryView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
         return formatter.string(from: date)
+    }
+    
+    private func largeDateText(from date: Date) -> some View {
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "d"
+        let day = dayFormatter.string(from: date)
+        
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "MMMM"
+        let month = monthFormatter.string(from: date)
+        
+        let weekdayFormatter = DateFormatter()
+        weekdayFormatter.dateFormat = "EEEE"
+        let weekday = weekdayFormatter.string(from: date)
+        
+        return HStack(spacing: 4) {
+            Text("Today")
+                .font(.custom("Helvetica", size: 20))
+                .foregroundColor(.widgetTextColor)
+            
+            Text("\(day).\(month),")
+                .font(.custom("Helvetica-Bold", size: 20))
+                .foregroundColor(.widgetTextColor)
+            
+            Text(weekday)
+                .font(.custom("Helvetica", size: 20))
+                .foregroundColor(.widgetTextColor)
+        }
+        .minimumScaleFactor(0.8)
+        .lineLimit(1)
     }
     
     private func largeDateString(from date: Date) -> String {
@@ -450,7 +466,6 @@ struct CompleteButton: View {
 }
 
 // MARK: - Widget Configuration
-@main
 struct widget: Widget {
     let kind: String = "widget"
 

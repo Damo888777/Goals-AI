@@ -1,4 +1,4 @@
-declare module 'react-native-user-defaults' {
+declare module 'react-native-userdefaults-ios' {
   interface UserDefaults {
     setStringForAppGroup(key: string, value: string, appGroup: string): Promise<void>
     getStringForAppGroup(key: string, appGroup: string): Promise<string | null>

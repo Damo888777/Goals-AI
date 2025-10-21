@@ -128,10 +128,17 @@ export function useWeeklyTasks(weekOffset: number = 0) {
         const dayTasks = weekTasks.filter(task => {
           if (!task.scheduledDate) return false;
           const taskDate = new Date(task.scheduledDate);
-          const isInRange = taskDate >= dayStart && taskDate <= dayEnd;
-          if (!isInRange) {
+          
+          // Compare dates in local time to avoid timezone shifts
+          const taskDateLocal = taskDate.toDateString();
+          const dayDateLocal = day.dateObj.toDateString();
+          
+          const isInRange = taskDateLocal === dayDateLocal;
+          if (!isInRange && __DEV__) {
             console.log(`❌ Task "${task.title}" filtered out:`, {
               taskDate: taskDate.toISOString(),
+              taskDateLocal,
+              dayDateLocal,
               dayStart: dayStart.toISOString(),
               dayEnd: dayEnd.toISOString()
             });

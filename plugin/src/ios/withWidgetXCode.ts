@@ -10,7 +10,9 @@ interface WithWidgetProps {
 }
 
 const EXTENSION_TARGET_NAME = "widget";
-const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "Assets.xcassets", "Info.plist"];
+const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist"];
+const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m"];
+const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
 
 const BUILD_CONFIGURATION_SETTINGS = {
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
@@ -43,6 +45,7 @@ const BUILD_CONFIGURATION_SETTINGS = {
   SWIFT_VERSION: "5.0",
   TARGETED_DEVICE_FAMILY: '"1,2"',
   CODE_SIGN_ENTITLEMENTS: "widget/widget.entitlements",
+  "com.apple.developer.live-activities": "YES",
 };
 
 export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
@@ -69,6 +72,19 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       )
       fs.copySync(widgetSourceDirPath, extensionFilesDir)
 
+      // Copy Live Activities and WidgetKit files to main app target
+      const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios")
+      const mainAppDir = platformProjectPath
+      
+      const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
+      allNativeFiles.forEach(file => {
+        const sourcePath = path.join(nativeModulesSourceDir, file)
+        const destPath = path.join(mainAppDir, file)
+        if (fs.existsSync(sourcePath)) {
+          fs.copySync(sourcePath, destPath)
+        }
+      })
+
       const projPath = `${newConfig.modRequest.platformProjectRoot}/${projectName}.xcodeproj/project.pbxproj`
       await updateXCodeProj(projPath, widgetBundleId, options.devTeamId || "")
       return newConfig
@@ -87,6 +103,11 @@ async function updateXCodeProj(
   const xcodeProject = xcode.project(projPath)
 
   xcodeProject.parse(() => {
+    // Add Live Activities and WidgetKit files to main app target
+    const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
+    allNativeFiles.forEach(file => {
+      xcodeProject.addSourceFile(file, {}, xcodeProject.getFirstTarget().uuid)
+    })
     const pbxGroup = xcodeProject.addPbxGroup(
       TOP_LEVEL_FILES,
       EXTENSION_TARGET_NAME,
@@ -120,7 +141,7 @@ async function updateXCodeProj(
 
     // add build phase
     xcodeProject.addBuildPhase(
-      ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift"],
+      ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift"],
       "PBXSourcesBuildPhase",
       "Sources",
       widgetTarget.uuid,

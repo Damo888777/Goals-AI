@@ -9,7 +9,8 @@ import { useOnboarding } from '../src/hooks/useOnboarding';
 import { SubscriptionProvider } from '../src/hooks/useSubscription';
 import { notificationService } from '../src/services/notificationService';
 import { notificationScheduler } from '../src/services/notificationScheduler';
-import { useWidgetSync } from '../src/hooks/useWidgetSync';
+import { useRealtimeWidgetSync } from '../src/hooks/useRealtimeWidgetSync';
+import { widgetTimelineManager } from '../src/services/widgetTimelineManager';
 import '../global.css';
 
 export default function RootLayout() {
@@ -18,22 +19,30 @@ export default function RootLayout() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();
   
-  // Keep widget data in sync with app data
-  useWidgetSync();
+  // Keep widget data in sync with app data with real-time updates
+  useRealtimeWidgetSync();
 
   const handleSplashFinish = () => {
     setIsLoading(false);
   };
 
-  // Initialize OneSignal when app starts
+  // Initialize OneSignal and widget timeline manager when app starts
   useEffect(() => {
-    const initializeNotifications = async () => {
+    const initializeServices = async () => {
       await notificationService.initialize();
       // Update last activity on app start
       await notificationScheduler.updateLastActivity();
+      
+      // Initialize intelligent widget timeline management
+      await widgetTimelineManager.initialize();
     };
     
-    initializeNotifications();
+    initializeServices();
+    
+    // Cleanup function
+    return () => {
+      widgetTimelineManager.shutdown();
+    };
   }, []);
 
   // Check if app is ready (splash finished and onboarding status loaded)
