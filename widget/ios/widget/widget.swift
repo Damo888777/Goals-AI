@@ -133,8 +133,11 @@ struct widgetEntryView: View {
                         }
                     }
                     .padding(8)
-                    .background(Color.widgetFrogBackground) // Green background for frog task
-                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.widgetFrogBackground)
+                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
@@ -158,8 +161,15 @@ struct widgetEntryView: View {
                     Spacer()
                 }
                 .padding(12)
-                .background(Color.widgetSecondaryBackground) // Cream background
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.widgetSecondaryBackground)
+                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .background(Color.widgetMainBackground)
@@ -202,8 +212,11 @@ struct widgetEntryView: View {
                         }
                     }
                     .padding(6)
-                    .background(Color.widgetFrogBackground) // #E9EDC9 background
-                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.widgetFrogBackground)
+                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
@@ -227,11 +240,18 @@ struct widgetEntryView: View {
                     Spacer()
                 }
                 .padding(12)
-                .background(Color.widgetSecondaryBackground) // Cream background
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.widgetSecondaryBackground)
+                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.trailing, 0)
-                .padding(.vertical, 0)
+                .padding(.trailing, 12)
+                .padding(.vertical, 12)
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -271,15 +291,15 @@ struct widgetEntryView: View {
         
         return HStack(spacing: 4) {
             Text("Today")
-                .font(.system(size: 20, weight: .regular))
-                .foregroundColor(.widgetTextColor)
-            
-            Text("\(day).\(month),")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.widgetTextColor)
             
+            Text("\(day).\(month),")
+                .font(.system(size: 18, weight: .light))
+                .foregroundColor(.widgetTextColor)
+            
             Text(weekday)
-                .font(.system(size: 20, weight: .regular))
+                .font(.system(size: 18, weight: .light))
                 .foregroundColor(.widgetTextColor)
         }
         .minimumScaleFactor(0.8)
@@ -632,7 +652,7 @@ struct MediumFrogEmptyView: View {
                 .stroke(Color.widgetCompleteOuter, lineWidth: 1)
                 .frame(width: 18, height: 18)
             
-            Text("Set your frog task!")
+            Text("No frog for today")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetFrogTextColor.opacity(0.7))
                 .lineLimit(1)

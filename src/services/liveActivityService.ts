@@ -25,8 +25,17 @@ class LiveActivityService {
 
   constructor() {
     if (Platform.OS === 'ios') {
-      this.liveActivityModule = NativeModules.LiveActivityModule as LiveActivityModule
-      this.setupOneSignalLiveActivities()
+      try {
+        this.liveActivityModule = NativeModules.LiveActivityModule as LiveActivityModule
+        if (!this.liveActivityModule) {
+          console.warn('LiveActivityModule native module not available - Live Activities disabled')
+        } else {
+          this.setupOneSignalLiveActivities()
+        }
+      } catch (error) {
+        console.warn('Failed to initialize LiveActivityModule:', error)
+        this.liveActivityModule = null
+      }
     }
   }
 
