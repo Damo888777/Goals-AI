@@ -849,10 +849,21 @@ class SyncService {
     return false
   }
 
-  // Schedule a sync with delay
+  // Schedule a sync with delay (with debouncing and progress check)
   scheduleSync(delayMs: number = 0): void {
+    // Don't schedule if sync is already in progress
+    if (this.syncInProgress) {
+      return
+    }
+    
+    // Clear existing timeout to prevent multiple scheduled syncs
     if (this.syncTimeout) {
       clearTimeout(this.syncTimeout)
+    }
+    
+    // Don't sync too frequently (cooldown)
+    if (this.lastSyncTime && Date.now() - this.lastSyncTime.getTime() < this.syncCooldown) {
+      return
     }
     
     this.syncTimeout = setTimeout(() => {
@@ -865,8 +876,7 @@ class SyncService {
   // Push-only sync for anonymous users (no pulling)
   private async pushOnlySync(): Promise<void> {
     if (this.syncInProgress) {
-      console.log('⏭️ Push-only sync already in progress, skipping')
-      return
+      return // Silent skip, no console spam
     }
 
     this.syncInProgress = true
@@ -877,8 +887,7 @@ class SyncService {
       
       // Check if there are changes to push
       if (!this.hasChangesToPush(localChanges)) {
-        console.log('🔄 No local changes to push for anonymous user')
-        return
+        return // Silent skip when no changes
       }
       
       console.log('🔄 Pushing anonymous user data to Supabase...')

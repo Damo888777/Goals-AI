@@ -20,9 +20,26 @@ if (!global.AsyncStorage) {
   global.AsyncStorage = AsyncStorage;
 }
 
-// Polyfill setObjectForKey if needed (iOS-specific)
-if (!global.setObjectForKey && typeof global.nativeModuleProxy === 'undefined') {
+// Enhanced polyfill for iOS native modules to prevent crashes
+if (typeof global.setObjectForKey === 'undefined') {
   global.setObjectForKey = () => {};
+}
+
+// Polyfill UserDefaults iOS module
+if (typeof global.UserDefaults === 'undefined') {
+  global.UserDefaults = {
+    setObjectForKey: () => {},
+    objectForKey: () => null,
+    removeObjectForKey: () => {},
+  };
+}
+
+// Polyfill widget native modules
+if (typeof global.WidgetModule === 'undefined') {
+  global.WidgetModule = {
+    updateWidgetData: () => Promise.resolve(),
+    reloadAllTimelines: () => Promise.resolve(),
+  };
 }
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

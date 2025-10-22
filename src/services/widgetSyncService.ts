@@ -1,6 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
-import UserDefaults from 'react-native-userdefaults-ios'
+
+// Safe import for UserDefaults with fallback
+let UserDefaults: any = null
+try {
+  if (Platform.OS === 'ios') {
+    UserDefaults = require('react-native-userdefaults-ios').default
+  }
+} catch (error) {
+  console.warn('UserDefaults iOS module not available in widgetSyncService, using fallback')
+}
 import database from '../db'
 import Task from '../db/models/Task'
 import { Q } from '@nozbe/watermelondb'
@@ -85,7 +94,7 @@ class WidgetSyncService {
    */
   private async getWidgetCompletions(): Promise<WidgetCompletion[]> {
     try {
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === 'ios' && UserDefaults && UserDefaults.getStringForAppGroup) {
         const completionsData = await UserDefaults.getStringForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
         if (completionsData) {
           return JSON.parse(completionsData) as WidgetCompletion[]
@@ -144,7 +153,7 @@ class WidgetSyncService {
    */
   private async clearWidgetCompletions() {
     try {
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === 'ios' && UserDefaults && UserDefaults.removeItemForAppGroup) {
         await UserDefaults.removeItemForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
       } else {
         await AsyncStorage.removeItem(WIDGET_COMPLETIONS_KEY)

@@ -242,9 +242,15 @@ class WidgetTimelineManager {
       
       // Step 3: Reload widget timelines
       if (Platform.OS === 'ios') {
-        const { WidgetKitReloader } = NativeModules
-        if (WidgetKitReloader?.reloadAllTimelines) {
-          await WidgetKitReloader.reloadAllTimelines()
+        try {
+          const { WidgetKitReloader } = NativeModules
+          if (WidgetKitReloader && WidgetKitReloader.reloadAllTimelines) {
+            await WidgetKitReloader.reloadAllTimelines()
+          } else {
+            console.warn('WidgetKitReloader native module not available')
+          }
+        } catch (error) {
+          console.warn('Failed to reload widget timelines:', error)
         }
       }
       

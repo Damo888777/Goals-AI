@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useState, useEffect, useRef } from 'react';
@@ -19,7 +18,7 @@ import '../global.css';
 function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9', justifyContent: 'center', alignItems: 'center' }}>
-      <StatusBar style="dark" />
+      <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
       <SplashScreen onAnimationFinish={() => {}} />
     </GestureHandlerRootView>
   );
@@ -97,7 +96,7 @@ export default function RootLayout() {
   if (isLoading || !isAppReady) {
     return (
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
-        <StatusBar style="dark" hidden={true} />
+        <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
         <SplashScreen onAnimationFinish={handleSplashFinish} />
       </GestureHandlerRootView>
     );
@@ -105,41 +104,39 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
-        <SafeAreaProvider style={{ backgroundColor: '#E9EDC9' }}>
-          <SubscriptionProvider>
-            <StatusBar style="dark" />
-            <Stack 
-              screenOptions={{ 
-                headerShown: false,
-                contentStyle: { backgroundColor: '#E9EDC9' },
-                animation: 'fade',
-                animationDuration: 300
-              }}
-              initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
-            >  
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-              <Stack.Screen name="vision-board" options={{ headerShown: false }} />
-              <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
-              <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
-              <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
-              <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
-              <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
-              <Stack.Screen name="manual-task" options={{ headerShown: false }} />
-              <Stack.Screen name="goal-details" options={{ headerShown: false }} />
-              <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
-              <Stack.Screen name="task-details" options={{ headerShown: false }} />
-              <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
-              <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
-              <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
-              <Stack.Screen name="trophy" options={{ headerShown: false }} />
-              <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
-              <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
-              <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
-            </Stack>
-          </SubscriptionProvider>
-        </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SubscriptionProvider>
+          <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
+          <Stack 
+            screenOptions={{ 
+              headerShown: false,
+              contentStyle: { backgroundColor: '#E9EDC9' },
+              animation: 'fade',
+              animationDuration: 300
+            }}
+            initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
+          >  
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="vision-board" options={{ headerShown: false }} />
+            <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
+            <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
+            <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
+            <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
+            <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
+            <Stack.Screen name="manual-task" options={{ headerShown: false }} />
+            <Stack.Screen name="goal-details" options={{ headerShown: false }} />
+            <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
+            <Stack.Screen name="task-details" options={{ headerShown: false }} />
+            <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
+            <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
+            <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
+            <Stack.Screen name="trophy" options={{ headerShown: false }} />
+            <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
+            <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
+            <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
+          </Stack>
+        </SubscriptionProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
   );

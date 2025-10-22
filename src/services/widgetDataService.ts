@@ -1,7 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform, NativeModules } from 'react-native'
-import UserDefaults from 'react-native-userdefaults-ios'
 import Task from '../db/models/Task'
+
+// Safe import for UserDefaults with fallback
+let UserDefaults: any = null
+try {
+  if (Platform.OS === 'ios') {
+    UserDefaults = require('react-native-userdefaults-ios').default
+  }
+} catch (error) {
+  console.warn('UserDefaults iOS module not available, using fallback')
+}
 
 // App Group identifier - must match widget entitlements
 const APP_GROUP_ID = 'group.pro.GoalAchieverAI'
@@ -25,11 +34,15 @@ export interface WidgetData {
 class WidgetDataService {
   private async getSharedStorage() {
     // Use App Group UserDefaults on iOS for proper widget data sharing
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && UserDefaults) {
       return {
         setItem: async (key: string, value: string) => {
           try {
-            await UserDefaults.setStringForAppGroup(key, value, APP_GROUP_ID)
+            if (UserDefaults && UserDefaults.setStringForAppGroup) {
+              await UserDefaults.setStringForAppGroup(key, value, APP_GROUP_ID)
+            } else {
+              await AsyncStorage.setItem(key, value)
+            }
           } catch (error) {
             console.warn('Failed to write to App Group, falling back to AsyncStorage:', error)
             await AsyncStorage.setItem(key, value)
@@ -37,7 +50,11 @@ class WidgetDataService {
         },
         getItem: async (key: string) => {
           try {
-            return await UserDefaults.getStringForAppGroup(key, APP_GROUP_ID)
+            if (UserDefaults && UserDefaults.getStringForAppGroup) {
+              return await UserDefaults.getStringForAppGroup(key, APP_GROUP_ID)
+            } else {
+              return await AsyncStorage.getItem(key)
+            }
           } catch (error) {
             console.warn('Failed to read from App Group, falling back to AsyncStorage:', error)
             return await AsyncStorage.getItem(key)
@@ -45,7 +62,11 @@ class WidgetDataService {
         },
         removeItem: async (key: string) => {
           try {
-            await UserDefaults.removeItemForAppGroup(key, APP_GROUP_ID)
+            if (UserDefaults && UserDefaults.removeItemForAppGroup) {
+              await UserDefaults.removeItemForAppGroup(key, APP_GROUP_ID)
+            } else {
+              await AsyncStorage.removeItem(key)
+            }
           } catch (error) {
             console.warn('Failed to remove from App Group, falling back to AsyncStorage:', error)
             await AsyncStorage.removeItem(key)
