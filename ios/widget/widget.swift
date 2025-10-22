@@ -418,7 +418,7 @@ struct CompactCompleteButton: View {
     let task: Task
     
     var body: some View {
-        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+        Button(intent: CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
             ZStack {
                 Circle()
                     .stroke(Color.widgetCompleteOuter, lineWidth: 1)
@@ -444,7 +444,7 @@ struct CompleteButton: View {
     let task: Task
     
     var body: some View {
-        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+        Button(intent: CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
             ZStack {
                 Circle()
                     .stroke(Color.widgetCompleteOuter, lineWidth: 1)

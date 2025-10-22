@@ -123,12 +123,9 @@ struct PomodoroLiveActivity: Widget {
 
 // MARK: - Preview
 #if DEBUG
-#Preview("Notification", as: .content, using: PomodoroActivityAttributes(
-    startTime: Date()
-)) {
-    PomodoroLiveActivity()
-} contentStates: {
-    PomodoroActivityAttributes.ContentState(
+struct PomodoroLiveActivity_Previews: PreviewProvider {
+    static let attributes = PomodoroActivityAttributes(startTime: Date())
+    static let contentState = PomodoroActivityAttributes.ContentState(
         timeRemaining: 1205,
         totalDuration: 1500,
         sessionType: "work",
@@ -136,5 +133,11 @@ struct PomodoroLiveActivity: Widget {
         completedPomodoros: 3,
         taskTitle: "Complete project presentation"
     )
+    
+    static var previews: some View {
+        attributes
+            .previewContext(contentState, viewKind: .content)
+            .previewDisplayName("Notification")
+    }
 }
 #endif

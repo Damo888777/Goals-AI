@@ -9,14 +9,14 @@ import Foundation
 struct WidgetTaskData: Codable {
     let id: String
     let title: String
-    let isCompleted: Bool
+    var isCompleted: Bool
     let isFrog: Bool
 }
 
 struct WidgetData: Codable {
-    let frogTask: WidgetTaskData?
-    let regularTasks: [WidgetTaskData]
-    let lastUpdated: String
+    var frogTask: WidgetTaskData?
+    var regularTasks: [WidgetTaskData]
+    var lastUpdated: String
 }
 
 class SharedDataManager {

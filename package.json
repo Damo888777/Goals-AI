@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -14,7 +14,6 @@
     "postinstall": "npm run plugin:build"
   },
   "dependencies": {
-    "@bacons/apple-targets": "^3.0.5",
     "@expo/plist": "^0.4.7",
     "@expo/vector-icons": "^14.0.0",
     "@google/generative-ai": "^0.19.0",

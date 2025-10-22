@@ -172,16 +172,16 @@ struct widgetEntryView: View {
                     
                     VStack(alignment: .center, spacing: 2) {
                         Text("Today")
-                            .font(.custom("Helvetica", size: 14))
+                            .font(.system(size: 14, weight: .regular))
                             .foregroundColor(.widgetTextColor)
                         
                         Text("\(Calendar.current.component(.day, from: entry.date))")
-                            .font(.custom("Helvetica-Bold", size: 32))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.widgetTextColor)
                             .lineLimit(1)
                         
                         Text(monthWeekdayString(from: entry.date))
-                            .font(.custom("Helvetica-Light", size: 12))
+                            .font(.system(size: 12, weight: .light))
                             .foregroundColor(.widgetTextColor)
                     }
                     .frame(maxWidth: .infinity)
@@ -271,15 +271,15 @@ struct widgetEntryView: View {
         
         return HStack(spacing: 4) {
             Text("Today")
-                .font(.custom("Helvetica", size: 20))
+                .font(.system(size: 20, weight: .regular))
                 .foregroundColor(.widgetTextColor)
             
             Text("\(day).\(month),")
-                .font(.custom("Helvetica-Bold", size: 20))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.widgetTextColor)
             
             Text(weekday)
-                .font(.custom("Helvetica", size: 20))
+                .font(.system(size: 20, weight: .regular))
                 .foregroundColor(.widgetTextColor)
         }
         .minimumScaleFactor(0.8)
@@ -369,7 +369,7 @@ struct CompactFrogTaskView: View {
             
             // Task title
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.white)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -396,7 +396,7 @@ struct CompactRegularTaskView: View {
             
             // Task title
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -418,7 +418,7 @@ struct CompactCompleteButton: View {
     let task: Task
     
     var body: some View {
-        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+        Button(intent: CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
             ZStack {
                 Circle()
                     .stroke(Color.widgetCompleteOuter, lineWidth: 1)
@@ -444,7 +444,7 @@ struct CompleteButton: View {
     let task: Task
     
     var body: some View {
-        Button(intent: CompleteTaskIntent(taskId: task.id)) {
+        Button(intent: CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
             ZStack {
                 Circle()
                     .stroke(Color.widgetCompleteOuter, lineWidth: 1)
@@ -488,7 +488,7 @@ struct MediumFrogTaskView: View {
             CompactCompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica-Bold", size: 12))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.widgetFrogTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -507,7 +507,7 @@ struct MediumRegularTaskView: View {
             CompactCompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -528,12 +528,12 @@ struct MediumEmptyStateView: View {
                 .foregroundColor(.widgetTextColor.opacity(0.6))
             
             Text("All tasks completed!")
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Text("Great job today")
-                .font(.custom("Helvetica-Light", size: 10))
+                .font(.system(size: 10, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
                 .multilineTextAlignment(.center)
         }
@@ -549,12 +549,12 @@ struct LargeEmptyStateView: View {
                 .foregroundColor(.widgetTextColor.opacity(0.6))
             
             Text("All tasks completed!")
-                .font(.custom("Helvetica", size: 16))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Text("You've finished all your tasks for today. Great job!")
-                .font(.custom("Helvetica-Light", size: 14))
+                .font(.system(size: 14, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
@@ -572,7 +572,7 @@ struct LargeFrogTaskView: View {
             CompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica-Bold", size: 14))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.widgetFrogTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -633,7 +633,7 @@ struct MediumFrogEmptyView: View {
                 .frame(width: 18, height: 18)
             
             Text("Set your frog task!")
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetFrogTextColor.opacity(0.7))
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)

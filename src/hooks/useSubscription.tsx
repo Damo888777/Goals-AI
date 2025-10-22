@@ -140,9 +140,20 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     return subscriptionService.getUsageLimits();
   };
 
-  // Initialize on mount
+  // Initialize on mount with error handling
   useEffect(() => {
-    refreshSubscription();
+    const initializeSubscription = async () => {
+      try {
+        await refreshSubscription();
+      } catch (error) {
+        console.error('Failed to initialize subscription:', error);
+        // Set default state on error to prevent blocking the app
+        setIsLoading(false);
+        setCurrentTier(null);
+      }
+    };
+    
+    initializeSubscription();
   }, []);
 
   // Refresh subscription when app becomes active

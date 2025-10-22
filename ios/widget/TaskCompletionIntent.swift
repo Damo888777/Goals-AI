@@ -138,9 +138,14 @@ struct ToggleFrogTaskIntent: AppIntent {
             var widgetData = try JSONDecoder().decode(WidgetData.self, from: jsonData)
             
             // Toggle frog task completion
-            if widgetData.frogTask?.id == taskId {
-                let wasCompleted = widgetData.frogTask?.isCompleted ?? false
-                widgetData.frogTask?.isCompleted = !wasCompleted
+            if let frogTask = widgetData.frogTask, frogTask.id == taskId {
+                let wasCompleted = frogTask.isCompleted
+                widgetData.frogTask = WidgetTaskData(
+                    id: frogTask.id,
+                    title: frogTask.title,
+                    isCompleted: !wasCompleted,
+                    isFrog: frogTask.isFrog
+                )
                 
                 // Log completion/incompletion
                 var completions = userDefaults.array(forKey: completionsKey) as? [[String: Any]] ?? []
@@ -170,21 +175,10 @@ struct ToggleFrogTaskIntent: AppIntent {
             
             return .result()
         } catch {
+            print("Failed to toggle frog task: \(error)")
             throw NSError(domain: "WidgetError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to process widget data: \(error.localizedDescription)"])
         }
     }
 }
 
-// MARK: - Widget Data Models
-struct WidgetData: Codable {
-    var frogTask: WidgetTaskData?
-    var regularTasks: [WidgetTaskData]
-    var lastUpdated: String
-}
-
-struct WidgetTaskData: Codable {
-    let id: String
-    let title: String
-    var isCompleted: Bool
-    let isFrog: Bool
-}
+// Data models are defined in SharedDataManager.swift to avoid duplicates

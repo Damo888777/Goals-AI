@@ -8,6 +8,7 @@ import { images } from '../constants/images';
 import { Button } from './Button';
 import { useAccessControl } from './AccessControl';
 import { useGoals } from '../hooks/useDatabase';
+import { useSubscription } from '../hooks/useSubscription';
 
 interface FABProps {
   onPress?: () => void;
@@ -18,8 +19,23 @@ export function FAB({ onPress, onLongPress }: FABProps) {
   const insets = useSafeAreaInsets();
   const [showMenu, setShowMenu] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  const { requireAccess } = useAccessControl();
-  const { goals } = useGoals();
+  
+  // Safely try to get subscription context
+  let subscription = null;
+  let requireAccess = null;
+  let goals = null;
+  let hasSubscriptionContext = false;
+  
+  try {
+    subscription = useSubscription();
+    const accessControl = useAccessControl();
+    requireAccess = accessControl.requireAccess;
+    goals = useGoals().goals;
+    hasSubscriptionContext = true;
+  } catch (error) {
+    // Render basic FAB without subscription features when context isn't ready
+    hasSubscriptionContext = false;
+  }
   
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -50,23 +66,21 @@ export function FAB({ onPress, onLongPress }: FABProps) {
     setShowMenu(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
-    // Check subscription access before allowing actions
-    const currentGoalCount = goals?.length || 0;
-    
     // Handle menu item actions
     switch (action) {
       case 'task':
-        if (requireAccess('modify_data')) {
+        if (!hasSubscriptionContext || requireAccess?.('modify_data')) {
           router.push('/manual-task');
         }
         break;
       case 'goal':
-        if (requireAccess('create_goal', { currentGoalCount })) {
+        const currentGoalCount = goals?.length || 0;
+        if (!hasSubscriptionContext || requireAccess?.('create_goal', { currentGoalCount })) {
           router.push('/manual-goal');
         }
         break;
       case 'milestone':
-        if (requireAccess('modify_data')) {
+        if (!hasSubscriptionContext || requireAccess?.('modify_data')) {
           router.push('/manual-milestone');
         }
         break;

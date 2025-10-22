@@ -7,19 +7,8 @@ import Foundation
 import ActivityKit
 import React
 
-// MARK: - Activity Attributes (matching PomodoroLiveActivity.swift)
-struct PomodoroActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        let timeRemaining: Int // seconds
-        let totalDuration: Int // seconds  
-        let sessionType: String // "work", "shortBreak", "longBreak"
-        let isRunning: Bool
-        let completedPomodoros: Int
-        let taskTitle: String
-    }
-    
-    let startTime: Date
-}
+// MARK: - Activity Attributes (imported from PomodoroLiveActivity target)
+// Note: PomodoroActivityAttributes is defined in PomodoroLiveActivity target
 
 @objc(LiveActivityModule)
 class LiveActivityModule: NSObject {
