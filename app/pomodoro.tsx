@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { liveActivityService } from '../src/services/liveActivityService';
+import { notificationService } from '../src/services/notificationService';
 
 // Pomodoro session types
 type SessionType = 'work' | 'shortBreak' | 'longBreak';
@@ -120,6 +121,30 @@ export default function PomodoroScreen() {
     }
   };
 
+  const sendCompletionNotification = async (sessionType: SessionType, newCompletedPomodoros?: number) => {
+    try {
+      // Send push notification via OneSignal API
+      const response = await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'pomodoro_completion',
+          sessionType,
+          completedPomodoros: newCompletedPomodoros || completedPomodoros,
+          taskTitle: currentTask,
+        }),
+      });
+      
+      if (!response.ok) {
+        console.warn('Failed to send push notification:', response.status);
+      }
+    } catch (error) {
+      console.warn('Error sending push notification:', error);
+    }
+  };
+
   const handleSessionComplete = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsRunning(false);
@@ -141,6 +166,9 @@ export default function PomodoroScreen() {
       const newCompletedPomodoros = completedPomodoros + 1;
       setCompletedPomodoros(newCompletedPomodoros);
       
+      // Send completion notification for work session
+      await sendCompletionNotification('work', newCompletedPomodoros);
+      
       // Determine next session type
       const nextSession: SessionType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak';
       setCurrentSession(nextSession);
@@ -152,7 +180,9 @@ export default function PomodoroScreen() {
         [{ text: 'Start Break', onPress: () => setIsRunning(true) }]
       );
     } else {
-      // Break completed
+      // Break completed - send notification for break end
+      await sendCompletionNotification(currentSession);
+      
       setCurrentSession('work');
       setTimeLeft(POMODORO_SESSIONS.work.duration);
       

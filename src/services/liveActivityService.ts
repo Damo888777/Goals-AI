@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native'
+import { OneSignal } from 'react-native-onesignal'
 
 // Type definitions matching Swift ActivityAttributes
 export interface PomodoroActivityState {
@@ -25,6 +26,20 @@ class LiveActivityService {
   constructor() {
     if (Platform.OS === 'ios') {
       this.liveActivityModule = NativeModules.LiveActivityModule as LiveActivityModule
+      this.setupOneSignalLiveActivities()
+    }
+  }
+
+  /**
+   * Setup OneSignal Live Activities for push-to-start support
+   */
+  private setupOneSignalLiveActivities() {
+    try {
+      // Setup OneSignal Default Live Activities for push-to-start
+      OneSignal.LiveActivities.setupDefault()
+      console.log('OneSignal Live Activities setup completed')
+    } catch (error) {
+      console.warn('Failed to setup OneSignal Live Activities:', error)
     }
   }
 

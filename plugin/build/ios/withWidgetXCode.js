@@ -10,10 +10,12 @@ const path_1 = __importDefault(require("path"));
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const xcode = require("xcode");
 const EXTENSION_TARGET_NAME = "widget";
-const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist"];
+const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
+const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
+const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m"];
 const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
-const BUILD_CONFIGURATION_SETTINGS = {
+const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
     ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
     ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: "WidgetBackground",
     CLANG_ANALYZER_NONNULL: "YES",
@@ -44,20 +46,59 @@ const BUILD_CONFIGURATION_SETTINGS = {
     SWIFT_VERSION: "5.0",
     TARGETED_DEVICE_FAMILY: '"1,2"',
     CODE_SIGN_ENTITLEMENTS: "widget/widget.entitlements",
-    "com.apple.developer.live-activities": "YES",
+};
+const LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS = {
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
+    CLANG_ANALYZER_NONNULL: "YES",
+    CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION: "YES_AGGRESSIVE",
+    CLANG_CXX_LANGUAGE_STANDARD: '"gnu++17"',
+    CLANG_ENABLE_OBJC_WEAK: "YES",
+    CLANG_WARN_DOCUMENTATION_COMMENTS: "YES",
+    CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER: "YES",
+    CLANG_WARN_UNGUARDED_AVAILABILITY: "YES_AGGRESSIVE",
+    CODE_SIGN_STYLE: "Automatic",
+    CURRENT_PROJECT_VERSION: "1",
+    DEBUG_INFORMATION_FORMAT: "dwarf",
+    GCC_C_LANGUAGE_STANDARD: "gnu11",
+    GENERATE_INFOPLIST_FILE: "YES",
+    INFOPLIST_FILE: "PomodoroLiveActivity/Info.plist",
+    INFOPLIST_KEY_CFBundleDisplayName: "PomodoroLiveActivity",
+    INFOPLIST_KEY_NSHumanReadableCopyright: '""',
+    IPHONEOS_DEPLOYMENT_TARGET: "16.2",
+    LD_RUNPATH_SEARCH_PATHS: '"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"',
+    MARKETING_VERSION: "1.0",
+    MTL_ENABLE_DEBUG_INFO: "INCLUDE_SOURCE",
+    MTL_FAST_MATH: "YES",
+    PRODUCT_NAME: '"$(TARGET_NAME)"',
+    SKIP_INSTALL: "YES",
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DEBUG",
+    SWIFT_EMIT_LOC_STRINGS: "YES",
+    SWIFT_OPTIMIZATION_LEVEL: "-Onone",
+    SWIFT_VERSION: "5.0",
+    TARGETED_DEVICE_FAMILY: '"1,2"',
 };
 const withWidgetXCode = (config, options = {}) => {
+    // Add NSSupportsLiveActivities to main app Info.plist (required per Medium article)
+    config = (0, config_plugins_1.withInfoPlist)(config, config => {
+        config.modResults.NSSupportsLiveActivities = true;
+        return config;
+    });
     return (0, config_plugins_1.withXcodeProject)(config, async (newConfig) => {
-        var _a;
         try {
             const projectName = newConfig.modRequest.projectName;
             const projectPath = newConfig.modRequest.projectRoot;
             const platformProjectPath = newConfig.modRequest.platformProjectRoot;
             const widgetSourceDirPath = path_1.default.join(projectPath, "widget", "ios", "widget");
-            const bundleId = ((_a = config.ios) === null || _a === void 0 ? void 0 : _a.bundleIdentifier) || "";
-            const widgetBundleId = `${bundleId}.widget`;
+            const widgetBundleId = "pro.GoalAchieverAI.widget";
             const extensionFilesDir = path_1.default.join(platformProjectPath, EXTENSION_TARGET_NAME);
             fs_extra_1.default.copySync(widgetSourceDirPath, extensionFilesDir);
+            // Copy Live Activity files from /targets/pomodoro-live-activity/
+            const liveActivitySourceDir = path_1.default.join(projectPath, "targets", "pomodoro-live-activity");
+            const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
+            const liveActivityTargetDir = path_1.default.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
+            if (fs_extra_1.default.existsSync(liveActivitySourceDir)) {
+                fs_extra_1.default.copySync(liveActivitySourceDir, liveActivityTargetDir);
+            }
             // Copy Live Activities and WidgetKit files to main app target
             const nativeModulesSourceDir = path_1.default.join(projectPath, "plugin", "src", "ios");
             const mainAppDir = platformProjectPath;
@@ -70,7 +111,7 @@ const withWidgetXCode = (config, options = {}) => {
                 }
             });
             const projPath = `${newConfig.modRequest.platformProjectRoot}/${projectName}.xcodeproj/project.pbxproj`;
-            await updateXCodeProj(projPath, widgetBundleId, options.devTeamId || "");
+            await updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, options.devTeamId || "");
             return newConfig;
         }
         catch (e) {
@@ -80,7 +121,7 @@ const withWidgetXCode = (config, options = {}) => {
     });
 };
 exports.withWidgetXCode = withWidgetXCode;
-async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
+async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, developmentTeamId) {
     const xcodeProject = xcode.project(projPath);
     xcodeProject.parse(() => {
         // Add Live Activities and WidgetKit files to main app target
@@ -110,12 +151,18 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
             projObjects["PBXTargetDependency"] || {};
         projObjects["PBXContainerItemProxy"] =
             projObjects["PBXTargetDependency"] || {};
-        // add target
+        // add widget target
         const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
-        // add build phase
-        xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid, undefined, "widget");
-        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
-        xcodeProject.addBuildPhase(["Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid, undefined, "widget");
+        // add widget build phases
+        xcodeProject.addBuildPhase(["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid);
+        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
+        xcodeProject.addBuildPhase(["widget/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid);
+        // add Live Activity target
+        const liveActivityTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
+        // add Live Activity build phases - use correct file path
+        xcodeProject.addBuildPhase(["PomodoroLiveActivity/PomodoroLiveActivity.swift"], "PBXSourcesBuildPhase", "Sources", liveActivityTarget.uuid);
+        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", liveActivityTarget.uuid);
+        xcodeProject.addBuildPhase(["PomodoroLiveActivity/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", liveActivityTarget.uuid);
         /* Update build configurations */
         const configurations = xcodeProject.pbxXCBuildConfigurationSection();
         for (const key in configurations) {
@@ -124,12 +171,37 @@ async function updateXCodeProj(projPath, widgetBundleId, developmentTeamId) {
                 if (productName === `"${EXTENSION_TARGET_NAME}"`) {
                     configurations[key].buildSettings = {
                         ...configurations[key].buildSettings,
-                        ...BUILD_CONFIGURATION_SETTINGS,
+                        ...WIDGET_BUILD_CONFIGURATION_SETTINGS,
                         DEVELOPMENT_TEAM: developmentTeamId,
                         PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
                     };
                 }
+                if (productName === `"${LIVE_ACTIVITY_TARGET_NAME}"`) {
+                    configurations[key].buildSettings = {
+                        ...configurations[key].buildSettings,
+                        ...LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS,
+                        DEVELOPMENT_TEAM: developmentTeamId,
+                        PRODUCT_BUNDLE_IDENTIFIER: liveActivityBundleId,
+                    };
+                }
             }
+        }
+        // Add Live Activities capability for real-time timer updates
+        try {
+            const targetUuid = widgetTarget.uuid;
+            // Add Push Notifications and Live Activities capabilities
+            xcodeProject.addTargetAttribute('SystemCapabilities', {
+                'com.apple.Push': {
+                    enabled: 1
+                },
+                'com.apple.developer.live-activities': {
+                    enabled: 1
+                }
+            }, targetUuid);
+            xcodeProject.addTargetAttribute('ProvisioningStyle', 'Automatic', targetUuid);
+        }
+        catch (error) {
+            console.warn('Could not add Live Activities capabilities:', error instanceof Error ? error.message : String(error));
         }
         fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });

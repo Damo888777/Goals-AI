@@ -27,9 +27,7 @@
       "entitlements": {
         "aps-environment": "development",
         "com.apple.developer.applesignin": ["Default"],
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI"],
-        "com.apple.security.application-groups.widget-extension": ["group.pro.GoalAchieverAI"],
-        "com.apple.developer.live-activities": true
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI", "group.pro.GoalAchieverAI.onesignal"]
       }
     },
     "android": {
@@ -72,7 +70,7 @@
         "./app.plugin", 
         { 
           "devTeamId": "5PT3BWY2A5",
-          "appGroupId": "group.pro.GoalAchieverAI"
+          "appGroupId": "group.pro.GoalAchieverAI.onesignal"
         }
       ]
     ],
