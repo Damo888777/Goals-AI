@@ -144,18 +144,86 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             projObjects["PBXTargetDependency"] || {};
         projObjects["PBXContainerItemProxy"] =
             projObjects["PBXTargetDependency"] || {};
-        // add widget target
-        const widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
-        // add widget build phases - use correct file paths
-        xcodeProject.addBuildPhase(["widget/widget.swift", "widget/SharedDataManager.swift", "widget/TaskIntents.swift", "widget/TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid);
-        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
-        xcodeProject.addBuildPhase(["widget/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid);
-        // add Live Activity target
-        const liveActivityTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
-        // add Live Activity build phases - use correct file path
-        xcodeProject.addBuildPhase(["PomodoroLiveActivity/PomodoroLiveActivity.swift"], "PBXSourcesBuildPhase", "Sources", liveActivityTarget.uuid);
-        xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", liveActivityTarget.uuid);
-        xcodeProject.addBuildPhase(["PomodoroLiveActivity/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", liveActivityTarget.uuid);
+        // Check if widget target already exists
+        const existingTargets = xcodeProject.pbxNativeTargetSection();
+        let widgetTarget = null;
+        for (const uuid in existingTargets) {
+            if (uuid.endsWith('_comment'))
+                continue;
+            const target = existingTargets[uuid];
+            if (target && target.name === EXTENSION_TARGET_NAME) {
+                widgetTarget = { uuid };
+                break;
+            }
+        }
+        // Only add widget target if it doesn't exist
+        if (!widgetTarget) {
+            widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
+        }
+        // Check existing build phases for widget target
+        const widgetBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
+        let hasWidgetSources = false;
+        for (const phaseUuid in widgetBuildPhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = widgetBuildPhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasWidgetFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('widget.swift');
+                });
+                if (hasWidgetFiles) {
+                    hasWidgetSources = true;
+                    break;
+                }
+            }
+        }
+        // Only add widget build phases if they don't exist
+        if (!hasWidgetSources) {
+            xcodeProject.addBuildPhase(["widget/widget.swift", "widget/SharedDataManager.swift", "widget/TaskIntents.swift", "widget/TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid);
+            xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
+            xcodeProject.addBuildPhase(["widget/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid);
+        }
+        // Check if Live Activity target already exists
+        let liveActivityTarget = null;
+        for (const uuid in existingTargets) {
+            if (uuid.endsWith('_comment'))
+                continue;
+            const target = existingTargets[uuid];
+            if (target && target.name === LIVE_ACTIVITY_TARGET_NAME) {
+                liveActivityTarget = { uuid };
+                break;
+            }
+        }
+        // Only add Live Activity target if it doesn't exist
+        if (!liveActivityTarget) {
+            liveActivityTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
+        }
+        // Check existing build phases for Live Activity target
+        let hasLiveActivitySources = false;
+        for (const phaseUuid in widgetBuildPhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = widgetBuildPhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasLiveActivityFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('PomodoroLiveActivity.swift');
+                });
+                if (hasLiveActivityFiles) {
+                    hasLiveActivitySources = true;
+                    break;
+                }
+            }
+        }
+        // Only add Live Activity build phases if they don't exist
+        if (!hasLiveActivitySources) {
+            xcodeProject.addBuildPhase(["PomodoroLiveActivity/PomodoroLiveActivity.swift"], "PBXSourcesBuildPhase", "Sources", liveActivityTarget.uuid);
+            xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", liveActivityTarget.uuid);
+            xcodeProject.addBuildPhase(["PomodoroLiveActivity/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", liveActivityTarget.uuid);
+        }
         /* Update build configurations */
         const configurations = xcodeProject.pbxXCBuildConfigurationSection();
         for (const key in configurations) {
@@ -217,7 +285,7 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             try {
                 // Check for existing files in build phases to prevent duplicates
                 const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`);
-                const buildPhases = xcodeProject.pbxSourcesBuildPhaseSection();
+                const buildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
                 // Find the sources build phase for this target
                 let targetBuildPhase = null;
                 for (const phaseUuid in buildPhases) {
@@ -226,7 +294,7 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                     const phase = buildPhases[phaseUuid];
                     if (phase && phase.files) {
                         // Check if this build phase belongs to our target by examining file references
-                        const fileRefs = xcodeProject.pbxFileReferenceSection();
+                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
                         const hasMainTargetFiles = phase.files.some((fileRef) => {
                             const file = fileRefs[fileRef.value];
                             return file && file.path && file.path.includes('GoalsAI');
@@ -241,7 +309,7 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 const filesToAdd = sourceFiles.filter(sourceFile => {
                     if (!targetBuildPhase || !targetBuildPhase.files)
                         return true;
-                    const fileRefs = xcodeProject.pbxFileReferenceSection();
+                    const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
                     return !targetBuildPhase.files.some((fileRef) => {
                         const file = fileRefs[fileRef.value];
                         return file && file.path && file.path.includes(sourceFile.split('/').pop());

@@ -250,8 +250,8 @@ struct widgetEntryView: View {
                         .stroke(Color.widgetStrokeColor, lineWidth: 2)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.trailing, 12)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 5)
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -556,12 +556,12 @@ struct MediumEmptyStateView: View {
                 .font(.system(size: 24, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
             
-            Text("All tasks completed!")
+            Text("No tasks for today")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
                 .multilineTextAlignment(.center)
             
-            Text("Great job today")
+            Text("Your day looks clear")
                 .font(.system(size: 10, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
                 .multilineTextAlignment(.center)
@@ -645,10 +645,6 @@ struct LargeRegularTaskView: View {
 struct LargeFrogEmptyView: View {
     var body: some View {
         HStack(spacing: 12) {
-            // Empty circle (no completion button)
-            Circle()
-                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
-                .frame(width: 24, height: 24)
             
             Text("Set your most important task!")
                 .font(.custom("Helvetica", size: 14))
@@ -666,9 +662,6 @@ struct MediumFrogEmptyView: View {
     var body: some View {
         HStack(spacing: 8) {
             // Empty circle (smaller)
-            Circle()
-                .stroke(Color.widgetCompleteOuter, lineWidth: 1)
-                .frame(width: 18, height: 18)
             
             Text("No frog for today")
                 .font(.system(size: 12, weight: .regular))
