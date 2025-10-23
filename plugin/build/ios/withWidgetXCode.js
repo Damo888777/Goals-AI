@@ -178,7 +178,9 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         }
         // Only add widget target if it doesn't exist
         if (!widgetTarget) {
-            widgetTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
+            const newTarget = xcodeProject.addTarget(EXTENSION_TARGET_NAME, "app_extension", EXTENSION_TARGET_NAME, widgetBundleId);
+            widgetTarget = { uuid: newTarget.uuid };
+            console.log(`Created new widget target with UUID: ${newTarget.uuid}`);
         }
         // Check existing build phases for widget target
         const widgetBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
@@ -238,16 +240,8 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 }
             }
         }
-        // Only add widget build phases if they don't exist
-        if (!hasWidgetSources) {
-            xcodeProject.addBuildPhase(["widget/widget.swift", "widget/SharedDataManager.swift", "widget/TaskIntents.swift", "widget/TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid);
-        }
-        if (!hasWidgetFrameworks) {
-            xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
-        }
-        if (!hasWidgetResources) {
-            xcodeProject.addBuildPhase(["widget/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid);
-        }
+        // Skip adding widget build phases - they should be created automatically with the target
+        console.log(`Widget target build phases check: Sources=${hasWidgetSources}, Frameworks=${hasWidgetFrameworks}, Resources=${hasWidgetResources}`);
         // Check if Live Activity target already exists
         let liveActivityTarget = null;
         for (const uuid in existingTargets) {
@@ -261,7 +255,9 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         }
         // Only add Live Activity target if it doesn't exist
         if (!liveActivityTarget) {
-            liveActivityTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
+            const newTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
+            liveActivityTarget = { uuid: newTarget.uuid };
+            console.log(`Created new Live Activity target with UUID: ${newTarget.uuid}`);
         }
         // Check existing build phases for Live Activity target
         const liveActivityBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
@@ -321,16 +317,8 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 }
             }
         }
-        // Only add Live Activity build phases if they don't exist
-        if (!hasLiveActivitySources) {
-            xcodeProject.addBuildPhase(["PomodoroLiveActivity/PomodoroLiveActivity.swift"], "PBXSourcesBuildPhase", "Sources", liveActivityTarget.uuid);
-        }
-        if (!hasLiveActivityFrameworks) {
-            xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", liveActivityTarget.uuid);
-        }
-        if (!hasLiveActivityResources) {
-            xcodeProject.addBuildPhase(["PomodoroLiveActivity/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", liveActivityTarget.uuid);
-        }
+        // Skip adding Live Activity build phases - they should be created automatically with the target
+        console.log(`Live Activity target build phases check: Sources=${hasLiveActivitySources}, Frameworks=${hasLiveActivityFrameworks}, Resources=${hasLiveActivityResources}`);
         /* Update build configurations */
         const configurations = xcodeProject.pbxXCBuildConfigurationSection();
         for (const key in configurations) {
@@ -404,57 +392,9 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 break;
             }
         }
-        // Add native module files to main target using the exact same method as widget/live activity
-        if (mainTargetUuid) {
-            try {
-                // Check for existing files in build phases to prevent duplicates
-                const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`);
-                const buildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
-                // Find the sources build phase for this target
-                let targetBuildPhase = null;
-                for (const phaseUuid in buildPhases) {
-                    if (phaseUuid.endsWith('_comment'))
-                        continue;
-                    const phase = buildPhases[phaseUuid];
-                    if (phase && phase.files) {
-                        // Check if this build phase belongs to our target by examining file references
-                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-                        const hasMainTargetFiles = phase.files.some((fileRef) => {
-                            const file = fileRefs[fileRef.value];
-                            return file && file.path && file.path.includes('GoalsAI');
-                        });
-                        if (hasMainTargetFiles) {
-                            targetBuildPhase = phase;
-                            break;
-                        }
-                    }
-                }
-                // Filter out files that already exist in the build phase
-                const filesToAdd = sourceFiles.filter(sourceFile => {
-                    if (!targetBuildPhase || !targetBuildPhase.files)
-                        return true;
-                    const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-                    return !targetBuildPhase.files.some((fileRef) => {
-                        const file = fileRefs[fileRef.value];
-                        return file && file.path && file.path.includes(sourceFile.split('/').pop());
-                    });
-                });
-                // Only add files that don't already exist
-                if (filesToAdd.length > 0) {
-                    xcodeProject.addBuildPhase(filesToAdd, "PBXSourcesBuildPhase", "Sources", mainTargetUuid);
-                    console.log(`Successfully added native module files to main target: ${filesToAdd.join(', ')}`);
-                }
-                else {
-                    console.log('All native module files already exist in build phase, skipping duplicate addition');
-                }
-            }
-            catch (error) {
-                console.warn(`Warning: Could not add native module files to build phase:`, error instanceof Error ? error.message : String(error));
-            }
-        }
-        else {
-            console.warn('Could not find main target UUID');
-        }
+        // Skip adding native module files to main target - they should be handled by Expo
+        console.log(`Main target UUID found: ${mainTargetUuid}`);
+        console.log('Skipping native module file addition - handled by Expo prebuild');
         fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });
 }
