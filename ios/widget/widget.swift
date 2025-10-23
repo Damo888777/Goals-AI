@@ -250,8 +250,6 @@ struct widgetEntryView: View {
                         .stroke(Color.widgetStrokeColor, lineWidth: 2)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 5)
-                .padding(.vertical, 5)
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)

@@ -151,7 +151,7 @@ class LiveActivityModule: NSObject {
 }
 
 // MARK: - React Native Module Export
-@objc(LiveActivityModuleBridge)
+@objc(LiveActivityModule)
 class LiveActivityModuleBridge: NSObject, RCTBridgeModule {
     
     static func moduleName() -> String! {
