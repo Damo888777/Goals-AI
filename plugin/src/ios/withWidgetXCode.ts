@@ -109,22 +109,19 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
         fs.copySync(liveActivitySourceDir, liveActivityTargetDir);
       }
 
-      // Copy Live Activities and WidgetKit files to main app target
+      // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
       const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios");
-      const mainIosDir = path.join(projectPath, "ios");
-      const mainAppDir = platformProjectPath;
+      const mainAppTargetDir = path.join(platformProjectPath, "GoalsAI");
       const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
       
       allNativeFiles.forEach(file => {
-        // First try plugin/src/ios directory
-        let sourcePath = path.join(nativeModulesSourceDir, file);
-        if (!fs.existsSync(sourcePath)) {
-          // Fallback to main ios directory
-          sourcePath = path.join(mainIosDir, file);
-        }
-        const destPath = path.join(mainAppDir, file);
+        const sourcePath = path.join(nativeModulesSourceDir, file);
+        const destPath = path.join(mainAppTargetDir, file);
         if (fs.existsSync(sourcePath)) {
           fs.copySync(sourcePath, destPath);
+          console.log(`Copied ${file} to GoalsAI target directory`);
+        } else {
+          console.warn(`Source file not found: ${sourcePath}`);
         }
       });
 
@@ -147,21 +144,6 @@ async function updateXCodeProj(
   const xcodeProject = xcode.project(projPath)
 
   xcodeProject.parse(() => {
-    // Add Live Activities and WidgetKit files to main app target
-    const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
-    const mainTarget = xcodeProject.getFirstTarget()
-    
-    if (mainTarget && mainTarget.uuid) {
-      allNativeFiles.forEach(file => {
-        try {
-          xcodeProject.addSourceFile(file, {}, mainTarget.uuid)
-        } catch (error) {
-          console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error))
-        }
-      })
-    } else {
-      console.warn('Warning: Could not find main target UUID for adding native module files')
-    }
     const pbxGroup = xcodeProject.addPbxGroup(
       TOP_LEVEL_FILES,
       EXTENSION_TARGET_NAME,
@@ -243,6 +225,55 @@ async function updateXCodeProj(
       xcodeProject.addTargetAttribute('ProvisioningStyle', 'Automatic', targetUuid)
     } catch (error) {
       console.warn('Could not add Live Activities capabilities:', error instanceof Error ? error.message : String(error))
+    }
+
+    // Add native module files to main app target
+    const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
+    
+    // Get all native targets and find the main app target
+    const nativeTargets = xcodeProject.pbxNativeTargetSection()
+    let mainTargetUuid: string | null = null
+    
+    // Look for the main app target (should be the first one that's not a widget/extension)
+    for (const uuid in nativeTargets) {
+      if (uuid.endsWith('_comment')) continue // Skip comment entries
+      
+      const target = nativeTargets[uuid]
+      if (target && target.name && target.name.includes('GoalsAI') && !target.name.includes('Widget') && !target.name.includes('Extension')) {
+        mainTargetUuid = uuid
+        console.log(`Found main target: ${target.name} with UUID: ${uuid}`)
+        break
+      }
+    }
+    
+    if (mainTargetUuid) {
+      // Use addBuildPhase method which is more reliable for adding source files
+      const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`)
+      
+      try {
+        // Add all native module files to the sources build phase at once
+        xcodeProject.addBuildPhase(sourceFiles, "PBXSourcesBuildPhase", "Sources", mainTargetUuid)
+        console.log(`Successfully added native module files to main target: ${allNativeFiles.join(', ')}`)
+      } catch (error) {
+        console.warn(`Warning: Could not add native module files to build phase:`, error instanceof Error ? error.message : String(error))
+        
+        // Fallback: try adding files individually using the safer method
+        allNativeFiles.forEach(file => {
+          try {
+            const relativePath = `GoalsAI/${file}`
+            // Use addSourceFile with minimal options to avoid syntax issues
+            const fileRef = xcodeProject.addSourceFile(relativePath)
+            if (fileRef) {
+              console.log(`Successfully added ${file} to main target (fallback method)`)
+            }
+          } catch (fallbackError) {
+            console.warn(`Warning: Could not add source file ${file} (fallback):`, fallbackError instanceof Error ? fallbackError.message : String(fallbackError))
+          }
+        })
+      }
+    } else {
+      console.warn('Could not find main target UUID - files copied but not linked in Xcode project')
+      console.log('Available targets:', Object.keys(nativeTargets).filter(k => !k.endsWith('_comment')))
     }
 
     fs.writeFileSync(projPath, xcodeProject.writeSync())
