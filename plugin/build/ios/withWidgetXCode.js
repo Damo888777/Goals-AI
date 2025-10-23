@@ -398,51 +398,69 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 // Get existing source files in main target to prevent duplicates
                 const mainTargetBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
                 const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-                // Find main target's source build phase
+                // Find main target's source build phase using the target UUID
                 let mainTargetSourcePhase = null;
-                for (const phaseUuid in mainTargetBuildPhases) {
-                    if (phaseUuid.endsWith('_comment'))
-                        continue;
-                    const phase = mainTargetBuildPhases[phaseUuid];
-                    if (phase && phase.files) {
-                        // Check if this phase belongs to main target by looking for known main target files
-                        const hasMainFiles = phase.files.some((fileRef) => {
-                            var _a, _b;
-                            const file = fileRefs[fileRef.value];
-                            return file && (((_a = file.path) === null || _a === void 0 ? void 0 : _a.includes('AppDelegate')) || ((_b = file.path) === null || _b === void 0 ? void 0 : _b.includes('main.m')));
-                        });
-                        if (hasMainFiles) {
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                const mainTarget = targets[mainTargetUuid];
+                if (mainTarget && mainTarget.buildPhases) {
+                    // Look through the main target's build phases to find the sources build phase
+                    for (const phaseRef of mainTarget.buildPhases) {
+                        const phaseUuid = phaseRef.value;
+                        const phase = mainTargetBuildPhases[phaseUuid];
+                        if (phase && phase.isa === 'PBXSourcesBuildPhase') {
                             mainTargetSourcePhase = phase;
+                            console.log(`Found main target source build phase: ${phaseUuid}`);
                             break;
                         }
                     }
                 }
                 if (mainTargetSourcePhase) {
-                    // Check which native module files are already in the build phase
-                    const existingFiles = new Set();
-                    mainTargetSourcePhase.files.forEach((fileRef) => {
-                        const file = fileRefs[fileRef.value];
-                        if (file && file.path) {
-                            existingFiles.add(file.path);
-                        }
-                    });
-                    // Add missing native module files
+                    // Manual approach: Add files directly to project structure
                     let addedCount = 0;
                     for (const nativeFile of allNativeFiles) {
                         const fileName = nativeFile.split('/').pop() || nativeFile;
-                        const fileExists = Array.from(existingFiles).some(path => path.includes(fileName));
-                        if (!fileExists) {
+                        const fullPath = `GoalsAI/${nativeFile}`;
+                        // Check if file already exists in project
+                        const existingFile = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(fileName));
+                        if (!existingFile) {
                             try {
-                                // Add file reference and build file entry
-                                const fileRef = xcodeProject.addFile(`GoalsAI/${nativeFile}`, mainTargetSourcePhase);
-                                if (fileRef) {
-                                    addedCount++;
-                                    console.log(`Added native module file: ${nativeFile}`);
+                                // Add file reference manually
+                                const fileUuid = xcodeProject.generateUuid();
+                                const fileType = nativeFile.endsWith('.swift') ? 'sourcecode.swift' : 'sourcecode.c.objc';
+                                // Add to PBXFileReference section
+                                xcodeProject.hash.project.objects.PBXFileReference[fileUuid] = {
+                                    isa: 'PBXFileReference',
+                                    lastKnownFileType: fileType,
+                                    name: fileName,
+                                    path: fullPath,
+                                    sourceTree: '"<group>"'
+                                };
+                                xcodeProject.hash.project.objects.PBXFileReference[fileUuid + '_comment'] = fileName;
+                                // Add to build file section
+                                const buildFileUuid = xcodeProject.generateUuid();
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                    isa: 'PBXBuildFile',
+                                    fileRef: fileUuid,
+                                    fileRef_comment: fileName
+                                };
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                                // Add to main target's source build phase
+                                if (!mainTargetSourcePhase.files) {
+                                    mainTargetSourcePhase.files = [];
                                 }
+                                mainTargetSourcePhase.files.push({
+                                    value: buildFileUuid,
+                                    comment: `${fileName} in Sources`
+                                });
+                                addedCount++;
+                                console.log(`Added native module file: ${nativeFile}`);
                             }
                             catch (fileError) {
                                 console.warn(`Could not add ${nativeFile}:`, fileError instanceof Error ? fileError.message : String(fileError));
                             }
+                        }
+                        else {
+                            console.log(`Native module file ${nativeFile} already exists in project`);
                         }
                     }
                     if (addedCount > 0) {
