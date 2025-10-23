@@ -515,9 +515,6 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                     'com.apple.Push': {
                         enabled: 1
                     },
-                    'com.apple.developer.live-activities': {
-                        enabled: 1
-                    }
                 }, targetUuid);
             }
             if (!hasProvisioningStyle) {
