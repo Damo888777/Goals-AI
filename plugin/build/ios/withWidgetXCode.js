@@ -213,30 +213,41 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             }
         }
         if (mainTargetUuid) {
-            // Use addBuildPhase method which is more reliable for adding source files
-            const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`);
-            try {
-                // Add all native module files to the sources build phase at once
-                xcodeProject.addBuildPhase(sourceFiles, "PBXSourcesBuildPhase", "Sources", mainTargetUuid);
-                console.log(`Successfully added native module files to main target: ${allNativeFiles.join(', ')}`);
-            }
-            catch (error) {
-                console.warn(`Warning: Could not add native module files to build phase:`, error instanceof Error ? error.message : String(error));
-                // Fallback: try adding files individually using the safer method
-                allNativeFiles.forEach(file => {
-                    try {
-                        const relativePath = `GoalsAI/${file}`;
-                        // Use addSourceFile with minimal options to avoid syntax issues
-                        const fileRef = xcodeProject.addSourceFile(relativePath);
-                        if (fileRef) {
-                            console.log(`Successfully added ${file} to main target (fallback method)`);
-                        }
+            // Add each file to the existing sources build phase
+            allNativeFiles.forEach(file => {
+                try {
+                    const relativePath = `GoalsAI/${file}`;
+                    // Create file reference and add to project group
+                    const group = xcodeProject.findPBXGroupKey({ name: 'GoalsAI' }) || xcodeProject.findPBXGroupKey({ path: 'GoalsAI' });
+                    const fileRef = xcodeProject.generateUuid();
+                    const buildFileRef = xcodeProject.generateUuid();
+                    // Add file reference to PBXFileReference section
+                    xcodeProject.addToPbxFileReferenceSection({
+                        uuid: fileRef,
+                        basename: file,
+                        lastKnownFileType: file.endsWith('.swift') ? 'sourcecode.swift' : 'sourcecode.c.objc',
+                        name: `"${file}"`,
+                        path: `"${file}"`,
+                        sourceTree: '"<group>"'
+                    });
+                    // Add to PBXGroup
+                    if (group) {
+                        xcodeProject.addToPbxGroup(fileRef, group);
                     }
-                    catch (fallbackError) {
-                        console.warn(`Warning: Could not add source file ${file} (fallback):`, fallbackError instanceof Error ? fallbackError.message : String(fallbackError));
-                    }
-                });
-            }
+                    // Add build file reference
+                    xcodeProject.addToPbxBuildFileSection({
+                        uuid: buildFileRef,
+                        fileRef: fileRef,
+                        basename: file
+                    });
+                    // Add to sources build phase
+                    xcodeProject.addToPbxSourcesBuildPhase(buildFileRef, mainTargetUuid);
+                    console.log(`Successfully added ${file} to Xcode project sources`);
+                }
+                catch (error) {
+                    console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error));
+                }
+            });
         }
         else {
             console.warn('Could not find main target UUID - files copied but not linked in Xcode project');
