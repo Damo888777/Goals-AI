@@ -100,14 +100,43 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       const extensionFilesDir = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
       fs.copySync(widgetSourceDirPath, extensionFilesDir);
 
-      // Copy Live Activity files from /targets/pomodoro-live-activity/
-      const liveActivitySourceDir = path.join(projectPath, "targets", "pomodoro-live-activity");
+      // Create Live Activity target directory and generate Info.plist
       const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
       const liveActivityTargetDir = path.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
       
-      if (fs.existsSync(liveActivitySourceDir)) {
-        fs.copySync(liveActivitySourceDir, liveActivityTargetDir);
-      }
+      // Ensure Live Activity target directory exists
+      fs.ensureDirSync(liveActivityTargetDir);
+      
+      // Generate Info.plist for Live Activity target
+      const liveActivityInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Goals AI Live Activity</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+</dict>
+</plist>`;
+      
+      fs.writeFileSync(path.join(liveActivityTargetDir, "Info.plist"), liveActivityInfoPlist);
 
       // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
       const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios");
