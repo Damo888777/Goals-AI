@@ -283,25 +283,4 @@ private func sessionTypeLabel(_ sessionType: String) -> String {
     }
 }
 
-// MARK: - Preview
-#Preview("Notification", as: .content, using: PomodoroActivityAttributes(startTime: Date())) {
-    PomodoroLiveActivity()
-} contentStates: {
-    PomodoroActivityAttributes.ContentState(
-        timeRemaining: 1500, // 25 minutes
-        totalDuration: 1500,
-        sessionType: "work",
-        isRunning: true,
-        completedPomodoros: 2,
-        taskTitle: "Complete project documentation"
-    )
-    
-    PomodoroActivityAttributes.ContentState(
-        timeRemaining: 300, // 5 minutes
-        totalDuration: 300,
-        sessionType: "shortBreak",
-        isRunning: false,
-        completedPomodoros: 3,
-        taskTitle: "Complete project documentation"
-    )
-}
+// Preview code removed to avoid compatibility issues with PreviewActivityBuilder
