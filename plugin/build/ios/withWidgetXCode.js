@@ -92,13 +92,27 @@ const withWidgetXCode = (config, options = {}) => {
             const widgetBundleId = "pro.GoalAchieverAI.widget";
             const extensionFilesDir = path_1.default.join(platformProjectPath, EXTENSION_TARGET_NAME);
             fs_extra_1.default.copySync(widgetSourceDirPath, extensionFilesDir);
-            // Create Live Activity target directory and generate Info.plist
+            // Create Live Activity target directory and copy files
             const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
             const liveActivityTargetDir = path_1.default.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
+            const liveActivitySourceDir = path_1.default.join(projectPath, "targets", "pomodoro-live-activity");
             // Ensure Live Activity target directory exists
             fs_extra_1.default.ensureDirSync(liveActivityTargetDir);
-            // Generate Info.plist for Live Activity target
-            const liveActivityInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
+            // Copy Live Activity files if source directory exists
+            if (fs_extra_1.default.existsSync(liveActivitySourceDir)) {
+                LIVE_ACTIVITY_TARGET_FILES.forEach(file => {
+                    const sourcePath = path_1.default.join(liveActivitySourceDir, file);
+                    const destPath = path_1.default.join(liveActivityTargetDir, file);
+                    if (fs_extra_1.default.existsSync(sourcePath)) {
+                        fs_extra_1.default.copySync(sourcePath, destPath);
+                        console.log(`Copied Live Activity file: ${file}`);
+                    }
+                });
+            }
+            // Generate Info.plist for Live Activity target if it doesn't exist
+            const infoPlistPath = path_1.default.join(liveActivityTargetDir, "Info.plist");
+            if (!fs_extra_1.default.existsSync(infoPlistPath)) {
+                const liveActivityInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -125,7 +139,8 @@ const withWidgetXCode = (config, options = {}) => {
 	</dict>
 </dict>
 </plist>`;
-            fs_extra_1.default.writeFileSync(path_1.default.join(liveActivityTargetDir, "Info.plist"), liveActivityInfoPlist);
+                fs_extra_1.default.writeFileSync(infoPlistPath, liveActivityInfoPlist);
+            }
             // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
             const nativeModulesSourceDir = path_1.default.join(projectPath, "plugin", "src", "ios");
             const mainAppTargetDir = path_1.default.join(platformProjectPath, "GoalsAI");
@@ -285,6 +300,11 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             const newTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
             liveActivityTarget = { uuid: newTarget.uuid };
             console.log(`Created new Live Activity target with UUID: ${newTarget.uuid}`);
+            // Ensure the target has proper build phases
+            const targetObj = xcodeProject.hash.project.objects.PBXNativeTarget[newTarget.uuid];
+            if (targetObj && !targetObj.buildPhases) {
+                targetObj.buildPhases = [];
+            }
         }
         // Check existing build phases for Live Activity target
         const liveActivityBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
@@ -346,6 +366,109 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         }
         // Skip adding Live Activity build phases - they should be created automatically with the target
         console.log(`Live Activity target build phases check: Sources=${hasLiveActivitySources}, Frameworks=${hasLiveActivityFrameworks}, Resources=${hasLiveActivityResources}`);
+        // Add Live Activity files to Live Activity target build phases
+        if (liveActivityTarget) {
+            try {
+                // Find Live Activity target's source build phase
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                const liveActivityTargetObj = targets[liveActivityTarget.uuid];
+                if (liveActivityTargetObj && liveActivityTargetObj.buildPhases) {
+                    let liveActivitySourcePhase = null;
+                    // Look through the Live Activity target's build phases to find the sources build phase
+                    for (const phaseRef of liveActivityTargetObj.buildPhases) {
+                        const phaseUuid = phaseRef.value || phaseRef;
+                        const phase = liveActivityBuildPhases[phaseUuid];
+                        if (phase && phase.isa === 'PBXSourcesBuildPhase') {
+                            liveActivitySourcePhase = phase;
+                            console.log(`Found Live Activity target source build phase: ${phaseUuid}`);
+                            break;
+                        }
+                    }
+                    // If no source build phase found, create one
+                    if (!liveActivitySourcePhase) {
+                        const sourceBuildPhaseUuid = xcodeProject.generateUuid();
+                        liveActivityBuildPhases[sourceBuildPhaseUuid] = {
+                            isa: 'PBXSourcesBuildPhase',
+                            buildActionMask: '2147483647',
+                            files: [],
+                            runOnlyForDeploymentPostprocessing: '0'
+                        };
+                        liveActivityBuildPhases[sourceBuildPhaseUuid + '_comment'] = 'Sources';
+                        // Add to target's build phases
+                        liveActivityTargetObj.buildPhases.push({
+                            value: sourceBuildPhaseUuid,
+                            comment: 'Sources'
+                        });
+                        liveActivitySourcePhase = liveActivityBuildPhases[sourceBuildPhaseUuid];
+                        console.log(`Created Live Activity target source build phase: ${sourceBuildPhaseUuid}`);
+                    }
+                    if (liveActivitySourcePhase) {
+                        // Add Live Activity Swift files to build phase
+                        let addedLiveActivityFiles = 0;
+                        const liveActivitySwiftFiles = LIVE_ACTIVITY_TARGET_FILES.filter(file => file.endsWith('.swift'));
+                        for (const liveActivityFile of liveActivitySwiftFiles) {
+                            const fileName = liveActivityFile.split('/').pop() || liveActivityFile;
+                            const fullPath = `${LIVE_ACTIVITY_TARGET_NAME}/${liveActivityFile}`;
+                            // Check if file already exists in project
+                            const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                            const existingFile = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(fileName));
+                            if (!existingFile) {
+                                try {
+                                    // Add file reference manually
+                                    const fileUuid = xcodeProject.generateUuid();
+                                    const fileType = 'sourcecode.swift';
+                                    // Add to PBXFileReference section
+                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid] = {
+                                        isa: 'PBXFileReference',
+                                        lastKnownFileType: fileType,
+                                        name: fileName,
+                                        path: fullPath,
+                                        sourceTree: '"<group>"'
+                                    };
+                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid + '_comment'] = fileName;
+                                    // Add to build file section
+                                    const buildFileUuid = xcodeProject.generateUuid();
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                        isa: 'PBXBuildFile',
+                                        fileRef: fileUuid,
+                                        fileRef_comment: fileName
+                                    };
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                                    // Add to Live Activity target's source build phase
+                                    if (!liveActivitySourcePhase.files) {
+                                        liveActivitySourcePhase.files = [];
+                                    }
+                                    liveActivitySourcePhase.files.push({
+                                        value: buildFileUuid,
+                                        comment: `${fileName} in Sources`
+                                    });
+                                    addedLiveActivityFiles++;
+                                    console.log(`Added Live Activity file to target: ${liveActivityFile}`);
+                                }
+                                catch (fileError) {
+                                    console.warn(`Could not add Live Activity file ${liveActivityFile}:`, fileError instanceof Error ? fileError.message : String(fileError));
+                                }
+                            }
+                            else {
+                                console.log(`Live Activity file ${liveActivityFile} already exists in project`);
+                            }
+                        }
+                        if (addedLiveActivityFiles > 0) {
+                            console.log(`Successfully added ${addedLiveActivityFiles} Live Activity files to Live Activity target`);
+                        }
+                        else {
+                            console.log('All Live Activity files already exist in Live Activity target');
+                        }
+                    }
+                    else {
+                        console.warn('Could not find Live Activity target source build phase');
+                    }
+                }
+            }
+            catch (error) {
+                console.error('Error adding Live Activity files to target:', error instanceof Error ? error.message : String(error));
+            }
+        }
         /* Update build configurations */
         const configurations = xcodeProject.pbxXCBuildConfigurationSection();
         for (const key in configurations) {
