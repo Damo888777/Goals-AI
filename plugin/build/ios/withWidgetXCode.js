@@ -215,10 +215,46 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         // Add native module files to main target using the exact same method as widget/live activity
         if (mainTargetUuid) {
             try {
-                // Use addBuildPhase method like widget targets (line 174, 182)
+                // Check for existing files in build phases to prevent duplicates
                 const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`);
-                xcodeProject.addBuildPhase(sourceFiles, "PBXSourcesBuildPhase", "Sources", mainTargetUuid);
-                console.log(`Successfully added native module files to main target: ${allNativeFiles.join(', ')}`);
+                const buildPhases = xcodeProject.pbxSourcesBuildPhaseSection();
+                // Find the sources build phase for this target
+                let targetBuildPhase = null;
+                for (const phaseUuid in buildPhases) {
+                    if (phaseUuid.endsWith('_comment'))
+                        continue;
+                    const phase = buildPhases[phaseUuid];
+                    if (phase && phase.files) {
+                        // Check if this build phase belongs to our target by examining file references
+                        const fileRefs = xcodeProject.pbxFileReferenceSection();
+                        const hasMainTargetFiles = phase.files.some((fileRef) => {
+                            const file = fileRefs[fileRef.value];
+                            return file && file.path && file.path.includes('GoalsAI');
+                        });
+                        if (hasMainTargetFiles) {
+                            targetBuildPhase = phase;
+                            break;
+                        }
+                    }
+                }
+                // Filter out files that already exist in the build phase
+                const filesToAdd = sourceFiles.filter(sourceFile => {
+                    if (!targetBuildPhase || !targetBuildPhase.files)
+                        return true;
+                    const fileRefs = xcodeProject.pbxFileReferenceSection();
+                    return !targetBuildPhase.files.some((fileRef) => {
+                        const file = fileRefs[fileRef.value];
+                        return file && file.path && file.path.includes(sourceFile.split('/').pop());
+                    });
+                });
+                // Only add files that don't already exist
+                if (filesToAdd.length > 0) {
+                    xcodeProject.addBuildPhase(filesToAdd, "PBXSourcesBuildPhase", "Sources", mainTargetUuid);
+                    console.log(`Successfully added native module files to main target: ${filesToAdd.join(', ')}`);
+                }
+                else {
+                    console.log('All native module files already exist in build phase, skipping duplicate addition');
+                }
             }
             catch (error) {
                 console.warn(`Warning: Could not add native module files to build phase:`, error instanceof Error ? error.message : String(error));
