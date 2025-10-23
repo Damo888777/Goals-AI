@@ -12,7 +12,7 @@ const xcode = require("xcode");
 const EXTENSION_TARGET_NAME = "widget";
 const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
-const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets"];
+const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets", "PomodoroLiveActivity.entitlements"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m"];
 const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
 const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
@@ -64,7 +64,7 @@ const LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS = {
     INFOPLIST_FILE: "PomodoroLiveActivity/Info.plist",
     INFOPLIST_KEY_CFBundleDisplayName: "PomodoroLiveActivity",
     INFOPLIST_KEY_NSHumanReadableCopyright: '""',
-    IPHONEOS_DEPLOYMENT_TARGET: "16.2",
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0",
     LD_RUNPATH_SEARCH_PATHS: '"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"',
     MARKETING_VERSION: "1.0",
     MTL_ENABLE_DEBUG_INFO: "INCLUDE_SOURCE",
@@ -76,6 +76,7 @@ const LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS = {
     SWIFT_OPTIMIZATION_LEVEL: "-Onone",
     SWIFT_VERSION: "5.0",
     TARGETED_DEVICE_FAMILY: '"1,2"',
+    CODE_SIGN_ENTITLEMENTS: "PomodoroLiveActivity/PomodoroLiveActivity.entitlements",
 };
 const withWidgetXCode = (config, options = {}) => {
     // Add NSSupportsLiveActivities to main app Info.plist (required per Medium article)
