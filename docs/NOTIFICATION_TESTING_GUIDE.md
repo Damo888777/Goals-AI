@@ -14,7 +14,7 @@ This guide covers testing the complete OneSignal push notification system implem
 ### 2. App Configuration
 - ✅ iOS entitlements configured for push notifications
 - ✅ Background modes enabled: `["remote-notification"]`
-- ✅ App group configured: `group.pro.GoalAchieverAI.onesignal`
+- ✅ App group configured: `group.pro.GoalAchieverAI`
 - ✅ Development mode enabled in plugin configuration
 
 ## Testing Scenarios
