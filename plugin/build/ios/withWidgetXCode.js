@@ -392,9 +392,77 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 break;
             }
         }
-        // Skip adding native module files to main target - they should be handled by Expo
-        console.log(`Main target UUID found: ${mainTargetUuid}`);
-        console.log('Skipping native module file addition - handled by Expo prebuild');
+        // Add native module files to main target only if they don't already exist
+        if (mainTargetUuid) {
+            try {
+                // Get existing source files in main target to prevent duplicates
+                const mainTargetBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                // Find main target's source build phase
+                let mainTargetSourcePhase = null;
+                for (const phaseUuid in mainTargetBuildPhases) {
+                    if (phaseUuid.endsWith('_comment'))
+                        continue;
+                    const phase = mainTargetBuildPhases[phaseUuid];
+                    if (phase && phase.files) {
+                        // Check if this phase belongs to main target by looking for known main target files
+                        const hasMainFiles = phase.files.some((fileRef) => {
+                            var _a, _b;
+                            const file = fileRefs[fileRef.value];
+                            return file && (((_a = file.path) === null || _a === void 0 ? void 0 : _a.includes('AppDelegate')) || ((_b = file.path) === null || _b === void 0 ? void 0 : _b.includes('main.m')));
+                        });
+                        if (hasMainFiles) {
+                            mainTargetSourcePhase = phase;
+                            break;
+                        }
+                    }
+                }
+                if (mainTargetSourcePhase) {
+                    // Check which native module files are already in the build phase
+                    const existingFiles = new Set();
+                    mainTargetSourcePhase.files.forEach((fileRef) => {
+                        const file = fileRefs[fileRef.value];
+                        if (file && file.path) {
+                            existingFiles.add(file.path);
+                        }
+                    });
+                    // Add missing native module files
+                    let addedCount = 0;
+                    for (const nativeFile of allNativeFiles) {
+                        const fileName = nativeFile.split('/').pop() || nativeFile;
+                        const fileExists = Array.from(existingFiles).some(path => path.includes(fileName));
+                        if (!fileExists) {
+                            try {
+                                // Add file reference and build file entry
+                                const fileRef = xcodeProject.addFile(`GoalsAI/${nativeFile}`, mainTargetSourcePhase);
+                                if (fileRef) {
+                                    addedCount++;
+                                    console.log(`Added native module file: ${nativeFile}`);
+                                }
+                            }
+                            catch (fileError) {
+                                console.warn(`Could not add ${nativeFile}:`, fileError instanceof Error ? fileError.message : String(fileError));
+                            }
+                        }
+                    }
+                    if (addedCount > 0) {
+                        console.log(`Successfully added ${addedCount} native module files to main target`);
+                    }
+                    else {
+                        console.log('All native module files already exist in main target');
+                    }
+                }
+                else {
+                    console.warn('Could not find main target source build phase');
+                }
+            }
+            catch (error) {
+                console.warn(`Warning: Could not add native module files:`, error instanceof Error ? error.message : String(error));
+            }
+        }
+        else {
+            console.warn('Could not find main target UUID');
+        }
         fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });
 }
