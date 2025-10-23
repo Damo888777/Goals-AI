@@ -7,7 +7,9 @@ import Foundation
 import ActivityKit
 import React
 
-// MARK: - Activity Attributes
+// MARK: - Activity Attributes (shared with Live Activity target)
+
+// MARK: - Shared Activity Attributes
 struct PomodoroActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         var timeRemaining: Int // seconds
@@ -21,10 +23,15 @@ struct PomodoroActivityAttributes: ActivityAttributes {
     var startTime: Date
 }
 
+// MARK: - React Native Module (Bridge + Implementation Combined)
 @objc(LiveActivityModule)
-class LiveActivityModule: NSObject {
+class LiveActivityModule: NSObject, RCTBridgeModule {
     
     private var currentActivity: Activity<PomodoroActivityAttributes>?
+    
+    static func moduleName() -> String! {
+        return "LiveActivityModule"
+    }
     
     @objc
     static func requiresMainQueueSetup() -> Bool {
@@ -33,7 +40,7 @@ class LiveActivityModule: NSObject {
     
     @objc
     func areActivitiesEnabled(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        if #available(iOS 16.2, *) {
+        if #available(iOS 17.0, *) {
             let isEnabled = ActivityAuthorizationInfo().areActivitiesEnabled
             resolve(isEnabled)
         } else {
@@ -44,8 +51,8 @@ class LiveActivityModule: NSObject {
     @objc
     func startPomodoroActivity(_ stateDict: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         
-        guard #available(iOS 16.2, *) else {
-            reject("UNSUPPORTED", "Live Activities require iOS 16.2 or later", nil)
+        guard #available(iOS 17.0, *) else {
+            reject("UNSUPPORTED", "Live Activities require iOS 17.0 or later", nil)
             return
         }
         
@@ -93,8 +100,8 @@ class LiveActivityModule: NSObject {
     @objc
     func updatePomodoroActivity(_ activityId: String, stateDict: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         
-        guard #available(iOS 16.2, *) else {
-            reject("UNSUPPORTED", "Live Activities require iOS 16.2 or later", nil)
+        guard #available(iOS 17.0, *) else {
+            reject("UNSUPPORTED", "Live Activities require iOS 17.0 or later", nil)
             return
         }
         
@@ -132,8 +139,8 @@ class LiveActivityModule: NSObject {
     @objc
     func endPomodoroActivity(_ activityId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         
-        guard #available(iOS 16.2, *) else {
-            reject("UNSUPPORTED", "Live Activities require iOS 16.2 or later", nil)
+        guard #available(iOS 17.0, *) else {
+            reject("UNSUPPORTED", "Live Activities require iOS 17.0 or later", nil)
             return
         }
         
@@ -147,42 +154,5 @@ class LiveActivityModule: NSObject {
             self.currentActivity = nil
             resolve(nil)
         }
-    }
-}
-
-// MARK: - React Native Module Export
-@objc(LiveActivityModule)
-class LiveActivityModuleBridge: NSObject, RCTBridgeModule {
-    
-    static func moduleName() -> String! {
-        return "LiveActivityModule"
-    }
-    
-    static func requiresMainQueueSetup() -> Bool {
-        return false
-    }
-    
-    @objc
-    func areActivitiesEnabled(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let module = LiveActivityModule()
-        module.areActivitiesEnabled(resolve, rejecter: reject)
-    }
-    
-    @objc
-    func startPomodoroActivity(_ stateDict: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let module = LiveActivityModule()
-        module.startPomodoroActivity(stateDict, resolver: resolve, rejecter: reject)
-    }
-    
-    @objc
-    func updatePomodoroActivity(_ activityId: String, stateDict: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let module = LiveActivityModule()
-        module.updatePomodoroActivity(activityId, stateDict: stateDict, resolver: resolve, rejecter: reject)
-    }
-    
-    @objc
-    func endPomodoroActivity(_ activityId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let module = LiveActivityModule()
-        module.endPomodoroActivity(activityId, resolver: resolve, rejecter: reject)
     }
 }

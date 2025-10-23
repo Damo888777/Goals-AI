@@ -27,7 +27,8 @@
       "entitlements": {
         "aps-environment": "development",
         "com.apple.developer.applesignin": ["Default"],
-        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI", "group.pro.GoalAchieverAI.onesignal"]
+        "com.apple.security.application-groups": ["group.pro.GoalAchieverAI", "group.pro.GoalAchieverAI.onesignal"],
+        "com.apple.developer.usernotifications.live-activities": true
       }
     },
     "android": {
