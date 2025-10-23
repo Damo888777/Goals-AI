@@ -212,46 +212,20 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 break;
             }
         }
+        // Add native module files to main target using the exact same method as widget/live activity
         if (mainTargetUuid) {
-            // Add each file to the existing sources build phase
-            allNativeFiles.forEach(file => {
-                try {
-                    const relativePath = `GoalsAI/${file}`;
-                    // Create file reference and add to project group
-                    const group = xcodeProject.findPBXGroupKey({ name: 'GoalsAI' }) || xcodeProject.findPBXGroupKey({ path: 'GoalsAI' });
-                    const fileRef = xcodeProject.generateUuid();
-                    const buildFileRef = xcodeProject.generateUuid();
-                    // Add file reference to PBXFileReference section
-                    xcodeProject.addToPbxFileReferenceSection({
-                        uuid: fileRef,
-                        basename: file,
-                        lastKnownFileType: file.endsWith('.swift') ? 'sourcecode.swift' : 'sourcecode.c.objc',
-                        name: `"${file}"`,
-                        path: `"${file}"`,
-                        sourceTree: '"<group>"'
-                    });
-                    // Add to PBXGroup
-                    if (group) {
-                        xcodeProject.addToPbxGroup(fileRef, group);
-                    }
-                    // Add build file reference
-                    xcodeProject.addToPbxBuildFileSection({
-                        uuid: buildFileRef,
-                        fileRef: fileRef,
-                        basename: file
-                    });
-                    // Add to sources build phase
-                    xcodeProject.addToPbxSourcesBuildPhase(buildFileRef, mainTargetUuid);
-                    console.log(`Successfully added ${file} to Xcode project sources`);
-                }
-                catch (error) {
-                    console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error));
-                }
-            });
+            try {
+                // Use addBuildPhase method like widget targets (line 174, 182)
+                const sourceFiles = allNativeFiles.map(file => `GoalsAI/${file}`);
+                xcodeProject.addBuildPhase(sourceFiles, "PBXSourcesBuildPhase", "Sources", mainTargetUuid);
+                console.log(`Successfully added native module files to main target: ${allNativeFiles.join(', ')}`);
+            }
+            catch (error) {
+                console.warn(`Warning: Could not add native module files to build phase:`, error instanceof Error ? error.message : String(error));
+            }
         }
         else {
-            console.warn('Could not find main target UUID - files copied but not linked in Xcode project');
-            console.log('Available targets:', Object.keys(nativeTargets).filter(k => !k.endsWith('_comment')));
+            console.warn('Could not find main target UUID');
         }
         fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });
