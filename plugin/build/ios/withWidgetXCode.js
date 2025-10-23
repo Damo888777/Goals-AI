@@ -128,22 +128,42 @@ exports.withWidgetXCode = withWidgetXCode;
 async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, developmentTeamId) {
     const xcodeProject = xcode.project(projPath);
     xcodeProject.parse(() => {
-        const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
-        // Add the new PBXGroup to the top level group. This makes the
-        // files / folder appear in the file explorer in Xcode.
+        // Check if PBX group already exists
         const groups = xcodeProject.hash.project.objects.PBXGroup;
-        Object.keys(groups).forEach(function (groupKey) {
-            if (groups[groupKey].name === undefined) {
-                xcodeProject.addToPbxGroup(pbxGroup.uuid, groupKey);
+        let existingGroup = null;
+        for (const groupKey in groups) {
+            if (groupKey.endsWith('_comment'))
+                continue;
+            const group = groups[groupKey];
+            if (group && group.name === EXTENSION_TARGET_NAME) {
+                existingGroup = { uuid: groupKey };
+                break;
             }
-        });
+        }
+        // Only create PBX group if it doesn't exist
+        let pbxGroup = existingGroup;
+        if (!pbxGroup) {
+            pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
+            // Add the new PBXGroup to the top level group. This makes the
+            // files / folder appear in the file explorer in Xcode.
+            Object.keys(groups).forEach(function (groupKey) {
+                if (groups[groupKey].name === undefined) {
+                    // Check if group is already added to this parent group
+                    const parentGroup = groups[groupKey];
+                    const isAlreadyAdded = parentGroup.children && parentGroup.children.some((child) => child.value === pbxGroup.uuid);
+                    if (!isAlreadyAdded) {
+                        xcodeProject.addToPbxGroup(pbxGroup.uuid, groupKey);
+                    }
+                }
+            });
+        }
         // WORK AROUND for xcodeProject.addTarget BUG
         // Xcode projects don't contain these if there is only one target
         const projObjects = xcodeProject.hash.project.objects;
         projObjects["PBXTargetDependency"] =
             projObjects["PBXTargetDependency"] || {};
         projObjects["PBXContainerItemProxy"] =
-            projObjects["PBXTargetDependency"] || {};
+            projObjects["PBXContainerItemProxy"] || {};
         // Check if widget target already exists
         const existingTargets = xcodeProject.pbxNativeTargetSection();
         let widgetTarget = null;
@@ -162,7 +182,12 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         }
         // Check existing build phases for widget target
         const widgetBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
+        const widgetFrameworkPhases = xcodeProject.hash.project.objects.PBXFrameworksBuildPhase;
+        const widgetResourcePhases = xcodeProject.hash.project.objects.PBXResourcesBuildPhase;
         let hasWidgetSources = false;
+        let hasWidgetFrameworks = false;
+        let hasWidgetResources = false;
+        // Check sources
         for (const phaseUuid in widgetBuildPhases) {
             if (phaseUuid.endsWith('_comment'))
                 continue;
@@ -179,10 +204,48 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 }
             }
         }
+        // Check frameworks
+        for (const phaseUuid in widgetFrameworkPhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = widgetFrameworkPhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasFrameworkFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('WidgetKit.framework');
+                });
+                if (hasFrameworkFiles) {
+                    hasWidgetFrameworks = true;
+                    break;
+                }
+            }
+        }
+        // Check resources
+        for (const phaseUuid in widgetResourcePhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = widgetResourcePhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasResourceFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('widget/Assets.xcassets');
+                });
+                if (hasResourceFiles) {
+                    hasWidgetResources = true;
+                    break;
+                }
+            }
+        }
         // Only add widget build phases if they don't exist
         if (!hasWidgetSources) {
             xcodeProject.addBuildPhase(["widget/widget.swift", "widget/SharedDataManager.swift", "widget/TaskIntents.swift", "widget/TaskCompletionIntent.swift"], "PBXSourcesBuildPhase", "Sources", widgetTarget.uuid);
+        }
+        if (!hasWidgetFrameworks) {
             xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", widgetTarget.uuid);
+        }
+        if (!hasWidgetResources) {
             xcodeProject.addBuildPhase(["widget/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", widgetTarget.uuid);
         }
         // Check if Live Activity target already exists
@@ -201,11 +264,17 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             liveActivityTarget = xcodeProject.addTarget(LIVE_ACTIVITY_TARGET_NAME, "app_extension", LIVE_ACTIVITY_TARGET_NAME, liveActivityBundleId);
         }
         // Check existing build phases for Live Activity target
+        const liveActivityBuildPhases = xcodeProject.hash.project.objects.PBXSourcesBuildPhase;
+        const liveActivityFrameworkPhases = xcodeProject.hash.project.objects.PBXFrameworksBuildPhase;
+        const liveActivityResourcePhases = xcodeProject.hash.project.objects.PBXResourcesBuildPhase;
         let hasLiveActivitySources = false;
-        for (const phaseUuid in widgetBuildPhases) {
+        let hasLiveActivityFrameworks = false;
+        let hasLiveActivityResources = false;
+        // Check sources
+        for (const phaseUuid in liveActivityBuildPhases) {
             if (phaseUuid.endsWith('_comment'))
                 continue;
-            const phase = widgetBuildPhases[phaseUuid];
+            const phase = liveActivityBuildPhases[phaseUuid];
             if (phase && phase.files) {
                 const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
                 const hasLiveActivityFiles = phase.files.some((fileRef) => {
@@ -218,10 +287,48 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 }
             }
         }
+        // Check frameworks
+        for (const phaseUuid in liveActivityFrameworkPhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = liveActivityFrameworkPhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasFrameworkFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('ActivityKit.framework');
+                });
+                if (hasFrameworkFiles) {
+                    hasLiveActivityFrameworks = true;
+                    break;
+                }
+            }
+        }
+        // Check resources
+        for (const phaseUuid in liveActivityResourcePhases) {
+            if (phaseUuid.endsWith('_comment'))
+                continue;
+            const phase = liveActivityResourcePhases[phaseUuid];
+            if (phase && phase.files) {
+                const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                const hasResourceFiles = phase.files.some((fileRef) => {
+                    const file = fileRefs[fileRef.value];
+                    return file && file.path && file.path.includes('PomodoroLiveActivity/Assets.xcassets');
+                });
+                if (hasResourceFiles) {
+                    hasLiveActivityResources = true;
+                    break;
+                }
+            }
+        }
         // Only add Live Activity build phases if they don't exist
         if (!hasLiveActivitySources) {
             xcodeProject.addBuildPhase(["PomodoroLiveActivity/PomodoroLiveActivity.swift"], "PBXSourcesBuildPhase", "Sources", liveActivityTarget.uuid);
+        }
+        if (!hasLiveActivityFrameworks) {
             xcodeProject.addBuildPhase(["SwiftUI.framework", "WidgetKit.framework", "ActivityKit.framework"], "PBXFrameworksBuildPhase", "Frameworks", liveActivityTarget.uuid);
+        }
+        if (!hasLiveActivityResources) {
             xcodeProject.addBuildPhase(["PomodoroLiveActivity/Assets.xcassets"], "PBXResourcesBuildPhase", "Resources", liveActivityTarget.uuid);
         }
         /* Update build configurations */
@@ -230,36 +337,53 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
             if (typeof configurations[key].buildSettings !== "undefined") {
                 const productName = configurations[key].buildSettings.PRODUCT_NAME;
                 if (productName === `"${EXTENSION_TARGET_NAME}"`) {
-                    configurations[key].buildSettings = {
-                        ...configurations[key].buildSettings,
-                        ...WIDGET_BUILD_CONFIGURATION_SETTINGS,
-                        DEVELOPMENT_TEAM: developmentTeamId,
-                        PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
-                    };
+                    // Check if widget build settings already applied
+                    const hasWidgetSettings = configurations[key].buildSettings.ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME === "WidgetBackground";
+                    if (!hasWidgetSettings) {
+                        configurations[key].buildSettings = {
+                            ...configurations[key].buildSettings,
+                            ...WIDGET_BUILD_CONFIGURATION_SETTINGS,
+                            DEVELOPMENT_TEAM: developmentTeamId,
+                            PRODUCT_BUNDLE_IDENTIFIER: widgetBundleId,
+                        };
+                    }
                 }
                 if (productName === `"${LIVE_ACTIVITY_TARGET_NAME}"`) {
-                    configurations[key].buildSettings = {
-                        ...configurations[key].buildSettings,
-                        ...LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS,
-                        DEVELOPMENT_TEAM: developmentTeamId,
-                        PRODUCT_BUNDLE_IDENTIFIER: liveActivityBundleId,
-                    };
+                    // Check if live activity build settings already applied
+                    const hasLiveActivitySettings = configurations[key].buildSettings.INFOPLIST_KEY_CFBundleDisplayName === "PomodoroLiveActivity";
+                    if (!hasLiveActivitySettings) {
+                        configurations[key].buildSettings = {
+                            ...configurations[key].buildSettings,
+                            ...LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS,
+                            DEVELOPMENT_TEAM: developmentTeamId,
+                            PRODUCT_BUNDLE_IDENTIFIER: liveActivityBundleId,
+                        };
+                    }
                 }
             }
         }
         // Add Live Activities capability for real-time timer updates
         try {
             const targetUuid = widgetTarget.uuid;
-            // Add Push Notifications and Live Activities capabilities
-            xcodeProject.addTargetAttribute('SystemCapabilities', {
-                'com.apple.Push': {
-                    enabled: 1
-                },
-                'com.apple.developer.live-activities': {
-                    enabled: 1
-                }
-            }, targetUuid);
-            xcodeProject.addTargetAttribute('ProvisioningStyle', 'Automatic', targetUuid);
+            // Check if target attributes already exist
+            const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+            const target = targets[targetUuid];
+            const hasCapabilities = target && target.attributes && target.attributes.SystemCapabilities;
+            const hasProvisioningStyle = target && target.attributes && target.attributes.ProvisioningStyle;
+            // Only add capabilities if they don't exist
+            if (!hasCapabilities) {
+                xcodeProject.addTargetAttribute('SystemCapabilities', {
+                    'com.apple.Push': {
+                        enabled: 1
+                    },
+                    'com.apple.developer.live-activities': {
+                        enabled: 1
+                    }
+                }, targetUuid);
+            }
+            if (!hasProvisioningStyle) {
+                xcodeProject.addTargetAttribute('ProvisioningStyle', 'Automatic', targetUuid);
+            }
         }
         catch (error) {
             console.warn('Could not add Live Activities capabilities:', error instanceof Error ? error.message : String(error));
