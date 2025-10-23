@@ -101,10 +101,16 @@ const withWidgetXCode = (config, options = {}) => {
             }
             // Copy Live Activities and WidgetKit files to main app target
             const nativeModulesSourceDir = path_1.default.join(projectPath, "plugin", "src", "ios");
+            const mainIosDir = path_1.default.join(projectPath, "ios");
             const mainAppDir = platformProjectPath;
             const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
             allNativeFiles.forEach(file => {
-                const sourcePath = path_1.default.join(nativeModulesSourceDir, file);
+                // First try plugin/src/ios directory
+                let sourcePath = path_1.default.join(nativeModulesSourceDir, file);
+                if (!fs_extra_1.default.existsSync(sourcePath)) {
+                    // Fallback to main ios directory
+                    sourcePath = path_1.default.join(mainIosDir, file);
+                }
                 const destPath = path_1.default.join(mainAppDir, file);
                 if (fs_extra_1.default.existsSync(sourcePath)) {
                     fs_extra_1.default.copySync(sourcePath, destPath);
@@ -127,14 +133,19 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         // Add Live Activities and WidgetKit files to main app target
         const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
         const mainTarget = xcodeProject.getFirstTarget();
-        allNativeFiles.forEach(file => {
-            try {
-                xcodeProject.addSourceFile(file, {}, mainTarget.uuid);
-            }
-            catch (error) {
-                console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error));
-            }
-        });
+        if (mainTarget && mainTarget.uuid) {
+            allNativeFiles.forEach(file => {
+                try {
+                    xcodeProject.addSourceFile(file, {}, mainTarget.uuid);
+                }
+                catch (error) {
+                    console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error));
+                }
+            });
+        }
+        else {
+            console.warn('Warning: Could not find main target UUID for adding native module files');
+        }
         const pbxGroup = xcodeProject.addPbxGroup(TOP_LEVEL_FILES, EXTENSION_TARGET_NAME, EXTENSION_TARGET_NAME);
         // Add the new PBXGroup to the top level group. This makes the
         // files / folder appear in the file explorer in Xcode.

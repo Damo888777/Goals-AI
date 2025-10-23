@@ -133,8 +133,11 @@ struct widgetEntryView: View {
                         }
                     }
                     .padding(8)
-                    .background(Color.widgetFrogBackground) // Green background for frog task
-                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.widgetFrogBackground)
+                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
@@ -158,8 +161,15 @@ struct widgetEntryView: View {
                     Spacer()
                 }
                 .padding(12)
-                .background(Color.widgetSecondaryBackground) // Cream background
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.widgetSecondaryBackground)
+                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .background(Color.widgetMainBackground)
@@ -172,16 +182,16 @@ struct widgetEntryView: View {
                     
                     VStack(alignment: .center, spacing: 2) {
                         Text("Today")
-                            .font(.custom("Helvetica", size: 14))
+                            .font(.system(size: 14, weight: .regular))
                             .foregroundColor(.widgetTextColor)
                         
                         Text("\(Calendar.current.component(.day, from: entry.date))")
-                            .font(.custom("Helvetica-Bold", size: 32))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.widgetTextColor)
                             .lineLimit(1)
                         
                         Text(monthWeekdayString(from: entry.date))
-                            .font(.custom("Helvetica-Light", size: 12))
+                            .font(.system(size: 12, weight: .light))
                             .foregroundColor(.widgetTextColor)
                     }
                     .frame(maxWidth: .infinity)
@@ -202,8 +212,11 @@ struct widgetEntryView: View {
                         }
                     }
                     .padding(6)
-                    .background(Color.widgetFrogBackground) // #E9EDC9 background
-                    .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.widgetFrogBackground)
+                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
@@ -227,11 +240,18 @@ struct widgetEntryView: View {
                     Spacer()
                 }
                 .padding(12)
-                .background(Color.widgetSecondaryBackground) // Cream background
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.widgetSecondaryBackground)
+                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.trailing, 0)
-                .padding(.vertical, 0)
+                .padding(.trailing, 12)
+                .padding(.vertical, 12)
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -271,15 +291,15 @@ struct widgetEntryView: View {
         
         return HStack(spacing: 4) {
             Text("Today")
-                .font(.custom("Helvetica", size: 20))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.widgetTextColor)
             
             Text("\(day).\(month),")
-                .font(.custom("Helvetica-Bold", size: 20))
+                .font(.system(size: 18, weight: .light))
                 .foregroundColor(.widgetTextColor)
             
             Text(weekday)
-                .font(.custom("Helvetica", size: 20))
+                .font(.system(size: 18, weight: .light))
                 .foregroundColor(.widgetTextColor)
         }
         .minimumScaleFactor(0.8)
@@ -369,7 +389,7 @@ struct CompactFrogTaskView: View {
             
             // Task title
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.white)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -396,7 +416,7 @@ struct CompactRegularTaskView: View {
             
             // Task title
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -488,7 +508,7 @@ struct MediumFrogTaskView: View {
             CompactCompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica-Bold", size: 12))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.widgetFrogTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -507,7 +527,7 @@ struct MediumRegularTaskView: View {
             CompactCompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -515,7 +535,16 @@ struct MediumRegularTaskView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(Color.clear)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.widgetSecondaryBackground)
+                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
 
@@ -528,12 +557,12 @@ struct MediumEmptyStateView: View {
                 .foregroundColor(.widgetTextColor.opacity(0.6))
             
             Text("All tasks completed!")
-                .font(.custom("Helvetica", size: 12))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Text("Great job today")
-                .font(.custom("Helvetica-Light", size: 10))
+                .font(.system(size: 10, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
                 .multilineTextAlignment(.center)
         }
@@ -549,12 +578,12 @@ struct LargeEmptyStateView: View {
                 .foregroundColor(.widgetTextColor.opacity(0.6))
             
             Text("All tasks completed!")
-                .font(.custom("Helvetica", size: 16))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Text("You've finished all your tasks for today. Great job!")
-                .font(.custom("Helvetica-Light", size: 14))
+                .font(.system(size: 14, weight: .light))
                 .foregroundColor(.widgetTextColor.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
@@ -572,7 +601,7 @@ struct LargeFrogTaskView: View {
             CompleteButton(task: task)
             
             Text(task.title)
-                .font(.custom("Helvetica-Bold", size: 14))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.widgetFrogTextColor)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -599,7 +628,16 @@ struct LargeRegularTaskView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color.clear)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.widgetSecondaryBackground)
+                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -632,8 +670,8 @@ struct MediumFrogEmptyView: View {
                 .stroke(Color.widgetCompleteOuter, lineWidth: 1)
                 .frame(width: 18, height: 18)
             
-            Text("Set your frog task!")
-                .font(.custom("Helvetica", size: 12))
+            Text("No frog for today")
+                .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetFrogTextColor.opacity(0.7))
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)

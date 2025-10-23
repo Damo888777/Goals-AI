@@ -110,17 +110,23 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       }
 
       // Copy Live Activities and WidgetKit files to main app target
-      const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios")
-      const mainAppDir = platformProjectPath
+      const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios");
+      const mainIosDir = path.join(projectPath, "ios");
+      const mainAppDir = platformProjectPath;
+      const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
       
-      const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
       allNativeFiles.forEach(file => {
-        const sourcePath = path.join(nativeModulesSourceDir, file)
-        const destPath = path.join(mainAppDir, file)
-        if (fs.existsSync(sourcePath)) {
-          fs.copySync(sourcePath, destPath)
+        // First try plugin/src/ios directory
+        let sourcePath = path.join(nativeModulesSourceDir, file);
+        if (!fs.existsSync(sourcePath)) {
+          // Fallback to main ios directory
+          sourcePath = path.join(mainIosDir, file);
         }
-      })
+        const destPath = path.join(mainAppDir, file);
+        if (fs.existsSync(sourcePath)) {
+          fs.copySync(sourcePath, destPath);
+        }
+      });
 
       const projPath = `${newConfig.modRequest.platformProjectRoot}/${projectName}.xcodeproj/project.pbxproj`
       await updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, options.devTeamId || "")
@@ -145,13 +151,17 @@ async function updateXCodeProj(
     const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES]
     const mainTarget = xcodeProject.getFirstTarget()
     
-    allNativeFiles.forEach(file => {
-      try {
-        xcodeProject.addSourceFile(file, {}, mainTarget.uuid)
-      } catch (error) {
-        console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error))
-      }
-    })
+    if (mainTarget && mainTarget.uuid) {
+      allNativeFiles.forEach(file => {
+        try {
+          xcodeProject.addSourceFile(file, {}, mainTarget.uuid)
+        } catch (error) {
+          console.warn(`Warning: Could not add source file ${file}:`, error instanceof Error ? error.message : String(error))
+        }
+      })
+    } else {
+      console.warn('Warning: Could not find main target UUID for adding native module files')
+    }
     const pbxGroup = xcodeProject.addPbxGroup(
       TOP_LEVEL_FILES,
       EXTENSION_TARGET_NAME,

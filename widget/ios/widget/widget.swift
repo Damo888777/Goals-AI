@@ -535,7 +535,16 @@ struct MediumRegularTaskView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(Color.clear)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.widgetSecondaryBackground)
+                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
 
@@ -619,7 +628,16 @@ struct LargeRegularTaskView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color.clear)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.widgetSecondaryBackground)
+                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
