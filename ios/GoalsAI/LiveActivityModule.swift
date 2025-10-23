@@ -7,8 +7,19 @@ import Foundation
 import ActivityKit
 import React
 
-// MARK: - Activity Attributes (imported from PomodoroLiveActivity target)
-// Note: PomodoroActivityAttributes is defined in PomodoroLiveActivity target
+// MARK: - Activity Attributes
+struct PomodoroActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var timeRemaining: Int // seconds
+        var totalDuration: Int // seconds
+        var sessionType: String // "work", "shortBreak", "longBreak"
+        var isRunning: Bool
+        var completedPomodoros: Int
+        var taskTitle: String
+    }
+    
+    var startTime: Date
+}
 
 @objc(LiveActivityModule)
 class LiveActivityModule: NSObject {
@@ -141,7 +152,7 @@ class LiveActivityModule: NSObject {
 
 // MARK: - React Native Module Export
 @objc(LiveActivityModuleBridge)
-class LiveActivityModuleBridge: RCTBridgeModule {
+class LiveActivityModuleBridge: NSObject, RCTBridgeModule {
     
     static func moduleName() -> String! {
         return "LiveActivityModule"

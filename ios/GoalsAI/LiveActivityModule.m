@@ -5,7 +5,7 @@
 
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_MODULE(LiveActivityModule, NSObject)
+@interface RCT_EXTERN_MODULE(LiveActivityModuleBridge, NSObject)
 
 RCT_EXTERN_METHOD(areActivitiesEnabled:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)

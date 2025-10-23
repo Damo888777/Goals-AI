@@ -552,10 +552,6 @@ struct MediumRegularTaskView: View {
 struct MediumEmptyStateView: View {
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: "checkmark.circle")
-                .font(.system(size: 24, weight: .light))
-                .foregroundColor(.widgetTextColor.opacity(0.6))
-            
             Text("No tasks for today")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
@@ -573,10 +569,6 @@ struct MediumEmptyStateView: View {
 struct LargeEmptyStateView: View {
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: "checkmark.circle")
-                .font(.system(size: 32, weight: .light))
-                .foregroundColor(.widgetTextColor.opacity(0.6))
-            
             Text("All tasks completed!")
                 .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.widgetTextColor.opacity(0.8))
@@ -606,7 +598,7 @@ struct LargeFrogTaskView: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(Color.clear)
     }
@@ -626,7 +618,7 @@ struct LargeRegularTaskView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .strikethrough(task.isCompleted, color: .widgetTextColor)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 10)
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 8)
@@ -652,7 +644,7 @@ struct LargeFrogEmptyView: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(Color.clear)
     }
@@ -661,7 +653,6 @@ struct LargeFrogEmptyView: View {
 struct MediumFrogEmptyView: View {
     var body: some View {
         HStack(spacing: 8) {
-            // Empty circle (smaller)
             
             Text("No frog for today")
                 .font(.system(size: 12, weight: .regular))
@@ -669,7 +660,7 @@ struct MediumFrogEmptyView: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(Color.clear)
     }
