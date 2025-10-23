@@ -55,7 +55,7 @@ struct PomodoroLiveActivity: Widget {
                     VStack(spacing: 8) {
                         // Timer display matching pomodoro.tsx digital font style
                         Text(formatTime(context.state.timeRemaining))
-                            .font(.system(size: 32, family: .monospaced, design: .default))
+                            .font(.custom("Helvetica", size: 32))
                             .fontWeight(.bold)
                             .foregroundColor(context.state.sessionType == "work" ? 
                                 Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
@@ -112,7 +112,7 @@ struct PomodoroLiveActivity: Widget {
             } compactTrailing: {
                 // Compact trailing - timer
                 Text(formatTimeCompact(context.state.timeRemaining))
-                    .font(.system(size: 14, family: .monospaced, design: .default))
+                    .font(.custom("Helvetica", size: 14))
                     .fontWeight(.medium)
                     .foregroundColor(context.state.sessionType == "work" ? 
                         Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
@@ -209,7 +209,7 @@ struct PomodoroLockScreenView: View {
                 
                 // Timer text matching pomodoro.tsx digital font
                 Text(formatTime(context.state.timeRemaining))
-                    .font(.system(size: 48, family: .monospaced, design: .default))
+                    .font(.custom("Helvetica", size: 48))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .shadow(color: Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.8), radius: 4, x: 0, y: 2)

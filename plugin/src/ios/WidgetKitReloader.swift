@@ -45,7 +45,7 @@ class WidgetKitReloader: NSObject {
                         return [
                             "kind": config.kind,
                             "family": config.family.rawValue,
-                            "displayName": config.displayName
+                            "displayName": config.kind
                         ]
                     }
                     resolve(configData)
@@ -61,7 +61,7 @@ class WidgetKitReloader: NSObject {
 
 // MARK: - React Native Module Export
 @objc(WidgetKitReloaderBridge)
-class WidgetKitReloaderBridge: RCTBridgeModule {
+class WidgetKitReloaderBridge: NSObject, RCTBridgeModule {
     
     static func moduleName() -> String! {
         return "WidgetKitReloader"
