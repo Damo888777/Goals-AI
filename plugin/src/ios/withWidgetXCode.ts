@@ -155,6 +155,46 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
         fs.writeFileSync(infoPlistPath, liveActivityInfoPlist);
       }
 
+      // Generate Info.plist for Widget target if it doesn't exist
+      const widgetTargetDir = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
+      if (!fs.existsSync(widgetTargetDir)) {
+        fs.mkdirSync(widgetTargetDir, { recursive: true });
+      }
+      
+      const widgetInfoPlistPath = path.join(widgetTargetDir, "Info.plist");
+      if (!fs.existsSync(widgetInfoPlistPath)) {
+        const widgetInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Widget</string>
+	<key>CFBundleName</key>
+	<string>widget</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+</dict>
+</plist>`;
+        
+        fs.writeFileSync(widgetInfoPlistPath, widgetInfoPlist);
+        console.log(`Generated widget Info.plist with all required CFBundle keys`);
+      }
+
       // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
       const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios");
       const mainAppTargetDir = path.join(platformProjectPath, "GoalsAI");

@@ -142,6 +142,43 @@ const withWidgetXCode = (config, options = {}) => {
 </plist>`;
                 fs_extra_1.default.writeFileSync(infoPlistPath, liveActivityInfoPlist);
             }
+            // Generate Info.plist for Widget target if it doesn't exist
+            const widgetTargetDir = path_1.default.join(platformProjectPath, EXTENSION_TARGET_NAME);
+            if (!fs_extra_1.default.existsSync(widgetTargetDir)) {
+                fs_extra_1.default.mkdirSync(widgetTargetDir, { recursive: true });
+            }
+            const widgetInfoPlistPath = path_1.default.join(widgetTargetDir, "Info.plist");
+            if (!fs_extra_1.default.existsSync(widgetInfoPlistPath)) {
+                const widgetInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Widget</string>
+	<key>CFBundleName</key>
+	<string>widget</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+</dict>
+</plist>`;
+                fs_extra_1.default.writeFileSync(widgetInfoPlistPath, widgetInfoPlist);
+                console.log(`Generated widget Info.plist with all required CFBundle keys`);
+            }
             // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
             const nativeModulesSourceDir = path_1.default.join(projectPath, "plugin", "src", "ios");
             const mainAppTargetDir = path_1.default.join(platformProjectPath, "GoalsAI");
