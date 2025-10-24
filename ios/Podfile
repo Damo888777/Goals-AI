@@ -85,8 +85,8 @@ target 'GoalsAI' do
   end
 end
 
-# Widget Extension target for Live Activities
 target 'PomodoroLiveActivity' do
   use_frameworks! :linkage => :static
+  
   pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end
