@@ -86,7 +86,7 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             let activity = try Activity<PomodoroActivityAttributes>.request(
                 attributes: attributes,
                 contentState: contentState,
-                pushType: .token
+                pushType: nil
             )
             
             self.currentActivity = activity

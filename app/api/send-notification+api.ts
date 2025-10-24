@@ -49,12 +49,8 @@ async function handlePomodoroCompletionNotification(requestBody: PomodoroComplet
       sessionType,
       completedPomodoros,
       taskTitle
-    },
-    // Add notification icon and sound
-    small_icon: 'ic_stat_onesignal_default',
-    large_icon: 'https://goals-ai.app/icon-192.png',
-    ios_sound: 'complete_sound.wav',
-    android_sound: 'complete_sound'
+    }
+    // OneSignal uses app icon by default - no need to specify custom icons
   };
   
   console.log('🍅 [Pomodoro Notification] Sending notification:', notificationPayload);

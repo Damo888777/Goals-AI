@@ -237,7 +237,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
               onPress={async () => {
                 try {
                   const { notificationService } = await import('../services/notificationService');
-                  const permission = await notificationService.requestPermission();
+                  const permission = await notificationService.forceRequestPermission();
                   Alert.alert('Permission Result', permission ? 'Granted!' : 'Denied');
                 } catch (error) {
                   Alert.alert('Error', 'Failed to request permission');
@@ -249,6 +249,32 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
               <Ionicons name="notifications" size={20} color={colors.secondary} />
               <Text style={[typography.button, styles.buttonText]}>
                 Request Notification Permission
+              </Text>
+            </Pressable>
+            
+            <Pressable
+              style={[
+                styles.dangerButton,
+                isPressed === 'clear-permission' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  // Force clear the permission flag every time
+                  await AsyncStorage.removeItem('notification_permission_requested');
+                  console.log('🔄 [DevTools] Notification permission flag force cleared');
+                  
+                  Alert.alert('Permission Cleared', 'Notification permission has been reset. You will be prompted again when requesting permission.');
+                } catch (error) {
+                  console.error('❌ [DevTools] Failed to clear permission:', error);
+                  Alert.alert('Error', 'Failed to clear permission');
+                }
+              }}
+              onPressIn={() => setIsPressed('clear-permission')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="notifications-off" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.dangerButtonText]}>
+                Clear Notification Permission
               </Text>
             </Pressable>
             

@@ -36,26 +36,44 @@ class NotificationService {
   }
 
   /**
-   * Initialize OneSignal SDK (v5 API)
+   * Initialize OneSignal with proper configuration
    */
   async initialize(): Promise<void> {
-    if (this.isInitialized || !this.appId) {
+    if (this.isInitialized) {
       return;
     }
 
     try {
-      // Enable verbose logging for debugging (remove in production)
+      console.log('Initializing OneSignal with App ID:', this.appId);
+      
+      // Enable verbose logging for debugging
       OneSignal.Debug.setLogLevel(LogLevel.Verbose);
       
-      // Initialize with OneSignal App ID
+      // Initialize OneSignal
       OneSignal.initialize(this.appId);
       
-      this.setupEventListeners();
-      this.isInitialized = true;
+      // Request permission
+      await this.requestPermission();
       
+      // Link user after initialization
+      await this.linkCurrentUser();
+      
+      // Set timezone tags
+      await this.updateUserTags({});
+      
+      this.isInitialized = true;
       console.log('OneSignal initialized successfully');
+      
+      // Auto-run debug check after initialization
+      setTimeout(async () => {
+        await this.debugNotificationStatus();
+        // Auto opt-in user if they have permission but aren't subscribed
+        await this.ensureUserOptedIn();
+      }, 2000);
+      
     } catch (error) {
       console.error('Failed to initialize OneSignal:', error);
+      throw error;
     }
   }
 
@@ -69,6 +87,22 @@ class NotificationService {
       return permission;
     } catch (error) {
       console.error('Failed to request notification permission:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Force request permission (for dev tools)
+   */
+  async forceRequestPermission(): Promise<boolean> {
+    try {
+      console.log('🔄 [DevTools] Force requesting notification permission...');
+      const permission = await OneSignal.Notifications.requestPermission(true);
+      await AsyncStorage.setItem('notification_permission_requested', 'true');
+      console.log('🔄 [DevTools] Permission result:', permission);
+      return permission;
+    } catch (error) {
+      console.error('Failed to force request notification permission:', error);
       return false;
     }
   }
@@ -220,31 +254,117 @@ class NotificationService {
   }
 
   /**
-   * Debug notification status and permissions
+   * Ensure user is opted in to notifications
+   */
+  async ensureUserOptedIn(): Promise<void> {
+    try {
+      const isOptedIn = await OneSignal.User.pushSubscription.getOptedInAsync();
+      if (!isOptedIn) {
+        console.log('🔧 [Auto Fix] User not opted in, opting in now...');
+        OneSignal.User.pushSubscription.optIn();
+        console.log('✅ [Auto Fix] User opted in to notifications');
+        
+        // Re-run debug check after opt-in
+        setTimeout(() => {
+          this.debugNotificationStatus();
+        }, 1000);
+      } else {
+        console.log('✅ [Auto Fix] User already opted in');
+      }
+    } catch (error) {
+      console.error('❌ [Auto Fix] Failed to opt user in:', error);
+    }
+  }
+
+  /**
+   * Send a test notification for debugging
+   */
+  async sendTestNotification(): Promise<void> {
+    try {
+      console.log('🧪 [Test Notification] Sending test notification...');
+      
+      // Send via OneSignal API
+      const response = await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'test',
+          title: 'OneSignal Test',
+          message: 'This is a test notification to verify OneSignal is working correctly.',
+          data: {
+            test: true,
+            timestamp: new Date().toISOString()
+          }
+        }),
+      });
+
+      if (response.ok) {
+        console.log('🧪 [Test Notification] Test notification sent successfully');
+      } else {
+        console.error('🧪 [Test Notification] Failed to send test notification:', response.status);
+      }
+    } catch (error) {
+      console.error('🧪 [Test Notification] Error sending test notification:', error);
+    }
+  }
+
+  /**
+   * Debug notification status - comprehensive troubleshooting
    */
   async debugNotificationStatus(): Promise<void> {
     try {
-      console.log('🔍 [Notification Debug] Starting debug check...');
+      console.log('🔍 [Notification Debug] Starting comprehensive debug check...');
       
-      // Check permission status
-      const hasPermission = await OneSignal.Notifications.hasPermission();
+      // 1. Check verbose logging status
+      console.log('🔍 [Notification Debug] Verbose logging enabled: YES');
+      
+      // 2. Check permission status
+      const hasPermission = await OneSignal.Notifications.getPermissionAsync();
       console.log('🔍 [Notification Debug] Has permission:', hasPermission);
       
-      // Check if user is subscribed
+      // 3. Check if notifications are enabled at OS level
+      const areNotificationsEnabled = await OneSignal.Notifications.canRequestPermission();
+      console.log('🔍 [Notification Debug] Can request permission:', areNotificationsEnabled);
+      
+      // 4. Check subscription status
       const subscriptionState = OneSignal.User.pushSubscription;
-      console.log('🔍 [Notification Debug] Subscription state:', subscriptionState);
+      const isSubscribed = await subscriptionState.getOptedInAsync();
+      console.log('🔍 [Notification Debug] Is subscribed:', isSubscribed);
       
-      // Get subscription ID
+      // 5. Get subscription details
+      console.log('🔍 [Notification Debug] Full subscription state:', subscriptionState);
+      
+      // 6. Get subscription ID (push token)
       const subscriptionId = await this.getSubscriptionId();
-      console.log('🔍 [Notification Debug] Subscription ID:', subscriptionId ? 'EXISTS' : 'MISSING');
+      console.log('🔍 [Notification Debug] Subscription ID:', subscriptionId);
       
-      // Check app ID
+      // 7. Get app configuration
       const appId = await this.getAppId();
-      console.log('🔍 [Notification Debug] App ID:', appId ? 'CONFIGURED' : 'MISSING');
+      console.log('🔍 [Notification Debug] App ID:', appId);
       
-      console.log('🔍 [Notification Debug] Debug complete');
+      // 8. Check user tags
+      const userTags = OneSignal.User.getTags();
+      console.log('🔍 [Notification Debug] User tags:', userTags);
+      
+      // 9. Platform verification
+      console.log('🔍 [Notification Debug] Platform: iOS');
+      console.log('🔍 [Notification Debug] SDK Version: 5.2.13');
+      
+      // 10. Summary
+      const status = hasPermission && isSubscribed && subscriptionId ? 'READY' : 'ISSUES_FOUND';
+      console.log(`🔍 [Notification Debug] Overall Status: ${status}`);
+      
+      if (status === 'ISSUES_FOUND') {
+        console.log('🔍 [Notification Debug] Troubleshooting steps:');
+        if (!hasPermission) console.log('  - Request notification permission');
+        if (!isSubscribed) console.log('  - User needs to opt-in to notifications');
+        if (!subscriptionId) console.log('  - Device not properly registered with OneSignal');
+      }
+      
     } catch (error) {
-      console.error('🔍 [Notification Debug] Error:', error);
+      console.error('🔍 [Notification Debug] Error during debug:', error);
     }
   }
 
