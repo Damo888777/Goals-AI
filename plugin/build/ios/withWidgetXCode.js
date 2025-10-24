@@ -330,45 +330,68 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                             // Check if file already exists in project
                             const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
                             const existingFile = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(fileName));
+                            let fileUuid;
                             if (!existingFile) {
+                                // Add file reference manually
+                                fileUuid = xcodeProject.generateUuid();
+                                const fileType = 'sourcecode.swift';
+                                // Add to PBXFileReference section
+                                xcodeProject.hash.project.objects.PBXFileReference[fileUuid] = {
+                                    isa: 'PBXFileReference',
+                                    lastKnownFileType: fileType,
+                                    name: fileName,
+                                    path: fullPath,
+                                    sourceTree: '"<group>"'
+                                };
+                                xcodeProject.hash.project.objects.PBXFileReference[fileUuid + '_comment'] = fileName;
+                                console.log(`Created file reference for: ${widgetFile}`);
+                            }
+                            else {
+                                // Use existing file reference
+                                fileUuid = Object.keys(xcodeProject.hash.project.objects.PBXFileReference).find(key => !key.endsWith('_comment') && xcodeProject.hash.project.objects.PBXFileReference[key] === existingFile) || '';
+                                console.log(`Using existing file reference for: ${widgetFile}`);
+                            }
+                            if (fileUuid) {
                                 try {
-                                    // Add file reference manually
-                                    const fileUuid = xcodeProject.generateUuid();
-                                    const fileType = 'sourcecode.swift';
-                                    // Add to PBXFileReference section
-                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid] = {
-                                        isa: 'PBXFileReference',
-                                        lastKnownFileType: fileType,
-                                        name: fileName,
-                                        path: fullPath,
-                                        sourceTree: '"<group>"'
-                                    };
-                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid + '_comment'] = fileName;
-                                    // Add to build file section
-                                    const buildFileUuid = xcodeProject.generateUuid();
-                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                                        isa: 'PBXBuildFile',
-                                        fileRef: fileUuid,
-                                        fileRef_comment: fileName
-                                    };
-                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
-                                    // Add to widget target's source build phase
+                                    // Check if build file already exists for this file reference
+                                    const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
+                                    const existingBuildFile = Object.values(buildFiles).find((buildFile) => buildFile && buildFile.fileRef === fileUuid);
+                                    let buildFileUuid;
+                                    if (!existingBuildFile) {
+                                        // Create new build file
+                                        buildFileUuid = xcodeProject.generateUuid();
+                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                            isa: 'PBXBuildFile',
+                                            fileRef: fileUuid,
+                                            fileRef_comment: fileName
+                                        };
+                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                                    }
+                                    else {
+                                        // Use existing build file
+                                        buildFileUuid = Object.keys(buildFiles).find(key => !key.endsWith('_comment') && buildFiles[key] === existingBuildFile) || '';
+                                    }
+                                    // Add to widget target's source build phase (always do this)
                                     if (!widgetSourcePhase.files) {
                                         widgetSourcePhase.files = [];
                                     }
-                                    widgetSourcePhase.files.push({
-                                        value: buildFileUuid,
-                                        comment: `${fileName} in Sources`
-                                    });
-                                    addedWidgetFiles++;
-                                    console.log(`Added widget file to target: ${widgetFile}`);
+                                    // Check if already in build phase
+                                    const alreadyInBuildPhase = widgetSourcePhase.files.some((file) => file.value === buildFileUuid);
+                                    if (!alreadyInBuildPhase) {
+                                        widgetSourcePhase.files.push({
+                                            value: buildFileUuid,
+                                            comment: `${fileName} in Sources`
+                                        });
+                                        addedWidgetFiles++;
+                                        console.log(`Added widget file to target: ${widgetFile}`);
+                                    }
+                                    else {
+                                        console.log(`Widget file ${widgetFile} already in target build phase`);
+                                    }
                                 }
                                 catch (fileError) {
                                     console.warn(`Could not add widget file ${widgetFile}:`, fileError instanceof Error ? fileError.message : String(fileError));
                                 }
-                            }
-                            else {
-                                console.log(`Widget file ${widgetFile} already exists in project`);
                             }
                         }
                         if (addedWidgetFiles > 0) {
