@@ -29,7 +29,7 @@ const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
     CURRENT_PROJECT_VERSION: "1",
     DEBUG_INFORMATION_FORMAT: "dwarf",
     GCC_C_LANGUAGE_STANDARD: "gnu11",
-    GENERATE_INFOPLIST_FILE: "YES",
+    GENERATE_INFOPLIST_FILE: "NO",
     INFOPLIST_FILE: "widget/Info.plist",
     INFOPLIST_KEY_CFBundleDisplayName: "widget",
     INFOPLIST_KEY_NSHumanReadableCopyright: '""',
@@ -283,8 +283,190 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                 }
             }
         }
-        // Skip adding widget build phases - they should be created automatically with the target
+        // Add widget files to widget target build phases if they don't exist
         console.log(`Widget target build phases check: Sources=${hasWidgetSources}, Frameworks=${hasWidgetFrameworks}, Resources=${hasWidgetResources}`);
+        if (widgetTarget && !hasWidgetSources) {
+            try {
+                // Find widget target's source build phase
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                const widgetTargetObj = targets[widgetTarget.uuid];
+                if (widgetTargetObj && widgetTargetObj.buildPhases) {
+                    let widgetSourcePhase = null;
+                    // Look through the widget target's build phases to find the sources build phase
+                    for (const phaseRef of widgetTargetObj.buildPhases) {
+                        const phaseUuid = phaseRef.value || phaseRef;
+                        const phase = widgetBuildPhases[phaseUuid];
+                        if (phase && phase.isa === 'PBXSourcesBuildPhase') {
+                            widgetSourcePhase = phase;
+                            console.log(`Found widget target source build phase: ${phaseUuid}`);
+                            break;
+                        }
+                    }
+                    // If no source build phase found, create one
+                    if (!widgetSourcePhase) {
+                        const sourceBuildPhaseUuid = xcodeProject.generateUuid();
+                        widgetBuildPhases[sourceBuildPhaseUuid] = {
+                            isa: 'PBXSourcesBuildPhase',
+                            buildActionMask: '2147483647',
+                            files: [],
+                            runOnlyForDeploymentPostprocessing: '0'
+                        };
+                        widgetBuildPhases[sourceBuildPhaseUuid + '_comment'] = 'Sources';
+                        // Add to target's build phases
+                        widgetTargetObj.buildPhases.push({
+                            value: sourceBuildPhaseUuid,
+                            comment: 'Sources'
+                        });
+                        widgetSourcePhase = widgetBuildPhases[sourceBuildPhaseUuid];
+                        console.log(`Created widget target source build phase: ${sourceBuildPhaseUuid}`);
+                    }
+                    if (widgetSourcePhase) {
+                        // Add widget Swift files to build phase
+                        let addedWidgetFiles = 0;
+                        const widgetSwiftFiles = TOP_LEVEL_FILES.filter(file => file.endsWith('.swift'));
+                        for (const widgetFile of widgetSwiftFiles) {
+                            const fileName = widgetFile.split('/').pop() || widgetFile;
+                            const fullPath = `${EXTENSION_TARGET_NAME}/${widgetFile}`;
+                            // Check if file already exists in project
+                            const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                            const existingFile = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(fileName));
+                            if (!existingFile) {
+                                try {
+                                    // Add file reference manually
+                                    const fileUuid = xcodeProject.generateUuid();
+                                    const fileType = 'sourcecode.swift';
+                                    // Add to PBXFileReference section
+                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid] = {
+                                        isa: 'PBXFileReference',
+                                        lastKnownFileType: fileType,
+                                        name: fileName,
+                                        path: fullPath,
+                                        sourceTree: '"<group>"'
+                                    };
+                                    xcodeProject.hash.project.objects.PBXFileReference[fileUuid + '_comment'] = fileName;
+                                    // Add to build file section
+                                    const buildFileUuid = xcodeProject.generateUuid();
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                        isa: 'PBXBuildFile',
+                                        fileRef: fileUuid,
+                                        fileRef_comment: fileName
+                                    };
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                                    // Add to widget target's source build phase
+                                    if (!widgetSourcePhase.files) {
+                                        widgetSourcePhase.files = [];
+                                    }
+                                    widgetSourcePhase.files.push({
+                                        value: buildFileUuid,
+                                        comment: `${fileName} in Sources`
+                                    });
+                                    addedWidgetFiles++;
+                                    console.log(`Added widget file to target: ${widgetFile}`);
+                                }
+                                catch (fileError) {
+                                    console.warn(`Could not add widget file ${widgetFile}:`, fileError instanceof Error ? fileError.message : String(fileError));
+                                }
+                            }
+                            else {
+                                console.log(`Widget file ${widgetFile} already exists in project`);
+                            }
+                        }
+                        if (addedWidgetFiles > 0) {
+                            console.log(`Successfully added ${addedWidgetFiles} widget files to widget target`);
+                        }
+                        else {
+                            console.log('All widget files already exist in widget target');
+                        }
+                    }
+                    else {
+                        console.warn('Could not find widget target source build phase');
+                    }
+                }
+            }
+            catch (error) {
+                console.error('Error adding widget files to target:', error instanceof Error ? error.message : String(error));
+            }
+        }
+        // Add WidgetKit framework to widget target if not present
+        if (widgetTarget && !hasWidgetFrameworks) {
+            try {
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                const widgetTargetObj = targets[widgetTarget.uuid];
+                if (widgetTargetObj && widgetTargetObj.buildPhases) {
+                    let widgetFrameworkPhase = null;
+                    // Look for existing framework build phase
+                    for (const phaseRef of widgetTargetObj.buildPhases) {
+                        const phaseUuid = phaseRef.value || phaseRef;
+                        const phase = widgetFrameworkPhases[phaseUuid];
+                        if (phase && phase.isa === 'PBXFrameworksBuildPhase') {
+                            widgetFrameworkPhase = phase;
+                            console.log(`Found widget target framework build phase: ${phaseUuid}`);
+                            break;
+                        }
+                    }
+                    // If no framework build phase found, create one
+                    if (!widgetFrameworkPhase) {
+                        const frameworkBuildPhaseUuid = xcodeProject.generateUuid();
+                        widgetFrameworkPhases[frameworkBuildPhaseUuid] = {
+                            isa: 'PBXFrameworksBuildPhase',
+                            buildActionMask: '2147483647',
+                            files: [],
+                            runOnlyForDeploymentPostprocessing: '0'
+                        };
+                        widgetFrameworkPhases[frameworkBuildPhaseUuid + '_comment'] = 'Frameworks';
+                        // Add to target's build phases
+                        widgetTargetObj.buildPhases.push({
+                            value: frameworkBuildPhaseUuid,
+                            comment: 'Frameworks'
+                        });
+                        widgetFrameworkPhase = widgetFrameworkPhases[frameworkBuildPhaseUuid];
+                        console.log(`Created widget target framework build phase: ${frameworkBuildPhaseUuid}`);
+                    }
+                    if (widgetFrameworkPhase) {
+                        // Add WidgetKit framework
+                        const frameworkName = 'WidgetKit.framework';
+                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                        // Check if WidgetKit framework already exists
+                        const existingFramework = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(frameworkName));
+                        if (!existingFramework) {
+                            // Add WidgetKit framework reference
+                            const frameworkUuid = xcodeProject.generateUuid();
+                            xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid] = {
+                                isa: 'PBXFileReference',
+                                lastKnownFileType: 'wrapper.framework',
+                                name: frameworkName,
+                                path: `System/Library/Frameworks/${frameworkName}`,
+                                sourceTree: 'SDKROOT'
+                            };
+                            xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid + '_comment'] = frameworkName;
+                            // Add to build file section
+                            const buildFileUuid = xcodeProject.generateUuid();
+                            xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                isa: 'PBXBuildFile',
+                                fileRef: frameworkUuid,
+                                fileRef_comment: frameworkName
+                            };
+                            xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${frameworkName} in Frameworks`;
+                            // Add to widget target's framework build phase
+                            if (!widgetFrameworkPhase.files) {
+                                widgetFrameworkPhase.files = [];
+                            }
+                            widgetFrameworkPhase.files.push({
+                                value: buildFileUuid,
+                                comment: `${frameworkName} in Frameworks`
+                            });
+                            console.log(`Added WidgetKit framework to widget target`);
+                        }
+                        else {
+                            console.log('WidgetKit framework already exists in project');
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                console.error('Error adding WidgetKit framework to widget target:', error instanceof Error ? error.message : String(error));
+            }
+        }
         // Check if Live Activity target already exists
         let liveActivityTarget = null;
         for (const uuid in existingTargets) {
