@@ -7,8 +7,11 @@ import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { liveActivityService } from '../src/services/liveActivityService';
+import { OneSignal } from 'react-native-onesignal';
 import { notificationService } from '../src/services/notificationService';
+
+// Initialize OneSignal Live Activities
+OneSignal.LiveActivities.setupDefault();
 
 // Pomodoro session types
 type SessionType = 'work' | 'shortBreak' | 'longBreak';
@@ -76,15 +79,16 @@ export default function PomodoroScreen() {
           const newTime = prev - 1;
           
           // Update Live Activity every 30 seconds or when less than 10 seconds remain
-          if (liveActivityService.isActive() && (newTime % 30 === 0 || newTime <= 10)) {
-            liveActivityService.updatePomodoroTimer({
-              sessionType: currentSession,
-              taskTitle: currentTask,
+          if (liveActivityId && (newTime % 30 === 0 || newTime <= 10)) {
+            // Use OneSignal REST API to update Live Activity
+            updateLiveActivityViaAPI(liveActivityId, {
               timeRemaining: newTime,
               totalDuration: POMODORO_SESSIONS[currentSession].duration,
-              completedPomodoros,
+              sessionType: currentSession,
               isRunning: true,
-            }).catch(error => console.error('Failed to update Live Activity:', error));
+              completedPomodoros,
+              taskTitle: currentTask,
+            }).catch((error: any) => console.error('Failed to update Live Activity:', error));
           }
           
           return newTime;
@@ -121,6 +125,29 @@ export default function PomodoroScreen() {
     }
   };
 
+  // Update Live Activity via OneSignal REST API
+  const updateLiveActivityViaAPI = async (activityId: string, data: any) => {
+    try {
+      const response = await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'live_activity_update',
+          activityId,
+          data,
+        }),
+      });
+      
+      if (!response.ok) {
+        console.warn('Failed to update Live Activity:', response.status);
+      }
+    } catch (error) {
+      console.warn('Error updating Live Activity:', error);
+    }
+  };
+
   const sendCompletionNotification = async (sessionType: SessionType, newCompletedPomodoros?: number) => {
     try {
       // Send push notification via OneSignal API
@@ -153,9 +180,10 @@ export default function PomodoroScreen() {
     await playCompletionSound();
 
     // End current Live Activity
-    if (liveActivityService.isActive()) {
+    if (liveActivityId) {
       try {
-        await liveActivityService.endPomodoroTimer();
+        // OneSignal Live Activities end automatically when dismissed by user
+        // or can be ended via API call to OneSignal
         setLiveActivityId(null);
       } catch (error) {
         console.error('Failed to end Live Activity:', error);
@@ -199,34 +227,40 @@ export default function PomodoroScreen() {
     const willStart = !isRunning;
     setIsRunning(willStart);
     
-    // Start or update Live Activity
+    // Start or update Live Activity using OneSignal trigger-in-app
     if (willStart) {
       try {
-        const success = await liveActivityService.startPomodoroTimer({
-          sessionType: currentSession,
-          taskTitle: currentTask,
-          timeRemaining: timeLeft,
-          totalDuration: POMODORO_SESSIONS[currentSession].duration,
-          completedPomodoros,
-          isRunning: true,
-        });
-        if (success) {
-          setLiveActivityId(liveActivityService.getCurrentActivityId());
-        }
+        const activityId = `pomodoro-${Date.now()}`;
+        const attributes = { 
+          startTime: new Date().toISOString() 
+        };
+        const content = {
+          data: {
+            timeRemaining: timeLeft,
+            totalDuration: POMODORO_SESSIONS[currentSession].duration,
+            sessionType: currentSession,
+            isRunning: true,
+            completedPomodoros,
+            taskTitle: currentTask,
+          }
+        };
+        
+        OneSignal.LiveActivities.startDefault(activityId, attributes, content);
+        setLiveActivityId(activityId);
       } catch (error) {
         console.error('Failed to start Live Activity:', error);
       }
     } else {
       // Update Live Activity to paused state
-      if (liveActivityService.isActive()) {
+      if (liveActivityId) {
         try {
-          await liveActivityService.updatePomodoroTimer({
-            sessionType: currentSession,
-            taskTitle: currentTask,
+          await updateLiveActivityViaAPI(liveActivityId, {
             timeRemaining: timeLeft,
             totalDuration: POMODORO_SESSIONS[currentSession].duration,
-            completedPomodoros,
+            sessionType: currentSession,
             isRunning: false,
+            completedPomodoros,
+            taskTitle: currentTask,
           });
         } catch (error) {
           console.error('Failed to update Live Activity:', error);
@@ -241,9 +275,9 @@ export default function PomodoroScreen() {
     setTimeLeft(POMODORO_SESSIONS[currentSession].duration);
     
     // End Live Activity when resetting
-    if (liveActivityService.isActive()) {
+    if (liveActivityId) {
       try {
-        await liveActivityService.endPomodoroTimer();
+        // OneSignal Live Activities end automatically or via API
         setLiveActivityId(null);
       } catch (error) {
         console.error('Failed to end Live Activity:', error);
