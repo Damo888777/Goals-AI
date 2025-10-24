@@ -44,13 +44,15 @@ class ServerApiKeyService {
     try {
       console.log(`[Server API Key Service] Calling get-api-keys edge function for ${provider}...`)
       
-      // Call Supabase Edge Function to get API keys (GET request)
+      // Call Supabase Edge Function to get API keys (POST request with service key)
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+      
       const { data, error } = await supabaseServer.functions.invoke('get-api-keys', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-          'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+          'Authorization': `Bearer ${serviceKey}`,
+          'apikey': serviceKey!,
         }
       })
 

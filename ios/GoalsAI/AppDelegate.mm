@@ -2,8 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-#import <OneSignalFramework/OneSignalFramework-Swift.h>
-#import "Goals_AI-Swift.h"
+#import <OneSignalFramework/OneSignalFramework.h>
 
 @implementation AppDelegate
 
@@ -15,12 +14,15 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-  BOOL result = [super application:application didFinishLaunchingWithOptions:launchOptions];
+  // Initialize OneSignal
+  [OneSignal initialize:@"bcd988a6-d832-4c7c-83bf-4af40c46bf53" withLaunchOptions:launchOptions];
   
-  // Setup OneSignal Live Activities with default attributes
-  [OneSignal.LiveActivities setupDefault];
-  
-  return result;
+  // Setup Live Activities for iOS 16.1+
+  if (@available(iOS 16.1, *)) {
+    [OneSignal.LiveActivities setupDefault];
+  }
+
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

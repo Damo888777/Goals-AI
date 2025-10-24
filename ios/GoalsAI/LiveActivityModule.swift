@@ -6,22 +6,18 @@
 import Foundation
 import ActivityKit
 import React
-import OneSignalLiveActivities
 
 // MARK: - Activity Attributes (shared with Live Activity target)
 
 // MARK: - Shared Activity Attributes
-struct PomodoroActivityAttributes: OneSignalLiveActivityAttributes {
-    public struct ContentState: OneSignalLiveActivityContentState {
+struct PomodoroActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
         var timeRemaining: Int // seconds
         var totalDuration: Int // seconds
         var sessionType: String // "work", "shortBreak", "longBreak"
         var isRunning: Bool
         var completedPomodoros: Int
         var taskTitle: String
-        
-        // Required OneSignal reference
-        var onesignal: OneSignalLiveActivityContentStateData
     }
     
     var startTime: Date
@@ -83,8 +79,7 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             sessionType: sessionType,
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
-            taskTitle: taskTitle,
-            onesignal: OneSignalLiveActivityContentStateData()
+            taskTitle: taskTitle
         )
         
         do {
@@ -132,8 +127,7 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             sessionType: sessionType,
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
-            taskTitle: taskTitle,
-            onesignal: OneSignalLiveActivityContentStateData()
+            taskTitle: taskTitle
         )
         
         Task {

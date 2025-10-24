@@ -201,55 +201,42 @@ struct widgetEntryView: View {
                 .frame(width: 80)
                 .padding(.leading, 0)
                 
-                // Layer 2: Container Layer (cream background with drop shadow)
-                VStack(spacing: 6) {
-                    // Layer 3: Eat the Frog Container - ALWAYS VISIBLE
-                    VStack(spacing: 6) {
-                        if let frogTask = entry.frogTask {
-                            MediumFrogTaskView(task: frogTask)
-                        } else {
-                            MediumFrogEmptyView()
-                        }
+                // Cream container - no padding, no shadows, left stroke only
+                VStack(spacing: 0) {
+                    // Frog task section
+                    if let frogTask = entry.frogTask {
+                        MediumOptimizedFrogTaskView(task: frogTask)
+                    } else {
+                        MediumOptimizedFrogEmptyView()
                     }
-                    .padding(6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.widgetFrogBackground)
-                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
                     
                     // Regular Tasks (up to 3)
                     if !entry.regularTasks.isEmpty {
-                        VStack(spacing: 4) {
-                            ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
-                                MediumRegularTaskView(task: task)
-                            }
+                        ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
+                            MediumOptimizedRegularTaskView(task: task)
+                        }
+                        
+                        // Show task count indicator if more than 3 tasks
+                        if entry.regularTasks.count > 3 {
+                            MediumTaskCountIndicator(remainingCount: entry.regularTasks.count - 3)
                         }
                     }
                     
                     if entry.frogTask == nil && entry.regularTasks.isEmpty {
                         // Empty state
-                        MediumEmptyStateView()
+                        MediumOptimizedEmptyStateView()
                     }
                     
                     Spacer()
                 }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.widgetSecondaryBackground)
-                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
-                )
+                .background(Color.widgetSecondaryBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                    Rectangle()
+                        .fill(Color.widgetStrokeColor)
+                        .frame(width: 2)
+                        .clipped(),
+                    alignment: .leading
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -661,6 +648,88 @@ struct MediumFrogEmptyView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(Color.clear)
+    }
+}
+
+// MARK: - Optimized Medium Widget Views
+struct MediumOptimizedFrogTaskView: View {
+    let task: Task
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            CompactCompleteButton(task: task)
+            
+            Text(task.title)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.widgetFrogTextColor)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+}
+
+struct MediumOptimizedFrogEmptyView: View {
+    var body: some View {
+        Text("No frog is set")
+            .font(.system(size: 12, weight: .regular))
+            .foregroundColor(.widgetFrogTextColor.opacity(0.7))
+            .lineLimit(1)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+    }
+}
+
+struct MediumOptimizedRegularTaskView: View {
+    let task: Task
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            CompactCompleteButton(task: task)
+            
+            Text(task.title)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(.widgetTextColor)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .strikethrough(task.isCompleted, color: .widgetTextColor)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+}
+
+struct MediumOptimizedEmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("No tasks available")
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(.widgetTextColor.opacity(0.8))
+                .multilineTextAlignment(.center)
+            
+            Text("Your day looks clear")
+                .font(.system(size: 10, weight: .light))
+                .foregroundColor(.widgetTextColor.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 20)
+    }
+}
+
+struct MediumTaskCountIndicator: View {
+    let remainingCount: Int
+    
+    var body: some View {
+        Text("+ \(remainingCount) more task\(remainingCount == 1 ? "" : "s")")
+            .font(.system(size: 10, weight: .light))
+            .foregroundColor(.widgetTextColor.opacity(0.6))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
     }
 }
 

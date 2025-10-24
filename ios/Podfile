@@ -54,6 +54,8 @@ target 'GoalsAI' do
   )
 
   
+  # OneSignal for Live Activities
+  pod 'OneSignalXCFramework', '>= 5.2.0', '< 6.0'
 
   pod 'simdjson', path: File.join(File.dirname(`node --print "require.resolve('@nozbe/simdjson/package.json')"`)), :modular_headers => true 
 
@@ -83,10 +85,4 @@ target 'GoalsAI' do
       Pod::UI.warn e
     end
   end
-end
-
-target 'PomodoroLiveActivity' do
-  use_frameworks! :linkage => :static
-  
-  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end

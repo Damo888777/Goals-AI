@@ -232,21 +232,21 @@ export default function PomodoroScreen() {
       try {
         const activityId = `pomodoro-${Date.now()}`;
         const attributes = { 
-          startTime: new Date().toISOString() 
+          startTime: Date.now() 
         };
         const content = {
-          data: {
-            timeRemaining: timeLeft,
-            totalDuration: POMODORO_SESSIONS[currentSession].duration,
-            sessionType: currentSession,
-            isRunning: true,
-            completedPomodoros,
-            taskTitle: currentTask,
-          }
+          timeRemaining: timeLeft,
+          totalDuration: POMODORO_SESSIONS[currentSession].duration,
+          sessionType: currentSession,
+          isRunning: true,
+          completedPomodoros,
+          taskTitle: currentTask,
         };
         
+        console.log('Starting Live Activity with:', { activityId, attributes, content });
         OneSignal.LiveActivities.startDefault(activityId, attributes, content);
         setLiveActivityId(activityId);
+        console.log('Live Activity started successfully');
       } catch (error) {
         console.error('Failed to start Live Activity:', error);
       }
