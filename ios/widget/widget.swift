@@ -136,7 +136,6 @@ struct widgetEntryView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.widgetFrogBackground)
-                            .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -164,7 +163,6 @@ struct widgetEntryView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.widgetSecondaryBackground)
-                        .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 4)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
@@ -201,19 +199,33 @@ struct widgetEntryView: View {
                 .frame(width: 80)
                 .padding(.leading, 0)
                 
-                // Cream container - no padding, no shadows, left stroke only
-                VStack(spacing: 0) {
-                    // Frog task section
-                    if let frogTask = entry.frogTask {
-                        MediumOptimizedFrogTaskView(task: frogTask)
-                    } else {
-                        MediumOptimizedFrogEmptyView()
+                // Cream container - full width, touching edges, rounded left corners
+                VStack(spacing: 6) {
+                    // Eat the Frog Container - ALWAYS VISIBLE with green background
+                    VStack(spacing: 6) {
+                        if let frogTask = entry.frogTask {
+                            MediumOptimizedFrogTaskView(task: frogTask)
+                        } else {
+                            MediumOptimizedFrogEmptyView()
+                        }
                     }
+                    .padding(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.widgetFrogBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                     
                     // Regular Tasks (up to 3)
                     if !entry.regularTasks.isEmpty {
-                        ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
-                            MediumOptimizedRegularTaskView(task: task)
+                        VStack(spacing: 4) {
+                            ForEach(Array(entry.regularTasks.prefix(3).enumerated()), id: \.element.id) { index, task in
+                                MediumOptimizedRegularTaskView(task: task)
+                            }
                         }
                         
                         // Show task count indicator if more than 3 tasks
@@ -229,12 +241,22 @@ struct widgetEntryView: View {
                     
                     Spacer()
                 }
-                .background(Color.widgetSecondaryBackground)
+                .padding(.leading, 12)
+                .padding(.vertical, 0)
+                .padding(.trailing, 0)
+                .background(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 12,
+                        bottomLeadingRadius: 12,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 0
+                    )
+                    .fill(Color.widgetSecondaryBackground)
+                )
                 .overlay(
                     Rectangle()
                         .fill(Color.widgetStrokeColor)
-                        .frame(width: 2)
-                        .clipped(),
+                        .frame(width: 2),
                     alignment: .leading
                 )
             }
@@ -523,7 +545,6 @@ struct MediumRegularTaskView: View {
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(Color.widgetSecondaryBackground)
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 6)
@@ -608,7 +629,6 @@ struct LargeRegularTaskView: View {
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.widgetSecondaryBackground)
-                .shadow(color: .widgetShadowColor, radius: 0, x: 0, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)

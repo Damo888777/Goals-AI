@@ -54,8 +54,6 @@ target 'GoalsAI' do
   )
 
   
-  # OneSignal for Live Activities
-  pod 'OneSignalXCFramework', '>= 5.2.0', '< 6.0'
 
   pod 'simdjson', path: File.join(File.dirname(`node --print "require.resolve('@nozbe/simdjson/package.json')"`)), :modular_headers => true 
 

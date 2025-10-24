@@ -66,6 +66,13 @@
       "@morrowdigital/watermelondb-expo-plugin",
       "expo-font",
       [
+        "onesignal-expo-plugin",
+        {
+          "appId": "bcd988a6-d832-4c7c-83bf-4af40c46bf53",
+          "mode": "development"
+        }
+      ],
+      [
         "./app.plugin", 
         { 
           "devTeamId": "5PT3BWY2A5",
