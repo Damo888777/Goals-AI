@@ -1,5 +1,5 @@
 import { ConfigPlugin } from "@expo/config-plugins"
-import { withWidgetXCode } from "./withWidgetXCode"
+import { withWidgetXCode, withActivityKitEntitlement } from "./withWidgetXCode"
 import { withWidgetEAS } from "./withWidgetEAS"
 import { WithWidgetProps } from "../index"
 
@@ -14,6 +14,9 @@ export const withWidgetIos: ConfigPlugin<WithWidgetProps> = (
   // Dann die Xcode-Projektmodifikation, die das Target, die Dateien,
   // die Build-Settings UND die Entitlements korrekt einrichtet.
   config = withWidgetXCode(config, options)
+
+  // Add ActivityKit entitlement for Live Activities
+  config = withActivityKitEntitlement(config)
 
   // Stelle sicher, dass die Haupt-App auch die App Group hat.
   // Dies ist der einzige Teil, den wir aus der alten Logik behalten.

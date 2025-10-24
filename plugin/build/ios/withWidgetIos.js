@@ -10,6 +10,8 @@ const withWidgetIos = (config, options) => {
     // Dann die Xcode-Projektmodifikation, die das Target, die Dateien,
     // die Build-Settings UND die Entitlements korrekt einrichtet.
     config = (0, withWidgetXCode_1.withWidgetXCode)(config, options);
+    // Add ActivityKit entitlement for Live Activities
+    config = (0, withWidgetXCode_1.withActivityKitEntitlement)(config);
     // Stelle sicher, dass die Haupt-App auch die App Group hat.
     // Dies ist der einzige Teil, den wir aus der alten Logik behalten.
     if (options.appGroupId) {

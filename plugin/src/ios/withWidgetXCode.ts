@@ -1,4 +1,4 @@
-import { ConfigPlugin, withXcodeProject, withInfoPlist } from "@expo/config-plugins";
+import { ConfigPlugin, withXcodeProject, withInfoPlist, withEntitlementsPlist } from "@expo/config-plugins";
 import fs from "fs-extra";
 import path from "path";
 
@@ -971,5 +971,13 @@ async function updateXCodeProj(
     }
 
     fs.writeFileSync(projPath, xcodeProject.writeSync())
+  })
+}
+
+// Add ActivityKit entitlement to main app
+export const withActivityKitEntitlement: ConfigPlugin = (config) => {
+  return withEntitlementsPlist(config, (config) => {
+    config.modResults['com.apple.developer.ActivityKit'] = true
+    return config
   })
 }
