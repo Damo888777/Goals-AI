@@ -61,6 +61,9 @@ class NotificationService {
       // Set timezone tags
       await this.updateUserTags({});
       
+      // Setup Live Activities
+      await this.setupLiveActivities();
+      
       this.isInitialized = true;
       console.log('OneSignal initialized successfully');
       
@@ -425,6 +428,105 @@ class NotificationService {
       });
     } catch (error) {
       console.error('Failed to update main goal:', error);
+    }
+  }
+
+  /**
+   * Setup OneSignal Live Activities for Pomodoro timer
+   */
+  async setupLiveActivities(): Promise<void> {
+    try {
+      console.log('🔴 [Live Activity] Setting up OneSignal Live Activities...');
+      
+      // Setup default Live Activity attributes for OneSignal
+      OneSignal.LiveActivities.setupDefault();
+      
+      console.log('✅ [Live Activity] OneSignal Live Activities setup complete');
+    } catch (error) {
+      console.error('❌ [Live Activity] Failed to setup Live Activities:', error);
+    }
+  }
+
+  /**
+   * Start a Pomodoro Live Activity
+   */
+  async startPomodoroLiveActivity(
+    sessionType: 'work' | 'shortBreak' | 'longBreak',
+    duration: number,
+    taskTitle: string,
+    completedPomodoros: number
+  ): Promise<string | null> {
+    try {
+      console.log('🔴 [Live Activity] Starting Pomodoro Live Activity...');
+      
+      const activityId = `pomodoro_${Date.now()}`;
+      
+      // Attributes (static data for the Live Activity)
+      const attributes = {
+        sessionType,
+        taskTitle,
+        startTime: new Date().toISOString()
+      };
+      
+      // Content (dynamic data that can be updated)
+      const content = {
+        timeRemaining: duration,
+        totalDuration: duration,
+        isRunning: true,
+        completedPomodoros,
+        sessionType
+      };
+      
+      OneSignal.LiveActivities.startDefault(activityId, attributes, content);
+      
+      console.log('✅ [Live Activity] Pomodoro Live Activity started:', activityId);
+      return activityId;
+      
+    } catch (error) {
+      console.error('❌ [Live Activity] Failed to start Pomodoro Live Activity:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update Pomodoro Live Activity state
+   */
+  async updatePomodoroLiveActivity(
+    activityId: string,
+    timeRemaining: number,
+    isRunning: boolean,
+    completedPomodoros?: number
+  ): Promise<void> {
+    try {
+      const content = {
+        timeRemaining,
+        isRunning,
+        ...(completedPomodoros !== undefined && { completedPomodoros })
+      };
+      
+      // Note: Live Activity updates are handled via server-side OneSignal API
+      // Client-side updates not directly supported in OneSignal v5
+      console.log('🔄 [Live Activity] Content to update:', content);
+      
+      console.log('🔄 [Live Activity] Updated Pomodoro Live Activity:', activityId, content);
+    } catch (error) {
+      console.error('❌ [Live Activity] Failed to update Pomodoro Live Activity:', error);
+    }
+  }
+
+  /**
+   * End Pomodoro Live Activity
+   */
+  async endPomodoroLiveActivity(activityId: string): Promise<void> {
+    try {
+      // Note: Live Activities end automatically or via server-side API
+      // For now, we'll log the end request
+      console.log('🛑 [Live Activity] Requesting end for Pomodoro Live Activity:', activityId);
+      
+      // The actual ending should be done via OneSignal REST API from your server
+      // or the Live Activity will end naturally when timer completes
+    } catch (error) {
+      console.error('❌ [Live Activity] Failed to end Pomodoro Live Activity:', error);
     }
   }
 }
