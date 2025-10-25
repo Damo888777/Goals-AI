@@ -9,9 +9,19 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { OneSignal } from 'react-native-onesignal';
 import { notificationService } from '../src/services/notificationService';
+import * as Notifications from 'expo-notifications';
 
 // Initialize OneSignal Live Activities
 OneSignal.LiveActivities.setupDefault();
+
+// Configure notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Pomodoro session types
 type SessionType = 'work' | 'shortBreak' | 'longBreak';
@@ -230,6 +240,12 @@ export default function PomodoroScreen() {
     // Start or update Live Activity using OneSignal trigger-in-app
     if (willStart) {
       try {
+        // Request notification permissions first time
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Notification permission not granted');
+        }
+
         const activityId = `pomodoro-${Date.now()}`;
         const attributes = { 
           startTime: Date.now() 
@@ -246,11 +262,31 @@ export default function PomodoroScreen() {
         console.log('Starting Live Activity with:', { activityId, attributes, content });
         OneSignal.LiveActivities.startDefault(activityId, attributes, content);
         setLiveActivityId(activityId);
-        console.log('Live Activity started successfully');
+
+        // Schedule local notification for timer completion
+        const sessionInfo = POMODORO_SESSIONS[currentSession];
+        const notificationMessage = currentSession === 'work' 
+          ? `${sessionInfo.label} complete! Time for a break! 🎉`
+          : `Break time over! Ready for another focus session? 💪`;
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: '🍅 Pomodoro Timer',
+            body: notificationMessage,
+            sound: 'default',
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: { seconds: timeLeft },
+        });
+
+        console.log('Live Activity and notification scheduled successfully');
       } catch (error) {
-        console.error('Failed to start Live Activity:', error);
+        console.error('Failed to start Live Activity or schedule notification:', error);
       }
     } else {
+      // Cancel scheduled notifications when pausing
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      
       // Update Live Activity to paused state
       if (liveActivityId) {
         try {
@@ -273,6 +309,9 @@ export default function PomodoroScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsRunning(false);
     setTimeLeft(POMODORO_SESSIONS[currentSession].duration);
+    
+    // Cancel any scheduled notifications
+    await Notifications.cancelAllScheduledNotificationsAsync();
     
     // End Live Activity when resetting
     if (liveActivityId) {
