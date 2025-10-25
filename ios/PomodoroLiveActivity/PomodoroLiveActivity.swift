@@ -2,7 +2,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes (MUST match LiveActivityModule.swift exactly)
+// MARK: - Activity Attributes
 struct PomodoroActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         var timeRemaining: Int // seconds
