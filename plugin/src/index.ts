@@ -1,4 +1,4 @@
-import { ConfigPlugin, withEntitlementsPlist, withInfoPlist, withDangerousMod } from "@expo/config-plugins"
+import { ConfigPlugin, withEntitlementsPlist, withDangerousMod } from "@expo/config-plugins"
 import { ExpoConfig } from "@expo/config-types"
 import { withWidgetIos } from "./ios/withWidgetIos"
 
@@ -60,13 +60,6 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
   }
 
 
-  // ✅ Configure OneSignal to use our existing app group
-  config = withInfoPlist(config, config => {
-    config.modResults.NSSupportsLiveActivities = true;
-    config.modResults.OneSignal_app_groups_key = appGroupId;
-    return config;
-  });
-
   // ✅ Übergib Parameter an dein iOS Widget Setup
   config = withWidgetIos(config, { ...options, appGroupId })
 
@@ -104,21 +97,6 @@ end`;
           fs.writeFileSync(podfilePath, podfileContent);
           console.log('Added OneSignal extension targets to Podfile');
         }
-      }
-      
-      // Update OneSignalNotificationServiceExtension Info.plist
-      const plist = require('@expo/plist');
-      const nseInfoPlistPath = path.join(
-        config.modRequest.platformProjectRoot,
-        'OneSignalNotificationServiceExtension',
-        'Info.plist'
-      );
-      
-      if (fs.existsSync(nseInfoPlistPath)) {
-        const nseInfoPlist = plist.parse(fs.readFileSync(nseInfoPlistPath, 'utf8'));
-        nseInfoPlist.OneSignal_app_groups_key = appGroupId;
-        fs.writeFileSync(nseInfoPlistPath, plist.build(nseInfoPlist));
-        console.log('Added custom app group to NSE Info.plist');
       }
       
       return config;

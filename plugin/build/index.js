@@ -40,12 +40,6 @@ const withWidget = (config, options) => {
             "com.apple.security.application-groups": [appGroupId],
         },
     };
-    // ✅ Configure OneSignal to use our existing app group
-    config = (0, config_plugins_1.withInfoPlist)(config, config => {
-        config.modResults.NSSupportsLiveActivities = true;
-        config.modResults.OneSignal_app_groups_key = appGroupId;
-        return config;
-    });
     // ✅ Übergib Parameter an dein iOS Widget Setup
     config = (0, withWidgetIos_1.withWidgetIos)(config, { ...options, appGroupId });
     // ✅ Configure OneSignal Podfile targets
@@ -78,15 +72,6 @@ end`;
                     fs.writeFileSync(podfilePath, podfileContent);
                     console.log('Added OneSignal extension targets to Podfile');
                 }
-            }
-            // Update OneSignalNotificationServiceExtension Info.plist
-            const plist = require('@expo/plist');
-            const nseInfoPlistPath = path.join(config.modRequest.platformProjectRoot, 'OneSignalNotificationServiceExtension', 'Info.plist');
-            if (fs.existsSync(nseInfoPlistPath)) {
-                const nseInfoPlist = plist.parse(fs.readFileSync(nseInfoPlistPath, 'utf8'));
-                nseInfoPlist.OneSignal_app_groups_key = appGroupId;
-                fs.writeFileSync(nseInfoPlistPath, plist.build(nseInfoPlist));
-                console.log('Added custom app group to NSE Info.plist');
             }
             return config;
         }
