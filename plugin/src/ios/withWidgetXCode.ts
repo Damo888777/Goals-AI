@@ -894,97 +894,6 @@ async function updateXCodeProj(
       }
     }
 
-    // CRITICAL: Add LiveActivityModule.swift to Live Activity target for shared attributes
-    if (liveActivityTarget) {
-      try {
-        const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
-        const liveActivityTargetObj = targets[liveActivityTarget.uuid];
-        
-        if (liveActivityTargetObj && liveActivityTargetObj.buildPhases) {
-          let liveActivitySourcePhase = null;
-          
-          // Find Live Activity target's source build phase
-          for (const phaseRef of liveActivityTargetObj.buildPhases) {
-            const phaseUuid = phaseRef.value || phaseRef;
-            const phase = liveActivityBuildPhases[phaseUuid];
-            if (phase && phase.isa === 'PBXSourcesBuildPhase') {
-              liveActivitySourcePhase = phase;
-              break;
-            }
-          }
-          
-          if (liveActivitySourcePhase) {
-            // Add LiveActivityModule.swift to Live Activity target (for shared attributes)
-            const sharedFile = 'LiveActivityModule.swift';
-            const fileName = sharedFile;
-            
-            const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-            const existingFile = Object.values(fileRefs).find((file: any) => 
-              file && file.path && file.path.includes(fileName)
-            );
-            
-            if (existingFile) {
-              const fileUuid = Object.keys(fileRefs).find(key => 
-                !key.endsWith('_comment') && fileRefs[key] === existingFile
-              ) || '';
-              
-              if (fileUuid) {
-                // Check if build file already exists for this file reference
-                const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
-                let buildFileUuid = Object.keys(buildFiles).find(key => 
-                  !key.endsWith('_comment') && buildFiles[key] && buildFiles[key].fileRef === fileUuid
-                );
-                
-                // Only create new build file if one doesn't exist
-                if (!buildFileUuid) {
-                  buildFileUuid = xcodeProject.generateUuid();
-                  if (buildFileUuid) {
-                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                      isa: 'PBXBuildFile',
-                      fileRef: fileUuid,
-                      fileRef_comment: fileName
-                    };
-                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
-                    console.log(`Created new build file for ${fileName}: ${buildFileUuid}`);
-                  }
-                } else {
-                  console.log(`Using existing build file for ${fileName}: ${buildFileUuid}`);
-                }
-                
-                // Add to Live Activity target's source build phase
-                if (buildFileUuid && liveActivitySourcePhase) {
-                  if (!liveActivitySourcePhase.files) {
-                    liveActivitySourcePhase.files = [];
-                  }
-                  
-                  const alreadyInBuildPhase = liveActivitySourcePhase.files.some((file: any) => 
-                    file.value === buildFileUuid
-                  );
-                  
-                  if (!alreadyInBuildPhase) {
-                    liveActivitySourcePhase.files.push({
-                      value: buildFileUuid,
-                      comment: `${fileName} in Sources`
-                    });
-                    console.log(`✅ Added ${fileName} to Live Activity target for shared attributes`);
-                  } else {
-                    console.log(`${fileName} already in Live Activity target build phase`);
-                  }
-                } else {
-                  console.error(`Failed to add ${fileName}: buildFileUuid=${buildFileUuid}, liveActivitySourcePhase=${!!liveActivitySourcePhase}`);
-                }
-              } else {
-                console.error(`Could not find file UUID for ${fileName}`);
-              }
-            } else {
-              console.warn(`Could not find ${fileName} in project file references`);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error adding LiveActivityModule.swift to Live Activity target:', error instanceof Error ? error.message : String(error));
-      }
-    }
 
     /* Update build configurations */
     const configurations = xcodeProject.pbxXCBuildConfigurationSection()
@@ -1159,6 +1068,105 @@ async function updateXCodeProj(
       }
     } else {
       console.warn('Could not find main target UUID')
+    }
+
+    // CRITICAL: Add LiveActivityModule.swift to Live Activity target for shared attributes
+    // NOTE: This MUST run AFTER main target file addition so file references exist
+    if (liveActivityTarget) {
+      try {
+        const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+        const liveActivityTargetObj = targets[liveActivityTarget.uuid];
+        
+        if (liveActivityTargetObj && liveActivityTargetObj.buildPhases) {
+          let liveActivitySourcePhase = null;
+          
+          // Find Live Activity target's source build phase
+          for (const phaseRef of liveActivityTargetObj.buildPhases) {
+            const phaseUuid = phaseRef.value || phaseRef;
+            const phase = liveActivityBuildPhases[phaseUuid];
+            if (phase && phase.isa === 'PBXSourcesBuildPhase') {
+              liveActivitySourcePhase = phase;
+              break;
+            }
+          }
+          
+          if (liveActivitySourcePhase) {
+            // Add LiveActivityModule.swift to Live Activity target (for shared attributes)
+            const sharedFile = 'LiveActivityModule.swift';
+            const fileName = sharedFile;
+            
+            const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+            const existingFile = Object.values(fileRefs).find((file: any) => 
+              file && file.path && file.path.includes(fileName)
+            );
+            
+            if (existingFile) {
+              const fileUuid = Object.keys(fileRefs).find(key => 
+                !key.endsWith('_comment') && fileRefs[key] === existingFile
+              ) || '';
+              
+              if (fileUuid) {
+                // Check if build file already exists for this file reference
+                const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
+                let buildFileUuid = Object.keys(buildFiles).find(key => 
+                  !key.endsWith('_comment') && buildFiles[key] && buildFiles[key].fileRef === fileUuid
+                );
+                
+                // Create NEW build file for Live Activity target (separate from main target)
+                if (!buildFileUuid) {
+                  buildFileUuid = xcodeProject.generateUuid();
+                  if (buildFileUuid) {
+                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                      isa: 'PBXBuildFile',
+                      fileRef: fileUuid,
+                      fileRef_comment: fileName
+                    };
+                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                    console.log(`Created new build file for ${fileName}: ${buildFileUuid}`);
+                  }
+                } else {
+                  console.log(`Using existing build file for ${fileName}: ${buildFileUuid}`);
+                }
+                
+                // Add to Live Activity target's source build phase
+                if (buildFileUuid && liveActivitySourcePhase) {
+                  if (!liveActivitySourcePhase.files) {
+                    liveActivitySourcePhase.files = [];
+                  }
+                  
+                  const alreadyInBuildPhase = liveActivitySourcePhase.files.some((file: any) => 
+                    file.value === buildFileUuid
+                  );
+                  
+                  if (!alreadyInBuildPhase) {
+                    liveActivitySourcePhase.files.push({
+                      value: buildFileUuid,
+                      comment: `${fileName} in Sources`
+                    });
+                    console.log(`✅ Added ${fileName} to Live Activity target for shared attributes`);
+                  } else {
+                    console.log(`${fileName} already in Live Activity target build phase`);
+                  }
+                } else {
+                  console.error(`Failed to add ${fileName}: buildFileUuid=${buildFileUuid}, liveActivitySourcePhase=${!!liveActivitySourcePhase}`);
+                }
+              } else {
+                console.error(`Could not find file UUID for ${fileName}`);
+              }
+            } else {
+              console.warn(`Could not find ${fileName} in project file references`);
+            }
+          } else {
+            console.warn('Could not find Live Activity target source build phase');
+          }
+        } else {
+          console.warn('Live Activity target object or build phases not found');
+        }
+      } catch (error) {
+        console.error('Error adding LiveActivityModule.swift to Live Activity target:', error instanceof Error ? error.message : String(error));
+      }
+    } else {
+      console.warn('Live Activity target not found for LiveActivityModule.swift Target Membership');
     }
 
     fs.writeFileSync(projPath, xcodeProject.writeSync())
