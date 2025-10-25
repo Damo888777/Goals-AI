@@ -96,11 +96,13 @@ const withWidget = (config, options) => {
                     }
                 }
                 if (targetToRemove) {
-                    // Remove the target from project
-                    delete xcodeProject.hash.project.objects.PBXNativeTarget[targetToRemove];
-                    delete xcodeProject.hash.project.objects.PBXNativeTarget[targetToRemove + '_comment'];
-                    // Remove from root project targets list
-                    const rootProject = xcodeProject.hash.project.objects.PBXProject;
+                    // Remove the target completely from all sections
+                    const projectObjects = xcodeProject.hash.project.objects;
+                    // 1. Remove from PBXNativeTarget
+                    delete projectObjects.PBXNativeTarget[targetToRemove];
+                    delete projectObjects.PBXNativeTarget[targetToRemove + '_comment'];
+                    // 2. Remove from root project targets list
+                    const rootProject = projectObjects.PBXProject;
                     for (const projUuid in rootProject) {
                         if (projUuid.endsWith('_comment'))
                             continue;
@@ -109,12 +111,54 @@ const withWidget = (config, options) => {
                             proj.targets = proj.targets.filter((target) => target.value !== targetToRemove);
                         }
                     }
+                    // 3. Remove build files and file references
+                    for (const section in projectObjects) {
+                        const sectionData = projectObjects[section];
+                        if (typeof sectionData === 'object') {
+                            for (const uuid in sectionData) {
+                                if (uuid.endsWith('_comment'))
+                                    continue;
+                                const item = sectionData[uuid];
+                                if (item && typeof item === 'object') {
+                                    // Remove references to OneSignalNotificationServiceExtension
+                                    if (JSON.stringify(item).includes('OneSignalNotificationServiceExtension')) {
+                                        delete sectionData[uuid];
+                                        delete sectionData[uuid + '_comment'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // 4. Remove file groups
+                    const pbxGroups = projectObjects.PBXGroup;
+                    for (const groupUuid in pbxGroups) {
+                        if (groupUuid.endsWith('_comment'))
+                            continue;
+                        const group = pbxGroups[groupUuid];
+                        if (group && group.name === 'OneSignalNotificationServiceExtension') {
+                            delete pbxGroups[groupUuid];
+                            delete pbxGroups[groupUuid + '_comment'];
+                        }
+                        // Remove references from parent groups
+                        if (group && group.children) {
+                            group.children = group.children.filter((child) => {
+                                const childGroup = pbxGroups[child.value];
+                                return childGroup && childGroup.name !== 'OneSignalNotificationServiceExtension';
+                            });
+                        }
+                    }
                     // Write the modified project
                     fs.writeFileSync(projectPath, xcodeProject.writeSync());
                     console.log('Successfully removed OneSignalNotificationServiceExtension target from Xcode project');
                 }
                 else {
                     console.log('OneSignalNotificationServiceExtension target not found in project');
+                }
+                // Remove OneSignalNotificationServiceExtension directory from filesystem
+                const extensionDir = path.join(config.modRequest.platformProjectRoot, 'OneSignalNotificationServiceExtension');
+                if (fs.existsSync(extensionDir)) {
+                    fs.removeSync(extensionDir);
+                    console.log('Removed OneSignalNotificationServiceExtension directory from filesystem');
                 }
             }
             return config;
