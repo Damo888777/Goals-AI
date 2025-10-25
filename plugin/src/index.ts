@@ -78,14 +78,17 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
         // Add OneSignal targets if not already present
         const oneSignalTargets = `
 target 'widget' do
+  use_frameworks! :linkage => :static
   pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end
 
 target 'PomodoroLiveActivity' do
+  use_frameworks! :linkage => :static
   pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end
 
 target 'OneSignalNotificationServiceExtension' do
+  use_frameworks! :linkage => :static
   pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end`;
         
