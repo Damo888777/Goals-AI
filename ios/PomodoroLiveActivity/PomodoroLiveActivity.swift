@@ -2,7 +2,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes (MUST match LiveActivityModule.swift exactly)
+// MARK: - Activity Attributes (MUST be defined here for Widget target)
 struct PomodoroActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         var timeRemaining: Int // seconds
@@ -106,19 +106,21 @@ struct PomodoroLiveActivity: Widget {
                 }
                 
             } compactLeading: {
-                // Compact leading - just timer (minimal but visible)
-                Text(formatTimeCompact(context.state.timeRemaining))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.primary)
+                // Compact leading - session type emoji
+                Text(context.state.sessionType == "work" ? "🍅" : "☕")
+                    .font(.system(size: 16))
             } compactTrailing: {
-                // Compact trailing - just emoji (minimal indicator)
+                // Compact trailing - timer
+                Text(formatTimeCompact(context.state.timeRemaining))
+                    .font(.custom("Helvetica", size: 14))
+                    .fontWeight(.medium)
+                    .foregroundColor(context.state.sessionType == "work" ? 
+                        Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
+                        Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
+            } minimal: {
+                // Minimal - just the emoji
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 12))
-            } minimal: {
-                // Minimal - just minutes (super compact)
-                Text("\(context.state.timeRemaining / 60)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.primary)
             }
             .widgetURL(URL(string: "goals-ai://pomodoro"))
             .keylineTint(context.state.sessionType == "work" ? 
@@ -265,14 +267,7 @@ private func formatTime(_ seconds: Int) -> String {
 
 private func formatTimeCompact(_ seconds: Int) -> String {
     let minutes = seconds / 60
-    let remainingSeconds = seconds % 60
-    
-    // Show minutes and seconds for better visibility in Dynamic Island
-    if minutes > 0 {
-        return "\(minutes):\(String(format: "%02d", remainingSeconds))"
-    } else {
-        return "0:\(String(format: "%02d", remainingSeconds))"
-    }
+    return "\(minutes)m"
 }
 
 private func sessionTypeLabel(_ sessionType: String) -> String {
