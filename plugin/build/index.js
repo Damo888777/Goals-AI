@@ -46,6 +46,16 @@ const withWidget = (config, options) => {
         config.modResults.OneSignal_app_groups_key = appGroupId;
         return config;
     });
+    // ✅ Fix OneSignal entitlements to use our existing app group (override after OneSignal plugin)
+    config = (0, config_plugins_1.withEntitlementsPlist)(config, (config) => {
+        const entitlements = config.modResults;
+        const appGroups = entitlements["com.apple.security.application-groups"];
+        if (Array.isArray(appGroups)) {
+            // Remove any OneSignal auto-generated app groups and keep only our app group
+            entitlements["com.apple.security.application-groups"] = [appGroupId];
+        }
+        return config;
+    });
     // ✅ Übergib Parameter an dein iOS Widget Setup
     config = (0, withWidgetIos_1.withWidgetIos)(config, { ...options, appGroupId });
     // ✅ Configure OneSignal Podfile targets and NSE Info.plist
@@ -65,6 +75,15 @@ const withWidget = (config, options) => {
                     fs.writeFileSync(nseInfoPlistPath, plistContent);
                     console.log('Added OneSignal_app_groups_key to NSE Info.plist');
                 }
+            }
+            // Fix NSE entitlements to use our app group
+            const nseEntitlementsPath = path.join(config.modRequest.platformProjectRoot, 'OneSignalNotificationServiceExtension', 'OneSignalNotificationServiceExtension.entitlements');
+            if (fs.existsSync(nseEntitlementsPath)) {
+                let entitlementsContent = fs.readFileSync(nseEntitlementsPath, 'utf8');
+                // Replace any .onesignal app group with our app group
+                entitlementsContent = entitlementsContent.replace(/group\.pro\.GoalAchieverAI\.onesignal/g, appGroupId);
+                fs.writeFileSync(nseEntitlementsPath, entitlementsContent);
+                console.log('Fixed NSE entitlements to use correct app group');
             }
             // Add OneSignal targets to Podfile
             const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
