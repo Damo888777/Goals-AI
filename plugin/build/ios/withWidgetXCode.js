@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withActivityKitEntitlement = exports.withWidgetXCode = void 0;
+exports.withWidgetXCode = void 0;
 const config_plugins_1 = require("@expo/config-plugins");
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
@@ -1035,12 +1035,6 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         fs_extra_1.default.writeFileSync(projPath, xcodeProject.writeSync());
     });
 }
-// Add ActivityKit entitlement to main app
-const withActivityKitEntitlement = (config) => {
-    return (0, config_plugins_1.withEntitlementsPlist)(config, (config) => {
-        config.modResults['com.apple.developer.ActivityKit'] = true;
-        return config;
-    });
-};
-exports.withActivityKitEntitlement = withActivityKitEntitlement;
+// NOTE: ActivityKit entitlements are NOT needed for Live Activities
+// Live Activities are enabled via NSSupportsLiveActivities in Info.plist
 //# sourceMappingURL=withWidgetXCode.js.map

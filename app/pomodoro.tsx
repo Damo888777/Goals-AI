@@ -218,19 +218,22 @@ export default function PomodoroScreen() {
           console.warn('Notification permission not granted');
         }
 
+        console.log('🔍 [React Native] Checking if Live Activities are enabled...');
         // Check if Live Activities are enabled
         const areEnabled = await LiveActivityModule.areActivitiesEnabled();
+        console.log('🔍 [React Native] Live Activities enabled:', areEnabled);
+        
         if (!areEnabled) {
-          console.warn('Live Activities are not enabled');
+          console.warn('❌ [React Native] Live Activities are not enabled');
           Alert.alert(
             'Live Activities Disabled',
             'Please enable Live Activities in Settings to see your timer in the Dynamic Island.',
             [{ text: 'OK' }]
           );
+          return; // Don't try to start if disabled
         }
         
-        // Start Live Activity using native module
-        const activityId = await LiveActivityModule.startPomodoroActivity({
+        console.log('🔍 [React Native] Starting Live Activity with data:', {
           activityName: 'PomodoroTimer',
           timeRemaining: timeLeft,
           totalDuration: POMODORO_SESSIONS[currentSession].duration,
@@ -240,8 +243,28 @@ export default function PomodoroScreen() {
           taskTitle: currentTask,
         });
         
-        setLiveActivityId(activityId);
-        console.log('Live Activity started with ID:', activityId);
+        try {
+          // Start Live Activity using native module
+          const activityId = await LiveActivityModule.startPomodoroActivity({
+            activityName: 'PomodoroTimer',
+            timeRemaining: timeLeft,
+            totalDuration: POMODORO_SESSIONS[currentSession].duration,
+            sessionType: currentSession,
+            isRunning: true,
+            completedPomodoros,
+            taskTitle: currentTask,
+          });
+          
+          setLiveActivityId(activityId);
+          console.log('✅ [React Native] Live Activity started successfully with ID:', activityId);
+        } catch (error) {
+          console.error('❌ [React Native] Failed to start Live Activity:', error);
+          Alert.alert(
+            'Live Activity Error',
+            `Failed to start Live Activity: ${error}`,
+            [{ text: 'OK' }]
+          );
+        }
 
         // Schedule local notification for timer completion
         const sessionInfo = POMODORO_SESSIONS[currentSession];

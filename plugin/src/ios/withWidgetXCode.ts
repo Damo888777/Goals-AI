@@ -1161,10 +1161,5 @@ async function updateXCodeProj(
   })
 }
 
-// Add ActivityKit entitlement to main app
-export const withActivityKitEntitlement: ConfigPlugin = (config) => {
-  return withEntitlementsPlist(config, (config) => {
-    config.modResults['com.apple.developer.ActivityKit'] = true
-    return config
-  })
-}
+// NOTE: ActivityKit entitlements are NOT needed for Live Activities
+// Live Activities are enabled via NSSupportsLiveActivities in Info.plist
