@@ -724,10 +724,9 @@ async function updateXCodeProj(
           }
           
           if (liveActivityFrameworkPhase) {
-            // Add ActivityKit and OneSignal frameworks
+            // Add ActivityKit framework (OneSignal is handled by CocoaPods)
             const frameworks = [
-              { name: 'ActivityKit.framework', path: 'System/Library/Frameworks/ActivityKit.framework' },
-              { name: 'OneSignal.framework', path: 'OneSignal.framework' }
+              { name: 'ActivityKit.framework', path: 'System/Library/Frameworks/ActivityKit.framework' }
             ]
             
             const fileRefs = xcodeProject.hash.project.objects.PBXFileReference
@@ -746,7 +745,7 @@ async function updateXCodeProj(
                   lastKnownFileType: 'wrapper.framework',
                   name: framework.name,
                   path: framework.path,
-                  sourceTree: framework.name === 'OneSignal.framework' ? '"<group>"' : 'SDKROOT'
+                  sourceTree: 'SDKROOT'
                 }
                 xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid + '_comment'] = framework.name
                 
