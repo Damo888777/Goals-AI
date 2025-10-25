@@ -13,7 +13,7 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var taskTitle: String
     }
     
-    var activityName: String
+    var startTime: Date
 }
 
 // MARK: - Live Activity Widget

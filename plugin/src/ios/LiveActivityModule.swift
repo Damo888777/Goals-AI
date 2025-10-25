@@ -20,7 +20,7 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var taskTitle: String
     }
     
-    var activityName: String // ✅ Match Widget exactly
+    var activityName: String // ✅ FIXED - matches PomodoroLiveActivity.swift
 }
 
 // MARK: - React Native Module (Bridge + Implementation Combined)
