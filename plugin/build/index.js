@@ -64,6 +64,62 @@ const withWidget = (config, options) => {
     });
     // ✅ Übergib Parameter an dein iOS Widget Setup
     config = (0, withWidgetIos_1.withWidgetIos)(config, { ...options, appGroupId });
+    // ✅ Remove OneSignalNotificationServiceExtension target completely
+    config = (0, config_plugins_1.withDangerousMod)(config, [
+        'ios',
+        async (config) => {
+            const fs = require('fs-extra');
+            const path = require('path');
+            const xcode = require('xcode');
+            const projectPath = path.join(config.modRequest.platformProjectRoot, `${config.modRequest.projectName}.xcodeproj/project.pbxproj`);
+            if (fs.existsSync(projectPath)) {
+                const xcodeProject = xcode.project(projectPath);
+                await new Promise((resolve, reject) => {
+                    xcodeProject.parse((err) => {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(undefined);
+                    });
+                });
+                // Remove OneSignalNotificationServiceExtension target
+                const targets = xcodeProject.pbxNativeTargetSection();
+                let targetToRemove = null;
+                for (const uuid in targets) {
+                    if (uuid.endsWith('_comment'))
+                        continue;
+                    const target = targets[uuid];
+                    if (target && target.name === 'OneSignalNotificationServiceExtension') {
+                        targetToRemove = uuid;
+                        console.log('Found OneSignalNotificationServiceExtension target to remove');
+                        break;
+                    }
+                }
+                if (targetToRemove) {
+                    // Remove the target from project
+                    delete xcodeProject.hash.project.objects.PBXNativeTarget[targetToRemove];
+                    delete xcodeProject.hash.project.objects.PBXNativeTarget[targetToRemove + '_comment'];
+                    // Remove from root project targets list
+                    const rootProject = xcodeProject.hash.project.objects.PBXProject;
+                    for (const projUuid in rootProject) {
+                        if (projUuid.endsWith('_comment'))
+                            continue;
+                        const proj = rootProject[projUuid];
+                        if (proj && proj.targets) {
+                            proj.targets = proj.targets.filter((target) => target.value !== targetToRemove);
+                        }
+                    }
+                    // Write the modified project
+                    fs.writeFileSync(projectPath, xcodeProject.writeSync());
+                    console.log('Successfully removed OneSignalNotificationServiceExtension target from Xcode project');
+                }
+                else {
+                    console.log('OneSignalNotificationServiceExtension target not found in project');
+                }
+            }
+            return config;
+        }
+    ]);
     return config;
 };
 exports.default = withWidget;
