@@ -170,6 +170,7 @@ struct widgetEntryView: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .padding(.all, 0)
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
         } else { // Medium widget
@@ -273,6 +274,7 @@ struct widgetEntryView: View {
                     .stroke(Color.widgetStrokeColor, lineWidth: 2)
                 )
             }
+            .padding(.all, 0)
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
         }

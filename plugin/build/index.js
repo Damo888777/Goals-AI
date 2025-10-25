@@ -40,6 +40,28 @@ const withWidget = (config, options) => {
             "com.apple.security.application-groups": [appGroupId],
         },
     };
+    // ✅ OneSignal AppDelegate Integration (survives prebuild)
+    config = (0, config_plugins_1.withAppDelegate)(config, (config) => {
+        const { modResults } = config;
+        // Add OneSignal import
+        if (!modResults.contents.includes('#import <OneSignalFramework/OneSignalFramework.h>')) {
+            modResults.contents = modResults.contents.replace('#import <React/RCTLinkingManager.h>', '#import <React/RCTLinkingManager.h>\n#import <OneSignalFramework/OneSignalFramework.h>');
+        }
+        // Add OneSignal initialization
+        const oneSignalInit = `
+  // Initialize OneSignal with Live Activities
+  [OneSignal initialize:@"bcd988a6-d832-4c7c-83bf-4af40c46bf53" withLaunchOptions:launchOptions];
+  
+  // Setup Live Activities for iOS 16.1+
+  if (@available(iOS 16.1, *)) {
+    [OneSignal.LiveActivities setupDefault];
+  }
+`;
+        if (!modResults.contents.includes('OneSignal initialize')) {
+            modResults.contents = modResults.contents.replace('self.initialProps = @{};', `self.initialProps = @{};${oneSignalInit}`);
+        }
+        return config;
+    });
     // ✅ Übergib Parameter an dein iOS Widget Setup
     config = (0, withWidgetIos_1.withWidgetIos)(config, { ...options, appGroupId });
     return config;
