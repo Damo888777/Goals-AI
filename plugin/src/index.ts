@@ -70,13 +70,37 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
   // ✅ Übergib Parameter an dein iOS Widget Setup
   config = withWidgetIos(config, { ...options, appGroupId })
 
-  // ✅ Configure OneSignal Podfile targets
+  // ✅ Configure OneSignal Podfile targets and NSE Info.plist
   config = withDangerousMod(config, [
     'ios',
     async (config) => {
       const fs = require('fs-extra');
       const path = require('path');
       
+      // Update NSE Info.plist with custom app group
+      const nseInfoPlistPath = path.join(
+        config.modRequest.platformProjectRoot,
+        'OneSignalNotificationServiceExtension',
+        'Info.plist'
+      );
+      
+      if (fs.existsSync(nseInfoPlistPath)) {
+        let plistContent = fs.readFileSync(nseInfoPlistPath, 'utf8');
+        
+        // Check if key already exists
+        if (!plistContent.includes('OneSignal_app_groups_key')) {
+          // Add the key before closing </dict>
+          plistContent = plistContent.replace(
+            '</dict>\n</plist>',
+            `\t<key>OneSignal_app_groups_key</key>\n\t<string>${appGroupId}</string>\n</dict>\n</plist>`
+          );
+          
+          fs.writeFileSync(nseInfoPlistPath, plistContent);
+          console.log('Added OneSignal_app_groups_key to NSE Info.plist');
+        }
+      }
+      
+      // Add OneSignal targets to Podfile
       const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
       
       if (fs.existsSync(podfilePath)) {
