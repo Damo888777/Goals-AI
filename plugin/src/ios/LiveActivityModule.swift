@@ -5,9 +5,11 @@
 
 import Foundation
 import ActivityKit
-import React
 
-// MARK: - Activity Attributes (shared with Live Activity target)
+// Conditional import for React - only available in main app target
+#if canImport(React)
+import React
+#endif
 
 // MARK: - Shared Activity Attributes (MUST match PomodoroLiveActivity.swift exactly)
 struct PomodoroActivityAttributes: ActivityAttributes {
@@ -20,8 +22,11 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var taskTitle: String
     }
     
-    var activityName: String // ✅ FIXED - matches PomodoroLiveActivity.swift
+    var activityName: String // ✅ Matches PomodoroLiveActivity.swift
 }
+
+// MARK: - React Native Module (only compiled for main app target)
+#if canImport(React)
 
 // MARK: - React Native Module (Bridge + Implementation Combined)
 @objc(LiveActivityModule)
@@ -157,3 +162,5 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
         }
     }
 }
+
+#endif // canImport(React)
