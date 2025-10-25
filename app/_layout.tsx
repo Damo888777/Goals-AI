@@ -12,6 +12,7 @@ import { notificationService } from '../src/services/notificationService';
 import { notificationScheduler } from '../src/services/notificationScheduler';
 import { useRealtimeWidgetSync } from '../src/hooks/useRealtimeWidgetSync';
 import { widgetTimelineManager } from '../src/services/widgetTimelineManager';
+import { OneSignal } from 'react-native-onesignal';
 import '../global.css';
 
 // Error fallback component
@@ -58,6 +59,12 @@ export default function RootLayout() {
   // Initialize OneSignal and widget timeline manager when app starts
   useEffect(() => {
     const initializeServices = async () => {
+      // Initialize OneSignal
+      OneSignal.initialize('bcd988a6-d832-4c7c-83bf-4af40c46bf53');
+      
+      // Setup Live Activities
+      OneSignal.LiveActivities.setupDefault();
+      
       await notificationService.initialize();
       // Update last activity on app start
       await notificationScheduler.updateLastActivity();

@@ -69,7 +69,8 @@
         "onesignal-expo-plugin",
         {
           "mode": "development",
-          "iosNSE": false
+          "devTeam": "5PT3BWY2A5",
+          "iPhoneDeploymentTarget": "17.0"
         }
       ],
       [
