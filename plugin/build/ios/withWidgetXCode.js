@@ -973,61 +973,10 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                         }
                     }
                     if (liveActivitySourcePhase) {
-                        // Add LiveActivityModule.swift to Live Activity target (for shared attributes)
-                        const sharedFile = 'LiveActivityModule.swift';
-                        const fileName = sharedFile;
-                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-                        const existingFile = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(fileName));
-                        if (existingFile) {
-                            const fileUuid = Object.keys(fileRefs).find(key => !key.endsWith('_comment') && fileRefs[key] === existingFile) || '';
-                            if (fileUuid) {
-                                // Check if build file already exists for this file reference
-                                const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
-                                let buildFileUuid = Object.keys(buildFiles).find(key => !key.endsWith('_comment') && buildFiles[key] && buildFiles[key].fileRef === fileUuid);
-                                // Create NEW build file for Live Activity target (separate from main target)
-                                if (!buildFileUuid) {
-                                    buildFileUuid = xcodeProject.generateUuid();
-                                    if (buildFileUuid) {
-                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                                            isa: 'PBXBuildFile',
-                                            fileRef: fileUuid,
-                                            fileRef_comment: fileName
-                                        };
-                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
-                                        console.log(`Created new build file for ${fileName}: ${buildFileUuid}`);
-                                    }
-                                }
-                                else {
-                                    console.log(`Using existing build file for ${fileName}: ${buildFileUuid}`);
-                                }
-                                // Add to Live Activity target's source build phase
-                                if (buildFileUuid && liveActivitySourcePhase) {
-                                    if (!liveActivitySourcePhase.files) {
-                                        liveActivitySourcePhase.files = [];
-                                    }
-                                    const alreadyInBuildPhase = liveActivitySourcePhase.files.some((file) => file.value === buildFileUuid);
-                                    if (!alreadyInBuildPhase) {
-                                        liveActivitySourcePhase.files.push({
-                                            value: buildFileUuid,
-                                            comment: `${fileName} in Sources`
-                                        });
-                                        console.log(`✅ Added ${fileName} to Live Activity target for shared attributes`);
-                                    }
-                                    else {
-                                        console.log(`${fileName} already in Live Activity target build phase`);
-                                    }
-                                }
-                                else {
-                                    console.error(`Failed to add ${fileName}: buildFileUuid=${buildFileUuid}, liveActivitySourcePhase=${!!liveActivitySourcePhase}`);
-                                }
-                            }
-                            else {
-                                console.error(`Could not find file UUID for ${fileName}`);
-                            }
-                        }
-                        else {
-                            console.warn(`Could not find ${fileName} in project file references`);
-                        }
+                        // Skip adding LiveActivityModule.swift to Live Activity target
+                        // Reason: It contains React imports which aren't available in extension targets
+                        console.log('Skipping LiveActivityModule.swift for Live Activity target (contains React imports)');
+                        console.log('Live Activity target will use its own PomodoroActivityAttributes in PomodoroLiveActivity.swift');
                     }
                     else {
                         console.warn('Could not find Live Activity target source build phase');
