@@ -188,7 +188,7 @@ struct widgetEntryView: View {
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor(.widgetTextColor)
                 }
-                .frame(width: 80, maxHeight: .infinity)
+                .frame(width: 80)
                 
                 // Tasks container
                 VStack(spacing: 6) {
