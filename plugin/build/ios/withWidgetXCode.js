@@ -64,6 +64,7 @@ const LIVE_ACTIVITY_BUILD_CONFIGURATION_SETTINGS = {
     INFOPLIST_FILE: "PomodoroLiveActivity/Info.plist",
     INFOPLIST_KEY_CFBundleDisplayName: "PomodoroLiveActivity",
     INFOPLIST_KEY_NSHumanReadableCopyright: '""',
+    INFOPLIST_KEY_NSSupportsLiveActivities: "YES",
     IPHONEOS_DEPLOYMENT_TARGET: "17.0",
     LD_RUNPATH_SEARCH_PATHS: '"$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"',
     MARKETING_VERSION: "1.0",
@@ -138,6 +139,8 @@ const withWidgetXCode = (config, options = {}) => {
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>`;
                 fs_extra_1.default.writeFileSync(infoPlistPath, liveActivityInfoPlist);

@@ -98,7 +98,27 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
         }
       }
 
-      // 2. Force correct app group in ALL entitlement files
+      // 2. Update PomodoroLiveActivity Info.plist with NSSupportsLiveActivities
+      const liveActivityInfoPlistPath = path.join(
+        config.modRequest.platformProjectRoot,
+        'PomodoroLiveActivity',
+        'Info.plist'
+      );
+      
+      if (fs.existsSync(liveActivityInfoPlistPath)) {
+        let plistContent = fs.readFileSync(liveActivityInfoPlistPath, 'utf8');
+        
+        if (!plistContent.includes('NSSupportsLiveActivities')) {
+          plistContent = plistContent.replace(
+            '</dict>\n</plist>',
+            `\t<key>NSSupportsLiveActivities</key>\n\t<true/>\n</dict>\n</plist>`
+          );
+          fs.writeFileSync(liveActivityInfoPlistPath, plistContent);
+          console.log('✅ Added NSSupportsLiveActivities to PomodoroLiveActivity Info.plist');
+        }
+      }
+
+      // 3. Force correct app group in ALL entitlement files
       const entitlementFiles = [
         'GoalsAI/GoalsAI.entitlements',
         'OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements',
