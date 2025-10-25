@@ -1106,26 +1106,18 @@ async function updateXCodeProj(
               ) || '';
               
               if (fileUuid) {
-                // Check if build file already exists for this file reference
-                const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
-                let buildFileUuid = Object.keys(buildFiles).find(key => 
-                  !key.endsWith('_comment') && buildFiles[key] && buildFiles[key].fileRef === fileUuid
-                );
+                // ALWAYS create a NEW build file for Live Activity target (separate from main target)
+                // Note: Same file can have multiple build files for different targets
+                const buildFileUuid = xcodeProject.generateUuid();
                 
-                // Create NEW build file for Live Activity target (separate from main target)
-                if (!buildFileUuid) {
-                  buildFileUuid = xcodeProject.generateUuid();
-                  if (buildFileUuid) {
-                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                      isa: 'PBXBuildFile',
-                      fileRef: fileUuid,
-                      fileRef_comment: fileName
-                    };
-                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
-                    console.log(`Created new build file for ${fileName}: ${buildFileUuid}`);
-                  }
-                } else {
-                  console.log(`Using existing build file for ${fileName}: ${buildFileUuid}`);
+                if (buildFileUuid) {
+                  xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                    isa: 'PBXBuildFile',
+                    fileRef: fileUuid,
+                    fileRef_comment: fileName
+                  };
+                  xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources (Live Activity)`;
+                  console.log(`Created dedicated build file for Live Activity target: ${buildFileUuid}`);
                 }
                 
                 // Add to Live Activity target's source build phase
