@@ -2,7 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-#import <OneSignalFramework/OneSignalFramework.h>
+#import <OneSignal/OneSignal.h>
 
 @implementation AppDelegate
 
@@ -13,7 +13,6 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
-
   // Initialize OneSignal with Live Activities
   [OneSignal initialize:@"bcd988a6-d832-4c7c-83bf-4af40c46bf53" withLaunchOptions:launchOptions];
   
@@ -21,6 +20,7 @@
   if (@available(iOS 16.1, *)) {
     [OneSignal.LiveActivities setupDefault];
   }
+
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

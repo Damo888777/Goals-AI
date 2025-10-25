@@ -609,6 +609,91 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         }
         // Skip adding Live Activity build phases - they should be created automatically with the target
         console.log(`Live Activity target build phases check: Sources=${hasLiveActivitySources}, Frameworks=${hasLiveActivityFrameworks}, Resources=${hasLiveActivityResources}`);
+        // Add ActivityKit and OneSignal frameworks to Live Activity target if not present  
+        if (liveActivityTarget && !hasLiveActivityFrameworks) {
+            try {
+                const targets = xcodeProject.hash.project.objects.PBXNativeTarget;
+                const liveActivityTargetObj = targets[liveActivityTarget.uuid];
+                if (liveActivityTargetObj && liveActivityTargetObj.buildPhases) {
+                    let liveActivityFrameworkPhase = null;
+                    // Look for existing framework build phase
+                    for (const phaseRef of liveActivityTargetObj.buildPhases) {
+                        const phaseUuid = phaseRef.value || phaseRef;
+                        const phase = liveActivityFrameworkPhases[phaseUuid];
+                        if (phase && phase.isa === 'PBXFrameworksBuildPhase') {
+                            liveActivityFrameworkPhase = phase;
+                            console.log(`Found Live Activity target framework build phase: ${phaseUuid}`);
+                            break;
+                        }
+                    }
+                    // If no framework build phase found, create one
+                    if (!liveActivityFrameworkPhase) {
+                        const frameworkBuildPhaseUuid = xcodeProject.generateUuid();
+                        liveActivityFrameworkPhases[frameworkBuildPhaseUuid] = {
+                            isa: 'PBXFrameworksBuildPhase',
+                            buildActionMask: '2147483647',
+                            files: [],
+                            runOnlyForDeploymentPostprocessing: '0'
+                        };
+                        liveActivityFrameworkPhases[frameworkBuildPhaseUuid + '_comment'] = 'Frameworks';
+                        // Add to target's build phases
+                        liveActivityTargetObj.buildPhases.push({
+                            value: frameworkBuildPhaseUuid,
+                            comment: 'Frameworks'
+                        });
+                        liveActivityFrameworkPhase = liveActivityFrameworkPhases[frameworkBuildPhaseUuid];
+                        console.log(`Created Live Activity target framework build phase: ${frameworkBuildPhaseUuid}`);
+                    }
+                    if (liveActivityFrameworkPhase) {
+                        // Add ActivityKit and OneSignal frameworks
+                        const frameworks = [
+                            { name: 'ActivityKit.framework', path: 'System/Library/Frameworks/ActivityKit.framework' },
+                            { name: 'OneSignal.framework', path: 'OneSignal.framework' }
+                        ];
+                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                        for (const framework of frameworks) {
+                            // Check if framework already exists
+                            const existingFramework = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(framework.name));
+                            if (!existingFramework) {
+                                // Add framework reference
+                                const frameworkUuid = xcodeProject.generateUuid();
+                                xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid] = {
+                                    isa: 'PBXFileReference',
+                                    lastKnownFileType: 'wrapper.framework',
+                                    name: framework.name,
+                                    path: framework.path,
+                                    sourceTree: framework.name === 'OneSignal.framework' ? '"<group>"' : 'SDKROOT'
+                                };
+                                xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid + '_comment'] = framework.name;
+                                // Add to build file section
+                                const buildFileUuid = xcodeProject.generateUuid();
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                    isa: 'PBXBuildFile',
+                                    fileRef: frameworkUuid,
+                                    fileRef_comment: framework.name
+                                };
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${framework.name} in Frameworks`;
+                                // Add to Live Activity target's framework build phase
+                                if (!liveActivityFrameworkPhase.files) {
+                                    liveActivityFrameworkPhase.files = [];
+                                }
+                                liveActivityFrameworkPhase.files.push({
+                                    value: buildFileUuid,
+                                    comment: `${framework.name} in Frameworks`
+                                });
+                                console.log(`Added ${framework.name} to Live Activity target`);
+                            }
+                            else {
+                                console.log(`${framework.name} already exists in project`);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                console.error('Error adding frameworks to Live Activity target:', error instanceof Error ? error.message : String(error));
+            }
+        }
         // Add Live Activity files to Live Activity target build phases
         if (liveActivityTarget) {
             try {

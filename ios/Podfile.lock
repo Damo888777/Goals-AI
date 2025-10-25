@@ -1353,7 +1353,6 @@ DEPENDENCIES:
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
-  - OneSignalXCFramework (< 6.0, >= 5.0)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -1719,6 +1718,6 @@ SPEC CHECKSUMS:
   WatermelonDB: 358332faedb8dd4aa699a178e308586e4e3a8b23
   Yoga: 805bf71192903b20fc14babe48080582fee65a80
 
-PODFILE CHECKSUM: 41355df4c643a3b178950eb42d4c3a32830d9699
+PODFILE CHECKSUM: 5de1cde2c3b2d6904bc086fee52289a21ec9ffa6
 
 COCOAPODS: 1.16.2
