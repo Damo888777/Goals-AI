@@ -67,18 +67,6 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
     return config;
   });
 
-  // ✅ Fix OneSignal entitlements to use our existing app group (override after OneSignal plugin)
-  config = withEntitlementsPlist(config, (config) => {
-    const entitlements = config.modResults;
-    const appGroups = entitlements["com.apple.security.application-groups"];
-    
-    if (Array.isArray(appGroups)) {
-      // Remove any OneSignal auto-generated app groups and keep only our app group
-      entitlements["com.apple.security.application-groups"] = [appGroupId];
-    }
-    
-    return config;
-  });
 
   // ✅ Übergib Parameter an dein iOS Widget Setup
   config = withWidgetIos(config, { ...options, appGroupId })
@@ -90,7 +78,7 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
       const fs = require('fs-extra');
       const path = require('path');
       
-      // Update NSE Info.plist with custom app group
+      // 1. Update NSE Info.plist with custom app group
       const nseInfoPlistPath = path.join(
         config.modRequest.platformProjectRoot,
         'OneSignalNotificationServiceExtension',
@@ -100,37 +88,57 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
       if (fs.existsSync(nseInfoPlistPath)) {
         let plistContent = fs.readFileSync(nseInfoPlistPath, 'utf8');
         
-        // Check if key already exists
         if (!plistContent.includes('OneSignal_app_groups_key')) {
-          // Add the key before closing </dict>
           plistContent = plistContent.replace(
             '</dict>\n</plist>',
             `\t<key>OneSignal_app_groups_key</key>\n\t<string>${appGroupId}</string>\n</dict>\n</plist>`
           );
-          
           fs.writeFileSync(nseInfoPlistPath, plistContent);
-          console.log('Added OneSignal_app_groups_key to NSE Info.plist');
+          console.log('✅ Added OneSignal_app_groups_key to NSE Info.plist');
         }
       }
 
-      // Fix NSE entitlements to use our app group
-      const nseEntitlementsPath = path.join(
-        config.modRequest.platformProjectRoot,
-        'OneSignalNotificationServiceExtension',
-        'OneSignalNotificationServiceExtension.entitlements'
-      );
+      // 2. Force correct app group in ALL entitlement files
+      const entitlementFiles = [
+        'GoalsAI/GoalsAI.entitlements',
+        'OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements',
+        'widget/widget.entitlements',
+        'PomodoroLiveActivity/PomodoroLiveActivity.entitlements'
+      ];
       
-      if (fs.existsSync(nseEntitlementsPath)) {
-        let entitlementsContent = fs.readFileSync(nseEntitlementsPath, 'utf8');
-        
-        // Replace any .onesignal app group with our app group
-        entitlementsContent = entitlementsContent.replace(
-          /group\.pro\.GoalAchieverAI\.onesignal/g,
-          appGroupId
+      const correctAppGroup = appGroupId;
+      const wrongAppGroup = `${appGroupId}.onesignal`;
+      
+      for (const entitlementFile of entitlementFiles) {
+        const entitlementPath = path.join(
+          config.modRequest.platformProjectRoot,
+          entitlementFile
         );
         
-        fs.writeFileSync(nseEntitlementsPath, entitlementsContent);
-        console.log('Fixed NSE entitlements to use correct app group');
+        if (fs.existsSync(entitlementPath)) {
+          let content = fs.readFileSync(entitlementPath, 'utf8');
+          
+          // Remove OneSignal's auto-generated app group
+          content = content.replace(
+            new RegExp(`<string>${wrongAppGroup}</string>`, 'g'),
+            ''
+          );
+          
+          // Ensure only correct app group exists
+          if (!content.includes(correctAppGroup)) {
+            content = content.replace(
+              '<key>com.apple.security.application-groups</key>\n\t<array>',
+              `<key>com.apple.security.application-groups</key>\n\t<array>\n\t\t<string>${correctAppGroup}</string>`
+            );
+          }
+          
+          // Remove empty array entries and duplicates
+          content = content.replace(/<string><\/string>/g, '');
+          content = content.replace(/\n\s*\n/g, '\n');
+          
+          fs.writeFileSync(entitlementPath, content);
+          console.log(`✅ Fixed app group in ${entitlementFile}`);
+        }
       }
       
       // Add OneSignal targets to Podfile
