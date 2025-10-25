@@ -68,7 +68,8 @@
       [
         "onesignal-expo-plugin",
         {
-          "mode": "development"
+          "mode": "development",
+          "iosNSE": false
         }
       ],
       [
