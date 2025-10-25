@@ -9,7 +9,7 @@ import React
 
 // MARK: - Activity Attributes (shared with Live Activity target)
 
-// MARK: - Shared Activity Attributes
+// MARK: - Shared Activity Attributes (MUST match PomodoroLiveActivity.swift exactly)
 struct PomodoroActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         var timeRemaining: Int // seconds
@@ -20,7 +20,7 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var taskTitle: String
     }
     
-    var startTime: Date
+    var activityName: String // ✅ Match Widget exactly
 }
 
 // MARK: - React Native Module (Bridge + Implementation Combined)
@@ -67,12 +67,13 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
               let sessionType = stateDict["sessionType"] as? String,
               let isRunning = stateDict["isRunning"] as? Bool,
               let completedPomodoros = stateDict["completedPomodoros"] as? Int,
-              let taskTitle = stateDict["taskTitle"] as? String else {
+              let taskTitle = stateDict["taskTitle"] as? String,
+              let activityName = stateDict["activityName"] as? String else {
             reject("INVALID_PARAMS", "Invalid parameters provided", nil)
             return
         }
         
-        let attributes = PomodoroActivityAttributes(startTime: Date())
+        let attributes = PomodoroActivityAttributes(activityName: activityName)
         let contentState = PomodoroActivityAttributes.ContentState(
             timeRemaining: timeRemaining,
             totalDuration: totalDuration,

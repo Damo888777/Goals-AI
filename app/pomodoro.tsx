@@ -7,12 +7,9 @@ import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { OneSignal } from 'react-native-onesignal';
 import { notificationService } from '../src/services/notificationService';
 import * as Notifications from 'expo-notifications';
-
-// Initialize OneSignal Live Activities
-OneSignal.LiveActivities.setupDefault();
+import LiveActivityModule from '../src/modules/LiveActivityModule';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -90,8 +87,7 @@ export default function PomodoroScreen() {
           
           // Update Live Activity every 30 seconds or when less than 10 seconds remain
           if (liveActivityId && (newTime % 30 === 0 || newTime <= 10)) {
-            // Use OneSignal REST API to update Live Activity
-            updateLiveActivityViaAPI(liveActivityId, {
+            LiveActivityModule.updatePomodoroActivity(liveActivityId, {
               timeRemaining: newTime,
               totalDuration: POMODORO_SESSIONS[currentSession].duration,
               sessionType: currentSession,
@@ -135,29 +131,6 @@ export default function PomodoroScreen() {
     }
   };
 
-  // Update Live Activity via OneSignal REST API
-  const updateLiveActivityViaAPI = async (activityId: string, data: any) => {
-    try {
-      const response = await fetch('/api/send-notification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'live_activity_update',
-          activityId,
-          data,
-        }),
-      });
-      
-      if (!response.ok) {
-        console.warn('Failed to update Live Activity:', response.status);
-      }
-    } catch (error) {
-      console.warn('Error updating Live Activity:', error);
-    }
-  };
-
   const sendCompletionNotification = async (sessionType: SessionType, newCompletedPomodoros?: number) => {
     try {
       // Send push notification via OneSignal API
@@ -192,8 +165,7 @@ export default function PomodoroScreen() {
     // End current Live Activity
     if (liveActivityId) {
       try {
-        // OneSignal Live Activities end automatically when dismissed by user
-        // or can be ended via API call to OneSignal
+        await LiveActivityModule.endPomodoroActivity(liveActivityId);
         setLiveActivityId(null);
       } catch (error) {
         console.error('Failed to end Live Activity:', error);
@@ -246,22 +218,30 @@ export default function PomodoroScreen() {
           console.warn('Notification permission not granted');
         }
 
-        const activityId = `pomodoro-${Date.now()}`;
-        const attributes = { 
-          startTime: Date.now() 
-        };
-        const content = {
+        // Check if Live Activities are enabled
+        const areEnabled = await LiveActivityModule.areActivitiesEnabled();
+        if (!areEnabled) {
+          console.warn('Live Activities are not enabled');
+          Alert.alert(
+            'Live Activities Disabled',
+            'Please enable Live Activities in Settings to see your timer in the Dynamic Island.',
+            [{ text: 'OK' }]
+          );
+        }
+        
+        // Start Live Activity using native module
+        const activityId = await LiveActivityModule.startPomodoroActivity({
+          activityName: 'PomodoroTimer',
           timeRemaining: timeLeft,
           totalDuration: POMODORO_SESSIONS[currentSession].duration,
           sessionType: currentSession,
           isRunning: true,
           completedPomodoros,
           taskTitle: currentTask,
-        };
+        });
         
-        console.log('Starting Live Activity with:', { activityId, attributes, content });
-        OneSignal.LiveActivities.startDefault(activityId, attributes, content);
         setLiveActivityId(activityId);
+        console.log('Live Activity started with ID:', activityId);
 
         // Schedule local notification for timer completion
         const sessionInfo = POMODORO_SESSIONS[currentSession];
@@ -290,7 +270,7 @@ export default function PomodoroScreen() {
       // Update Live Activity to paused state
       if (liveActivityId) {
         try {
-          await updateLiveActivityViaAPI(liveActivityId, {
+          await LiveActivityModule.updatePomodoroActivity(liveActivityId, {
             timeRemaining: timeLeft,
             totalDuration: POMODORO_SESSIONS[currentSession].duration,
             sessionType: currentSession,
@@ -316,7 +296,7 @@ export default function PomodoroScreen() {
     // End Live Activity when resetting
     if (liveActivityId) {
       try {
-        // OneSignal Live Activities end automatically or via API
+        await LiveActivityModule.endPomodoroActivity(liveActivityId);
         setLiveActivityId(null);
       } catch (error) {
         console.error('Failed to end Live Activity:', error);
