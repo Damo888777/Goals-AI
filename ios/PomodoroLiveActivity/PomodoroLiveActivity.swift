@@ -2,8 +2,19 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes (imported from shared LiveActivityModule.swift)
-// Note: PomodoroActivityAttributes is now defined in LiveActivityModule.swift
+// MARK: - Activity Attributes
+struct PomodoroActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var timeRemaining: Int // seconds
+        var totalDuration: Int // seconds
+        var sessionType: String // "work", "shortBreak", "longBreak"
+        var isRunning: Bool
+        var completedPomodoros: Int
+        var taskTitle: String
+    }
+    
+    var startTime: Date
+}
 
 // MARK: - Live Activity Widget
 struct PomodoroLiveActivity: Widget {
