@@ -1,4 +1,4 @@
-import { ConfigPlugin, withEntitlementsPlist, withDangerousMod } from "@expo/config-plugins"
+import { ConfigPlugin, withEntitlementsPlist, withInfoPlist, withDangerousMod } from "@expo/config-plugins"
 import { ExpoConfig } from "@expo/config-types"
 import { withWidgetIos } from "./ios/withWidgetIos"
 
@@ -59,6 +59,13 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
     },
   }
 
+
+  // ✅ Configure OneSignal to use our existing app group
+  config = withInfoPlist(config, config => {
+    config.modResults.NSSupportsLiveActivities = true;
+    config.modResults.OneSignal_app_groups_key = appGroupId;
+    return config;
+  });
 
   // ✅ Übergib Parameter an dein iOS Widget Setup
   config = withWidgetIos(config, { ...options, appGroupId })
