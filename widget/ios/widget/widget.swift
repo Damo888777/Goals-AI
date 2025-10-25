@@ -200,7 +200,11 @@ struct widgetEntryView: View {
                 .padding(.leading, 0)
                 
                 // Cream container - full width, touching edges, rounded left corners
-                VStack(spacing: 6) {
+                VStack(spacing: 0) {
+                    // Top spacer to maintain frog container position
+                    Spacer()
+                        .frame(height: 6)
+                    
                     // Eat the Frog Container - ALWAYS VISIBLE with green background
                     VStack(spacing: 6) {
                         if let frogTask = entry.frogTask {
@@ -219,6 +223,10 @@ struct widgetEntryView: View {
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
+                    // Spacing after frog container
+                    Spacer()
+                        .frame(height: 6)
                     
                     // Regular Tasks (up to 3)
                     if !entry.regularTasks.isEmpty {
@@ -239,9 +247,11 @@ struct widgetEntryView: View {
                         MediumOptimizedEmptyStateView()
                     }
                     
+                    // Bottom spacer to fill remaining space
                     Spacer()
                 }
-                .padding(.leading, 12)
+                .frame(maxHeight: .infinity)
+                .padding(.leading, 0)
                 .padding(.vertical, 0)
                 .padding(.trailing, 0)
                 .background(
@@ -254,10 +264,13 @@ struct widgetEntryView: View {
                     .fill(Color.widgetSecondaryBackground)
                 )
                 .overlay(
-                    Rectangle()
-                        .fill(Color.widgetStrokeColor)
-                        .frame(width: 2),
-                    alignment: .leading
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 12,
+                        bottomLeadingRadius: 12,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 0
+                    )
+                    .stroke(Color.widgetStrokeColor, lineWidth: 2)
                 )
             }
             .background(Color.widgetMainBackground)
