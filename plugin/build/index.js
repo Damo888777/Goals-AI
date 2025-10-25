@@ -44,8 +44,8 @@ const withWidget = (config, options) => {
     config = (0, config_plugins_1.withAppDelegate)(config, (config) => {
         const { modResults } = config;
         // Add OneSignal import
-        if (!modResults.contents.includes('#import <OneSignal/OneSignal.h>')) {
-            modResults.contents = modResults.contents.replace('#import <React/RCTLinkingManager.h>', '#import <React/RCTLinkingManager.h>\n#import <OneSignal/OneSignal.h>');
+        if (!modResults.contents.includes('#import <OneSignalFramework/OneSignalFramework.h>')) {
+            modResults.contents = modResults.contents.replace('#import <React/RCTLinkingManager.h>', '#import <React/RCTLinkingManager.h>\n#import <OneSignalFramework/OneSignalFramework.h>');
         }
         // Add OneSignal initialization
         const oneSignalInit = `

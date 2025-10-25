@@ -2,7 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-#import <OneSignal/OneSignal.h>
+#import <OneSignalFramework/OneSignalFramework.h>
 
 @implementation AppDelegate
 

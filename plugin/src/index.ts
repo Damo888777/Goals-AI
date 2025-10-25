@@ -64,10 +64,10 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
     const { modResults } = config;
     
     // Add OneSignal import
-    if (!modResults.contents.includes('#import <OneSignal/OneSignal.h>')) {
+    if (!modResults.contents.includes('#import <OneSignalFramework/OneSignalFramework.h>')) {
       modResults.contents = modResults.contents.replace(
         '#import <React/RCTLinkingManager.h>',
-        '#import <React/RCTLinkingManager.h>\n#import <OneSignal/OneSignal.h>'
+        '#import <React/RCTLinkingManager.h>\n#import <OneSignalFramework/OneSignalFramework.h>'
       );
     }
     
