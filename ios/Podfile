@@ -74,6 +74,27 @@ target 'GoalsAI' do
         end
       end
     end
+
+    # Add OneSignal frameworks to OneSignalNotificationServiceExtension target
+    project = installer.pods_project
+    onesignal_extension_target = project.targets.find { |target| target.name == 'OneSignalNotificationServiceExtension' }
+    
+    if onesignal_extension_target
+      # Add OneSignal frameworks
+      onesignal_frameworks = [
+        'OneSignalFramework',
+        'OneSignalCore', 
+        'OneSignalExtension'
+      ]
+      
+      onesignal_frameworks.each do |framework_name|
+        framework_ref = project.frameworks_group.files.find { |file| file.path.include?(framework_name) }
+        if framework_ref
+          onesignal_extension_target.frameworks_build_phase.add_file_reference(framework_ref)
+          puts "Added #{framework_name} to OneSignalNotificationServiceExtension target"
+        end
+      end
+    end
   end
 
   post_integrate do |installer|
