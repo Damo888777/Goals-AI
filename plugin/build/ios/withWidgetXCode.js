@@ -851,7 +851,7 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
         catch (error) {
             console.warn('Could not add Live Activities capabilities:', error instanceof Error ? error.message : String(error));
         }
-        // Add OneSignal framework to OneSignalNotificationServiceExtension target if it exists
+        // Add OneSignal frameworks to OneSignalNotificationServiceExtension target if it exists
         try {
             const existingTargets = xcodeProject.pbxNativeTargetSection();
             let notificationExtensionTarget = null;
@@ -880,64 +880,74 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                             break;
                         }
                     }
-                    if (notificationFrameworkPhase) {
-                        // Check if OneSignal framework is already linked
-                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
-                        const hasOneSignal = notificationFrameworkPhase.files && notificationFrameworkPhase.files.some((fileRef) => {
-                            const file = fileRefs[fileRef.value];
-                            return file && file.path && file.path.includes('OneSignal.framework');
+                    // If no framework build phase found, create one
+                    if (!notificationFrameworkPhase) {
+                        const frameworkBuildPhaseUuid = xcodeProject.generateUuid();
+                        frameworkPhases[frameworkBuildPhaseUuid] = {
+                            isa: 'PBXFrameworksBuildPhase',
+                            buildActionMask: '2147483647',
+                            files: [],
+                            runOnlyForDeploymentPostprocessing: '0'
+                        };
+                        frameworkPhases[frameworkBuildPhaseUuid + '_comment'] = 'Frameworks';
+                        // Add to target's build phases
+                        notificationTargetObj.buildPhases.push({
+                            value: frameworkBuildPhaseUuid,
+                            comment: 'Frameworks'
                         });
-                        if (!hasOneSignal) {
-                            // Find existing OneSignal framework reference or create one
-                            let oneSignalFrameworkUuid = null;
-                            for (const [uuid, file] of Object.entries(fileRefs)) {
-                                if (uuid.endsWith('_comment'))
-                                    continue;
-                                const fileRef = file;
-                                if (fileRef && fileRef.path && fileRef.path.includes('OneSignal.framework')) {
-                                    oneSignalFrameworkUuid = uuid;
-                                    break;
-                                }
-                            }
-                            // If OneSignal framework reference doesn't exist, create it
-                            if (!oneSignalFrameworkUuid) {
-                                oneSignalFrameworkUuid = xcodeProject.generateUuid();
-                                xcodeProject.hash.project.objects.PBXFileReference[oneSignalFrameworkUuid] = {
+                        notificationFrameworkPhase = frameworkPhases[frameworkBuildPhaseUuid];
+                        console.log(`Created OneSignalNotificationServiceExtension framework build phase: ${frameworkBuildPhaseUuid}`);
+                    }
+                    if (notificationFrameworkPhase) {
+                        // Add OneSignal frameworks needed for notification extensions
+                        const frameworks = [
+                            { name: 'OneSignalFramework.framework', path: 'OneSignalFramework.framework' },
+                            { name: 'OneSignalCore.framework', path: 'OneSignalCore.framework' },
+                            { name: 'OneSignalExtension.framework', path: 'OneSignalExtension.framework' }
+                        ];
+                        const fileRefs = xcodeProject.hash.project.objects.PBXFileReference;
+                        for (const framework of frameworks) {
+                            // Check if framework already exists
+                            const existingFramework = Object.values(fileRefs).find((file) => file && file.path && file.path.includes(framework.name));
+                            if (!existingFramework) {
+                                // Add framework reference
+                                const frameworkUuid = xcodeProject.generateUuid();
+                                xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid] = {
                                     isa: 'PBXFileReference',
                                     lastKnownFileType: 'wrapper.framework',
-                                    name: 'OneSignal.framework',
-                                    path: 'OneSignal.framework',
+                                    name: framework.name,
+                                    path: framework.path,
                                     sourceTree: '"<group>"'
                                 };
-                                xcodeProject.hash.project.objects.PBXFileReference[oneSignalFrameworkUuid + '_comment'] = 'OneSignal.framework';
+                                xcodeProject.hash.project.objects.PBXFileReference[frameworkUuid + '_comment'] = framework.name;
+                                // Add to build file section
+                                const buildFileUuid = xcodeProject.generateUuid();
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                    isa: 'PBXBuildFile',
+                                    fileRef: frameworkUuid,
+                                    fileRef_comment: framework.name
+                                };
+                                xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${framework.name} in Frameworks`;
+                                // Add to notification extension's framework build phase
+                                if (!notificationFrameworkPhase.files) {
+                                    notificationFrameworkPhase.files = [];
+                                }
+                                notificationFrameworkPhase.files.push({
+                                    value: buildFileUuid,
+                                    comment: `${framework.name} in Frameworks`
+                                });
+                                console.log(`Added ${framework.name} to OneSignalNotificationServiceExtension target`);
                             }
-                            // Add to build file section
-                            const buildFileUuid = xcodeProject.generateUuid();
-                            xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                                isa: 'PBXBuildFile',
-                                fileRef: oneSignalFrameworkUuid,
-                                fileRef_comment: 'OneSignal.framework'
-                            };
-                            xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = 'OneSignal.framework in Frameworks';
-                            // Add to notification extension's framework build phase
-                            if (!notificationFrameworkPhase.files) {
-                                notificationFrameworkPhase.files = [];
+                            else {
+                                console.log(`${framework.name} already exists in project`);
                             }
-                            notificationFrameworkPhase.files.push({
-                                value: buildFileUuid,
-                                comment: 'OneSignal.framework in Frameworks'
-                            });
-                            console.log('Added OneSignal framework to OneSignalNotificationServiceExtension target');
-                        }
-                        else {
-                            console.log('OneSignal framework already linked to OneSignalNotificationServiceExtension target');
                         }
                     }
                 }
             }
         }
         catch (error) {
-            console.warn('Could not add OneSignal framework to OneSignalNotificationServiceExtension:', error instanceof Error ? error.message : String(error));
+            console.warn('Could not add OneSignal frameworks to OneSignalNotificationServiceExtension:', error instanceof Error ? error.message : String(error));
         }
         // Add native module files to main app target
         const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
