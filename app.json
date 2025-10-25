@@ -70,7 +70,8 @@
         {
           "mode": "development",
           "devTeam": "5PT3BWY2A5",
-          "iPhoneDeploymentTarget": "17.0"
+          "iPhoneDeploymentTarget": "17.0",
+          "iosAppGroupId": "group.pro.GoalAchieverAI"
         }
       ],
       [
