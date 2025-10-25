@@ -62,8 +62,8 @@ export default function RootLayout() {
       // Initialize OneSignal
       OneSignal.initialize('bcd988a6-d832-4c7c-83bf-4af40c46bf53');
       
-      // Setup Live Activities
-      OneSignal.LiveActivities.setupDefault();
+      // DISABLED: Using native LiveActivityModule instead of OneSignal Live Activities
+      // OneSignal.LiveActivities.setupDefault();
       
       await notificationService.initialize();
       // Update last activity on app start

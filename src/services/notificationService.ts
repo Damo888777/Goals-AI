@@ -438,10 +438,10 @@ class NotificationService {
     try {
       console.log('🔴 [Live Activity] Setting up OneSignal Live Activities...');
       
-      // Setup default Live Activity attributes for OneSignal
-      OneSignal.LiveActivities.setupDefault();
+      // DISABLED: Using native LiveActivityModule instead of OneSignal Live Activities
+      // OneSignal.LiveActivities.setupDefault();
       
-      console.log('✅ [Live Activity] OneSignal Live Activities setup complete');
+      console.log('🔴 [Live Activity] OneSignal Live Activities DISABLED - using native implementation');
     } catch (error) {
       console.error('❌ [Live Activity] Failed to setup Live Activities:', error);
     }
@@ -477,10 +477,11 @@ class NotificationService {
         sessionType
       };
       
-      OneSignal.LiveActivities.startDefault(activityId, attributes, content);
+      // DISABLED: Using native LiveActivityModule instead
+      // OneSignal.LiveActivities.startDefault(activityId, attributes, content);
       
-      console.log('✅ [Live Activity] Pomodoro Live Activity started:', activityId);
-      return activityId;
+      console.log('🔴 [Live Activity] OneSignal Live Activity start DISABLED - using native module');
+      return null; // Return null since we're not using OneSignal Live Activities
       
     } catch (error) {
       console.error('❌ [Live Activity] Failed to start Pomodoro Live Activity:', error);

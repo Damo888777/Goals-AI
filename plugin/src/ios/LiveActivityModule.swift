@@ -108,6 +108,15 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             taskTitle: taskTitle
         )
         
+        print("🔍 [LiveActivityModule] Ending any existing activities first...")
+        // End all existing activities to prevent "maximum number" error
+        for activity in Activity<PomodoroActivityAttributes>.activities {
+            Task {
+                await activity.end(nil, dismissalPolicy: .immediate)
+                print("🧹 [LiveActivityModule] Ended existing activity: \(activity.id)")
+            }
+        }
+        
         print("🔍 [LiveActivityModule] Attempting to start Live Activity...")
         do {
             let activity = try Activity<PomodoroActivityAttributes>.request(

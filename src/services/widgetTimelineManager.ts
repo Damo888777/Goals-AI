@@ -67,7 +67,7 @@ class WidgetTimelineManager {
    * Shutdown timeline management system
    */
   shutdown() {
-    if (this.appStateSubscription) {
+    if (this.appStateSubscription && typeof this.appStateSubscription.remove === 'function') {
       this.appStateSubscription.remove()
       this.appStateSubscription = null
     }

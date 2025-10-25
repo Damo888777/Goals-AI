@@ -41,19 +41,12 @@ class LiveActivityService {
 
   /**
    * Setup OneSignal Live Activities for push-to-start support
+   * DISABLED: Using native LiveActivityModule instead
    */
   private setupOneSignalLiveActivities() {
-    try {
-      // Setup OneSignal with specific Live Activity attributes for iOS 16.1+
-      if (Platform.OS === 'ios') {
-        // Note: OneSignal.LiveActivities.setup() expects the native ActivityAttributes struct
-        // Since we're using a custom native module, we use setupDefault() which works with any Live Activity
-        OneSignal.LiveActivities.setupDefault()
-        console.log('OneSignal Live Activities setup completed with default configuration')
-      }
-    } catch (error) {
-      console.warn('Failed to setup OneSignal Live Activities:', error)
-    }
+    // DISABLED: OneSignal Live Activities conflict with native implementation
+    // We're using custom LiveActivityModule.swift instead of OneSignal's Live Activities
+    console.log('🔴 [Live Activity] OneSignal Live Activities DISABLED - using native LiveActivityModule')
   }
 
   /**

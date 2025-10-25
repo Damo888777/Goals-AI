@@ -224,8 +224,7 @@ struct widgetEntryView: View {
                             .stroke(Color.widgetStrokeColor, lineWidth: 2)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .padding(.horizontal, 8)
-                    .padding(.top, 8)
+                    .padding(.all, 5)
                     
                     // Spacing after frog container
                     Spacer()
@@ -260,12 +259,11 @@ struct widgetEntryView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.widgetSecondaryBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                        )
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.all, 0)
             .background(Color.widgetMainBackground)

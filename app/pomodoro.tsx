@@ -85,8 +85,9 @@ export default function PomodoroScreen() {
           }
           const newTime = prev - 1;
           
-          // Update Live Activity every 30 seconds or when less than 10 seconds remain
-          if (liveActivityId && (newTime % 30 === 0 || newTime <= 10)) {
+          // Update Live Activity every second for real-time timer
+          if (liveActivityId) {
+            console.log(`🔄 [Live Activity Update] Updating timer: ${newTime}s remaining`);
             LiveActivityModule.updatePomodoroActivity(liveActivityId, {
               timeRemaining: newTime,
               totalDuration: POMODORO_SESSIONS[currentSession].duration,
@@ -94,7 +95,11 @@ export default function PomodoroScreen() {
               isRunning: true,
               completedPomodoros,
               taskTitle: currentTask,
-            }).catch((error: any) => console.error('Failed to update Live Activity:', error));
+            }).then(() => {
+              console.log(`✅ [Live Activity Update] Successfully updated to ${newTime}s`);
+            }).catch((error: any) => {
+              console.error(`❌ [Live Activity Update] Failed to update to ${newTime}s:`, error);
+            });
           }
           
           return newTime;
@@ -257,6 +262,14 @@ export default function PomodoroScreen() {
           
           setLiveActivityId(activityId);
           console.log('✅ [React Native] Live Activity started successfully with ID:', activityId);
+          console.log('🔍 [Live Activity Display] Live Activity should now be visible in:');
+          console.log('  - Dynamic Island (immediate)');
+          console.log('  - Notification Center (when backgrounded)');  
+          console.log('  - Lock Screen (when locked)');
+          console.log('🔍 [Live Activity Test] Please check:');
+          console.log('  1. Look at Dynamic Island NOW');
+          console.log('  2. Background app and check Notification Center');
+          console.log('  3. Lock phone and check Lock Screen');
         } catch (error) {
           console.error('❌ [React Native] Failed to start Live Activity:', error);
           Alert.alert(

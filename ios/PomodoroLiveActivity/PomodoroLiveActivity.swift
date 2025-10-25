@@ -2,8 +2,19 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes (imported from shared LiveActivityModule.swift)
-// Note: PomodoroActivityAttributes is now defined in LiveActivityModule.swift
+// MARK: - Activity Attributes (MUST match LiveActivityModule.swift exactly)
+struct PomodoroActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var timeRemaining: Int // seconds
+        var totalDuration: Int // seconds
+        var sessionType: String // "work", "shortBreak", "longBreak"
+        var isRunning: Bool
+        var completedPomodoros: Int
+        var taskTitle: String
+    }
+    
+    var activityName: String // ✅ MUST match LiveActivityModule.swift
+}
 
 // MARK: - Live Activity Widget
 struct PomodoroLiveActivity: Widget {
@@ -95,21 +106,19 @@ struct PomodoroLiveActivity: Widget {
                 }
                 
             } compactLeading: {
-                // Compact leading - session type emoji
-                Text(context.state.sessionType == "work" ? "🍅" : "☕")
-                    .font(.system(size: 16))
-            } compactTrailing: {
-                // Compact trailing - timer
+                // Compact leading - just timer (minimal but visible)
                 Text(formatTimeCompact(context.state.timeRemaining))
-                    .font(.custom("Helvetica", size: 14))
-                    .fontWeight(.medium)
-                    .foregroundColor(context.state.sessionType == "work" ? 
-                        Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
-                        Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
-            } minimal: {
-                // Minimal - just the emoji
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.primary)
+            } compactTrailing: {
+                // Compact trailing - just emoji (minimal indicator)
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 12))
+            } minimal: {
+                // Minimal - just minutes (super compact)
+                Text("\(context.state.timeRemaining / 60)")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.primary)
             }
             .widgetURL(URL(string: "goals-ai://pomodoro"))
             .keylineTint(context.state.sessionType == "work" ? 
@@ -256,7 +265,14 @@ private func formatTime(_ seconds: Int) -> String {
 
 private func formatTimeCompact(_ seconds: Int) -> String {
     let minutes = seconds / 60
-    return "\(minutes)m"
+    let remainingSeconds = seconds % 60
+    
+    // Show minutes and seconds for better visibility in Dynamic Island
+    if minutes > 0 {
+        return "\(minutes):\(String(format: "%02d", remainingSeconds))"
+    } else {
+        return "0:\(String(format: "%02d", remainingSeconds))"
+    }
 }
 
 private func sessionTypeLabel(_ sessionType: String) -> String {
