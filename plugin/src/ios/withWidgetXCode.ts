@@ -929,29 +929,30 @@ async function updateXCodeProj(
               ) || '';
               
               if (fileUuid) {
-                // Check if build file already exists
+                // Check if build file already exists for this file reference
                 const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
                 let buildFileUuid = Object.keys(buildFiles).find(key => 
                   !key.endsWith('_comment') && buildFiles[key] && buildFiles[key].fileRef === fileUuid
-                ) || null;
+                );
                 
+                // Only create new build file if one doesn't exist
                 if (!buildFileUuid) {
-                  // Create new build file
                   buildFileUuid = xcodeProject.generateUuid();
-                }
-                
-                // Ensure buildFileUuid is not null before using
-                if (buildFileUuid) {
-                  xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                    isa: 'PBXBuildFile',
-                    fileRef: fileUuid,
-                    fileRef_comment: fileName
-                  };
-                  xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                  if (buildFileUuid) {
+                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                      isa: 'PBXBuildFile',
+                      fileRef: fileUuid,
+                      fileRef_comment: fileName
+                    };
+                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
+                    console.log(`Created new build file for ${fileName}: ${buildFileUuid}`);
+                  }
+                } else {
+                  console.log(`Using existing build file for ${fileName}: ${buildFileUuid}`);
                 }
                 
                 // Add to Live Activity target's source build phase
-                if (buildFileUuid) {
+                if (buildFileUuid && liveActivitySourcePhase) {
                   if (!liveActivitySourcePhase.files) {
                     liveActivitySourcePhase.files = [];
                   }
@@ -967,9 +968,13 @@ async function updateXCodeProj(
                     });
                     console.log(`✅ Added ${fileName} to Live Activity target for shared attributes`);
                   } else {
-                    console.log(`${fileName} already in Live Activity target`);
+                    console.log(`${fileName} already in Live Activity target build phase`);
                   }
+                } else {
+                  console.error(`Failed to add ${fileName}: buildFileUuid=${buildFileUuid}, liveActivitySourcePhase=${!!liveActivitySourcePhase}`);
                 }
+              } else {
+                console.error(`Could not find file UUID for ${fileName}`);
               }
             } else {
               console.warn(`Could not find ${fileName} in project file references`);
