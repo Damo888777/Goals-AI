@@ -30,8 +30,12 @@ struct WidgetData: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         // Handle frogTask that might be null in JSON
-        if container.contains(.frogTask) && !(try container.decodeNil(forKey: .frogTask)) {
-            self.frogTask = try container.decode(WidgetTaskData.self, forKey: .frogTask)
+        if container.contains(.frogTask) {
+            if try container.decodeNil(forKey: .frogTask) {
+                self.frogTask = nil
+            } else {
+                self.frogTask = try container.decode(WidgetTaskData.self, forKey: .frogTask)
+            }
         } else {
             self.frogTask = nil
         }
