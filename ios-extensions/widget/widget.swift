@@ -401,11 +401,11 @@ struct LargeRegularTaskView: View {
 
 struct LargeFrogEmptyView: View {
     var body: some View {
-        Text("Choose your most important task")
+        Text("No frog task set")
             .font(.system(size: 14))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -445,11 +445,11 @@ struct MediumRegularTaskView: View {
 
 struct MediumFrogEmptyView: View {
     var body: some View {
-        Text("No priority task set")
+        Text("No frog task set")
             .font(.system(size: 12, weight: .regular))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 

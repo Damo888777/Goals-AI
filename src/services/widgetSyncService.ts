@@ -1,14 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Platform } from 'react-native'
+import { Platform, NativeModules } from 'react-native'
 
-// Safe import for UserDefaults with fallback
-let UserDefaults: any = null
-try {
-  if (Platform.OS === 'ios') {
-    UserDefaults = require('react-native-userdefaults-ios').default
-  }
-} catch (error) {
-  console.warn('UserDefaults iOS module not available in widgetSyncService, using fallback')
+// Use our custom UserDefaultsManager bridge
+const UserDefaultsManager = Platform.OS === 'ios' ? NativeModules.UserDefaultsManager : null
+if (Platform.OS === 'ios' && !UserDefaultsManager) {
+  console.warn('UserDefaultsManager bridge not available in widgetSyncService')
 }
 import database from '../db'
 import Task from '../db/models/Task'
@@ -94,8 +90,8 @@ class WidgetSyncService {
    */
   private async getWidgetCompletions(): Promise<WidgetCompletion[]> {
     try {
-      if (Platform.OS === 'ios' && UserDefaults && UserDefaults.getStringForAppGroup) {
-        const completionsData = await UserDefaults.getStringForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
+      if (Platform.OS === 'ios' && UserDefaultsManager && UserDefaultsManager.getStringForAppGroup) {
+        const completionsData = await UserDefaultsManager.getStringForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
         if (completionsData) {
           return JSON.parse(completionsData) as WidgetCompletion[]
         }
@@ -153,8 +149,8 @@ class WidgetSyncService {
    */
   private async clearWidgetCompletions() {
     try {
-      if (Platform.OS === 'ios' && UserDefaults && UserDefaults.removeItemForAppGroup) {
-        await UserDefaults.removeItemForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
+      if (Platform.OS === 'ios' && UserDefaultsManager && UserDefaultsManager.removeKeyForAppGroup) {
+        await UserDefaultsManager.removeKeyForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
       } else {
         await AsyncStorage.removeItem(WIDGET_COMPLETIONS_KEY)
       }

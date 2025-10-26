@@ -220,7 +220,7 @@ struct widgetEntryView: View {
                                 .padding(.horizontal, 16)
                         }
                     } else if entry.frogTask == nil {
-                        Text("No tasks for today")
+                        Text("No tasks scheduled")
                             .font(.system(size: 12))
                             .foregroundColor(.widgetTextColor.opacity(0.8))
                             .frame(maxHeight: .infinity)
@@ -357,7 +357,7 @@ struct CompactCompleteButton: View {
 // MARK: - Empty State Views
 struct LargeEmptyStateView: View {
     var body: some View {
-        Text("All tasks completed!")
+        Text("All done for today")
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(.widgetTextColor.opacity(0.8))
             .multilineTextAlignment(.center)
@@ -401,7 +401,7 @@ struct LargeRegularTaskView: View {
 
 struct LargeFrogEmptyView: View {
     var body: some View {
-        Text("Set your most important task!")
+        Text("Choose your most important task")
             .font(.system(size: 14))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
@@ -445,7 +445,7 @@ struct MediumRegularTaskView: View {
 
 struct MediumFrogEmptyView: View {
     var body: some View {
-        Text("No frog for today")
+        Text("No priority task set")
             .font(.system(size: 12, weight: .regular))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
