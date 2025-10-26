@@ -837,10 +837,9 @@ const styles = StyleSheet.create({
   goalDeleteButton: {
     width: '100%',
     height: '100%',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
-    paddingRight: 25,
   },
   // Empty state styles
   emptyContainer: {

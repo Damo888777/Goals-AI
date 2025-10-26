@@ -18,7 +18,7 @@ export default function PlanTab() {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('week');
-  const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('someday');
+  const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('scheduled');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   
   // Use real data hooks
