@@ -187,7 +187,7 @@ export default function ManualGoalScreen() {
       Alert.alert(
         'Success',
         'Goal created successfully!',
-        [{ text: 'OK', onPress: () => router.back() }]
+        [{ text: 'OK', onPress: () => router.push('/(tabs)/goals') }]
       );
     } catch (error) {
       console.error('Error creating goal:', error);

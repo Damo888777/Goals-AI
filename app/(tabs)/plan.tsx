@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { WeekDayCard } from '../../src/components/WeekDayCard';
 import { TaskCard } from '../../src/components/TaskCard';
 import { FAB } from '../../src/components/FAB';
@@ -16,6 +16,7 @@ type BacklogFilter = 'someday' | 'scheduled';
 
 export default function PlanTab() {
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('someday');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
@@ -28,6 +29,36 @@ export default function PlanTab() {
   // Get week range for display
   const { startDate, endDate } = getWeekRange();
 
+  // Find today's index and scroll to it
+  const scrollToToday = () => {
+    const today = new Date();
+    const todayIndex = realWeekDays.findIndex(day => 
+      day.dateObj.toDateString() === today.toDateString()
+    );
+    
+    if (todayIndex !== -1 && scrollViewRef.current) {
+      // Calculate approximate scroll position
+      // Header sections take ~200px, each day card ~100px + 20px gap
+      const headerHeight = 200;
+      const cardHeight = 120; // Approximate height including gap
+      const scrollY = headerHeight + (todayIndex * cardHeight);
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: scrollY,
+          animated: true
+        });
+      }, 100); // Small delay to ensure layout is complete
+    }
+  };
+
+  // Auto-scroll to today when view changes to week or scheduled
+  useEffect(() => {
+    if (viewMode === 'week' || (viewMode === 'backlog' && backlogFilter === 'scheduled')) {
+      scrollToToday();
+    }
+  }, [viewMode, backlogFilter, realWeekDays]);
+
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeekOffset(prev => direction === 'prev' ? prev - 1 : prev + 1);
   };
@@ -36,6 +67,7 @@ export default function PlanTab() {
   return (
     <View style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
       <ScrollView
+        ref={scrollViewRef}
         className="flex-1"
         contentContainerStyle={{
           paddingTop: insets.top + 20,

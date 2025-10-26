@@ -312,9 +312,7 @@ export default function SparkAIScreen() {
           </View>
         </Pressable>
         
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Spark</Text>
-        </View>
+        <Text style={styles.title}>Spark</Text>
         
         <Pressable onPress={handleInfoPress} style={styles.headerButton}>
           <View style={styles.infoIcon}>
@@ -410,16 +408,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#364958',
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: 3 }, { translateY: 2 }],
-  },
-  titleContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    pointerEvents: 'none', // Allow touches to pass through to buttons
   },
   sparkIconImage: {
     width: 20,

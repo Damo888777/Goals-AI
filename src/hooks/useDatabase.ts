@@ -197,9 +197,10 @@ export const useGoals = () => {
     }
 
     try {
+      let newGoal: Goal;
       await database.write(async () => {
         const goalsCollection = database!.get<Goal>('goals')
-        const newGoal = await goalsCollection.create((goal) => {
+        newGoal = await goalsCollection.create((goal) => {
           goal.userId = userId
           goal.title = goalData.title
           goal.setFeelings(goalData.feelings || [])
@@ -209,31 +210,31 @@ export const useGoals = () => {
           goal.creationSource = goalData.creationSource || 'manual'
         })
         console.log('Goal created:', newGoal.id)
-        
-        // Update active goals count in usage tracking
-        try {
-          const { usageTrackingService } = await import('../services/usageTrackingService');
-          await usageTrackingService.updateActiveGoalsCount();
-          console.log('📊 Active goals count updated after goal creation');
-        } catch (error) {
-          console.error('❌ Failed to update active goals count:', error);
-        }
-        
-        // Update notification system with main goal for personalized notifications
-        try {
-          const { notificationService } = await import('../services/notificationService');
-          await notificationService.updateMainGoal(goalData.title);
-        } catch (error) {
-          console.error('Failed to update main goal for notifications:', error);
-        }
-        
-        // Schedule optimized sync after action
-        setTimeout(() => {
-          import('../services/syncService').then(({ syncService }) => {
-            syncService.scheduleSync(1500) // Debounced sync
-          })
-        }, 100)
       })
+
+      // Update active goals count in usage tracking (outside write transaction)
+      try {
+        const { usageTrackingService } = await import('../services/usageTrackingService');
+        await usageTrackingService.updateActiveGoalsCount();
+        console.log('📊 Active goals count updated after goal creation');
+      } catch (error) {
+        console.error('❌ Failed to update active goals count:', error);
+      }
+      
+      // Update notification system with main goal for personalized notifications
+      try {
+        const { notificationService } = await import('../services/notificationService');
+        await notificationService.updateMainGoal(goalData.title);
+      } catch (error) {
+        console.error('Failed to update main goal for notifications:', error);
+      }
+      
+      // Schedule optimized sync after action
+      setTimeout(() => {
+        import('../services/syncService').then(({ syncService }) => {
+          syncService.scheduleSync(1500) // Debounced sync
+        })
+      }, 100)
     } catch (error) {
       console.error('Error creating goal:', error)
       throw error

@@ -314,17 +314,21 @@ export default function ManualMilestoneScreen() {
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <View style={styles.titleRow}>
+          <View style={styles.titleContainer}>
             <BackChevronButton
               onPress={handleCancel}
+              style={styles.chevronButton}
             />
             <Text style={styles.headerTitle}>
               Create Your Milestone
             </Text>
+            <View style={styles.headerSpacer} />
           </View>
-          <Text style={styles.headerSubtitle}>
-            This is where a manual becomes a milestone. Add the details and bring it to life.
-          </Text>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.headerSubtitle}>
+              This is where a manual becomes a milestone. Add the details and bring it to life.
+            </Text>
+          </View>
         </View>
 
         {/* Milestone Title */}
@@ -396,6 +400,25 @@ const styles = StyleSheet.create({
   // Header styles
   headerContainer: {
     marginBottom: 43,
+  },
+  titleContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginBottom: spacing.sm,
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  chevronButton: {
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    marginLeft: -12,
+  },
+  descriptionContainer: {
+    alignItems: 'flex-start' as const,
+    width: '100%',
   },
   titleRow: {
     flexDirection: 'row' as const,

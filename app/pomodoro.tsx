@@ -376,12 +376,12 @@ export default function PomodoroScreen() {
             >
               <Ionicons name="chevron-back" size={24} color="#4a5568" />
             </TouchableOpacity>
-            <Text style={styles.title}>Time to Focus</Text>
+            <Text style={styles.title}>Pomodoro</Text>
+            <View style={styles.headerSpacer} />
           </View>
           <View style={styles.descriptionContainer}>
             <Text style={styles.description}>
-              <Text style={styles.taskLabel}>Your Task: </Text>
-              <Text style={styles.taskTitle}>{currentTask}</Text>
+              You're getting one step closer towards your goals.
             </Text>
           </View>
         </View>
@@ -389,14 +389,10 @@ export default function PomodoroScreen() {
         {/* Centered Pomodoro Section */}
         <View style={styles.centeredContainer}>
           <View style={styles.pomodoroSection}>
-            <Text style={styles.sectionTitleLeft}>{currentSession === 'work' ? 'Pomodoro' : 'Break Time'}</Text>
+            <Text style={styles.sectionTitleLeft}>Time to Focus</Text>
             <Text style={styles.pomodoroDescription}>
-              {currentSession === 'work' 
-                ? "You're getting one step closer towards your goals."
-                : currentSession === 'shortBreak'
-                ? "Take a short break. Stretch, breathe, hydrate."
-                : "Long break time! Step away and recharge completely."
-              }
+              <Text style={styles.taskLabel}>Your Task: </Text>
+              <Text style={styles.taskTitle}>{currentTask}</Text>
             </Text>
 
             {/* Session Indicators */}
@@ -511,16 +507,21 @@ const styles = StyleSheet.create({
     minWidth: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginLeft: -12,
   },
   descriptionContainer: {
     alignItems: 'flex-start',
     width: '100%',
   },
   title: {
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#364958',
+  },
+  headerSpacer: {
+    width: 44,
+    height: 44,
   },
   description: {
     fontSize: 15,
@@ -577,6 +578,7 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 8,
     width: '100%',
+    alignSelf: 'center',
   },
   timerGradient: {
     borderRadius: 25,
@@ -585,6 +587,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(188, 75, 81, 0.2)',
+    minHeight: 150,
+    justifyContent: 'center',
   },
   glassHighlight: {
     position: 'absolute',
@@ -623,6 +627,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: 'center',
+    minHeight: 60,
+    justifyContent: 'center',
   },
   startButton: {
     backgroundColor: '#e9edc9',

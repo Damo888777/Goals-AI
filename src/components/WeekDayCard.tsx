@@ -24,7 +24,13 @@ interface WeekDayCardProps {
 }
 
 export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask, onToggleComplete, onDeleteTask }: WeekDayCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Check if this day is today to expand by default
+  const isToday = () => {
+    const today = new Date();
+    return dateObj.toDateString() === today.toDateString();
+  };
+  
+  const [isExpanded, setIsExpanded] = useState(isToday());
   const hasTasks = tasks.length > 0;
 
   const handlePress = () => {

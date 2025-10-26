@@ -172,10 +172,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
     const isCompletedEmpty = variant === 'empty-completed';
 
     return (
-      <Pressable
-        onPress={onPress}
-        style={[styles.emptyCard, isCompletedEmpty && styles.emptyCompletedCard]}
-      >
+      <View style={[styles.emptyCard, isCompletedEmpty && styles.emptyCompletedCard]}>
         <View style={styles.emptyContent}>
           <Text style={[styles.emptyTitle, isCompletedEmpty && styles.emptyCompletedTitle]}>
             {content.title}
@@ -184,7 +181,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
             {content.description}
           </Text>
         </View>
-      </Pressable>
+      </View>
     );
   }
 

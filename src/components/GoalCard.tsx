@@ -512,7 +512,6 @@ export function GoalCard({
                 height: 6,
                 backgroundColor: 'rgba(120,120,120,0.2)',
                 borderRadius: 3,
-                marginHorizontal: 16,
                 marginRight: 75, // 59px (emotion badges width) + 8px gap + 8px extra margin
               }}>
                 <View style={{
@@ -534,6 +533,7 @@ export function GoalCard({
                   alignSelf: 'flex-start',
                   width: 44,
                   height: 44,
+                  marginLeft: -spacing.md, // Counteract container padding to align to left edge
                 }}
               />
             </View>
