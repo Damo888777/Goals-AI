@@ -87,7 +87,8 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             sessionType: sessionType,
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
-            taskTitle: taskTitle
+            taskTitle: taskTitle,
+            lastUpdateTime: Date()
         )
         
         print("🔍 [LiveActivityModule] Ending any existing activities first...")
@@ -150,7 +151,8 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             sessionType: sessionType,
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
-            taskTitle: taskTitle
+            taskTitle: taskTitle,
+            lastUpdateTime: Date()
         )
         
         Task {

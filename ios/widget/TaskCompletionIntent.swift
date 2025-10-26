@@ -33,8 +33,9 @@ struct CompleteTaskIntent: AppIntent {
         let completionsKey = "@goals_ai:widget_completions"
         
         if let userDefaults = UserDefaults(suiteName: appGroupId) {
-            // Get existing completions
-            var completions = userDefaults.array(forKey: completionsKey) as? [[String: Any]] ?? []
+            // Get existing completions as JSON string
+            let existingData = userDefaults.string(forKey: completionsKey) ?? "[]"
+            var completions = (try? JSONSerialization.jsonObject(with: existingData.data(using: .utf8) ?? Data(), options: [])) as? [[String: Any]] ?? []
             
             // Add new completion
             let completion = [
@@ -45,8 +46,11 @@ struct CompleteTaskIntent: AppIntent {
             ]
             completions.append(completion)
             
-            // Save back to UserDefaults
-            userDefaults.set(completions, forKey: completionsKey)
+            // Save back to UserDefaults as JSON string
+            if let jsonData = try? JSONSerialization.data(withJSONObject: completions, options: []),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                userDefaults.set(jsonString, forKey: completionsKey)
+            }
             userDefaults.synchronize()
             
             // Update widget data to reflect completion immediately
@@ -145,8 +149,9 @@ struct ToggleFrogTaskIntent: AppIntent {
                     isFrog: frogTask.isFrog
                 )
                 
-                // Log completion/incompletion
-                var completions = userDefaults.array(forKey: completionsKey) as? [[String: Any]] ?? []
+                // Log completion/incompletion as JSON string
+                let existingData = userDefaults.string(forKey: completionsKey) ?? "[]"
+                var completions = (try? JSONSerialization.jsonObject(with: existingData.data(using: .utf8) ?? Data(), options: [])) as? [[String: Any]] ?? []
                 let completion = [
                     "taskId": taskId,
                     "taskTitle": taskTitle,
@@ -155,7 +160,10 @@ struct ToggleFrogTaskIntent: AppIntent {
                     "action": !wasCompleted ? "complete" : "uncomplete"
                 ]
                 completions.append(completion)
-                userDefaults.set(completions, forKey: completionsKey)
+                if let jsonData = try? JSONSerialization.data(withJSONObject: completions, options: []),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    userDefaults.set(jsonString, forKey: completionsKey)
+                }
             }
             
             // Update timestamp

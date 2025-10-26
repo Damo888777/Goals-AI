@@ -15,6 +15,7 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var isRunning: Bool
         var completedPomodoros: Int
         var taskTitle: String
+        var lastUpdateTime: Date // for real-time calculation
     }
     
     var activityName: String

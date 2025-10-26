@@ -100,8 +100,8 @@ extension Color {
     static let widgetFrogTextColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958 (dark blue for frog text)
     static let widgetTextColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958
     static let widgetStrokeColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958
-    static let widgetCompleteInner = Color(red: 0.64, green: 0.69, blue: 0.54).opacity(0.5) // #A3B18A 50%
-    static let widgetCompleteOuter = Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.5) // #D9D9D9 50%
+    static let widgetCompleteInner = Color(red: 0.21, green: 0.29, blue: 0.35).opacity(0.8) // #364958 dark blue
+    static let widgetCompleteOuter = Color(red: 0.21, green: 0.29, blue: 0.35).opacity(0.6) // #364958 dark blue
     static let widgetShadowColor = Color(red: 0.49, green: 0.49, blue: 0.49).opacity(0.75) // #7c7c7c 75%
 }
 
@@ -217,7 +217,7 @@ struct widgetEntryView: View {
                                 .font(.system(size: 10, weight: .light))
                                 .foregroundColor(.widgetTextColor.opacity(0.6))
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, 5)
                         }
                     } else if entry.frogTask == nil {
                         Text("No tasks scheduled")
@@ -317,7 +317,6 @@ struct CompleteButton: View {
                     Circle()
                         .fill(Color.widgetCompleteInner)
                         .frame(width: 22, height: 22)
-                    
                     Image(systemName: "checkmark")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.widgetTextColor)
@@ -401,11 +400,11 @@ struct LargeRegularTaskView: View {
 
 struct LargeFrogEmptyView: View {
     var body: some View {
-        Text("Choose your most important task")
+        Text("No frog task set")
             .font(.system(size: 14))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -445,11 +444,11 @@ struct MediumRegularTaskView: View {
 
 struct MediumFrogEmptyView: View {
     var body: some View {
-        Text("No priority task set")
+        Text("No frog task set")
             .font(.system(size: 12, weight: .regular))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 

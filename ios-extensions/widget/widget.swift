@@ -100,8 +100,8 @@ extension Color {
     static let widgetFrogTextColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958 (dark blue for frog text)
     static let widgetTextColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958
     static let widgetStrokeColor = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958
-    static let widgetCompleteInner = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958 (dark blue)
-    static let widgetCompleteOuter = Color(red: 0.21, green: 0.29, blue: 0.35) // #364958 (dark blue)
+    static let widgetCompleteInner = Color(red: 0.21, green: 0.29, blue: 0.35).opacity(0.8) // #364958 dark blue
+    static let widgetCompleteOuter = Color(red: 0.21, green: 0.29, blue: 0.35).opacity(0.6) // #364958 dark blue
     static let widgetShadowColor = Color(red: 0.49, green: 0.49, blue: 0.49).opacity(0.75) // #7c7c7c 75%
 }
 

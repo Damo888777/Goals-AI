@@ -17,7 +17,10 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2354D406B5FC4979AD3924D3 /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3384CE49F4FB802850E8C950 /* Pods_PomodoroLiveActivity.framework */; };
 		28C722B0B82F420F9AFADC16 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED74BB156B54D8C9B2F5154 /* TaskIntents.swift */; };
+		32DCFCC0484C4936AA7B0C8C /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB1856D941A4A33AAAC70F9 /* PomodoroLiveActivity.swift */; };
 		358B191BB47A48199416037D /* WidgetKitReloader.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F4A2817F2745D6BCC3BF5E /* WidgetKitReloader.m */; };
+		39E48157026040BAAA846A1A /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABCC49B69A454E8BCE140E /* PomodoroActivityAttributes.swift */; };
+		3CB699E90ED6496EA7687433 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29542CE51D1D46819A36F95E /* LiveActivityModule.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4734EA72B6BB9304322FF2FC /* Pods_widget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF650621ED0CBCAB65A663A7 /* Pods_widget.framework */; };
 		5875B45073005E5843A23EF8 /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7437900B42C1AC0B8B46DEAC /* Pods_GoalsAI.framework */; };
@@ -221,6 +224,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		374750FFE3A5467DBAF7B506 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = widget;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -240,6 +250,7 @@
 				ED833F43711D4A7084F0FFDF /* OneSignalNotificationServiceExtension */,
 				C8B20F8C44C1409BA75D6FA4 /* widget */,
 				A4CA8D682EAEC4B8001975CB /* Recovered References */,
+				374750FFE3A5467DBAF7B506 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -772,6 +783,9 @@
 				95C4D3DCAA5C4591AF66DA92 /* PomodoroLiveActivity.swift in Sources */,
 				CC300310A75F46B1B510899A /* PomodoroActivityAttributes.swift in Sources */,
 				81A1BB9EB84444579562FFE0 /* LiveActivityModule.swift in Sources */,
+				32DCFCC0484C4936AA7B0C8C /* PomodoroLiveActivity.swift in Sources */,
+				39E48157026040BAAA846A1A /* PomodoroActivityAttributes.swift in Sources */,
+				3CB699E90ED6496EA7687433 /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
