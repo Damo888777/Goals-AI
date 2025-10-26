@@ -49,6 +49,7 @@ export default function PomodoroScreen() {
   const [currentTask, setCurrentTask] = useState(taskTitle || '[Placeholder of Task Title]');
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
   const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
+  const [hasShownBackgroundAlert, setHasShownBackgroundAlert] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef(AppState.currentState);
   const backgroundTimeRef = useRef<number | null>(null);
@@ -163,6 +164,11 @@ export default function PomodoroScreen() {
   const handleSessionComplete = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsRunning(false);
+    
+    
+    // Cancel any scheduled notifications when session completes manually
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    
     // Add strong haptic vibration for completion
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     await playCompletionSound();
@@ -217,6 +223,18 @@ export default function PomodoroScreen() {
     // Start or update Live Activity using OneSignal trigger-in-app
     if (willStart) {
       try {
+        // Show background refresh tip on first timer start
+        if (Platform.OS === 'ios' && !hasShownBackgroundAlert) {
+          Alert.alert(
+            'Timer Tip 💡',
+            'Enable Background App Refresh for Goals AI in Settings to keep your timer running when the app is minimized.',
+            [
+              { text: 'Got it!', onPress: () => setHasShownBackgroundAlert(true) }
+            ]
+          );
+          setHasShownBackgroundAlert(true);
+        }
+
         // Request notification permissions first time
         const { status } = await Notifications.requestPermissionsAsync();
         if (status !== 'granted') {
@@ -325,6 +343,7 @@ export default function PomodoroScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsRunning(false);
     setTimeLeft(POMODORO_SESSIONS[currentSession].duration);
+    
     
     // Cancel any scheduled notifications
     await Notifications.cancelAllScheduledNotificationsAsync();
