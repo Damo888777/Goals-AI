@@ -12,19 +12,19 @@ struct PomodoroLiveActivity: Widget {
     }
     
     var body: some WidgetConfiguration {
-        print("🎨🎨🎨 [WIDGET BODY] body called - creating ActivityConfiguration")
+        let _ = print("🎨🎨🎨 [WIDGET BODY] body called - creating ActivityConfiguration")
         
         return ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
-            print("🎨🎨🎨 [WIDGET LOCK SCREEN] Rendering lock screen view")
-            print("🎨🎨🎨 [WIDGET DATA] Time: \(context.state.timeRemaining)s, Session: \(context.state.sessionType)")
+            let _ = print("🎨🎨🎨 [WIDGET LOCK SCREEN] Rendering lock screen view")
+            let _ = print("🎨🎨🎨 [WIDGET DATA] Time: \(context.state.timeRemaining)s, Session: \(context.state.sessionType)")
             // Lock screen/banner UI - matches pomodoro.tsx styling
             PomodoroLockScreenView(context: context)
                 .activityBackgroundTint(Color(red: 0.96, green: 0.92, blue: 0.88)) // #f5ebe0
                 .activitySystemActionForegroundColor(Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958
             
         } dynamicIsland: { context in
-            print("🎨🎨🎨 [WIDGET DYNAMIC ISLAND] Rendering Dynamic Island")
-            print("🎨🎨🎨 [WIDGET DI DATA] Time: \(context.state.timeRemaining)s")
+            let _ = print("🎨🎨🎨 [WIDGET DYNAMIC ISLAND] Rendering Dynamic Island")
+            let _ = print("🎨🎨🎨 [WIDGET DI DATA] Time: \(context.state.timeRemaining)s")
             
             DynamicIsland {
                 // Expanded UI - detailed timer view
@@ -302,7 +302,7 @@ struct PomodoroLiveActivityBundle: WidgetBundle {
     }
     
     var body: some Widget {
-        print("🎨🎨🎨 [WIDGET BUNDLE BODY] Creating widget bundle body")
+        let _ = print("🎨🎨🎨 [WIDGET BUNDLE BODY] Creating widget bundle body")
         return PomodoroLiveActivity()
     }
 }

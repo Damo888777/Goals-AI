@@ -23,6 +23,7 @@
 		9087C2233C1542BAB64480D8 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDF8BBB7B154A9BAE104089 /* TaskIntents.swift */; };
 		940142F7332742C9BA92D9DC /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7930A796444158AE2E4953 /* PomodoroLiveActivity.swift */; };
 		96572B0363424B9BA437374E /* LiveActivityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 279205F0398C49619B519294 /* LiveActivityBridge.swift */; };
+		9E1E42629279442CBA95242C /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59F9BF40531644DAA1546EA3 /* PomodoroActivityAttributes.swift */; };
 		A454E366A1674B0382077F28 /* WidgetKitReloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 157C651AFF394B9EBE351B74 /* WidgetKitReloader.m */; };
 		A4AC1C1ACA8A4968B8EC0340 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = D20945459C154F97870D341F /* NotificationService.m */; };
 		ACC737C0BD3C953EC7E757B5 /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56848B537306B6212FEAD4F6 /* Pods_PomodoroLiveActivity.framework */; };
@@ -30,6 +31,7 @@
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BAD00C579BA14C7EA28FEA5C /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C807EC638520479EBCEEE094 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		DDCAAA2844914ABF9947039F /* PomodoroLiveActivity.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = A54A136CF13B466EB6933F0D /* PomodoroLiveActivity.appex */; };
 		E1CF522B6FEF4706AB31E5F8 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 417F0A20F66C4BED82E455FE /* ActivityKit.framework */; };
 		E47B358A40BF414C8ACE46F9 /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1586B3E7D6B243FB8AB5F76F /* TaskCompletionIntent.swift */; };
@@ -201,6 +203,13 @@
 			path = widget;
 			sourceTree = "<group>";
 		};
+		073D57B6A97D4DC28BD08963 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = widget;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* GoalsAI */ = {
 			isa = PBXGroup;
 			children = (
@@ -259,6 +268,7 @@
 				52C21E4F138244CBB1D2F11F /* OneSignalNotificationServiceExtension */,
 				057136CD497D432DA1B79BA1 /* widget */,
 				A4DB134B2EADC408006322E2 /* Recovered References */,
+				073D57B6A97D4DC28BD08963 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -754,6 +764,8 @@
 				940142F7332742C9BA92D9DC /* PomodoroLiveActivity.swift in Sources */,
 				FC982D5F6B4C4DBF844E735A /* PomodoroActivityAttributes.swift in Sources */,
 				B13C15D55DC64B08A88EB072 /* LiveActivityModule.swift in Sources */,
+				9E1E42629279442CBA95242C /* PomodoroActivityAttributes.swift in Sources */,
+				C807EC638520479EBCEEE094 /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -907,7 +919,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -937,7 +949,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -987,7 +999,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1032,7 +1044,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1058,7 +1070,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1249,7 +1261,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
