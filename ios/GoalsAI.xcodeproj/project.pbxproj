@@ -23,6 +23,7 @@
 		3CB699E90ED6496EA7687433 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29542CE51D1D46819A36F95E /* LiveActivityModule.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4734EA72B6BB9304322FF2FC /* Pods_widget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF650621ED0CBCAB65A663A7 /* Pods_widget.framework */; };
+		49C16534B1BC4073B825A027 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29542CE51D1D46819A36F95E /* LiveActivityModule.swift */; };
 		4E19B7311D4D4579B21E725D /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABCC49B69A454E8BCE140E /* PomodoroActivityAttributes.swift */; };
 		53F5ED29A93048FE9213BF09 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29542CE51D1D46819A36F95E /* LiveActivityModule.swift */; };
 		5875B45073005E5843A23EF8 /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7437900B42C1AC0B8B46DEAC /* Pods_GoalsAI.framework */; };
@@ -33,7 +34,9 @@
 		7E8645ACF8734CBD96FE5C1D /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = EFF682F13DB74310864ACBF6 /* NotificationService.m */; };
 		81A1BB9EB84444579562FFE0 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29542CE51D1D46819A36F95E /* LiveActivityModule.swift */; };
 		95C4D3DCAA5C4591AF66DA92 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB1856D941A4A33AAAC70F9 /* PomodoroLiveActivity.swift */; };
+		9BD61F95F237411F98D36E0E /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABCC49B69A454E8BCE140E /* PomodoroActivityAttributes.swift */; };
 		9FA9F62183894C2093267C03 /* LiveActivityModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F8C9B3D66D54DDC98F61DA5 /* LiveActivityModule.m */; };
+		A37559FED8F24DFA9436D66F /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB1856D941A4A33AAAC70F9 /* PomodoroLiveActivity.swift */; };
 		A3BF9520FF7847F3B28F10D8 /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 9243C8B4E5AF4B93A2A2FF67 /* widget.appex */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -241,6 +244,13 @@
 			path = widget;
 			sourceTree = "<group>";
 		};
+		830F47AA62FE41218B8724A9 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = widget;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -262,6 +272,7 @@
 				A4CA8D682EAEC4B8001975CB /* Recovered References */,
 				374750FFE3A5467DBAF7B506 /* widget */,
 				81A37E06AF894617BF11E774 /* widget */,
+				830F47AA62FE41218B8724A9 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -800,6 +811,9 @@
 				72F3BA2A3FDE4A65803B8815 /* PomodoroLiveActivity.swift in Sources */,
 				4E19B7311D4D4579B21E725D /* PomodoroActivityAttributes.swift in Sources */,
 				53F5ED29A93048FE9213BF09 /* LiveActivityModule.swift in Sources */,
+				A37559FED8F24DFA9436D66F /* PomodoroLiveActivity.swift in Sources */,
+				9BD61F95F237411F98D36E0E /* PomodoroActivityAttributes.swift in Sources */,
+				49C16534B1BC4073B825A027 /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
