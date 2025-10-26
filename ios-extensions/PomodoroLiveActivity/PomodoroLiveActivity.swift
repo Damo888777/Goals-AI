@@ -17,30 +17,7 @@ struct PomodoroLiveActivity: Widget {
         } dynamicIsland: { context in
             
             DynamicIsland {
-                // Expanded UI - detailed timer view
-                DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(context.state.sessionType == "work" ? "🍅" : "☕")
-                            .font(.title2)
-                        Text(sessionTypeLabel(context.state.sessionType))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                DynamicIslandExpandedRegion(.trailing) {
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text("\(context.state.completedPomodoros)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32)) // #bc4b51
-                        Text("completed")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
+                // Expanded UI - timer and task name only
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 8) {
                         // Timer display with real-time calculation
@@ -51,42 +28,12 @@ struct PomodoroLiveActivity: Widget {
                                 Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
                                 Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958 for break
                         
-                        // Progress bar removed - maintaining everything else
-                        
-                        // Task title (truncated)
+                        // Task name
                         Text(context.state.taskTitle)
                             .font(.caption)
                             .lineLimit(1)
                             .foregroundColor(.secondary)
                     }
-                }
-                
-                DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        // Session indicators matching pomodoro.tsx
-                        HStack(spacing: 4) {
-                            ForEach(0..<4, id: \.self) { index in
-                                Circle()
-                                    .fill(index < (context.state.completedPomodoros % 4) ? 
-                                          Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
-                                          Color(red: 0.88, green: 0.88, blue: 0.88)) // #e0e0e0
-                                    .frame(width: 8, height: 8)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        // Running status
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(context.state.isRunning ? Color.green : Color.orange)
-                                .frame(width: 6, height: 6)
-                            Text(context.state.isRunning ? "Running" : "Paused")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding(.horizontal, 8)
                 }
                 
             } compactLeading: {
@@ -116,40 +63,11 @@ struct PomodoroLiveActivity: Widget {
 
 // MARK: - Lock Screen View
 struct PomodoroLockScreenView: View {
-    let context: ActivityViewContext<PomodoroActivityAttributes>
+    let context: ActivityViewContext<PomodoroActivityAttribu
+    >
     
     var body: some View {
         VStack(spacing: 16) {
-            // Header with session type and task
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(context.state.sessionType == "work" ? "🍅" : "☕")
-                            .font(.title2)
-                        Text(sessionTypeLabel(context.state.sessionType))
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958
-                    }
-                    
-                    Text(context.state.taskTitle)
-                        .font(.subheadline)
-                        .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35).opacity(0.8))
-                        .lineLimit(2)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("\(context.state.completedPomodoros)")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color(red: 0.74, green: 0.29, blue: 0.32)) // #bc4b51
-                    Text("completed")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
             
             // Timer display with gradient background matching pomodoro.tsx
             ZStack {
@@ -200,37 +118,13 @@ struct PomodoroLockScreenView: View {
             }
             .frame(height: 100)
             
-            // Progress and status
-            VStack(spacing: 12) {
-                // Progress bar removed - maintaining everything else
-                
-                // Session indicators and status
-                HStack {
-                    // Session indicators matching pomodoro.tsx
-                    HStack(spacing: 6) {
-                        ForEach(0..<4, id: \.self) { index in
-                            Circle()
-                                .fill(index < (context.state.completedPomodoros % 4) ? 
-                                      Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
-                                      Color(red: 0.88, green: 0.88, blue: 0.88)) // #e0e0e0
-                                .frame(width: 12, height: 12)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    // Running status
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(context.state.isRunning ? Color.green : Color.orange)
-                            .frame(width: 8, height: 8)
-                        Text(context.state.isRunning ? "Running" : "Paused")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
+            // Task name centered
+            Text(context.state.taskTitle)
+                .font(.headline)
+                .fontWeight(.medium)
+                .foregroundColor(Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
         }
         .padding(20)
     }
