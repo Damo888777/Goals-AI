@@ -34,60 +34,23 @@ class WidgetDataService {
   }
 
   private async getSharedStorage() {
-    // Use our custom UserDefaults bridge for App Group sharing on iOS
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && NativeModules.UserDefaultsManager) {
+      console.log('✅ [Widget Data] Using UserDefaults bridge for widget data sharing')
       return {
         setItem: async (key: string, value: string) => {
-          try {
-            // Use our custom native UserDefaults bridge
-            if (NativeModules.UserDefaultsManager?.setStringForAppGroup) {
-              await NativeModules.UserDefaultsManager.setStringForAppGroup(key, value, APP_GROUP_ID)
-              console.log('✅ [Widget Data] Written via custom UserDefaults bridge')
-            } else {
-              // Fallback to AsyncStorage if bridge not available
-              await AsyncStorage.setItem(key, value)
-              console.log('⚠️ [Widget Data] Written to AsyncStorage (bridge not available)')
-            }
-          } catch (error) {
-            console.warn('❌ [Widget Data] Failed to write via bridge, using AsyncStorage fallback:', error)
-            await AsyncStorage.setItem(key, value)
-          }
+          return NativeModules.UserDefaultsManager.setStringForAppGroup(key, value, APP_GROUP_ID)
         },
         getItem: async (key: string) => {
-          try {
-            if (NativeModules.UserDefaultsManager?.getStringForAppGroup) {
-              const data = await NativeModules.UserDefaultsManager.getStringForAppGroup(key, APP_GROUP_ID)
-              console.log('✅ [Widget Data] Read via custom UserDefaults bridge:', data ? 'found' : 'not found')
-              return data
-            } else {
-              const data = await AsyncStorage.getItem(key)
-              console.log('⚠️ [Widget Data] Read from AsyncStorage (bridge not available)')
-              return data
-            }
-          } catch (error) {
-            console.warn('❌ [Widget Data] Failed to read via bridge, using AsyncStorage fallback:', error)
-            return await AsyncStorage.getItem(key)
-          }
+          return NativeModules.UserDefaultsManager.getStringForAppGroup(key, APP_GROUP_ID)
         },
         removeItem: async (key: string) => {
-          try {
-            if (NativeModules.UserDefaultsManager?.removeKeyForAppGroup) {
-              await NativeModules.UserDefaultsManager.removeKeyForAppGroup(key, APP_GROUP_ID)
-              console.log('✅ [Widget Data] Removed via custom UserDefaults bridge')
-            } else {
-              await AsyncStorage.removeItem(key)
-              console.log('⚠️ [Widget Data] Removed from AsyncStorage (bridge not available)')
-            }
-          } catch (error) {
-            console.warn('❌ [Widget Data] Failed to remove via bridge, using AsyncStorage fallback:', error)
-            await AsyncStorage.removeItem(key)
-          }
+          return NativeModules.UserDefaultsManager.removeKeyForAppGroup(key, APP_GROUP_ID)
         }
       }
+    } else {
+      console.log('⚠️ [Widget Data] UserDefaults bridge not available, using AsyncStorage fallback')
+      return AsyncStorage
     }
-    
-    // Fallback to AsyncStorage for Android/development
-    return AsyncStorage
   }
 
   async updateWidgetData(frogTask: Task | null, regularTasks: Task[]): Promise<void> {

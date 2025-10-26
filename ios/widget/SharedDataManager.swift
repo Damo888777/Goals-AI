@@ -28,6 +28,46 @@ class SharedDataManager {
     private init() {}
     
     func getWidgetData() -> WidgetData? {
+        print("📁 [Swift Widget] Reading real data from UserDefaults")
+        
+        guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
+            print("📁 [Swift Widget] Failed to access App Group UserDefaults")
+            return nil
+        }
+        
+        // First try to read as Data (from UserDefaultsManager bridge)
+        if let data = userDefaults.data(forKey: sharedTasksKey) {
+            print("📁 [Swift Widget] Found Data object, attempting to decode...")
+            do {
+                let widgetData = try JSONDecoder().decode(WidgetData.self, from: data)
+                print("📁 [Swift Widget] Successfully decoded from Data: \(widgetData.regularTasks.count) tasks")
+                return widgetData
+            } catch {
+                print("📁 [Swift Widget] Failed to decode Data: \(error)")
+            }
+        }
+        
+        // Fallback: try to read as String (from AsyncStorage testing)
+        if let jsonString = userDefaults.string(forKey: sharedTasksKey) {
+            print("📁 [Swift Widget] Found String, attempting to decode...")
+            guard let data = jsonString.data(using: .utf8) else {
+                print("📁 [Swift Widget] Failed to convert string to data")
+                return nil
+            }
+            
+            do {
+                let widgetData = try JSONDecoder().decode(WidgetData.self, from: data)
+                print("📁 [Swift Widget] Successfully decoded from String: \(widgetData.regularTasks.count) tasks")
+                return widgetData
+            } catch {
+                print("📁 [Swift Widget] Failed to decode String: \(error)")
+            }
+        }
+        
+        print("📁 [Swift Widget] No widget data found in UserDefaults")
+        return nil
+        
+        /* ORIGINAL CODE - will restore after testing
         guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
             print("📁 [Swift Widget] Failed to access App Group UserDefaults")
             return nil

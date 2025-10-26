@@ -207,7 +207,6 @@
 				B75E455B752843C4B3B0FD91 /* Assets.xcassets */,
 				C2B03CA59A314F1EA46705DB /* Info.plist */,
 				37CB6215BF1248009721E1FD /* widget.entitlements */,
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -215,7 +214,6 @@
 		073D57B6A97D4DC28BD08963 /* widget */ = {
 			isa = PBXGroup;
 			children = (
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -251,7 +249,6 @@
 		51CDFDDE5FFA4DCD8B224D19 /* widget */ = {
 			isa = PBXGroup;
 			children = (
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -263,7 +260,6 @@
 				329D62A1ED6E42EC989C39B5 /* OneSignalNotificationServiceExtension.entitlements */,
 				2562EC9EED014581850962E8 /* OneSignalNotificationServiceExtension-Info.plist */,
 				D20945459C154F97870D341F /* NotificationService.m */,
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
@@ -271,22 +267,13 @@
 		618CF750007E41BC99BB65C4 /* widget */ = {
 			isa = PBXGroup;
 			children = (
-				E9D27E028F024930AEF1FEE3 /* widget.swift */,
-				6691A4E2334041858E12A7EB /* SharedDataManager.swift */,
-				DEDF8BBB7B154A9BAE104089 /* TaskIntents.swift */,
-				1586B3E7D6B243FB8AB5F76F /* TaskCompletionIntent.swift */,
-				B75E455B752843C4B3B0FD91 /* Assets.xcassets */,
-				C2B03CA59A314F1EA46705DB /* Info.plist */,
-				37CB6215BF1248009721E1FD /* widget.entitlements */,
 			);
-			name = widget;
 			path = widget;
 			sourceTree = "<group>";
 		};
 		69707AF4FEEF43AB9233F413 /* widget */ = {
 			isa = PBXGroup;
 			children = (
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -375,7 +362,6 @@
 				474696CB13CE76DB757E6841 /* Pods-PomodoroLiveActivity.release.xcconfig */,
 				F217F54115204C48A5A73D62 /* Pods-widget.debug.xcconfig */,
 				B9CAC8075A66F6CF824DB785 /* Pods-widget.release.xcconfig */,
-				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -484,14 +470,6 @@
 					};
 					BBB7EF0BC4834144BDE3997E = {
 						DevelopmentTeam = 5PT3BWY2A5;
-					};
-					undefined = {
-						ProvisioningStyle = Automatic;
-						SystemCapabilities = {
-							com.apple.Push = {
-								enabled = 1;
-							};
-						};
 					};
 				};
 			};
@@ -896,7 +874,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -931,7 +909,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -981,7 +959,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1011,7 +989,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1061,7 +1039,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1106,7 +1084,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -1132,7 +1110,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -1205,10 +1183,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1276,10 +1251,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1329,7 +1301,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

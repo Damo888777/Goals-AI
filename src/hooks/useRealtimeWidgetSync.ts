@@ -23,29 +23,46 @@ export const useRealtimeWidgetSync = () => {
         // Start widget completion sync service
         widgetSyncService.startCompletionSync()
 
-        // Get today's date range
+        // Get today's date range as ISO strings (since database stores ISO strings)
         const today = new Date()
         const startOfDay = new Date(today)
         startOfDay.setHours(0, 0, 0, 0)
         const endOfDay = new Date(today)
         endOfDay.setHours(23, 59, 59, 999)
+        
+        const startOfDayISO = startOfDay.toISOString()
+        const endOfDayISO = endOfDay.toISOString()
 
         // Subscribe to real-time changes for today's tasks
         const tasksCollection = database.collections.get<Task>('tasks')
         
+        console.log('📅 [Widget Sync] Looking for tasks between:', {
+          startOfDay: startOfDayISO,
+          endOfDay: endOfDayISO
+        })
+        
         const subscription = tasksCollection
           .query(
-            Q.where('scheduled_date', Q.between(startOfDay.getTime(), endOfDay.getTime()))
+            Q.where('scheduled_date', Q.gte(startOfDayISO)),
+            Q.where('scheduled_date', Q.lte(endOfDayISO))
           )
           .observeWithColumns(['title', 'is_complete', 'is_frog', 'scheduled_date'])
           .subscribe(async (tasks: Task[]) => {
             try {
               console.log('🔄 Real-time task change detected, updating widget...')
+              console.log('📋 [Widget Sync] Found tasks:', tasks.length)
+              
+              // Log all tasks for debugging
+              tasks.forEach((task, index) => {
+                console.log(`📋 [Task ${index}] "${task.title}" - Complete: ${task.isComplete}, Frog: ${task.isFrog}, Date: ${task.scheduledDate ? new Date(task.scheduledDate).toISOString() : 'No date'}`)
+              })
               
               // Filter incomplete tasks for widget display
               const incompleteTasks = tasks.filter((task: Task) => !task.isComplete)
               const frogTask = incompleteTasks.find((task: Task) => task.isFrog)
               const regularTasks = incompleteTasks.filter((task: Task) => !task.isFrog)
+              
+              console.log('📋 [Widget Sync] Filtered - Incomplete:', incompleteTasks.length, 'Frog:', !!frogTask, 'Regular:', regularTasks.length)
 
               // Update widget data immediately
               await widgetDataService.updateWidgetData(frogTask || null, regularTasks)
