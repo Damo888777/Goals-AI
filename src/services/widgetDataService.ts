@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform, NativeModules } from 'react-native'
-import * as FileSystem from 'expo-file-system'
 import Task from '../db/models/Task'
 
 // App Group identifier - must match widget entitlements
@@ -23,54 +22,64 @@ export interface WidgetData {
 }
 
 class WidgetDataService {
-  private async getSharedStorage() {
-    // Use App Group shared directory on iOS for proper widget data sharing
+  constructor() {
+    // Verify native module is available at startup
     if (Platform.OS === 'ios') {
-      // App Group shared container path
-      const appGroupPath = `group.${APP_GROUP_ID}`
-      
+      const moduleAvailable = !!NativeModules.UserDefaultsManager
+      console.log('🔍 [Widget Data Service] UserDefaultsManager module available:', moduleAvailable)
+      if (moduleAvailable) {
+        console.log('🔍 [Widget Data Service] Available methods:', Object.keys(NativeModules.UserDefaultsManager))
+      }
+    }
+  }
+
+  private async getSharedStorage() {
+    // Use our custom UserDefaults bridge for App Group sharing on iOS
+    if (Platform.OS === 'ios') {
       return {
         setItem: async (key: string, value: string) => {
           try {
-            // Use App Group shared directory
-            const sharedDirectory = FileSystem.documentDirectory + '../Shared/AppGroup/'
-            await FileSystem.makeDirectoryAsync(sharedDirectory, { intermediates: true })
-            const filePath = sharedDirectory + key + '.json'
-            await FileSystem.writeAsStringAsync(filePath, value)
-            console.log('📁 [Widget Data] Written to App Group shared directory:', filePath)
+            // Use our custom native UserDefaults bridge
+            if (NativeModules.UserDefaultsManager?.setStringForAppGroup) {
+              await NativeModules.UserDefaultsManager.setStringForAppGroup(key, value, APP_GROUP_ID)
+              console.log('✅ [Widget Data] Written via custom UserDefaults bridge')
+            } else {
+              // Fallback to AsyncStorage if bridge not available
+              await AsyncStorage.setItem(key, value)
+              console.log('⚠️ [Widget Data] Written to AsyncStorage (bridge not available)')
+            }
           } catch (error) {
-            console.warn('❌ [Widget Data] Failed to write to shared directory, using AsyncStorage fallback:', error)
+            console.warn('❌ [Widget Data] Failed to write via bridge, using AsyncStorage fallback:', error)
             await AsyncStorage.setItem(key, value)
           }
         },
         getItem: async (key: string) => {
           try {
-            // Read from App Group shared directory
-            const sharedDirectory = FileSystem.documentDirectory + '../Shared/AppGroup/'
-            const filePath = sharedDirectory + key + '.json'
-            
-            const fileExists = await FileSystem.getInfoAsync(filePath)
-            if (fileExists.exists) {
-              const data = await FileSystem.readAsStringAsync(filePath)
-              console.log('📁 [Widget Data] Read from App Group shared directory:', filePath)
+            if (NativeModules.UserDefaultsManager?.getStringForAppGroup) {
+              const data = await NativeModules.UserDefaultsManager.getStringForAppGroup(key, APP_GROUP_ID)
+              console.log('✅ [Widget Data] Read via custom UserDefaults bridge:', data ? 'found' : 'not found')
               return data
             } else {
-              console.log('📁 [Widget Data] File does not exist:', filePath)
-              return null
+              const data = await AsyncStorage.getItem(key)
+              console.log('⚠️ [Widget Data] Read from AsyncStorage (bridge not available)')
+              return data
             }
           } catch (error) {
-            console.warn('❌ [Widget Data] Failed to read from shared directory, using AsyncStorage fallback:', error)
+            console.warn('❌ [Widget Data] Failed to read via bridge, using AsyncStorage fallback:', error)
             return await AsyncStorage.getItem(key)
           }
         },
         removeItem: async (key: string) => {
           try {
-            const sharedDirectory = FileSystem.documentDirectory + '../Shared/AppGroup/'
-            const filePath = sharedDirectory + key + '.json'
-            await FileSystem.deleteAsync(filePath, { idempotent: true })
-            console.log('📁 [Widget Data] Removed from App Group shared directory:', filePath)
+            if (NativeModules.UserDefaultsManager?.removeKeyForAppGroup) {
+              await NativeModules.UserDefaultsManager.removeKeyForAppGroup(key, APP_GROUP_ID)
+              console.log('✅ [Widget Data] Removed via custom UserDefaults bridge')
+            } else {
+              await AsyncStorage.removeItem(key)
+              console.log('⚠️ [Widget Data] Removed from AsyncStorage (bridge not available)')
+            }
           } catch (error) {
-            console.warn('❌ [Widget Data] Failed to remove from shared directory, using AsyncStorage fallback:', error)
+            console.warn('❌ [Widget Data] Failed to remove via bridge, using AsyncStorage fallback:', error)
             await AsyncStorage.removeItem(key)
           }
         }

@@ -19,6 +19,7 @@
 		44E7635572ED48578C0D4047 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		4AC9CFEE8E9944D585FAFC79 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59F9BF40531644DAA1546EA3 /* PomodoroActivityAttributes.swift */; };
 		58503879297E4955BE90D721 /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 187E757C98CC4D7ABA287C81 /* widget.appex */; };
+		59EDE2BE410545C690AB9E00 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59F9BF40531644DAA1546EA3 /* PomodoroActivityAttributes.swift */; };
 		6D241D8F5A09451685A399D1 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06AC837ACCE24A818A2418BB /* WidgetKit.framework */; };
 		7B772C99EB704521ABCE3DB4 /* widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D27E028F024930AEF1FEE3 /* widget.swift */; };
 		8C6BD93A669441F185AC103F /* WidgetKitReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4573868D887F4B6EA1D76AB1 /* WidgetKitReloader.swift */; };
@@ -32,9 +33,11 @@
 		ACC737C0BD3C953EC7E757B5 /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56848B537306B6212FEAD4F6 /* Pods_PomodoroLiveActivity.framework */; };
 		B13C15D55DC64B08A88EB072 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
+		B337D77272F744BAA82CA909 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7930A796444158AE2E4953 /* PomodoroLiveActivity.swift */; };
 		B986D95AC04541FAADACDFF5 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7930A796444158AE2E4953 /* PomodoroLiveActivity.swift */; };
 		BAD00C579BA14C7EA28FEA5C /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C489BADC7B624ED3AB3FA25E /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		C807EC638520479EBCEEE094 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		CBE57415E2AF4ED595F5F6F4 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A7EA17E17340BE918D9134 /* LiveActivityModule.swift */; };
 		DDCAAA2844914ABF9947039F /* PomodoroLiveActivity.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = A54A136CF13B466EB6933F0D /* PomodoroLiveActivity.appex */; };
@@ -204,6 +207,7 @@
 				B75E455B752843C4B3B0FD91 /* Assets.xcassets */,
 				C2B03CA59A314F1EA46705DB /* Info.plist */,
 				37CB6215BF1248009721E1FD /* widget.entitlements */,
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -211,6 +215,7 @@
 		073D57B6A97D4DC28BD08963 /* widget */ = {
 			isa = PBXGroup;
 			children = (
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -246,6 +251,7 @@
 		51CDFDDE5FFA4DCD8B224D19 /* widget */ = {
 			isa = PBXGroup;
 			children = (
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -257,13 +263,30 @@
 				329D62A1ED6E42EC989C39B5 /* OneSignalNotificationServiceExtension.entitlements */,
 				2562EC9EED014581850962E8 /* OneSignalNotificationServiceExtension-Info.plist */,
 				D20945459C154F97870D341F /* NotificationService.m */,
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = OneSignalNotificationServiceExtension;
+			sourceTree = "<group>";
+		};
+		618CF750007E41BC99BB65C4 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+				E9D27E028F024930AEF1FEE3 /* widget.swift */,
+				6691A4E2334041858E12A7EB /* SharedDataManager.swift */,
+				DEDF8BBB7B154A9BAE104089 /* TaskIntents.swift */,
+				1586B3E7D6B243FB8AB5F76F /* TaskCompletionIntent.swift */,
+				B75E455B752843C4B3B0FD91 /* Assets.xcassets */,
+				C2B03CA59A314F1EA46705DB /* Info.plist */,
+				37CB6215BF1248009721E1FD /* widget.entitlements */,
+			);
+			name = widget;
+			path = widget;
 			sourceTree = "<group>";
 		};
 		69707AF4FEEF43AB9233F413 /* widget */ = {
 			isa = PBXGroup;
 			children = (
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -290,6 +313,7 @@
 				073D57B6A97D4DC28BD08963 /* widget */,
 				51CDFDDE5FFA4DCD8B224D19 /* widget */,
 				69707AF4FEEF43AB9233F413 /* widget */,
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -351,6 +375,7 @@
 				474696CB13CE76DB757E6841 /* Pods-PomodoroLiveActivity.release.xcconfig */,
 				F217F54115204C48A5A73D62 /* Pods-widget.debug.xcconfig */,
 				B9CAC8075A66F6CF824DB785 /* Pods-widget.release.xcconfig */,
+				618CF750007E41BC99BB65C4 /* widget */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -459,6 +484,14 @@
 					};
 					BBB7EF0BC4834144BDE3997E = {
 						DevelopmentTeam = 5PT3BWY2A5;
+					};
+					undefined = {
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -792,6 +825,9 @@
 				B986D95AC04541FAADACDFF5 /* PomodoroLiveActivity.swift in Sources */,
 				3E078D5A79F048EA9C24CCF4 /* PomodoroActivityAttributes.swift in Sources */,
 				CBE57415E2AF4ED595F5F6F4 /* LiveActivityModule.swift in Sources */,
+				B337D77272F744BAA82CA909 /* PomodoroLiveActivity.swift in Sources */,
+				59EDE2BE410545C690AB9E00 /* PomodoroActivityAttributes.swift in Sources */,
+				C489BADC7B624ED3AB3FA25E /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -860,7 +896,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -895,7 +931,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -945,7 +981,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -975,7 +1011,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1025,7 +1061,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1070,7 +1106,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1096,7 +1132,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1169,7 +1205,10 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1237,7 +1276,10 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1287,7 +1329,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
