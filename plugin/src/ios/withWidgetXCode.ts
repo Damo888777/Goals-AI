@@ -14,7 +14,7 @@ const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
 const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets", "PomodoroLiveActivity.entitlements"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityBridge.swift", "LiveActivityModule.m", "PomodoroActivityAttributes.swift", "LiveActivityModule.swift"];
-const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
+const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m", "UserDefaultsManager.swift", "UserDefaultsManager.m"];
 
 const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
@@ -95,7 +95,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       const widgetSourceDirPath = path.join(projectPath, "ios-extensions", "widget");
       const widgetBundleId = "pro.GoalAchieverAI.widget";
       const extensionFilesDir = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
-      fs.copySync(widgetSourceDirPath, extensionFilesDir);
+      fs.copySync(widgetSourceDirPath, extensionFilesDir, { overwrite: true });
 
       // Create Live Activity target directory and copy files
       const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
@@ -111,7 +111,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
           const sourcePath = path.join(liveActivitySourceDir, file);
           const destPath = path.join(liveActivityTargetDir, file);
           if (fs.existsSync(sourcePath)) {
-            fs.copySync(sourcePath, destPath);
+            fs.copySync(sourcePath, destPath, { overwrite: true });
             console.log(`Copied Live Activity file: ${file}`);
           }
         });
@@ -127,7 +127,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
         const sourcePath = path.join(nativeModulesSourceDir, file);
         const destPath = path.join(mainAppTargetDir, file);
         if (fs.existsSync(sourcePath)) {
-          fs.copySync(sourcePath, destPath);
+          fs.copySync(sourcePath, destPath, { overwrite: true });
           console.log(`Copied ${file} to GoalsAI target directory`);
         } else {
           console.warn(`Source file not found: ${sourcePath}`);

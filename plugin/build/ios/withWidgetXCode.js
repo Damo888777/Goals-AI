@@ -14,7 +14,7 @@ const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
 const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets", "PomodoroLiveActivity.entitlements"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityBridge.swift", "LiveActivityModule.m", "PomodoroActivityAttributes.swift", "LiveActivityModule.swift"];
-const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
+const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m", "UserDefaultsManager.swift", "UserDefaultsManager.m"];
 const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
     ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",
     ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: "WidgetBackground",
@@ -88,7 +88,7 @@ const withWidgetXCode = (config, options = {}) => {
             const widgetSourceDirPath = path_1.default.join(projectPath, "ios-extensions", "widget");
             const widgetBundleId = "pro.GoalAchieverAI.widget";
             const extensionFilesDir = path_1.default.join(platformProjectPath, EXTENSION_TARGET_NAME);
-            fs_extra_1.default.copySync(widgetSourceDirPath, extensionFilesDir);
+            fs_extra_1.default.copySync(widgetSourceDirPath, extensionFilesDir, { overwrite: true });
             // Create Live Activity target directory and copy files
             const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
             const liveActivityTargetDir = path_1.default.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
@@ -101,7 +101,7 @@ const withWidgetXCode = (config, options = {}) => {
                     const sourcePath = path_1.default.join(liveActivitySourceDir, file);
                     const destPath = path_1.default.join(liveActivityTargetDir, file);
                     if (fs_extra_1.default.existsSync(sourcePath)) {
-                        fs_extra_1.default.copySync(sourcePath, destPath);
+                        fs_extra_1.default.copySync(sourcePath, destPath, { overwrite: true });
                         console.log(`Copied Live Activity file: ${file}`);
                     }
                 });
@@ -114,7 +114,7 @@ const withWidgetXCode = (config, options = {}) => {
                 const sourcePath = path_1.default.join(nativeModulesSourceDir, file);
                 const destPath = path_1.default.join(mainAppTargetDir, file);
                 if (fs_extra_1.default.existsSync(sourcePath)) {
-                    fs_extra_1.default.copySync(sourcePath, destPath);
+                    fs_extra_1.default.copySync(sourcePath, destPath, { overwrite: true });
                     console.log(`Copied ${file} to GoalsAI target directory`);
                 }
                 else {
