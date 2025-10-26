@@ -11,19 +11,8 @@ import ActivityKit
 import React
 #endif
 
-// MARK: - Shared Activity Attributes (MUST match PomodoroLiveActivity.swift exactly)
-struct PomodoroActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        var timeRemaining: Int // seconds
-        var totalDuration: Int // seconds
-        var sessionType: String // "work", "shortBreak", "longBreak"
-        var isRunning: Bool
-        var completedPomodoros: Int
-        var taskTitle: String
-    }
-    
-    var activityName: String // ✅ Matches PomodoroLiveActivity.swift
-}
+// MARK: - Activity Attributes imported from separate file
+// Note: PomodoroActivityAttributes is now defined in PomodoroActivityAttributes.swift
 
 // MARK: - React Native Module (only compiled for main app target)
 #if canImport(React)

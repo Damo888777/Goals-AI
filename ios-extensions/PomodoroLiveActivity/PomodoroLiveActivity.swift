@@ -2,8 +2,8 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-// MARK: - Activity Attributes (shared from LiveActivityModule.swift)
-// Note: PomodoroActivityAttributes is defined in LiveActivityModule.swift and shared between targets
+// MARK: - Activity Attributes (shared from PomodoroActivityAttributes.swift)
+// Note: PomodoroActivityAttributes is defined in PomodoroActivityAttributes.swift and shared between targets
 
 // MARK: - Live Activity Widget
 struct PomodoroLiveActivity: Widget {
