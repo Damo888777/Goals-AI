@@ -7,14 +7,25 @@ import SwiftUI
 
 // MARK: - Live Activity Widget
 struct PomodoroLiveActivity: Widget {
+    init() {
+        print("🎨🎨🎨 [WIDGET INIT] PomodoroLiveActivity widget initialized!")
+    }
+    
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
+        print("🎨🎨🎨 [WIDGET BODY] body called - creating ActivityConfiguration")
+        
+        return ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
+            print("🎨🎨🎨 [WIDGET LOCK SCREEN] Rendering lock screen view")
+            print("🎨🎨🎨 [WIDGET DATA] Time: \(context.state.timeRemaining)s, Session: \(context.state.sessionType)")
             // Lock screen/banner UI - matches pomodoro.tsx styling
             PomodoroLockScreenView(context: context)
                 .activityBackgroundTint(Color(red: 0.96, green: 0.92, blue: 0.88)) // #f5ebe0
                 .activitySystemActionForegroundColor(Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958
             
         } dynamicIsland: { context in
+            print("🎨🎨🎨 [WIDGET DYNAMIC ISLAND] Rendering Dynamic Island")
+            print("🎨🎨🎨 [WIDGET DI DATA] Time: \(context.state.timeRemaining)s")
+            
             DynamicIsland {
                 // Expanded UI - detailed timer view
                 DynamicIslandExpandedRegion(.leading) {
@@ -95,20 +106,23 @@ struct PomodoroLiveActivity: Widget {
                 }
                 
             } compactLeading: {
+                print("🎨🎨🎨 [WIDGET COMPACT LEADING] Rendering compact leading")
                 // Compact leading - session type emoji
-                Text(context.state.sessionType == "work" ? "🍅" : "☕")
+                return Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
+                print("🎨🎨🎨 [WIDGET COMPACT TRAILING] Rendering compact trailing")
                 // Compact trailing - timer
-                Text(formatTimeCompact(context.state.timeRemaining))
+                return Text(formatTimeCompact(context.state.timeRemaining))
                     .font(.custom("Helvetica", size: 14))
                     .fontWeight(.medium)
                     .foregroundColor(context.state.sessionType == "work" ? 
                         Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
                         Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
             } minimal: {
+                print("🎨🎨🎨 [WIDGET MINIMAL] Rendering minimal view")
                 // Minimal - just the emoji
-                Text(context.state.sessionType == "work" ? "🍅" : "☕")
+                return Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 12))
             }
             .widgetURL(URL(string: "goals-ai://pomodoro"))
@@ -123,8 +137,16 @@ struct PomodoroLiveActivity: Widget {
 struct PomodoroLockScreenView: View {
     let context: ActivityViewContext<PomodoroActivityAttributes>
     
+    init(context: ActivityViewContext<PomodoroActivityAttributes>) {
+        self.context = context
+        print("🎨🎨🎨 [LOCK SCREEN VIEW INIT] PomodoroLockScreenView initialized")
+    }
+    
     var body: some View {
-        VStack(spacing: 16) {
+        print("🎨🎨🎨 [LOCK SCREEN VIEW BODY] Rendering lock screen body")
+        print("🎨🎨🎨 [LOCK SCREEN DATA] Task: \(context.state.taskTitle), Running: \(context.state.isRunning)")
+        
+        return VStack(spacing: 16) {
             // Header with session type and task
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -269,6 +291,19 @@ private func sessionTypeLabel(_ sessionType: String) -> String {
         return "Long Break"
     default:
         return "Pomodoro"
+    }
+}
+
+// MARK: - Widget Bundle Entry Point
+@main
+struct PomodoroLiveActivityBundle: WidgetBundle {
+    init() {
+        print("🎨🎨🎨 [WIDGET BUNDLE INIT] PomodoroLiveActivityBundle initialized - Widget extension starting!")
+    }
+    
+    var body: some Widget {
+        print("🎨🎨🎨 [WIDGET BUNDLE BODY] Creating widget bundle body")
+        return PomodoroLiveActivity()
     }
 }
 

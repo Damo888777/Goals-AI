@@ -4,9 +4,12 @@
 //
 
 import Foundation
-import AppIntents
 import WidgetKit
 
+@available(iOS 17.0, *)
+import AppIntents
+
+@available(iOS 17.0, *)
 struct CompleteTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Complete Task"
     static var description = IntentDescription("Mark a task as completed from the widget")
@@ -97,6 +100,7 @@ struct CompleteTaskIntent: AppIntent {
     }
 }
 
+@available(iOS 17.0, *)
 struct ToggleFrogTaskIntent: AppIntent {
     static var title: LocalizedStringResource = "Toggle Frog Task"
     static var description = IntentDescription("Toggle the completion state of the frog task")
