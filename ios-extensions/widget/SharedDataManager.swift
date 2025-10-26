@@ -17,6 +17,25 @@ struct WidgetData: Codable {
     var frogTask: WidgetTaskData?
     var regularTasks: [WidgetTaskData]
     var lastUpdated: String
+    
+    // Custom decoding to handle JSON null properly
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Handle frogTask that might be null in JSON
+        if container.contains(.frogTask) && !(try container.decodeNil(forKey: .frogTask)) {
+            self.frogTask = try container.decode(WidgetTaskData.self, forKey: .frogTask)
+        } else {
+            self.frogTask = nil
+        }
+        
+        self.regularTasks = try container.decode([WidgetTaskData].self, forKey: .regularTasks)
+        self.lastUpdated = try container.decode(String.self, forKey: .lastUpdated)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case frogTask, regularTasks, lastUpdated
+    }
 }
 
 class SharedDataManager {

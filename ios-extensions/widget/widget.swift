@@ -217,7 +217,7 @@ struct widgetEntryView: View {
                                 .font(.system(size: 10, weight: .light))
                                 .foregroundColor(.widgetTextColor.opacity(0.6))
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, 5)
                         }
                     } else if entry.frogTask == nil {
                         Text("No tasks scheduled")
@@ -307,7 +307,8 @@ struct CompleteButton: View {
     let task: Task
     
     var body: some View {
-        Button(intent: CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
+        Button(
+            : CompleteTaskIntent(taskId: task.id, taskTitle: task.title)) {
             ZStack {
                 Circle()
                     .stroke(Color.widgetCompleteOuter, lineWidth: 1)
@@ -317,7 +318,6 @@ struct CompleteButton: View {
                     Circle()
                         .fill(Color.widgetCompleteInner)
                         .frame(width: 22, height: 22)
-                    
                     Image(systemName: "checkmark")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.widgetTextColor)

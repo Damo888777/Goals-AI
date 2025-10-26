@@ -43,8 +43,8 @@ struct PomodoroLiveActivity: Widget {
                 
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 8) {
-                        // Timer display matching pomodoro.tsx digital font style
-                        Text(formatTime(context.state.timeRemaining))
+                        // Timer display with real-time calculation
+                        Text(formatTime(calculateCurrentTime(context)))
                             .font(.custom("Helvetica", size: 32))
                             .fontWeight(.bold)
                             .foregroundColor(context.state.sessionType == "work" ? 
@@ -94,8 +94,8 @@ struct PomodoroLiveActivity: Widget {
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
-                // Compact trailing - timer
-                Text(formatTimeCompact(context.state.timeRemaining))
+                // Compact trailing - timer with real-time calculation
+                Text(formatTimeCompact(calculateCurrentTime(context)))
                     .font(.custom("Helvetica", size: 14))
                     .fontWeight(.medium)
                     .foregroundColor(context.state.sessionType == "work" ? 
@@ -191,8 +191,8 @@ struct PomodoroLockScreenView: View {
                         .stroke(Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.2), lineWidth: 1)
                 )
                 
-                // Timer text matching pomodoro.tsx digital font
-                Text(formatTime(context.state.timeRemaining))
+                // Timer text with real-time calculation
+                Text(formatTime(calculateCurrentTime(context)))
                     .font(.custom("Helvetica", size: 48))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -259,6 +259,21 @@ private func sessionTypeLabel(_ sessionType: String) -> String {
     default:
         return "Pomodoro"
     }
+}
+
+// MARK: - Time Calculation for Live Activities
+private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivityAttributes>) -> Int {
+    // If timer is not running, return the stored time
+    guard context.state.isRunning else {
+        return context.state.timeRemaining
+    }
+    
+    // Calculate elapsed time since last update
+    let currentTime = Date()
+    let elapsedSeconds = Int(currentTime.timeIntervalSince(context.state.lastUpdateTime))
+    let calculatedTime = max(0, context.state.timeRemaining - elapsedSeconds)
+    
+    return calculatedTime
 }
 
 // MARK: - Widget Bundle Entry Point
