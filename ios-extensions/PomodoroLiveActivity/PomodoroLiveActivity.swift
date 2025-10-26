@@ -7,24 +7,14 @@ import SwiftUI
 
 // MARK: - Live Activity Widget
 struct PomodoroLiveActivity: Widget {
-    init() {
-        print("🎨🎨🎨 [WIDGET INIT] PomodoroLiveActivity widget initialized!")
-    }
-    
     var body: some WidgetConfiguration {
-        let _ = print("🎨🎨🎨 [WIDGET BODY] body called - creating ActivityConfiguration")
-        
-        return ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
-            let _ = print("🎨🎨🎨 [WIDGET LOCK SCREEN] Rendering lock screen view")
-            let _ = print("🎨🎨🎨 [WIDGET DATA] Time: \(context.state.timeRemaining)s, Session: \(context.state.sessionType)")
+        ActivityConfiguration(for: PomodoroActivityAttributes.self) { context in
             // Lock screen/banner UI - matches pomodoro.tsx styling
             PomodoroLockScreenView(context: context)
                 .activityBackgroundTint(Color(red: 0.96, green: 0.92, blue: 0.88)) // #f5ebe0
                 .activitySystemActionForegroundColor(Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958
             
         } dynamicIsland: { context in
-            let _ = print("🎨🎨🎨 [WIDGET DYNAMIC ISLAND] Rendering Dynamic Island")
-            let _ = print("🎨🎨🎨 [WIDGET DI DATA] Time: \(context.state.timeRemaining)s")
             
             DynamicIsland {
                 // Expanded UI - detailed timer view
@@ -106,12 +96,10 @@ struct PomodoroLiveActivity: Widget {
                 }
                 
             } compactLeading: {
-                let _ = print("🎨🎨🎨 [WIDGET COMPACT LEADING] Rendering compact leading")
                 // Compact leading - session type emoji
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
-                let _ = print("🎨🎨🎨 [WIDGET COMPACT TRAILING] Rendering compact trailing")
                 // Compact trailing - timer
                 Text(formatTimeCompact(context.state.timeRemaining))
                     .font(.custom("Helvetica", size: 14))
@@ -120,7 +108,6 @@ struct PomodoroLiveActivity: Widget {
                         Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
                         Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
             } minimal: {
-                let _ = print("🎨🎨🎨 [WIDGET MINIMAL] Rendering minimal view")
                 // Minimal - just the emoji
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 12))
@@ -137,15 +124,7 @@ struct PomodoroLiveActivity: Widget {
 struct PomodoroLockScreenView: View {
     let context: ActivityViewContext<PomodoroActivityAttributes>
     
-    init(context: ActivityViewContext<PomodoroActivityAttributes>) {
-        self.context = context
-        print("🎨🎨🎨 [LOCK SCREEN VIEW INIT] PomodoroLockScreenView initialized")
-    }
-    
     var body: some View {
-        let _ = print("🎨🎨🎨 [LOCK SCREEN VIEW BODY] Rendering lock screen body")
-        let _ = print("🎨🎨🎨 [LOCK SCREEN DATA] Task: \(context.state.taskTitle), Running: \(context.state.isRunning)")
-        
         VStack(spacing: 16) {
             // Header with session type and task
             HStack {

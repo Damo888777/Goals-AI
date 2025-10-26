@@ -687,54 +687,31 @@ async function updateXCodeProj(projPath, widgetBundleId, liveActivityBundleId, d
                                 fileUuid = Object.keys(xcodeProject.hash.project.objects.PBXFileReference).find(key => !key.endsWith('_comment') && xcodeProject.hash.project.objects.PBXFileReference[key] === existingFile) || '';
                                 console.log(`Using existing file reference for: ${liveActivityFile}`);
                             }
-                            // Add to build phase (check for existing first)
+                            // ALWAYS add to build phase (even if file exists)
                             if (fileUuid) {
                                 try {
-                                    // Check if build file already exists for this file reference
-                                    const buildFiles = xcodeProject.hash.project.objects.PBXBuildFile;
-                                    let existingBuildFile = null;
-                                    let buildFileUuid = '';
-                                    // Look for existing build file that references this file
-                                    for (const buildKey in buildFiles) {
-                                        if (buildKey.endsWith('_comment'))
-                                            continue;
-                                        const buildFile = buildFiles[buildKey];
-                                        if (buildFile && buildFile.fileRef === fileUuid) {
-                                            existingBuildFile = buildFile;
-                                            buildFileUuid = buildKey;
-                                            break;
-                                        }
-                                    }
-                                    // Create new build file if none exists
-                                    if (!existingBuildFile) {
-                                        buildFileUuid = xcodeProject.generateUuid();
-                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
-                                            isa: 'PBXBuildFile',
-                                            fileRef: fileUuid,
-                                            fileRef_comment: fileName
-                                        };
-                                        xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources`;
-                                        console.log(`Created new build file for: ${liveActivityFile}`);
-                                    }
-                                    else {
-                                        console.log(`Using existing build file for: ${liveActivityFile}`);
-                                    }
+                                    // Create build file for Live Activity target
+                                    const buildFileUuid = xcodeProject.generateUuid();
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid] = {
+                                        isa: 'PBXBuildFile',
+                                        fileRef: fileUuid,
+                                        fileRef_comment: fileName
+                                    };
+                                    xcodeProject.hash.project.objects.PBXBuildFile[buildFileUuid + '_comment'] = `${fileName} in Sources (Live Activity)`;
+                                    console.log(`Created new build file for Live Activity target: ${liveActivityFile}`);
                                     // Add to Live Activity target's source build phase
                                     if (!liveActivitySourcePhase.files) {
                                         liveActivitySourcePhase.files = [];
                                     }
-                                    // Check if already in build phase (by file reference)
-                                    const alreadyInBuildPhase = liveActivitySourcePhase.files.some((file) => {
-                                        const buildFile = buildFiles[file.value];
-                                        return buildFile && buildFile.fileRef === fileUuid;
-                                    });
+                                    // Check if already in THIS Live Activity target's build phase
+                                    const alreadyInBuildPhase = liveActivitySourcePhase.files.some((file) => file.value === buildFileUuid);
                                     if (!alreadyInBuildPhase) {
                                         liveActivitySourcePhase.files.push({
                                             value: buildFileUuid,
                                             comment: `${fileName} in Sources`
                                         });
                                         addedLiveActivityFiles++;
-                                        console.log(`Added Live Activity file to target: ${liveActivityFile}`);
+                                        console.log(`✅ Added Live Activity file to target: ${liveActivityFile}`);
                                     }
                                     else {
                                         console.log(`Live Activity file ${liveActivityFile} already in target build phase`);
