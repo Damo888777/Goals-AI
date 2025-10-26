@@ -47,9 +47,13 @@ struct CompleteTaskIntent: AppIntent {
             completions.append(completion)
             
             // Save back to UserDefaults as JSON string
-            if let jsonData = try? JSONSerialization.data(withJSONObject: completions, options: []),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                userDefaults.set(jsonString, forKey: completionsKey)
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: completions, options: [])
+                if let jsonString = String(data: jsonData, encoding: .utf8) {
+                    userDefaults.set(jsonString, forKey: completionsKey)
+                }
+            } catch {
+                print("Failed to serialize completions: \(error)")
             }
             userDefaults.synchronize()
             
@@ -160,9 +164,13 @@ struct ToggleFrogTaskIntent: AppIntent {
                     "action": !wasCompleted ? "complete" : "uncomplete"
                 ]
                 completions.append(completion)
-                if let jsonData = try? JSONSerialization.data(withJSONObject: completions, options: []),
-                   let jsonString = String(data: jsonData, encoding: .utf8) {
-                    userDefaults.set(jsonString, forKey: completionsKey)
+                do {
+                    let jsonData = try JSONSerialization.data(withJSONObject: completions, options: [])
+                    if let jsonString = String(data: jsonData, encoding: .utf8) {
+                        userDefaults.set(jsonString, forKey: completionsKey)
+                    }
+                } catch {
+                    print("Failed to serialize completions: \(error)")
                 }
             }
             
