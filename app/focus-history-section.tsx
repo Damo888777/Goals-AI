@@ -79,11 +79,11 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
             <Text style={styles.emptyStateDescription}>
               {isCompletedTask 
                 ? 'This task was completed without any focus sessions.'
-                : 'Start your first pomodoro session to track your focus time and build momentum towards completing this task.'}
+                : 'Start a pomodoro to track your focus and build momentum.'}
             </Text>
             {!isCompletedTask && (
               <TouchableOpacity
-                style={styles.startPomodoroButton}
+                style={[styles.startPomodoroButton, { marginTop: 8 }]}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   onStartPomodoro();
@@ -269,9 +269,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   startPomodoroButton: {
-    backgroundColor: '#e9edc9',
+    backgroundColor: '#fed0bb',
     borderWidth: 0.5,
-    borderColor: '#a3b18a',
+    borderColor: '#bc4b51',
     borderRadius: 15,
     paddingHorizontal: 24,
     paddingVertical: 12,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   startPomodoroButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#364958',
+    color: '#bc4b51',
   },
   // Session indicators (matching pomodoro.tsx)
   sessionIndicatorSection: {

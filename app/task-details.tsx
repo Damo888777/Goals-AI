@@ -362,7 +362,7 @@ export default function TaskDetailsScreen() {
             timeStats={timeStats}
             onStartPomodoro={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push('/pomodoro');
+              router.push(`/pomodoro?taskTitle=${encodeURIComponent(task?.title || 'Task')}&taskId=${task?.id || ''}`);
             }}
           />
         )}
