@@ -139,7 +139,7 @@ struct widgetEntryView: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                            .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     
@@ -166,7 +166,7 @@ struct widgetEntryView: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                        .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
@@ -202,7 +202,7 @@ struct widgetEntryView: View {
                     }
                     .padding(8)
                     .background(Color.widgetFrogBackground, in: RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.widgetStrokeColor, lineWidth: 2))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
                     
                     // Regular tasks
                     if !entry.regularTasks.isEmpty {
@@ -230,7 +230,7 @@ struct widgetEntryView: View {
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.widgetStrokeColor, lineWidth: 2))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -396,9 +396,6 @@ struct LargeRegularTaskView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .strikethrough(task.isCompleted, color: .widgetTextColor)
         }
-        .padding(10)
-        .background(Color.widgetSecondaryBackground, in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
     }
 }
 
@@ -443,10 +440,6 @@ struct MediumRegularTaskView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .strikethrough(task.isCompleted, color: .widgetTextColor)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color.widgetSecondaryBackground, in: RoundedRectangle(cornerRadius: 6))
-        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
     }
 }
 
