@@ -13,7 +13,7 @@ const EXTENSION_TARGET_NAME = "widget";
 const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
 const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
 const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets", "PomodoroLiveActivity.entitlements"];
-const LIVE_ACTIVITY_FILES = ["LiveActivityModule.swift", "LiveActivityModule.m", "PomodoroActivityAttributes.swift"];
+const LIVE_ACTIVITY_FILES = ["LiveActivityBridge.swift", "LiveActivityModule.m", "PomodoroActivityAttributes.swift", "LiveActivityModule.swift"];
 const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m"];
 
 const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
@@ -1054,8 +1054,8 @@ async function updateXCodeProj(
           }
           
           if (liveActivitySourcePhase) {
-            // Add shared files to Live Activity target (for shared attributes)
-            const sharedFiles = ['LiveActivityModule.swift', 'PomodoroActivityAttributes.swift'];
+            // Add only SHARED files to Live Activity target (NO React Native bridge)
+            const sharedFiles = ['PomodoroActivityAttributes.swift', 'LiveActivityModule.swift'];
             
             for (const sharedFile of sharedFiles) {
               const fileName = sharedFile;
