@@ -51,13 +51,6 @@ struct PomodoroLiveActivity: Widget {
                                 Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
                                 Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958 for break
                         
-                        // Progress bar
-                        ProgressView(value: Double(context.state.totalDuration - context.state.timeRemaining), 
-                                   total: Double(context.state.totalDuration))
-                            .progressViewStyle(LinearProgressViewStyle(tint: context.state.sessionType == "work" ? 
-                                Color(red: 0.64, green: 0.69, blue: 0.54) : // #a3b18a for work
-                                Color(red: 0.27, green: 0.47, blue: 0.62))) // #457b9d for break
-                            .scaleEffect(x: 1, y: 2, anchor: .center)
                         
                         // Task title (truncated)
                         Text(context.state.taskTitle)
@@ -208,13 +201,6 @@ struct PomodoroLockScreenView: View {
             
             // Progress and status
             VStack(spacing: 12) {
-                // Progress bar
-                ProgressView(value: Double(context.state.totalDuration - context.state.timeRemaining), 
-                           total: Double(context.state.totalDuration))
-                    .progressViewStyle(LinearProgressViewStyle(tint: context.state.sessionType == "work" ? 
-                        Color(red: 0.64, green: 0.69, blue: 0.54) : // #a3b18a
-                        Color(red: 0.27, green: 0.47, blue: 0.62))) // #457b9d
-                    .scaleEffect(x: 1, y: 3, anchor: .center)
                 
                 // Session indicators and status
                 HStack {
