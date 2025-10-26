@@ -97,7 +97,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       const projectName = newConfig.modRequest.projectName
       const projectPath = newConfig.modRequest.projectRoot
       const platformProjectPath = newConfig.modRequest.platformProjectRoot
-      const widgetSourceDirPath = path.join(projectPath, "widget", "ios", "widget");
+      const widgetSourceDirPath = path.join(projectPath, "ios-extensions", "widget");
       const widgetBundleId = "pro.GoalAchieverAI.widget";
       const extensionFilesDir = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
       fs.copySync(widgetSourceDirPath, extensionFilesDir);
@@ -105,7 +105,7 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
       // Create Live Activity target directory and copy files
       const liveActivityBundleId = "pro.GoalAchieverAI.PomodoroLiveActivity";
       const liveActivityTargetDir = path.join(platformProjectPath, LIVE_ACTIVITY_TARGET_NAME);
-      const liveActivitySourceDir = path.join(projectPath, "targets", "pomodoro-live-activity");
+      const liveActivitySourceDir = path.join(projectPath, "ios-extensions", "PomodoroLiveActivity");
       
       // Ensure Live Activity target directory exists
       fs.ensureDirSync(liveActivityTargetDir);
@@ -121,85 +121,10 @@ export const withWidgetXCode: ConfigPlugin<WithWidgetProps> = (
           }
         });
       }
-      
-      // Generate Info.plist for Live Activity target if it doesn't exist
-      const infoPlistPath = path.join(liveActivityTargetDir, "Info.plist");
-      if (!fs.existsSync(infoPlistPath)) {
-        const liveActivityInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDisplayName</key>
-	<string>Goals AI Live Activity</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.widgetkit-extension</string>
-	</dict>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
-</dict>
-</plist>`;
-        
-        fs.writeFileSync(infoPlistPath, liveActivityInfoPlist);
-      }
 
-      // Generate Info.plist for Widget target if it doesn't exist
-      const widgetTargetDir = path.join(platformProjectPath, EXTENSION_TARGET_NAME);
-      if (!fs.existsSync(widgetTargetDir)) {
-        fs.mkdirSync(widgetTargetDir, { recursive: true });
-      }
-      
-      const widgetInfoPlistPath = path.join(widgetTargetDir, "Info.plist");
-      if (!fs.existsSync(widgetInfoPlistPath)) {
-        const widgetInfoPlist = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDisplayName</key>
-	<string>Widget</string>
-	<key>CFBundleName</key>
-	<string>widget</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundlePackageType</key>
-	<string>XPC!</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.widgetkit-extension</string>
-	</dict>
-</dict>
-</plist>`;
-        
-        fs.writeFileSync(widgetInfoPlistPath, widgetInfoPlist);
-        console.log(`Generated widget Info.plist with all required CFBundle keys`);
-      }
 
       // Copy Live Activities and WidgetKit files to main app target (GoalsAI folder)
-      const nativeModulesSourceDir = path.join(projectPath, "plugin", "src", "ios");
+      const nativeModulesSourceDir = path.join(projectPath, "ios-extensions", "shared");
       const mainAppTargetDir = path.join(platformProjectPath, "GoalsAI");
       const allNativeFiles = [...LIVE_ACTIVITY_FILES, ...WIDGET_KIT_FILES];
       
