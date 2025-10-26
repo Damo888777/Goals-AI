@@ -106,23 +106,23 @@ struct PomodoroLiveActivity: Widget {
                 }
                 
             } compactLeading: {
-                print("🎨🎨🎨 [WIDGET COMPACT LEADING] Rendering compact leading")
+                let _ = print("🎨🎨🎨 [WIDGET COMPACT LEADING] Rendering compact leading")
                 // Compact leading - session type emoji
-                return Text(context.state.sessionType == "work" ? "🍅" : "☕")
+                Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
-                print("🎨🎨🎨 [WIDGET COMPACT TRAILING] Rendering compact trailing")
+                let _ = print("🎨🎨🎨 [WIDGET COMPACT TRAILING] Rendering compact trailing")
                 // Compact trailing - timer
-                return Text(formatTimeCompact(context.state.timeRemaining))
+                Text(formatTimeCompact(context.state.timeRemaining))
                     .font(.custom("Helvetica", size: 14))
                     .fontWeight(.medium)
                     .foregroundColor(context.state.sessionType == "work" ? 
                         Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
                         Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
             } minimal: {
-                print("🎨🎨🎨 [WIDGET MINIMAL] Rendering minimal view")
+                let _ = print("🎨🎨🎨 [WIDGET MINIMAL] Rendering minimal view")
                 // Minimal - just the emoji
-                return Text(context.state.sessionType == "work" ? "🍅" : "☕")
+                Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 12))
             }
             .widgetURL(URL(string: "goals-ai://pomodoro"))
@@ -143,10 +143,10 @@ struct PomodoroLockScreenView: View {
     }
     
     var body: some View {
-        print("🎨🎨🎨 [LOCK SCREEN VIEW BODY] Rendering lock screen body")
-        print("🎨🎨🎨 [LOCK SCREEN DATA] Task: \(context.state.taskTitle), Running: \(context.state.isRunning)")
+        let _ = print("🎨🎨🎨 [LOCK SCREEN VIEW BODY] Rendering lock screen body")
+        let _ = print("🎨🎨🎨 [LOCK SCREEN DATA] Task: \(context.state.taskTitle), Running: \(context.state.isRunning)")
         
-        return VStack(spacing: 16) {
+        VStack(spacing: 16) {
             // Header with session type and task
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
