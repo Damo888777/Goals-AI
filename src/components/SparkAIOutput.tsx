@@ -427,7 +427,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
                   variant="selection-compact"
                   isAttached={selectedGoalId === goal.id}
                   onAttach={() => handleGoalSelect(goal.id)}
-                  onDetach={() => handleGoalSelect(undefined)}
+                  onDetach={() => onGoalSelect(undefined)}
                 />
               ))
             ) : (
@@ -533,8 +533,8 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {/* Goals Section */}
-            <Text style={styles.dropdownSectionTitle}>Goals</Text>
+            {/* Goal Section */}
+            <Text style={styles.dropdownSectionTitle}>Goal</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -554,7 +554,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                   variant="selection-compact"
                   isAttached={selectedGoalId === goal.id}
                   onAttach={() => handleGoalSelect(goal.id)}
-                  onDetach={() => handleGoalSelect(goal.id)}
+                  onDetach={() => onGoalSelect(undefined)}
                 />
               ))
             ) : (
@@ -597,10 +597,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                 </TouchableOpacity>
               ))
             ) : (
-              <View style={styles.emptyStateDropdownItem}>
-                <Text style={styles.emptyStateTitle}>No milestones yet</Text>
-                <Text style={styles.emptyStateDescription}>Create your first milestone to get started</Text>
-              </View>
+              <GoalCard variant="selection-empty" />
             )}
           </View>
         )}

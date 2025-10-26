@@ -176,11 +176,10 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
           <Text style={styles.goalAttachmentText}>
             {selectedGoal ? selectedGoal.title : 'Select your goal'}
           </Text>
-          <ChevronButton
-            direction={isDropdownOpen ? "up" : "down"}
-            onPress={handleDropdownPress}
-            size="medium"
-          />
+          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
+            <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
         </TouchableOpacity>
 
         {/* Dropdown Content */}
@@ -757,5 +756,33 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
+  },
+
+  // Chevron styles (matching task-details.tsx)
+  chevronIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  chevronIconRotated: {
+    transform: [{ rotate: '180deg' }],
+  },
+  chevronLine1: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
+  },
+  chevronLine2: {
+    position: 'absolute',
+    width: 8,
+    height: 1.5,
+    backgroundColor: '#364958',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: 1 }],
   },
 });

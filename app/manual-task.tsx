@@ -230,12 +230,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
           <Text style={styles.goalAttachmentText}>
             {getDisplayText()}
           </Text>
-          <ChevronButton
-            direction="down"
-            rotated={isDropdownOpen}
-            onPress={handleDropdownPress}
-            size="medium"
-          />
+          <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
+            <View style={styles.chevronLine1} />
+            <View style={styles.chevronLine2} />
+          </View>
         </TouchableOpacity>
 
         {/* Dropdown Content */}
@@ -305,17 +303,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                 </TouchableOpacity>
               ))
             ) : (
-              <TouchableOpacity style={styles.milestoneCard}>
-                <View style={styles.milestoneCardContent}>
-                  <Text style={styles.milestoneCardTitle}>Placeholder Title</Text>
-                  <TouchableOpacity style={styles.milestoneAddButton}>
-                    <View style={styles.plusIcon}>
-                      <View style={styles.plusHorizontal} />
-                      <View style={styles.plusVertical} />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
+              <GoalCard variant="selection-empty" />
             )}
           </View>
         )}
@@ -441,17 +429,21 @@ export default function ManualTaskScreen() {
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <View style={styles.titleRow}>
+          <View style={styles.titleContainer}>
             <BackChevronButton
               onPress={handleCancel}
+              style={styles.chevronButton}
             />
             <Text style={styles.headerTitle}>
               Create Your Task
             </Text>
+            <View style={styles.headerSpacer} />
           </View>
-          <Text style={styles.headerSubtitle}>
-            This is where a manual becomes a task. Add the details and bring it to life.
-          </Text>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.headerSubtitle}>
+              This is where a manual becomes a task. Add the details and bring it to life.
+            </Text>
+          </View>
         </View>
 
         {/* Task Title */}
@@ -569,6 +561,25 @@ const styles = StyleSheet.create({
   // Header styles
   headerContainer: {
     marginBottom: 43,
+  },
+  titleContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginBottom: spacing.sm,
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  chevronButton: {
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    marginLeft: -12,
+  },
+  descriptionContainer: {
+    alignItems: 'flex-start' as const,
+    width: '100%',
   },
   titleRow: {
     flexDirection: 'row' as const,
