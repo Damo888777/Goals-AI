@@ -139,7 +139,7 @@ struct widgetEntryView: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                            .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     
@@ -166,7 +166,7 @@ struct widgetEntryView: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.widgetStrokeColor, lineWidth: 2)
+                        .stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
@@ -202,7 +202,7 @@ struct widgetEntryView: View {
                     }
                     .padding(8)
                     .background(Color.widgetFrogBackground, in: RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.widgetStrokeColor, lineWidth: 2))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
                     
                     // Regular tasks
                     if !entry.regularTasks.isEmpty {
@@ -230,7 +230,7 @@ struct widgetEntryView: View {
                 }
                 .padding(12)
                 .background(Color.widgetSecondaryBackground, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.widgetStrokeColor, lineWidth: 2))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.widgetStrokeColor.opacity(0.3), lineWidth: 1))
             }
             .background(Color.widgetMainBackground)
             .containerBackground(Color.widgetMainBackground, for: .widget)
@@ -357,7 +357,7 @@ struct CompactCompleteButton: View {
 // MARK: - Empty State Views
 struct LargeEmptyStateView: View {
     var body: some View {
-        Text("All tasks completed!")
+        Text("All tasks completed")
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(.widgetTextColor.opacity(0.8))
             .multilineTextAlignment(.center)
@@ -404,11 +404,11 @@ struct LargeRegularTaskView: View {
 
 struct LargeFrogEmptyView: View {
     var body: some View {
-        Text("Set your most important task!")
+        Text("No frog task yet")
             .font(.system(size: 14))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -452,11 +452,11 @@ struct MediumRegularTaskView: View {
 
 struct MediumFrogEmptyView: View {
     var body: some View {
-        Text("No frog for today")
+        Text("No frog task yet")
             .font(.system(size: 12, weight: .regular))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
