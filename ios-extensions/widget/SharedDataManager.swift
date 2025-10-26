@@ -18,6 +18,13 @@ struct WidgetData: Codable {
     var regularTasks: [WidgetTaskData]
     var lastUpdated: String
     
+    // Regular initializer
+    init(frogTask: WidgetTaskData?, regularTasks: [WidgetTaskData], lastUpdated: String) {
+        self.frogTask = frogTask
+        self.regularTasks = regularTasks
+        self.lastUpdated = lastUpdated
+    }
+    
     // Custom decoding to handle JSON null properly
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
