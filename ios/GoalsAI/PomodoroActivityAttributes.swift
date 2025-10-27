@@ -10,13 +10,13 @@ import Foundation
 struct PomodoroActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         // Dynamic stateful properties about your activity go here!
-        var timeRemaining: Int // seconds
-        var totalDuration: Int // seconds
-        var sessionType: String // "work", "shortBreak", "longBreak"
+        var timeRemaining: Int
+        var totalDuration: Int
+        var sessionType: String
         var isRunning: Bool
         var completedPomodoros: Int
         var taskTitle: String
-        var lastUpdateTime: Date // for real-time calculation
+        var lastUpdateTime: Date
         
         // Helper computed property to check if timer is complete
         var isComplete: Bool {

@@ -332,17 +332,23 @@ export default function PomodoroScreen() {
       }
     } else {
       // Cancel scheduled notifications when pausing
-      console.log('⏸️ Pausing timer - cancelling notifications and ending Live Activity');
+      console.log('⏸️ Pausing timer - cancelling notifications and updating Live Activity to paused state');
       await Notifications.cancelAllScheduledNotificationsAsync();
       
-      // End Live Activity when pausing (don't keep it running when paused)
+      // Update Live Activity to paused state (DON'T END IT)
       if (liveActivityId) {
         try {
-          await LiveActivityModule.endPomodoroActivity(liveActivityId);
-          setLiveActivityId(null);
-          console.log('✅ Live Activity ended on pause');
+          await LiveActivityModule.updatePomodoroActivity(liveActivityId, {
+            timeRemaining: timeLeft,
+            totalDuration: POMODORO_SESSIONS[currentSession].duration,
+            sessionType: currentSession,
+            isRunning: false, // PAUSED STATE
+            completedPomodoros,
+            taskTitle: currentTask
+          });
+          console.log('✅ Live Activity updated to paused state - STAYS VISIBLE');
         } catch (error) {
-          console.error('Failed to end Live Activity on pause:', error);
+          console.error('Failed to update Live Activity on pause:', error);
         }
       }
     }
