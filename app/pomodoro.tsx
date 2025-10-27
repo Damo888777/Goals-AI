@@ -266,6 +266,8 @@ export default function PomodoroScreen() {
           return; // Don't try to start if disabled
         }
         
+        // Start Live Activity using native module with session start time
+        const sessionStartTime = new Date();
         console.log('🔍 [React Native] Starting Live Activity with data:', {
           activityName: 'PomodoroTimer',
           timeRemaining: timeLeft,
@@ -274,10 +276,10 @@ export default function PomodoroScreen() {
           isRunning: true,
           completedPomodoros,
           taskTitle: currentTask,
+          sessionStartTime: sessionStartTime.toISOString(),
         });
         
         try {
-          // Start Live Activity using native module
           const activityId = await LiveActivityModule.startPomodoroActivity({
             activityName: 'PomodoroTimer',
             timeRemaining: timeLeft,
@@ -286,6 +288,7 @@ export default function PomodoroScreen() {
             isRunning: true,
             completedPomodoros,
             taskTitle: currentTask,
+            sessionStartTime: sessionStartTime.toISOString(), // Pass session start time
           });
           
           setLiveActivityId(activityId);

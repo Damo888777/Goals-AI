@@ -10,6 +10,7 @@ interface LiveActivityModuleInterface {
     isRunning: boolean;
     completedPomodoros: number;
     taskTitle: string;
+    sessionStartTime?: string;
   }): Promise<string>;
   updatePomodoroActivity(activityId: string, state: {
     timeRemaining: number;

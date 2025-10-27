@@ -33,9 +33,16 @@ struct CompleteTaskIntent: AppIntent {
         let completionsKey = "@goals_ai:widget_completions"
         
         if let userDefaults = UserDefaults(suiteName: appGroupId) {
-            // Get existing completions as JSON string
-            let existingData = userDefaults.string(forKey: completionsKey) ?? "[]"
-            var completions = (try? JSONSerialization.jsonObject(with: existingData.data(using: .utf8) ?? Data(), options: [])) as? [[String: Any]] ?? []
+            // Get existing completions - try Data first, then String for backward compatibility
+            var completions: [[String: Any]] = []
+            
+            if let existingData = userDefaults.data(forKey: completionsKey) {
+                // Read as Data (new format)
+                completions = (try? JSONSerialization.jsonObject(with: existingData, options: [])) as? [[String: Any]] ?? []
+            } else if let existingString = userDefaults.string(forKey: completionsKey) {
+                // Fallback to String (old format)
+                completions = (try? JSONSerialization.jsonObject(with: existingString.data(using: .utf8) ?? Data(), options: [])) as? [[String: Any]] ?? []
+            }
             
             // Add new completion
             let completion = [
@@ -46,12 +53,10 @@ struct CompleteTaskIntent: AppIntent {
             ]
             completions.append(completion)
             
-            // Save back to UserDefaults as JSON string
+            // Save back to UserDefaults as Data (not String) for bridge compatibility
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: completions, options: [])
-                if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    userDefaults.set(jsonString, forKey: completionsKey)
-                }
+                userDefaults.set(jsonData, forKey: completionsKey)
             } catch {
                 print("Failed to serialize completions: \(error)")
             }
@@ -134,14 +139,21 @@ struct ToggleFrogTaskIntent: AppIntent {
             throw NSError(domain: "WidgetError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to access App Group"])
         }
         
-        // Get current widget data
-        guard let tasksData = userDefaults.string(forKey: tasksKey),
-              let jsonData = tasksData.data(using: .utf8) else {
+        // Get current widget data - try Data first, then String for backward compatibility
+        var jsonData: Data?
+        
+        if let data = userDefaults.data(forKey: tasksKey) {
+            jsonData = data
+        } else if let stringData = userDefaults.string(forKey: tasksKey) {
+            jsonData = stringData.data(using: .utf8)
+        }
+        
+        guard let validJsonData = jsonData else {
             throw NSError(domain: "WidgetError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to read widget data"])
         }
         
         do {
-            var widgetData = try JSONDecoder().decode(WidgetData.self, from: jsonData)
+            var widgetData = try JSONDecoder().decode(WidgetData.self, from: validJsonData)
             
             // Toggle frog task completion
             if let frogTask = widgetData.frogTask, frogTask.id == taskId {
@@ -166,9 +178,7 @@ struct ToggleFrogTaskIntent: AppIntent {
                 completions.append(completion)
                 do {
                     let jsonData = try JSONSerialization.data(withJSONObject: completions, options: [])
-                    if let jsonString = String(data: jsonData, encoding: .utf8) {
-                        userDefaults.set(jsonString, forKey: completionsKey)
-                    }
+                    userDefaults.set(jsonData, forKey: completionsKey)
                 } catch {
                     print("Failed to serialize completions: \(error)")
                 }
