@@ -63,8 +63,7 @@ struct PomodoroLiveActivity: Widget {
 
 // MARK: - Lock Screen View
 struct PomodoroLockScreenView: View {
-    let context: ActivityViewContext<PomodoroActivityAttribu
-    >
+    let context: ActivityViewContext<PomodoroActivityAttributes>
     
     var body: some View {
         VStack(spacing: 16) {
