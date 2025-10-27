@@ -3,6 +3,7 @@ import { View, StyleSheet, Dimensions, StatusBar, Animated } from 'react-native'
 import LottieView from 'lottie-react-native';
 import { Audio } from 'expo-av';
 import { useAuth, useGoals, useMilestones, useTasks } from '../hooks/useDatabase';
+import { useOnboarding } from '../hooks/useOnboarding';
 
 interface SplashScreenProps {
   onAnimationFinish: () => void;
@@ -21,8 +22,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
   const { milestones } = useMilestones();
   const { tasks } = useTasks();
   
-  // Import onboarding hook to ensure status is loaded during splash
-  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = require('../hooks/useOnboarding').useOnboarding();
+  // Load onboarding status during splash to ensure proper navigation
+  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();
 
   // Preload app data and sign in user
   useEffect(() => {
@@ -128,21 +129,18 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
   // Handle transition when both animation and preloading are complete
   useEffect(() => {
     if (animationComplete && preloadComplete) {
-      // Add a small delay before starting fade out for smoother UX
-      setTimeout(() => {
-        // Start fade out transition
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 800, // Longer, smoother fade out
-          useNativeDriver: true,
-        }).start(() => {
-          // Cleanup sound when transitioning
-          if (sound) {
-            sound.unloadAsync();
-          }
-          onAnimationFinish();
-        });
-      }, 200); // Small delay to let animation settle
+      // Start fade out immediately to prevent white screen flash
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 800, // Match main app fade-in duration
+        useNativeDriver: true,
+      }).start(() => {
+        // Cleanup sound when transitioning
+        if (sound) {
+          sound.unloadAsync();
+        }
+        onAnimationFinish();
+      });
     }
   }, [animationComplete, preloadComplete, fadeAnim, sound, onAnimationFinish]);
 

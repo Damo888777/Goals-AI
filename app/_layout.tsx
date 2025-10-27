@@ -92,14 +92,12 @@ export default function RootLayout() {
   // Fade in the main app when ready
   useEffect(() => {
     if (isAppReady) {
-      // Delay the fade-in slightly to ensure splash screen has started fading out
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600, // Longer, smoother fade in that overlaps with splash fade-out
-          useNativeDriver: true,
-        }).start();
-      }, 400); // Start fade-in while splash is still fading out for seamless transition
+      // Start fade-in immediately when app is ready to eliminate white screen
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800, // Match splash fade-out duration for perfect crossfade
+        useNativeDriver: true,
+      }).start();
     }
   }, [isAppReady, fadeAnim]);
 
