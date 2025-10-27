@@ -75,7 +75,7 @@ struct CompleteTaskIntent: AppIntent {
             print("🚀 [CompleteTaskIntent] UserDefaults synchronized")
             
             // Update widget data to reflect completion immediately
-            await updateWidgetData(completedTaskId: taskId)
+            updateWidgetData(completedTaskId: taskId)
             
             // Add haptic feedback for completion
             do {
@@ -88,7 +88,9 @@ struct CompleteTaskIntent: AppIntent {
             }
             
             // Modern iOS widget update pattern with optimized performance
-            await performOptimizedWidgetUpdate()
+            Task {
+                await performOptimizedWidgetUpdate()
+            }
             
             let completionTime = Date()
             let executionTime = completionTime.timeIntervalSince(startTime)
@@ -103,7 +105,7 @@ struct CompleteTaskIntent: AppIntent {
         }
     }
     
-    private func updateWidgetData(completedTaskId: String) async {
+    private func updateWidgetData(completedTaskId: String) {
         let appGroupId = "group.pro.GoalAchieverAI"
         let tasksKey = "@goals_ai:widget_tasks"
         
@@ -164,28 +166,15 @@ struct CompleteTaskIntent: AppIntent {
     /// Performs optimized widget updates using modern iOS patterns
     private func performOptimizedWidgetUpdate() async {
         await MainActor.run {
-            do {
-                // Immediate update for instant UI feedback
-                WidgetCenter.shared.reloadAllTimelines()
-                print("✅ [Widget Update] Immediate reload triggered")
-                
-                // Schedule secondary update to ensure consistency
-                Task {
-                    try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-                    await MainActor.run {
-                        WidgetCenter.shared.reloadTimelines(ofKind: "widget")
-                        print("🚀 [Widget Update] Optimized secondary reload completed")
-                    }
-                }
-                
-            } catch {
-                print("❌ [Widget Update] Optimized update failed: \(error)")
-                // Fallback to traditional approach
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    WidgetCenter.shared.reloadAllTimelines()
-                    print("🔄 [Widget Update] Fallback reload completed")
-                }
-            }
+            // Immediate update for instant UI feedback
+            WidgetCenter.shared.reloadAllTimelines()
+            print("✅ [Widget Update] Immediate reload triggered")
+        }
+        
+        // Schedule secondary update to ensure consistency
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            WidgetCenter.shared.reloadTimelines(ofKind: "widget")
+            print("🚀 [Widget Update] Optimized secondary reload completed")
         }
     }
 }
@@ -287,7 +276,9 @@ struct ToggleFrogTaskIntent: AppIntent {
             }
             
             // Use optimized widget update pattern
-            await performOptimizedWidgetUpdate()
+            Task {
+                await performOptimizedWidgetUpdate()
+            }
             
             return .result()
         } catch {
@@ -299,28 +290,15 @@ struct ToggleFrogTaskIntent: AppIntent {
     /// Performs optimized widget updates using modern iOS patterns
     private func performOptimizedWidgetUpdate() async {
         await MainActor.run {
-            do {
-                // Immediate update for instant UI feedback
-                WidgetCenter.shared.reloadAllTimelines()
-                print("✅ [Widget Update] Immediate reload triggered")
-                
-                // Schedule secondary update to ensure consistency
-                Task {
-                    try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-                    await MainActor.run {
-                        WidgetCenter.shared.reloadTimelines(ofKind: "widget")
-                        print("🚀 [Widget Update] Optimized secondary reload completed")
-                    }
-                }
-                
-            } catch {
-                print("❌ [Widget Update] Optimized update failed: \(error)")
-                // Fallback to traditional approach
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    WidgetCenter.shared.reloadAllTimelines()
-                    print("🔄 [Widget Update] Fallback reload completed")
-                }
-            }
+            // Immediate update for instant UI feedback
+            WidgetCenter.shared.reloadAllTimelines()
+            print("✅ [Widget Update] Immediate reload triggered")
+        }
+        
+        // Schedule secondary update to ensure consistency
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            WidgetCenter.shared.reloadTimelines(ofKind: "widget")
+            print("🚀 [Widget Update] Optimized secondary reload completed")
         }
     }
 }

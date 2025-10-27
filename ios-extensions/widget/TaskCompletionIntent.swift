@@ -172,12 +172,9 @@ struct CompleteTaskIntent: AppIntent {
         }
         
         // Schedule secondary update to ensure consistency
-        Task {
-            try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-            await MainActor.run {
-                WidgetCenter.shared.reloadTimelines(ofKind: "widget")
-                print("🚀 [Widget Update] Optimized secondary reload completed")
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            WidgetCenter.shared.reloadTimelines(ofKind: "widget")
+            print("🚀 [Widget Update] Optimized secondary reload completed")
         }
     }
 }
@@ -299,12 +296,9 @@ struct ToggleFrogTaskIntent: AppIntent {
         }
         
         // Schedule secondary update to ensure consistency
-        Task {
-            try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-            await MainActor.run {
-                WidgetCenter.shared.reloadTimelines(ofKind: "widget")
-                print("🚀 [Widget Update] Optimized secondary reload completed")
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            WidgetCenter.shared.reloadTimelines(ofKind: "widget")
+            print("🚀 [Widget Update] Optimized secondary reload completed")
         }
     }
 }
