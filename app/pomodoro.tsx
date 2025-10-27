@@ -54,11 +54,18 @@ export default function PomodoroScreen() {
   const appStateRef = useRef(AppState.currentState);
   const backgroundTimeRef = useRef<number | null>(null);
 
-  // Cleanup Live Activity on component unmount (navigation away)
+  // Cleanup Live Activity and notifications on component unmount (navigation away)
   useEffect(() => {
     return () => {
+      console.log('🧹 Component unmounting, cleaning up Live Activity and notifications');
+      
+      // Cancel all scheduled notifications
+      Notifications.cancelAllScheduledNotificationsAsync().catch((error: any) => {
+        console.error('Failed to cancel notifications on unmount:', error);
+      });
+      
+      // End Live Activity
       if (liveActivityId) {
-        console.log('🧹 Component unmounting, cleaning up Live Activity');
         LiveActivityModule.endPomodoroActivity(liveActivityId).catch((error: any) => {
           console.error('Failed to cleanup Live Activity on unmount:', error);
         });
@@ -177,13 +184,9 @@ export default function PomodoroScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsRunning(false);
     
-    // Only cancel notifications if manually completed, let natural completion trigger notification
-    if (!isNaturalCompletion) {
-      console.log('🚫 Manual completion - cancelling notifications');
-      await Notifications.cancelAllScheduledNotificationsAsync();
-    } else {
-      console.log('✅ Natural completion - letting notification fire');
-    }
+    // Always cancel notifications on completion to prevent duplicates
+    console.log('🚫 Session complete - cancelling all notifications');
+    await Notifications.cancelAllScheduledNotificationsAsync();
     
     // Add strong haptic vibration for completion
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -192,6 +195,7 @@ export default function PomodoroScreen() {
     // End current Live Activity
     if (liveActivityId) {
       try {
+        console.log('🧹 Session complete - ending Live Activity');
         await LiveActivityModule.endPomodoroActivity(liveActivityId);
         setLiveActivityId(null);
       } catch (error) {
@@ -303,6 +307,9 @@ export default function PomodoroScreen() {
           );
         }
 
+        // Cancel any existing notifications before scheduling new ones
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        
         // Schedule local notification for timer completion
         const sessionInfo = POMODORO_SESSIONS[currentSession];
         const notificationMessage = currentSession === 'work' 
@@ -325,22 +332,17 @@ export default function PomodoroScreen() {
       }
     } else {
       // Cancel scheduled notifications when pausing
+      console.log('⏸️ Pausing timer - cancelling notifications and ending Live Activity');
       await Notifications.cancelAllScheduledNotificationsAsync();
       
-      // Update Live Activity to paused state instead of ending it
+      // End Live Activity when pausing (don't keep it running when paused)
       if (liveActivityId) {
         try {
-          await LiveActivityModule.updatePomodoroActivity(liveActivityId, {
-            timeRemaining: timeLeft,
-            totalDuration: POMODORO_SESSIONS[currentSession].duration,
-            sessionType: currentSession,
-            isRunning: false, // Set to paused
-            completedPomodoros,
-            taskTitle: currentTask
-          });
-          console.log('✅ Live Activity updated to paused state');
+          await LiveActivityModule.endPomodoroActivity(liveActivityId);
+          setLiveActivityId(null);
+          console.log('✅ Live Activity ended on pause');
         } catch (error) {
-          console.error('Failed to update Live Activity on pause:', error);
+          console.error('Failed to end Live Activity on pause:', error);
         }
       }
     }
