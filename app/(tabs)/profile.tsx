@@ -17,6 +17,7 @@ import { Clipboard } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image } from 'expo-image';
+import LottieView from 'lottie-react-native';
 import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
@@ -37,161 +38,116 @@ interface Stats {
   totalFocusTime: number; // in minutes
 }
 
+// Calculate eat the frog streak based on consecutive days
+const calculateEatTheFrogStreak = (tasks: any[]): number => {
+  // For now, use a simplified approach that counts completed tasks with frog-like characteristics
+  // This is a temporary solution until we implement proper frog task history tracking
+  
+  // Get tasks completed in the last 30 days that could be frog tasks
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const recentCompletedTasks = tasks
+    .filter(task => 
+      task.isComplete && 
+      task.completedAt && 
+      new Date(task.completedAt) >= thirtyDaysAgo &&
+      task.scheduledDate // Only count scheduled tasks (daily tasks)
+    )
+    .map(task => ({
+      date: new Date(task.completedAt).toDateString(),
+      task
+    }))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  if (recentCompletedTasks.length === 0) {
+    return 0;
+  }
+
+  // Group by completion date and take one task per day (simulating daily frog completion)
+  const tasksByDate: Record<string, any[]> = {};
+  recentCompletedTasks.forEach(item => {
+    if (!tasksByDate[item.date]) {
+      tasksByDate[item.date] = [];
+    }
+    tasksByDate[item.date].push(item.task);
+  });
+
+  const uniqueDates = Object.keys(tasksByDate).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  
+  let streak = 0;
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+  
+  // Start counting from today or yesterday
+  let startIndex = uniqueDates.indexOf(today);
+  if (startIndex === -1) {
+    startIndex = uniqueDates.indexOf(yesterday);
+  }
+  
+  if (startIndex === -1) {
+    return 0; // No recent completions
+  }
+
+  // Count consecutive days
+  let currentCheckDate = new Date(uniqueDates[startIndex]);
+  for (let i = startIndex; i < uniqueDates.length; i++) {
+    const expectedDateStr = currentCheckDate.toDateString();
+    
+    if (uniqueDates[i] === expectedDateStr) {
+      streak++;
+      currentCheckDate.setDate(currentCheckDate.getDate() - 1); // Move to previous day
+    } else {
+      break; // Streak broken
+    }
+  }
+
+  return streak;
+};
+
 interface UsageStats {
   voiceInputsUsed: number;
   visionImagesUsed: number;
   activeGoalsCount: number;
 }
 
-// Animated Flame Component with realistic burn effect
+// Lottie Fire Animation Component
 const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
-  const scaleXAnim = useRef(new Animated.Value(1)).current;
-  const scaleYAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
-  const translateXAnim = useRef(new Animated.Value(0)).current;
+  const animationRef = useRef<LottieView>(null);
 
   useEffect(() => {
-    if (isActive) {
-      const createFlameAnimation = () => {
-        return Animated.loop(
-          Animated.parallel([
-            // Flickering scale effect (width varies more than height for flame shape)
-            Animated.sequence([
-              Animated.timing(scaleXAnim, {
-                toValue: 0.85,
-                duration: 150,
-                useNativeDriver: true,
-              }),
-              Animated.timing(scaleXAnim, {
-                toValue: 1.15,
-                duration: 200,
-                useNativeDriver: true,
-              }),
-              Animated.timing(scaleXAnim, {
-                toValue: 0.9,
-                duration: 180,
-                useNativeDriver: true,
-              }),
-              Animated.timing(scaleXAnim, {
-                toValue: 1.05,
-                duration: 170,
-                useNativeDriver: true,
-              }),
-            ]),
-            // Subtle height variation
-            Animated.sequence([
-              Animated.timing(scaleYAnim, {
-                toValue: 1.1,
-                duration: 300,
-                useNativeDriver: true,
-              }),
-              Animated.timing(scaleYAnim, {
-                toValue: 0.95,
-                duration: 250,
-                useNativeDriver: true,
-              }),
-              Animated.timing(scaleYAnim, {
-                toValue: 1.05,
-                duration: 150,
-                useNativeDriver: true,
-              }),
-            ]),
-            // Gentle swaying motion
-            Animated.sequence([
-              Animated.timing(rotateAnim, {
-                toValue: 0.1,
-                duration: 400,
-                useNativeDriver: true,
-              }),
-              Animated.timing(rotateAnim, {
-                toValue: -0.08,
-                duration: 350,
-                useNativeDriver: true,
-              }),
-              Animated.timing(rotateAnim, {
-                toValue: 0.05,
-                duration: 250,
-                useNativeDriver: true,
-              }),
-            ]),
-            // Subtle horizontal drift
-            Animated.sequence([
-              Animated.timing(translateXAnim, {
-                toValue: 1,
-                duration: 600,
-                useNativeDriver: true,
-              }),
-              Animated.timing(translateXAnim, {
-                toValue: -0.5,
-                duration: 400,
-                useNativeDriver: true,
-              }),
-            ]),
-            // Opacity flickering for burning effect
-            Animated.sequence([
-              Animated.timing(opacityAnim, {
-                toValue: 0.7,
-                duration: 100,
-                useNativeDriver: true,
-              }),
-              Animated.timing(opacityAnim, {
-                toValue: 1,
-                duration: 150,
-                useNativeDriver: true,
-              }),
-              Animated.timing(opacityAnim, {
-                toValue: 0.85,
-                duration: 120,
-                useNativeDriver: true,
-              }),
-              Animated.timing(opacityAnim, {
-                toValue: 1,
-                duration: 180,
-                useNativeDriver: true,
-              }),
-              Animated.timing(opacityAnim, {
-                toValue: 0.9,
-                duration: 150,
-                useNativeDriver: true,
-              }),
-            ]),
-          ])
-        );
-      };
-      
-      createFlameAnimation().start();
-    } else {
-      // Reset all animations when not active
-      scaleXAnim.setValue(1);
-      scaleYAnim.setValue(1);
-      rotateAnim.setValue(0);
-      opacityAnim.setValue(1);
-      translateXAnim.setValue(0);
+    if (isActive && animationRef.current) {
+      animationRef.current.play();
+    } else if (animationRef.current) {
+      animationRef.current.pause();
     }
-  }, [isActive, scaleXAnim, scaleYAnim, rotateAnim, opacityAnim, translateXAnim]);
+  }, [isActive]);
 
+  if (isActive) {
+    return (
+      <View style={{ width: 30, height: 30 }}>
+        <LottieView
+          ref={animationRef}
+          source={require('../../assets/animations/Fire animation.json')}
+          style={{
+            width: 24,
+            height: 24,
+          }}
+          autoPlay={true}
+          loop={true}
+          speed={1}
+        />
+      </View>
+    );
+  }
+
+  // Show static flame icon when no streak
   return (
-    <Animated.View
-      style={{
-        transform: [
-          { scaleX: scaleXAnim },
-          { scaleY: scaleYAnim },
-          { rotate: rotateAnim.interpolate({
-            inputRange: [-1, 1],
-            outputRange: ['-15deg', '15deg']
-          })},
-          { translateX: translateXAnim }
-        ],
-        opacity: opacityAnim,
-      }}
-    >
-      <Ionicons 
-        name="flame" 
-        size={24} 
-        color={isActive ? colors.text.primary : '#7C7C7C'} 
-      />
-    </Animated.View>
+    <Ionicons 
+      name="flame" 
+      size={24} 
+      color="#7C7C7C" 
+    />
   );
 };
 
@@ -272,9 +228,8 @@ export default function ProfileTab() {
       // Calculate real stats from database
       const completedGoals = goals.filter(goal => goal.isCompleted).length;
       
-      // Calculate frog streak - simplified for now
-      const frogTasks = tasks.filter(task => task.isFrog && task.isComplete);
-      const frogStreak = frogTasks.length; // Simplified calculation
+      // Calculate frog streak - proper consecutive days calculation
+      const frogStreak = calculateEatTheFrogStreak(tasks);
       
       // Calculate total focus time from all tasks
       let totalFocusMinutes = 0;
@@ -737,7 +692,7 @@ Best regards`;
             <View style={styles.statCard}>
               <View style={styles.statIconOnly}>
                 <Image 
-                  source={{ uri: images.tabIcons.goals }}
+                  source={images.tabIcons.goals}
                   style={{ width: 24, height: 24 }}
                   contentFit="contain"
                   tintColor={colors.text.primary}

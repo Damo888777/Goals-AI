@@ -28,7 +28,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
         <View style={styles.header}>
           {/* Notes Icon */}
           <Image 
-            source={{ uri: images.icons.notes }} 
+            source={images.icons.notes} 
             style={styles.icon}
             contentFit="contain"
           />

@@ -231,7 +231,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
                 }}
               >
                 <Image
-                  source={{ uri: images.icons.sparkle }}
+                  source={images.icons.sparkle}
                   style={{ 
                     width: '100%', 
                     height: '100%',
@@ -252,7 +252,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
                 }}
               >
                 <Image
-                  source={{ uri: images.icons.sparkle }}
+                  source={images.icons.sparkle}
                   style={{ 
                     width: '100%', 
                     height: '100%',
@@ -273,7 +273,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
                 }}
               >
                 <Image
-                  source={{ uri: images.icons.sparkle }}
+                  source={images.icons.sparkle}
                   style={{ 
                     width: '100%', 
                     height: '100%',

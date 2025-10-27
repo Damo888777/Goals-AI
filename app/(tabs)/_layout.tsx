@@ -5,13 +5,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { images } from '../../src/constants/images';
 import '../../global.css';
 
-const TabIcon = ({ focused, source }: { focused: boolean; source: string }) => (
+const TabIcon = ({ focused, source }: { focused: boolean; source: any }) => (
   <Image 
-    source={{ uri: source }} 
+    source={source} 
     style={{ 
       width: 24, 
       height: 24, 
-      opacity: focused ? 1 : 0.85 
+      opacity: focused ? 1 : 0.6,
+      tintColor: focused ? '#364958' : '#364958'
     }}
     contentFit="contain"
   />

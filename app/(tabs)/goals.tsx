@@ -170,7 +170,7 @@ export default function GoalsScreen() {
           >
             <View style={[styles.trophyButton, isTrophyPressed && styles.trophyButtonPressed]}>
               <Image 
-                source={{ uri: images.icons.trophy }} 
+                source={images.icons.trophy} 
                 style={styles.trophyIcon}
                 contentFit="contain"
               />
@@ -199,7 +199,7 @@ export default function GoalsScreen() {
             <View style={[styles.visionButton, isVisionPressed && styles.visionButtonPressed]}>
               <View style={styles.visionButtonInner}>
                 <Image 
-                  source={{ uri: images.visionPlaceholder }} 
+                  source={images.icons.createVision} 
                   style={styles.visionImage}
                   contentFit="cover"
                 />

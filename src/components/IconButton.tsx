@@ -16,7 +16,7 @@ interface IconButtonProps {
   style?: ViewStyle;
   // Icon props
   iconName?: string; // For MaterialIcons
-  iconSource?: string; // For Image icons (URI)
+  iconSource?: any; // For Image icons (URI or local asset)
   iconText?: string; // For text-based icons like checkmark
   pressed?: boolean;
   onPressIn?: () => void;
@@ -126,7 +126,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
     if (iconSource) {
       return (
         <Image 
-          source={{ uri: iconSource }}
+          source={iconSource}
           style={[styles.iconImage, { width: getIconSize(), height: getIconSize() }]}
           contentFit="contain"
         />

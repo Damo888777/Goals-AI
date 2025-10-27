@@ -10,6 +10,11 @@ import React
 class UserDefaultsManager: NSObject {
   
   @objc
+  static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
+  
+  @objc
   func setStringForAppGroup(_ key: String, value: String, appGroupId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
       reject("ERROR", "Failed to access App Group UserDefaults", nil)

@@ -109,7 +109,7 @@ export function FAB({ onPress, onLongPress }: FABProps) {
         >
           <View style={{ transform: [{ rotate: '-45deg' }] }}>
             <Image 
-              source={{ uri: images.icons.sparkFab }} 
+              source={images.icons.sparkFab} 
               style={{ width: 30, height: 30 }}
               contentFit="contain"
             />

@@ -48,7 +48,7 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onTog
         <View style={styles.header}>
           {/* Frog Icon */}
           <Image 
-            source={{ uri: images.icons.frog }} 
+            source={images.icons.frog} 
             style={styles.icon}
             contentFit="contain"
           />

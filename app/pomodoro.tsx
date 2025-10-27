@@ -239,17 +239,7 @@ export default function PomodoroScreen() {
     // Start or update Live Activity using OneSignal trigger-in-app
     if (willStart) {
       try {
-        // Show background refresh tip on first timer start
-        if (Platform.OS === 'ios' && !hasShownBackgroundAlert) {
-          Alert.alert(
-            'Timer Tip 💡',
-            'Enable Background App Refresh for Goals AI in Settings to keep your timer running when the app is minimized.',
-            [
-              { text: 'Got it!', onPress: () => setHasShownBackgroundAlert(true) }
-            ]
-          );
-          setHasShownBackgroundAlert(true);
-        }
+        // Live Activity handles background timing natively, no need for background refresh alert
 
         // Request notification permissions first time
         const { status } = await Notifications.requestPermissionsAsync();
@@ -337,14 +327,20 @@ export default function PomodoroScreen() {
       // Cancel scheduled notifications when pausing
       await Notifications.cancelAllScheduledNotificationsAsync();
       
-      // End Live Activity when pausing (cleaner UX)
+      // Update Live Activity to paused state instead of ending it
       if (liveActivityId) {
         try {
-          await LiveActivityModule.endPomodoroActivity(liveActivityId);
-          setLiveActivityId(null);
-          console.log('✅ Live Activity ended on pause');
+          await LiveActivityModule.updatePomodoroActivity(liveActivityId, {
+            timeRemaining: timeLeft,
+            totalDuration: POMODORO_SESSIONS[currentSession].duration,
+            sessionType: currentSession,
+            isRunning: false, // Set to paused
+            completedPomodoros,
+            taskTitle: currentTask
+          });
+          console.log('✅ Live Activity updated to paused state');
         } catch (error) {
-          console.error('Failed to end Live Activity on pause:', error);
+          console.error('Failed to update Live Activity on pause:', error);
         }
       }
     }

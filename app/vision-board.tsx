@@ -449,7 +449,7 @@ export default function VisionBoardScreen() {
               }}
             >
             <Image 
-              source={{ uri: images.icons.sparkle }} 
+              source={images.icons.sparkle} 
               style={{ 
                 width: 16, 
                 height: 16,

@@ -7,66 +7,79 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		098D010A21C9CA945074B102 /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3548B53FBC640FBAD0A658BF /* Pods_PomodoroLiveActivity.framework */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1D9EB37612914154B33A7BA2 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51ADE58E96FC41FEB4BF3665 /* ActivityKit.framework */; };
-		1F4D71F4629F498FB2EB3D31 /* LiveActivityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6B043FD8094FA6BE1A5BD4 /* LiveActivityBridge.swift */; };
-		389F0601ADC0461599B866D8 /* LiveActivityModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B135CB9989884D89BFF48C5D /* LiveActivityModule.m */; };
-		3A29D720C9E542188E9255D2 /* UserDefaultsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 57D23832C2DB4654A688B638 /* UserDefaultsManager.m */; };
+		1A49A1895F7A47F5864B7F20 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D334D2F786344C07A335B038 /* WidgetKit.framework */; };
+		218BA8B47A6B4CD885A1E7A5 /* UserDefaultsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CA3530F0F84C48805CF9E0 /* UserDefaultsManager.m */; };
+		35F68B4CDFB14ECAA889C664 /* OneSignalNotificationServiceExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = E18A6D50217E4CE1ADFFBC20 /* OneSignalNotificationServiceExtension.appex */; };
+		35F8BC119DA94CFEB11C06EC /* LiveActivityModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DFDE663371C49A3AF82C9A9 /* LiveActivityModule.m */; };
+		37BD26B1AD71418BA4ACBA7F /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE36AF40EF3D40AB9D868AEE /* LiveActivityModule.swift */; };
+		39F56DC3E77A4BFAB111B739 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABA7FD5DFD5422AA0F532F7 /* noop-file.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		47D14B806D674ED6A3321764 /* WidgetKitReloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C76D674FF79407097F1F607 /* WidgetKitReloader.m */; };
-		5057680507FB4D778FA9AA48 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE74B08EDF74B989F072E4E /* PomodoroActivityAttributes.swift */; };
-		6117D4A4BB0C4EAC9181FDC5 /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD08AA8514A944D980E3E8FE /* TaskCompletionIntent.swift */; };
-		6947C750654D4BDAACB2BEA4 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E445E707AE7F4F009BB77846 /* LiveActivityModule.swift */; };
-		6DF399432BA343FABEEE5CA4 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE74B08EDF74B989F072E4E /* PomodoroActivityAttributes.swift */; };
-		6EF6366E461EEDCDDE9AE81B /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99CF0C1312A67A18680C5E6A /* Pods_GoalsAI.framework */; };
-		831780BBF835445DBA45AF1A /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E445E707AE7F4F009BB77846 /* LiveActivityModule.swift */; };
-		A3E45C06DA1FDB0E77A85B7D /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DAE3DBADFC04DE8988977F3 /* Pods_OneSignalNotificationServiceExtension.framework */; };
-		A70E02FE2F3545B5B7B5FFA6 /* PomodoroLiveActivity.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 79FD5C0C75AF4E7695DE6A66 /* PomodoroLiveActivity.appex */; };
+		42A1576A5A5D77F3014033E3 /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E081AD046DC335A6993C6F /* Pods_GoalsAI.framework */; };
+		4442CBDB49064768A2CCF7B4 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = F7A8528D32494F40A9218015 /* NotificationService.m */; };
+		5E7D7ECF9C104C47923A1A7D /* LiveActivityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16F83E475F04928993BBFEA /* LiveActivityBridge.swift */; };
+		663A2AA54C9C4E3EAE7490B9 /* WidgetKitReloader.m in Sources */ = {isa = PBXBuildFile; fileRef = C4528545A52A4D1CB831E4CB /* WidgetKitReloader.m */; };
+		685C2611A43E431EACCF5D0D /* PomodoroLiveActivity.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = C91ECCC086A340998FD38F55 /* PomodoroLiveActivity.appex */; };
+		6D4447CE783040249A1819A6 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37F5FFF6B914DA4BC3558CF /* PomodoroLiveActivity.swift */; };
+		70B5A7FEAC7F4DD28ACB9F26 /* widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77D9A8527064FA286ED704C /* widget.swift */; };
+		729642066C474954B705141C /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE36AF40EF3D40AB9D868AEE /* LiveActivityModule.swift */; };
+		73E6FA67F7FA40189B98FF64 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE9A4F8D741A4CF6AB4CE6B5 /* SharedDataManager.swift */; };
+		796205DDF55C42A8966223C9 /* WidgetKitReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7250AA701324641A0C2D8FB /* WidgetKitReloader.swift */; };
+		81BC25EFDF4B4522BFA2E639 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0858FBF994247A8A98DD1B9 /* ActivityKit.framework */; };
+		9004D6B09698484DB8FA6DDD /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3785AE2EFEB54D52BFEB8968 /* TaskCompletionIntent.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
-		B46D92BD85464AFF9D738C69 /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = D3DFF885E6C7446A94F21641 /* widget.appex */; };
-		B549BCBC760543F78946A75F /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568A997525034BE29D456976 /* PomodoroLiveActivity.swift */; };
+		B9353A2850EE4599BEDEA525 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EAD09E14CA425D960427D5 /* UserDefaultsManager.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		BC469ACD5D5641EFACB3C1A0 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 11399CAF445942969635EDD0 /* NotificationService.m */; };
-		BF264C6FE8CE4DEAAF0DC464 /* widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41BCB2CF02BD418EAB1621DD /* widget.swift */; };
-		C03430674FB940FD921E42E8 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AA52DCF4CCC4AB8BF28D421 /* WidgetKit.framework */; };
-		D22F1F8660E841ECA48B92E1 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426092A01B3E4F7DA445ACB9 /* SharedDataManager.swift */; };
-		D57A57281CC34823B2D0516B /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A466EB36ED4C471E89BFEC1B /* UserDefaultsManager.swift */; };
-		E072C82D5AC5440199D9FF41 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3391F30B4224471BC26879C /* noop-file.swift */; };
-		E5C3DFA51B9A41E097ECFD4E /* WidgetKitReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9F0052746F4ED99567C3EE /* WidgetKitReloader.swift */; };
-		F505A7AF28D59ABEA8B5CD4C /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EBD2D93CE7E84D63C0E6DF0 /* Pods_PomodoroLiveActivity.framework */; };
-		F76EAC1EEF9B45769F197013 /* OneSignalNotificationServiceExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = F3A0EFF6E023484F8B74755D /* OneSignalNotificationServiceExtension.appex */; };
-		FC50FC098DADACA2957CC98C /* Pods_widget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D5FEAF55B454E5C76423D64 /* Pods_widget.framework */; };
-		FCE81A60BA4E4CC6A8C67261 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EB81194A7B46AC96F04860 /* TaskIntents.swift */; };
+		BD1B508544B84D8994AEFFD9 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90872FB511BF4F6093D590C7 /* PomodoroActivityAttributes.swift */; };
+		BFB118A22AB847658AEC5B01 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A91F07A439451788F7526F /* TaskIntents.swift */; };
+		DD1C6AAB40E4498D8DEC61FC /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90872FB511BF4F6093D590C7 /* PomodoroActivityAttributes.swift */; };
+		E70D7367AF7F534BAF4C95CC /* Pods_widget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29648D2541CF83DAE87E709D /* Pods_widget.framework */; };
+		F2E01185408A4E39A813D6E0 /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 0526EA60C5FB423E98F947A9 /* widget.appex */; };
+		FBA35431518F03C9722A096A /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E8126F4091D72843200C77E /* Pods_OneSignalNotificationServiceExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		19FED6502C8F4236BCFADF7E /* PBXContainerItemProxy */ = {
+		0BD33BE6FF144647A2C53889 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 6F9664273E9642CEA04A59CA;
-			remoteInfo = PomodoroLiveActivity;
+			remoteGlobalIDString = F4CD31D27C50479FAE9662C7;
+			remoteInfo = OneSignalNotificationServiceExtension;
 		};
-		27D86A3B72044A9883A8D760 /* PBXContainerItemProxy */ = {
+		1B4C8EC73B7A4D3B8256BC76 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 44071D39253C4D718D51DAAF;
+			remoteGlobalIDString = B6614D0D42A44DAF97EE648D;
 			remoteInfo = widget;
 		};
-		919D02FF08FA475890323B19 /* PBXContainerItemProxy */ = {
+		6189EC3BF0AB455AB14B2EB1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 4F569B053544481CA8A6ED40;
-			remoteInfo = OneSignalNotificationServiceExtension;
+			remoteGlobalIDString = E3EB7499C69249028F8CDBA2;
+			remoteInfo = PomodoroLiveActivity;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B589AE2A06814A108641BD90 /* Copy Files */ = {
+		146352D3ACBD4385A556476C /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				35F68B4CDFB14ECAA889C664 /* OneSignalNotificationServiceExtension.appex in Copy Files */,
+				F2E01185408A4E39A813D6E0 /* widget.appex in Copy Files */,
+				685C2611A43E431EACCF5D0D /* PomodoroLiveActivity.appex in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4960AEB6A2EE4CFEA84B09D2 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -76,25 +89,12 @@
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CCAC79682A66473E83CF305F /* Copy Files */ = {
+		C1B1F3F8AEFB408A821ABFFD /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-			);
-			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F2357286C6594296A454E6CD /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				F76EAC1EEF9B45769F197013 /* OneSignalNotificationServiceExtension.appex in Copy Files */,
-				B46D92BD85464AFF9D738C69 /* widget.appex in Copy Files */,
-				A70E02FE2F3545B5B7B5FFA6 /* PomodoroLiveActivity.appex in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -102,100 +102,123 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0C76D674FF79407097F1F607 /* WidgetKitReloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WidgetKitReloader.m; path = GoalsAI/WidgetKitReloader.m; sourceTree = "<group>"; };
-		11399CAF445942969635EDD0 /* NotificationService.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
+		0526EA60C5FB423E98F947A9 /* widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = widget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D74657FC9507144ADFF5C7E /* Pods-widget.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-widget.debug.xcconfig"; path = "Target Support Files/Pods-widget/Pods-widget.debug.xcconfig"; sourceTree = "<group>"; };
+		0EF75EAEABC34911AF88B8B0 /* GoalsAI-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "GoalsAI-Bridging-Header.h"; path = "GoalsAI/GoalsAI-Bridging-Header.h"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* GoalsAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoalsAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = GoalsAI/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = GoalsAI/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = GoalsAI/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = GoalsAI/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = GoalsAI/main.m; sourceTree = "<group>"; };
-		1BB31D87AEC144BBB243366D /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1EBD2D93CE7E84D63C0E6DF0 /* Pods_PomodoroLiveActivity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PomodoroLiveActivity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		2AA52DCF4CCC4AB8BF28D421 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		3D5FEAF55B454E5C76423D64 /* Pods_widget.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_widget.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		41BCB2CF02BD418EAB1621DD /* widget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = widget.swift; sourceTree = "<group>"; };
-		426092A01B3E4F7DA445ACB9 /* SharedDataManager.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = SharedDataManager.swift; sourceTree = "<group>"; };
-		4D03F07E8943DD87DE124037 /* Pods-PomodoroLiveActivity.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PomodoroLiveActivity.debug.xcconfig"; path = "Target Support Files/Pods-PomodoroLiveActivity/Pods-PomodoroLiveActivity.debug.xcconfig"; sourceTree = "<group>"; };
-		51ADE58E96FC41FEB4BF3665 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
-		53FD4639AAAD462334B3C9F0 /* Pods-PomodoroLiveActivity.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PomodoroLiveActivity.release.xcconfig"; path = "Target Support Files/Pods-PomodoroLiveActivity/Pods-PomodoroLiveActivity.release.xcconfig"; sourceTree = "<group>"; };
-		568A997525034BE29D456976 /* PomodoroLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PomodoroLiveActivity.swift; path = PomodoroLiveActivity/PomodoroLiveActivity.swift; sourceTree = "<group>"; };
-		57D23832C2DB4654A688B638 /* UserDefaultsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = UserDefaultsManager.m; path = GoalsAI/UserDefaultsManager.m; sourceTree = "<group>"; };
-		5F712749023D84DE5A3A0989 /* Pods-widget.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-widget.release.xcconfig"; path = "Target Support Files/Pods-widget/Pods-widget.release.xcconfig"; sourceTree = "<group>"; };
-		64A5523D41A54015B50B22EE /* GoalsAI-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "GoalsAI-Bridging-Header.h"; path = "GoalsAI/GoalsAI-Bridging-Header.h"; sourceTree = "<group>"; };
-		68D5C3DF3DDC4F5B984A7D88 /* NotificationService.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
-		696EFE74DC584DE88A741D7A /* OneSignalNotificationServiceExtension-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = "OneSignalNotificationServiceExtension-Info.plist"; sourceTree = "<group>"; };
+		29648D2541CF83DAE87E709D /* Pods_widget.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_widget.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3548B53FBC640FBAD0A658BF /* Pods_PomodoroLiveActivity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PomodoroLiveActivity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		36EAD09E14CA425D960427D5 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserDefaultsManager.swift; path = GoalsAI/UserDefaultsManager.swift; sourceTree = "<group>"; };
+		3785AE2EFEB54D52BFEB8968 /* TaskCompletionIntent.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = TaskCompletionIntent.swift; sourceTree = "<group>"; };
+		3E8126F4091D72843200C77E /* Pods_OneSignalNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OneSignalNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		40F09D5C4409C44DFD8DD943 /* Pods-PomodoroLiveActivity.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PomodoroLiveActivity.debug.xcconfig"; path = "Target Support Files/Pods-PomodoroLiveActivity/Pods-PomodoroLiveActivity.debug.xcconfig"; sourceTree = "<group>"; };
+		43270F4EE66F4F5AABF1B48E /* OneSignalNotificationServiceExtension-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = "OneSignalNotificationServiceExtension-Info.plist"; sourceTree = "<group>"; };
+		673FD3591E1D4E119647A9EA /* widget.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = widget.entitlements; sourceTree = "<group>"; };
+		69C0B9E7D0DD456187D1EBC2 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-GoalsAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoalsAI.debug.xcconfig"; path = "Target Support Files/Pods-GoalsAI/Pods-GoalsAI.debug.xcconfig"; sourceTree = "<group>"; };
-		79FD5C0C75AF4E7695DE6A66 /* PomodoroLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = PomodoroLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CD26A72C0BDB134D89E10C9 /* Pods-widget.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-widget.release.xcconfig"; path = "Target Support Files/Pods-widget/Pods-widget.release.xcconfig"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-GoalsAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoalsAI.release.xcconfig"; path = "Target Support Files/Pods-GoalsAI/Pods-GoalsAI.release.xcconfig"; sourceTree = "<group>"; };
-		7DAE3DBADFC04DE8988977F3 /* Pods_OneSignalNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OneSignalNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7EE74B08EDF74B989F072E4E /* PomodoroActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PomodoroActivityAttributes.swift; path = GoalsAI/PomodoroActivityAttributes.swift; sourceTree = "<group>"; };
-		895BE511F58540459640BDB6 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
-		8E9F0052746F4ED99567C3EE /* WidgetKitReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetKitReloader.swift; path = GoalsAI/WidgetKitReloader.swift; sourceTree = "<group>"; };
-		98F6DABB8F86396DD5058413 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
-		99CF0C1312A67A18680C5E6A /* Pods_GoalsAI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GoalsAI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A466EB36ED4C471E89BFEC1B /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserDefaultsManager.swift; path = GoalsAI/UserDefaultsManager.swift; sourceTree = "<group>"; };
-		A4D105832EAEE68500C149BD /* GoalsAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GoalsAI.entitlements; path = GoalsAI/GoalsAI.entitlements; sourceTree = "<group>"; };
-		A5EB81194A7B46AC96F04860 /* TaskIntents.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = TaskIntents.swift; sourceTree = "<group>"; };
+		7A6FD9ADD209471A9EAE9077 /* Assets.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8DFDE663371C49A3AF82C9A9 /* LiveActivityModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = LiveActivityModule.m; path = GoalsAI/LiveActivityModule.m; sourceTree = "<group>"; };
+		90872FB511BF4F6093D590C7 /* PomodoroActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PomodoroActivityAttributes.swift; path = GoalsAI/PomodoroActivityAttributes.swift; sourceTree = "<group>"; };
+		90CA3530F0F84C48805CF9E0 /* UserDefaultsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = UserDefaultsManager.m; path = GoalsAI/UserDefaultsManager.m; sourceTree = "<group>"; };
+		9ABA7FD5DFD5422AA0F532F7 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "GoalsAI/noop-file.swift"; sourceTree = "<group>"; };
+		A0D4CF941C0DB880B2B44CD2 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		A16F83E475F04928993BBFEA /* LiveActivityBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityBridge.swift; path = GoalsAI/LiveActivityBridge.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = GoalsAI/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AD08AA8514A944D980E3E8FE /* TaskCompletionIntent.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = TaskCompletionIntent.swift; sourceTree = "<group>"; };
-		B135CB9989884D89BFF48C5D /* LiveActivityModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = LiveActivityModule.m; path = GoalsAI/LiveActivityModule.m; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		BD4150DC3B4BC706C35A5A5A /* Pods-widget.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-widget.debug.xcconfig"; path = "Target Support Files/Pods-widget/Pods-widget.debug.xcconfig"; sourceTree = "<group>"; };
-		CE0E70ED785F48669D9E73A1 /* Assets.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D3DFF885E6C7446A94F21641 /* widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = widget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB6B043FD8094FA6BE1A5BD4 /* LiveActivityBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityBridge.swift; path = GoalsAI/LiveActivityBridge.swift; sourceTree = "<group>"; };
-		E3391F30B4224471BC26879C /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "GoalsAI/noop-file.swift"; sourceTree = "<group>"; };
-		E445E707AE7F4F009BB77846 /* LiveActivityModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityModule.swift; path = GoalsAI/LiveActivityModule.swift; sourceTree = "<group>"; };
-		E9230E5D2BD3EBBA1A9BA019 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		BD5C31B845F94515AC979119 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C18698F153CD0E8953F84568 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		C4528545A52A4D1CB831E4CB /* WidgetKitReloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WidgetKitReloader.m; path = GoalsAI/WidgetKitReloader.m; sourceTree = "<group>"; };
+		C7250AA701324641A0C2D8FB /* WidgetKitReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetKitReloader.swift; path = GoalsAI/WidgetKitReloader.swift; sourceTree = "<group>"; };
+		C91ECCC086A340998FD38F55 /* PomodoroLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = PomodoroLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9A91F07A439451788F7526F /* TaskIntents.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = TaskIntents.swift; sourceTree = "<group>"; };
+		D334D2F786344C07A335B038 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D37F5FFF6B914DA4BC3558CF /* PomodoroLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PomodoroLiveActivity.swift; path = PomodoroLiveActivity/PomodoroLiveActivity.swift; sourceTree = "<group>"; };
+		D77D9A8527064FA286ED704C /* widget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = widget.swift; sourceTree = "<group>"; };
+		D7C9EF8615A8482BA7F8FD2D /* NotificationService.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
+		E18A6D50217E4CE1ADFFBC20 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6E081AD046DC335A6993C6F /* Pods_GoalsAI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GoalsAI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F0BB1A70A183478FB6A5BDB3 /* widget.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = widget.entitlements; sourceTree = "<group>"; };
-		F3A0EFF6E023484F8B74755D /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE9A4F8D741A4CF6AB4CE6B5 /* SharedDataManager.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = SharedDataManager.swift; sourceTree = "<group>"; };
+		F0858FBF994247A8A98DD1B9 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
+		F1EBD910D0EDFC76AD259819 /* Pods-PomodoroLiveActivity.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PomodoroLiveActivity.release.xcconfig"; path = "Target Support Files/Pods-PomodoroLiveActivity/Pods-PomodoroLiveActivity.release.xcconfig"; sourceTree = "<group>"; };
+		F7A8528D32494F40A9218015 /* NotificationService.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-GoalsAI/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		FE36AF40EF3D40AB9D868AEE /* LiveActivityModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityModule.swift; path = GoalsAI/LiveActivityModule.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		05ED56887FA74C30B3892311 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A49A1895F7A47F5864B7F20 /* WidgetKit.framework in Frameworks */,
+				E70D7367AF7F534BAF4C95CC /* Pods_widget.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6EF6366E461EEDCDDE9AE81B /* Pods_GoalsAI.framework in Frameworks */,
+				42A1576A5A5D77F3014033E3 /* Pods_GoalsAI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2A32B462773743B7B8CB1427 /* Frameworks */ = {
+		53DF1FBE069D4E6DA2D22121 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D9EB37612914154B33A7BA2 /* ActivityKit.framework in Frameworks */,
-				F505A7AF28D59ABEA8B5CD4C /* Pods_PomodoroLiveActivity.framework in Frameworks */,
+				FBA35431518F03C9722A096A /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		350CAA785C9546B99E570A42 /* Frameworks */ = {
+		FD05EC9D925D4856BC4CBBE9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3E45C06DA1FDB0E77A85B7D /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		771D95E9FAC24CCC9452D237 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C03430674FB940FD921E42E8 /* WidgetKit.framework in Frameworks */,
-				FC50FC098DADACA2957CC98C /* Pods_widget.framework in Frameworks */,
+				81BC25EFDF4B4522BFA2E639 /* ActivityKit.framework in Frameworks */,
+				098D010A21C9CA945074B102 /* Pods_PomodoroLiveActivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		080327BA005F489DBFB0FE31 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+				D77D9A8527064FA286ED704C /* widget.swift */,
+				EE9A4F8D741A4CF6AB4CE6B5 /* SharedDataManager.swift */,
+				C9A91F07A439451788F7526F /* TaskIntents.swift */,
+				3785AE2EFEB54D52BFEB8968 /* TaskCompletionIntent.swift */,
+				7A6FD9ADD209471A9EAE9077 /* Assets.xcassets */,
+				BD5C31B845F94515AC979119 /* Info.plist */,
+				673FD3591E1D4E119647A9EA /* widget.entitlements */,
+			);
+			path = widget;
+			sourceTree = "<group>";
+		};
+		0CBBDA13C7FC49C58556067D /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				D7C9EF8615A8482BA7F8FD2D /* NotificationService.h */,
+				69C0B9E7D0DD456187D1EBC2 /* OneSignalNotificationServiceExtension.entitlements */,
+				43270F4EE66F4F5AABF1B48E /* OneSignalNotificationServiceExtension-Info.plist */,
+				F7A8528D32494F40A9218015 /* NotificationService.m */,
+			);
+			path = OneSignalNotificationServiceExtension;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* GoalsAI */ = {
 			isa = PBXGroup;
 			children = (
-				A4D105832EAEE68500C149BD /* GoalsAI.entitlements */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -203,8 +226,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				E3391F30B4224471BC26879C /* noop-file.swift */,
-				64A5523D41A54015B50B22EE /* GoalsAI-Bridging-Header.h */,
+				9ABA7FD5DFD5422AA0F532F7 /* noop-file.swift */,
+				0EF75EAEABC34911AF88B8B0 /* GoalsAI-Bridging-Header.h */,
 			);
 			name = GoalsAI;
 			sourceTree = "<group>";
@@ -213,37 +236,12 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				99CF0C1312A67A18680C5E6A /* Pods_GoalsAI.framework */,
-				7DAE3DBADFC04DE8988977F3 /* Pods_OneSignalNotificationServiceExtension.framework */,
-				1EBD2D93CE7E84D63C0E6DF0 /* Pods_PomodoroLiveActivity.framework */,
-				3D5FEAF55B454E5C76423D64 /* Pods_widget.framework */,
+				E6E081AD046DC335A6993C6F /* Pods_GoalsAI.framework */,
+				3E8126F4091D72843200C77E /* Pods_OneSignalNotificationServiceExtension.framework */,
+				3548B53FBC640FBAD0A658BF /* Pods_PomodoroLiveActivity.framework */,
+				29648D2541CF83DAE87E709D /* Pods_widget.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		57F266C5F3324A57AEAD2DB2 /* widget */ = {
-			isa = PBXGroup;
-			children = (
-				41BCB2CF02BD418EAB1621DD /* widget.swift */,
-				426092A01B3E4F7DA445ACB9 /* SharedDataManager.swift */,
-				A5EB81194A7B46AC96F04860 /* TaskIntents.swift */,
-				AD08AA8514A944D980E3E8FE /* TaskCompletionIntent.swift */,
-				CE0E70ED785F48669D9E73A1 /* Assets.xcassets */,
-				1BB31D87AEC144BBB243366D /* Info.plist */,
-				F0BB1A70A183478FB6A5BDB3 /* widget.entitlements */,
-			);
-			path = widget;
-			sourceTree = "<group>";
-		};
-		732121FFC7294215B86D2E50 /* OneSignalNotificationServiceExtension */ = {
-			isa = PBXGroup;
-			children = (
-				68D5C3DF3DDC4F5B984A7D88 /* NotificationService.h */,
-				895BE511F58540459640BDB6 /* OneSignalNotificationServiceExtension.entitlements */,
-				696EFE74DC584DE88A741D7A /* OneSignalNotificationServiceExtension-Info.plist */,
-				11399CAF445942969635EDD0 /* NotificationService.m */,
-			);
-			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -262,9 +260,9 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
 				D7E4C46ADA2E9064B798F356 /* ExpoModulesProviders */,
-				732121FFC7294215B86D2E50 /* OneSignalNotificationServiceExtension */,
-				57F266C5F3324A57AEAD2DB2 /* widget */,
-				A4D105822EAEE61900C149BD /* Recovered References */,
+				0CBBDA13C7FC49C58556067D /* OneSignalNotificationServiceExtension */,
+				080327BA005F489DBFB0FE31 /* widget */,
+				A40CE0D52EAF5E61008DAFB6 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -275,9 +273,9 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* GoalsAI.app */,
-				F3A0EFF6E023484F8B74755D /* OneSignalNotificationServiceExtension.appex */,
-				D3DFF885E6C7446A94F21641 /* widget.appex */,
-				79FD5C0C75AF4E7695DE6A66 /* PomodoroLiveActivity.appex */,
+				E18A6D50217E4CE1ADFFBC20 /* OneSignalNotificationServiceExtension.appex */,
+				0526EA60C5FB423E98F947A9 /* widget.appex */,
+				C91ECCC086A340998FD38F55 /* PomodoroLiveActivity.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -290,20 +288,20 @@
 			name = GoalsAI;
 			sourceTree = "<group>";
 		};
-		A4D105822EAEE61900C149BD /* Recovered References */ = {
+		A40CE0D52EAF5E61008DAFB6 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				DB6B043FD8094FA6BE1A5BD4 /* LiveActivityBridge.swift */,
-				B135CB9989884D89BFF48C5D /* LiveActivityModule.m */,
-				7EE74B08EDF74B989F072E4E /* PomodoroActivityAttributes.swift */,
-				E445E707AE7F4F009BB77846 /* LiveActivityModule.swift */,
-				8E9F0052746F4ED99567C3EE /* WidgetKitReloader.swift */,
-				0C76D674FF79407097F1F607 /* WidgetKitReloader.m */,
-				A466EB36ED4C471E89BFEC1B /* UserDefaultsManager.swift */,
-				57D23832C2DB4654A688B638 /* UserDefaultsManager.m */,
-				2AA52DCF4CCC4AB8BF28D421 /* WidgetKit.framework */,
-				51ADE58E96FC41FEB4BF3665 /* ActivityKit.framework */,
-				568A997525034BE29D456976 /* PomodoroLiveActivity.swift */,
+				A16F83E475F04928993BBFEA /* LiveActivityBridge.swift */,
+				8DFDE663371C49A3AF82C9A9 /* LiveActivityModule.m */,
+				90872FB511BF4F6093D590C7 /* PomodoroActivityAttributes.swift */,
+				FE36AF40EF3D40AB9D868AEE /* LiveActivityModule.swift */,
+				C7250AA701324641A0C2D8FB /* WidgetKitReloader.swift */,
+				C4528545A52A4D1CB831E4CB /* WidgetKitReloader.m */,
+				36EAD09E14CA425D960427D5 /* UserDefaultsManager.swift */,
+				90CA3530F0F84C48805CF9E0 /* UserDefaultsManager.m */,
+				D334D2F786344C07A335B038 /* WidgetKit.framework */,
+				F0858FBF994247A8A98DD1B9 /* ActivityKit.framework */,
+				D37F5FFF6B914DA4BC3558CF /* PomodoroLiveActivity.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -322,12 +320,12 @@
 			children = (
 				6C2E3173556A471DD304B334 /* Pods-GoalsAI.debug.xcconfig */,
 				7A4D352CD337FB3A3BF06240 /* Pods-GoalsAI.release.xcconfig */,
-				E9230E5D2BD3EBBA1A9BA019 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */,
-				98F6DABB8F86396DD5058413 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */,
-				4D03F07E8943DD87DE124037 /* Pods-PomodoroLiveActivity.debug.xcconfig */,
-				53FD4639AAAD462334B3C9F0 /* Pods-PomodoroLiveActivity.release.xcconfig */,
-				BD4150DC3B4BC706C35A5A5A /* Pods-widget.debug.xcconfig */,
-				5F712749023D84DE5A3A0989 /* Pods-widget.release.xcconfig */,
+				C18698F153CD0E8953F84568 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */,
+				A0D4CF941C0DB880B2B44CD2 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */,
+				40F09D5C4409C44DFD8DD943 /* Pods-PomodoroLiveActivity.debug.xcconfig */,
+				F1EBD910D0EDFC76AD259819 /* Pods-PomodoroLiveActivity.release.xcconfig */,
+				0D74657FC9507144ADFF5C7E /* Pods-widget.debug.xcconfig */,
+				6CD26A72C0BDB134D89E10C9 /* Pods-widget.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -348,36 +346,36 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "GoalsAI" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				1D3FE9C8766C97DDBEDC20F4 /* [Expo] Configure project */,
+				915909991BC09C78977B751B /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				F2357286C6594296A454E6CD /* Copy Files */,
-				B589AE2A06814A108641BD90 /* Copy Files */,
-				CCAC79682A66473E83CF305F /* Copy Files */,
-				4EF8B970A9AC9776A272F876 /* [CP] Embed Pods Frameworks */,
+				146352D3ACBD4385A556476C /* Copy Files */,
+				C1B1F3F8AEFB408A821ABFFD /* Copy Files */,
+				4960AEB6A2EE4CFEA84B09D2 /* Copy Files */,
+				183968ACC2243E13D57316C0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				53D78DD1EF93446287A8CCEB /* PBXTargetDependency */,
-				557421D1F9F54AEB9CB318CE /* PBXTargetDependency */,
-				AF03DF6CA9D644BCB598DE8F /* PBXTargetDependency */,
+				58D8497D292F4EC3B0F1CBDE /* PBXTargetDependency */,
+				965A503C92D3464895336CEF /* PBXTargetDependency */,
+				DDC61EDBD3594AE28693D335 /* PBXTargetDependency */,
 			);
 			name = GoalsAI;
 			productName = GoalsAI;
 			productReference = 13B07F961A680F5B00A75B9A /* GoalsAI.app */;
 			productType = "com.apple.product-type.application";
 		};
-		44071D39253C4D718D51DAAF /* widget */ = {
+		B6614D0D42A44DAF97EE648D /* widget */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73DB04D0097943069FC61F9E /* Build configuration list for PBXNativeTarget "widget" */;
+			buildConfigurationList = D25D944252624E46B000D0C4 /* Build configuration list for PBXNativeTarget "widget" */;
 			buildPhases = (
-				DB1C183A87CEB104D32A9D10 /* [CP] Check Pods Manifest.lock */,
-				04938CF3EB0045D69FB6F427 /* Sources */,
-				771D95E9FAC24CCC9452D237 /* Frameworks */,
+				B42D6CB7D4C43D84E9FD609E /* [CP] Check Pods Manifest.lock */,
+				3ED65B36A39844C3BADBC4D9 /* Sources */,
+				05ED56887FA74C30B3892311 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -385,34 +383,16 @@
 			);
 			name = widget;
 			productName = widget;
-			productReference = D3DFF885E6C7446A94F21641 /* widget.appex */;
+			productReference = 0526EA60C5FB423E98F947A9 /* widget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		4F569B053544481CA8A6ED40 /* OneSignalNotificationServiceExtension */ = {
+		E3EB7499C69249028F8CDBA2 /* PomodoroLiveActivity */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 006726B41B71455795830AB1 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
+			buildConfigurationList = 0EF98F826B2548FBA6A2CC0A /* Build configuration list for PBXNativeTarget "PomodoroLiveActivity" */;
 			buildPhases = (
-				98F59D87FC1B552606286092 /* [CP] Check Pods Manifest.lock */,
-				5413F9D89DAA4576A0FC8D06 /* Sources */,
-				E5F016819E484FE3AC52DD2E /* Resources */,
-				350CAA785C9546B99E570A42 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = OneSignalNotificationServiceExtension;
-			productName = OneSignalNotificationServiceExtension;
-			productReference = F3A0EFF6E023484F8B74755D /* OneSignalNotificationServiceExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		6F9664273E9642CEA04A59CA /* PomodoroLiveActivity */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A2EED439B3F149D4BD185731 /* Build configuration list for PBXNativeTarget "PomodoroLiveActivity" */;
-			buildPhases = (
-				74C9B46CEA5E814CE6291AE4 /* [CP] Check Pods Manifest.lock */,
-				2A32B462773743B7B8CB1427 /* Frameworks */,
-				F79F1CEB78B14754BC5AF573 /* Sources */,
+				A9DC4027BDB9B9AB65C31ED2 /* [CP] Check Pods Manifest.lock */,
+				FD05EC9D925D4856BC4CBBE9 /* Frameworks */,
+				E3C07C3EB8004171BBF211E8 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -420,7 +400,25 @@
 			);
 			name = PomodoroLiveActivity;
 			productName = PomodoroLiveActivity;
-			productReference = 79FD5C0C75AF4E7695DE6A66 /* PomodoroLiveActivity.appex */;
+			productReference = C91ECCC086A340998FD38F55 /* PomodoroLiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		F4CD31D27C50479FAE9662C7 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 883182C396944EC48CE2BDED /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
+			buildPhases = (
+				C0010417ECCA251361B5D44B /* [CP] Check Pods Manifest.lock */,
+				CA2F32042FF64895A02DF4C8 /* Sources */,
+				7DA3ACB9A2F845D5B86ABA61 /* Resources */,
+				53DF1FBE069D4E6DA2D22121 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneSignalNotificationServiceExtension;
+			productName = OneSignalNotificationServiceExtension;
+			productReference = E18A6D50217E4CE1ADFFBC20 /* OneSignalNotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -434,7 +432,7 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
 					};
-					4F569B053544481CA8A6ED40 = {
+					F4CD31D27C50479FAE9662C7 = {
 						DevelopmentTeam = 5PT3BWY2A5;
 					};
 				};
@@ -453,9 +451,9 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* GoalsAI */,
-				4F569B053544481CA8A6ED40 /* OneSignalNotificationServiceExtension */,
-				44071D39253C4D718D51DAAF /* widget */,
-				6F9664273E9642CEA04A59CA /* PomodoroLiveActivity */,
+				F4CD31D27C50479FAE9662C7 /* OneSignalNotificationServiceExtension */,
+				B6614D0D42A44DAF97EE648D /* widget */,
+				E3EB7499C69249028F8CDBA2 /* PomodoroLiveActivity */,
 			);
 		};
 /* End PBXProject section */
@@ -471,7 +469,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E5F016819E484FE3AC52DD2E /* Resources */ = {
+		7DA3ACB9A2F845D5B86ABA61 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -518,26 +516,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1D3FE9C8766C97DDBEDC20F4 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-GoalsAI/expo-configure-project.sh\"\n";
-		};
-		4EF8B970A9AC9776A272F876 /* [CP] Embed Pods Frameworks */ = {
+		183968ACC2243E13D57316C0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -575,28 +554,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GoalsAI/Pods-GoalsAI-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		74C9B46CEA5E814CE6291AE4 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-PomodoroLiveActivity-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -680,7 +637,26 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GoalsAI/Pods-GoalsAI-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		98F59D87FC1B552606286092 /* [CP] Check Pods Manifest.lock */ = {
+		915909991BC09C78977B751B /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-GoalsAI/expo-configure-project.sh\"\n";
+		};
+		A9DC4027BDB9B9AB65C31ED2 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -695,14 +671,14 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OneSignalNotificationServiceExtension-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-PomodoroLiveActivity-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DB1C183A87CEB104D32A9D10 /* [CP] Check Pods Manifest.lock */ = {
+		B42D6CB7D4C43D84E9FD609E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -724,20 +700,31 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C0010417ECCA251361B5D44B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OneSignalNotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		04938CF3EB0045D69FB6F427 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BF264C6FE8CE4DEAAF0DC464 /* widget.swift in Sources */,
-				D22F1F8660E841ECA48B92E1 /* SharedDataManager.swift in Sources */,
-				FCE81A60BA4E4CC6A8C67261 /* TaskIntents.swift in Sources */,
-				6117D4A4BB0C4EAC9181FDC5 /* TaskCompletionIntent.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -745,87 +732,68 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				E072C82D5AC5440199D9FF41 /* noop-file.swift in Sources */,
-				1F4D71F4629F498FB2EB3D31 /* LiveActivityBridge.swift in Sources */,
-				389F0601ADC0461599B866D8 /* LiveActivityModule.m in Sources */,
-				5057680507FB4D778FA9AA48 /* PomodoroActivityAttributes.swift in Sources */,
-				6947C750654D4BDAACB2BEA4 /* LiveActivityModule.swift in Sources */,
-				E5C3DFA51B9A41E097ECFD4E /* WidgetKitReloader.swift in Sources */,
-				47D14B806D674ED6A3321764 /* WidgetKitReloader.m in Sources */,
-				D57A57281CC34823B2D0516B /* UserDefaultsManager.swift in Sources */,
-				3A29D720C9E542188E9255D2 /* UserDefaultsManager.m in Sources */,
+				39F56DC3E77A4BFAB111B739 /* noop-file.swift in Sources */,
+				5E7D7ECF9C104C47923A1A7D /* LiveActivityBridge.swift in Sources */,
+				35F8BC119DA94CFEB11C06EC /* LiveActivityModule.m in Sources */,
+				BD1B508544B84D8994AEFFD9 /* PomodoroActivityAttributes.swift in Sources */,
+				37BD26B1AD71418BA4ACBA7F /* LiveActivityModule.swift in Sources */,
+				796205DDF55C42A8966223C9 /* WidgetKitReloader.swift in Sources */,
+				663A2AA54C9C4E3EAE7490B9 /* WidgetKitReloader.m in Sources */,
+				B9353A2850EE4599BEDEA525 /* UserDefaultsManager.swift in Sources */,
+				218BA8B47A6B4CD885A1E7A5 /* UserDefaultsManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5413F9D89DAA4576A0FC8D06 /* Sources */ = {
+		3ED65B36A39844C3BADBC4D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC469ACD5D5641EFACB3C1A0 /* NotificationService.m in Sources */,
+				70B5A7FEAC7F4DD28ACB9F26 /* widget.swift in Sources */,
+				73E6FA67F7FA40189B98FF64 /* SharedDataManager.swift in Sources */,
+				BFB118A22AB847658AEC5B01 /* TaskIntents.swift in Sources */,
+				9004D6B09698484DB8FA6DDD /* TaskCompletionIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F79F1CEB78B14754BC5AF573 /* Sources */ = {
+		CA2F32042FF64895A02DF4C8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B549BCBC760543F78946A75F /* PomodoroLiveActivity.swift in Sources */,
-				6DF399432BA343FABEEE5CA4 /* PomodoroActivityAttributes.swift in Sources */,
-				831780BBF835445DBA45AF1A /* LiveActivityModule.swift in Sources */,
+				4442CBDB49064768A2CCF7B4 /* NotificationService.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3C07C3EB8004171BBF211E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D4447CE783040249A1819A6 /* PomodoroLiveActivity.swift in Sources */,
+				DD1C6AAB40E4498D8DEC61FC /* PomodoroActivityAttributes.swift in Sources */,
+				729642066C474954B705141C /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		53D78DD1EF93446287A8CCEB /* PBXTargetDependency */ = {
+		58D8497D292F4EC3B0F1CBDE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4F569B053544481CA8A6ED40 /* OneSignalNotificationServiceExtension */;
-			targetProxy = 919D02FF08FA475890323B19 /* PBXContainerItemProxy */;
+			target = F4CD31D27C50479FAE9662C7 /* OneSignalNotificationServiceExtension */;
+			targetProxy = 0BD33BE6FF144647A2C53889 /* PBXContainerItemProxy */;
 		};
-		557421D1F9F54AEB9CB318CE /* PBXTargetDependency */ = {
+		965A503C92D3464895336CEF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 44071D39253C4D718D51DAAF /* widget */;
-			targetProxy = 27D86A3B72044A9883A8D760 /* PBXContainerItemProxy */;
+			target = B6614D0D42A44DAF97EE648D /* widget */;
+			targetProxy = 1B4C8EC73B7A4D3B8256BC76 /* PBXContainerItemProxy */;
 		};
-		AF03DF6CA9D644BCB598DE8F /* PBXTargetDependency */ = {
+		DDC61EDBD3594AE28693D335 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6F9664273E9642CEA04A59CA /* PomodoroLiveActivity */;
-			targetProxy = 19FED6502C8F4236BCFADF7E /* PBXContainerItemProxy */;
+			target = E3EB7499C69249028F8CDBA2 /* PomodoroLiveActivity */;
+			targetProxy = 6189EC3BF0AB455AB14B2EB1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		0895A16D6F41435C8BA501FB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E9230E5D2BD3EBBA1A9BA019 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 5PT3BWY2A5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.OneSignalNotificationServiceExtension;
-				PRODUCT_NAME = OneSignalNotificationServiceExtension;
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6C2E3173556A471DD304B334 /* Pods-GoalsAI.debug.xcconfig */;
@@ -902,9 +870,80 @@
 			};
 			name = Release;
 		};
-		544637F769A746E6BC484953 /* Debug */ = {
+		2A237C42A80349D8AEEA2032 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4D03F07E8943DD87DE124037 /* Pods-PomodoroLiveActivity.debug.xcconfig */;
+			baseConfigurationReference = F1EBD910D0EDFC76AD259819 /* Pods-PomodoroLiveActivity.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = PomodoroLiveActivity/PomodoroLiveActivity.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 5PT3BWY2A5;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PomodoroLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.PomodoroLiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		2A762BB5FBD24D18AF23E8A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A0D4CF941C0DB880B2B44CD2 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 5PT3BWY2A5;
+				INFOPLIST_FILE = "OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.OneSignalNotificationServiceExtension;
+				PRODUCT_NAME = OneSignalNotificationServiceExtension;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		786F900C4520405AAFB753F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 40F09D5C4409C44DFD8DD943 /* Pods-PomodoroLiveActivity.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -937,56 +976,6 @@
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.PomodoroLiveActivity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		6BD25543B8D147028B2008C4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD4150DC3B4BC706C35A5A5A /* Pods-widget.debug.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = widget/widget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5PT3BWY2A5;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = widget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1146,9 +1135,59 @@
 			};
 			name = Release;
 		};
-		93B777D8E8664BA5822F38D0 /* Release */ = {
+		B01D0DDC0E9D46949E2B1355 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5F712749023D84DE5A3A0989 /* Pods-widget.release.xcconfig */;
+			baseConfigurationReference = 0D74657FC9507144ADFF5C7E /* Pods-widget.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = widget/widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 5PT3BWY2A5;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = widget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B7FCE0A97FBE43E490124BD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6CD26A72C0BDB134D89E10C9 /* Pods-widget.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1192,13 +1231,17 @@
 			};
 			name = Release;
 		};
-		B6B17FCADC544136856F7005 /* Release */ = {
+		D88D98BC818B436CAA3A5218 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 98F6DABB8F86396DD5058413 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
+			baseConfigurationReference = C18698F153CD0E8953F84568 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5PT3BWY2A5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1206,7 +1249,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = OneSignalNotificationServiceExtension;
 				SKIP_INSTALL = YES;
@@ -1216,61 +1259,16 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
-			name = Release;
-		};
-		BA49C51F7F7E47FDBFAE28E3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 53FD4639AAAD462334B3C9F0 /* Pods-PomodoroLiveActivity.release.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = PomodoroLiveActivity/PomodoroLiveActivity.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5PT3BWY2A5;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = PomodoroLiveActivity/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = pro.GoalAchieverAI.PomodoroLiveActivity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		006726B41B71455795830AB1 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
+		0EF98F826B2548FBA6A2CC0A /* Build configuration list for PBXNativeTarget "PomodoroLiveActivity" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0895A16D6F41435C8BA501FB /* Debug */,
-				B6B17FCADC544136856F7005 /* Release */,
+				786F900C4520405AAFB753F0 /* Debug */,
+				2A237C42A80349D8AEEA2032 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1284,15 +1282,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73DB04D0097943069FC61F9E /* Build configuration list for PBXNativeTarget "widget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6BD25543B8D147028B2008C4 /* Debug */,
-				93B777D8E8664BA5822F38D0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "GoalsAI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1302,11 +1291,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A2EED439B3F149D4BD185731 /* Build configuration list for PBXNativeTarget "PomodoroLiveActivity" */ = {
+		883182C396944EC48CE2BDED /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				544637F769A746E6BC484953 /* Debug */,
-				BA49C51F7F7E47FDBFAE28E3 /* Release */,
+				D88D98BC818B436CAA3A5218 /* Debug */,
+				2A762BB5FBD24D18AF23E8A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D25D944252624E46B000D0C4 /* Build configuration list for PBXNativeTarget "widget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B01D0DDC0E9D46949E2B1355 /* Debug */,
+				B7FCE0A97FBE43E490124BD4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
