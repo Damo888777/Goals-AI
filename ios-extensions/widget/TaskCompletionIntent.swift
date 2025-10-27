@@ -49,7 +49,8 @@ struct CompleteTaskIntent: AppIntent {
                 "taskId": taskId,
                 "taskTitle": taskTitle,
                 "completedAt": ISO8601DateFormatter().string(from: Date()),
-                "source": "widget"
+                "source": "widget",
+                "action": "complete"
             ]
             completions.append(completion)
             

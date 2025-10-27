@@ -74,9 +74,30 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             return
         }
         
-        // Parse sessionStartTime
+        // Parse sessionStartTime with multiple format options
         let dateFormatter = ISO8601DateFormatter()
-        guard let sessionStartTime = dateFormatter.date(from: sessionStartTimeString) else {
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        var parsedDate: Date?
+        
+        // Try with fractional seconds first
+        parsedDate = dateFormatter.date(from: sessionStartTimeString)
+        
+        // If that fails, try without fractional seconds
+        if parsedDate == nil {
+            dateFormatter.formatOptions = [.withInternetDateTime]
+            parsedDate = dateFormatter.date(from: sessionStartTimeString)
+        }
+        
+        // If that fails, try standard format
+        if parsedDate == nil {
+            let fallbackFormatter = DateFormatter()
+            fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            fallbackFormatter.timeZone = TimeZone(abbreviation: "UTC")
+            parsedDate = fallbackFormatter.date(from: sessionStartTimeString)
+        }
+        
+        guard let sessionStartTime = parsedDate else {
             print("❌ [LiveActivityModule] Invalid sessionStartTime format: \(sessionStartTimeString)")
             reject("INVALID_PARAMS", "Invalid sessionStartTime format", nil)
             return

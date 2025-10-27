@@ -62,24 +62,28 @@ class WidgetSyncService {
     this.isProcessingCompletions = true
 
     try {
+      console.log('🔍 [Widget Sync] Checking for widget completions...')
       const completions = await this.getWidgetCompletions()
+      
       if (completions.length === 0) {
+        console.log('🔍 [Widget Sync] No completions found')
         this.isProcessingCompletions = false
         return
       }
 
-      console.log(`🔄 Processing ${completions.length} widget completions`)
+      console.log(`🔄 [Widget Sync] Processing ${completions.length} widget completions:`, completions)
 
       for (const completion of completions) {
+        console.log(`🔄 [Widget Sync] Processing completion for task: ${completion.taskId} (${completion.action})`)
         await this.syncCompletionToDatabase(completion)
       }
 
       // Clear processed completions
       await this.clearWidgetCompletions()
       
-      console.log('✅ Widget completions processed successfully')
+      console.log('✅ [Widget Sync] Widget completions processed and cleared successfully')
     } catch (error) {
-      console.error('❌ Failed to process widget completions:', error)
+      console.error('❌ [Widget Sync] Failed to process widget completions:', error)
     } finally {
       this.isProcessingCompletions = false
     }

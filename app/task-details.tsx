@@ -215,6 +215,12 @@ export default function TaskDetailsScreen() {
         milestoneId: selectedMilestoneId || undefined,
         scheduledDate: scheduledDate.toISOString(),
       });
+      
+      // Force widget sync after task update
+      const { widgetSyncService } = await import('../src/services/widgetSyncService');
+      await widgetSyncService.forceSyncToWidget();
+      console.log('🔄 [Task Details] Forced widget sync after task update');
+      
       router.back();
     } catch (error) {
       Alert.alert('Error', 'Failed to update task');
