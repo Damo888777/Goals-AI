@@ -28,7 +28,7 @@ struct CompleteTaskIntent: AppIntent {
         self.taskTitle = taskTitle
     }
     
-    func perform() async throws -> some IntentResult {
+    func perform() throws -> some IntentResult {
         let startTime = Date()
         print("🚀 [CompleteTaskIntent] ========== TASK COMPLETION STARTED ==========")
         print("🚀 [CompleteTaskIntent] Task ID: \(taskId)")
@@ -75,7 +75,7 @@ struct CompleteTaskIntent: AppIntent {
             print("🚀 [CompleteTaskIntent] UserDefaults synchronized")
             
             // Update widget data to reflect completion immediately
-            await updateWidgetData(completedTaskId: taskId)
+            updateWidgetData(completedTaskId: taskId)
             
             // Add haptic feedback for completion
             do {
@@ -88,7 +88,7 @@ struct CompleteTaskIntent: AppIntent {
             }
             
             // Modern iOS widget update pattern with optimized performance
-            await performOptimizedWidgetUpdate()
+            performOptimizedWidgetUpdate()
             
             let completionTime = Date()
             let executionTime = completionTime.timeIntervalSince(startTime)
@@ -103,7 +103,7 @@ struct CompleteTaskIntent: AppIntent {
         }
     }
     
-    private func updateWidgetData(completedTaskId: String) async {
+    private func updateWidgetData(completedTaskId: String) {
         let appGroupId = "group.pro.GoalAchieverAI"
         let tasksKey = "@goals_ai:widget_tasks"
         
@@ -162,12 +162,10 @@ struct CompleteTaskIntent: AppIntent {
     }
     
     /// Performs optimized widget updates using modern iOS patterns
-    private func performOptimizedWidgetUpdate() async {
-        await MainActor.run {
-            // Immediate update for instant UI feedback
-            WidgetCenter.shared.reloadAllTimelines()
-            print("✅ [Widget Update] Immediate reload triggered")
-        }
+    private func performOptimizedWidgetUpdate() {
+        // Immediate update for instant UI feedback
+        WidgetCenter.shared.reloadAllTimelines()
+        print("✅ [Widget Update] Immediate reload triggered")
         
         // Schedule secondary update to ensure consistency
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -197,7 +195,7 @@ struct ToggleFrogTaskIntent: AppIntent {
         self.taskTitle = taskTitle
     }
     
-    func perform() async throws -> some IntentResult {
+    func perform() throws -> some IntentResult {
         print("🐸 [ToggleFrogTaskIntent] PERFORM CALLED! TaskId: \(taskId), Title: \(taskTitle)")
         
         let appGroupId = "group.pro.GoalAchieverAI"
@@ -274,7 +272,7 @@ struct ToggleFrogTaskIntent: AppIntent {
             }
             
             // Use optimized widget update pattern
-            await performOptimizedWidgetUpdate()
+            performOptimizedWidgetUpdate()
             
             return .result()
         } catch {
@@ -284,12 +282,10 @@ struct ToggleFrogTaskIntent: AppIntent {
     }
     
     /// Performs optimized widget updates using modern iOS patterns
-    private func performOptimizedWidgetUpdate() async {
-        await MainActor.run {
-            // Immediate update for instant UI feedback
-            WidgetCenter.shared.reloadAllTimelines()
-            print("✅ [Widget Update] Immediate reload triggered")
-        }
+    private func performOptimizedWidgetUpdate() {
+        // Immediate update for instant UI feedback
+        WidgetCenter.shared.reloadAllTimelines()
+        print("✅ [Widget Update] Immediate reload triggered")
         
         // Schedule secondary update to ensure consistency
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

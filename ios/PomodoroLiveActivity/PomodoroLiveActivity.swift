@@ -214,9 +214,8 @@ private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivit
     
     // Auto-dismiss Live Activity when timer reaches zero
     if calculatedTime <= 0 && context.state.timeRemaining > 0 {
-        Task { @MainActor in
-            // Find and end the current activity gracefully
-            for activity in Activity<PomodoroActivityAttributes>.activities {
+        for activity in Activity<PomodoroActivityAttributes>.activities {
+            Task {
                 await activity.end(dismissalPolicy: .after(Date().addingTimeInterval(5)))
                 print("🏁 [Live Activity] Timer complete - activity ended gracefully")
                 break
