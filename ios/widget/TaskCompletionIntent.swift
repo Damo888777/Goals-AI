@@ -75,14 +75,15 @@ struct CompleteTaskIntent: AppIntent {
             
             // Add haptic feedback for completion
             let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-            impactFeedback.impactOccurred()
+            await impactFeedback.impactOccurred()
             
             // Force immediate widget timeline reload with completion callback
-            WidgetCenter.shared.reloadAllTimelines()
+            await WidgetCenter.shared.reloadAllTimelines()
             
             // Additional forced reload after a brief delay to ensure update
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                WidgetCenter.shared.reloadAllTimelines()
+            Task {
+                try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                await WidgetCenter.shared.reloadAllTimelines()
                 print("🚀 [CompleteTaskIntent] Double widget reload completed for instant update")
             }
             
@@ -235,14 +236,15 @@ struct ToggleFrogTaskIntent: AppIntent {
             
             // Add haptic feedback for frog task toggle
             let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-            impactFeedback.impactOccurred()
+            await impactFeedback.impactOccurred()
             
             // Force immediate widget timeline reload
-            WidgetCenter.shared.reloadAllTimelines()
+            await WidgetCenter.shared.reloadAllTimelines()
             
             // Additional forced reload after brief delay for instant update
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                WidgetCenter.shared.reloadAllTimelines()
+            Task {
+                try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                await WidgetCenter.shared.reloadAllTimelines()
                 print("🐸 [ToggleFrogTaskIntent] Double widget reload completed for instant update")
             }
             
