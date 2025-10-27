@@ -67,9 +67,18 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
               let isRunning = stateDict["isRunning"] as? Bool,
               let completedPomodoros = stateDict["completedPomodoros"] as? Int,
               let taskTitle = stateDict["taskTitle"] as? String,
-              let activityName = stateDict["activityName"] as? String else {
+              let activityName = stateDict["activityName"] as? String,
+              let sessionStartTimeString = stateDict["sessionStartTime"] as? String else {
             print("❌ [LiveActivityModule] Invalid parameters provided: \(stateDict)")
             reject("INVALID_PARAMS", "Invalid parameters provided", nil)
+            return
+        }
+        
+        // Parse sessionStartTime
+        let dateFormatter = ISO8601DateFormatter()
+        guard let sessionStartTime = dateFormatter.date(from: sessionStartTimeString) else {
+            print("❌ [LiveActivityModule] Invalid sessionStartTime format: \(sessionStartTimeString)")
+            reject("INVALID_PARAMS", "Invalid sessionStartTime format", nil)
             return
         }
         
@@ -88,7 +97,8 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
             taskTitle: taskTitle,
-            lastUpdateTime: Date()
+            lastUpdateTime: Date(),
+            sessionStartTime: sessionStartTime
         )
         
         print("🔍 [LiveActivityModule] Ending any existing activities first...")
@@ -145,6 +155,20 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             return
         }
         
+        // For pause/resume: adjust sessionStartTime to maintain correct elapsed time
+        let currentTime = Date()
+        let existingSessionStartTime = currentActivity?.contentState.sessionStartTime ?? currentTime
+        
+        // Adjust sessionStartTime to account for the elapsed time
+        let sessionStartTime: Date
+        if isRunning {
+            // Resuming: calculate new start time to maintain correct countdown
+            sessionStartTime = Date(timeInterval: -Double(totalDuration - timeRemaining), since: currentTime)
+        } else {
+            // Pausing: keep existing sessionStartTime
+            sessionStartTime = existingSessionStartTime
+        }
+        
         let contentState = PomodoroActivityAttributes.ContentState(
             timeRemaining: timeRemaining,
             totalDuration: totalDuration,
@@ -152,7 +176,8 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             isRunning: isRunning,
             completedPomodoros: completedPomodoros,
             taskTitle: taskTitle,
-            lastUpdateTime: Date()
+            lastUpdateTime: Date(),
+            sessionStartTime: sessionStartTime
         )
         
         Task {

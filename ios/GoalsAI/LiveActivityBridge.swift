@@ -158,10 +158,6 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
         // For pause/resume: adjust sessionStartTime to maintain correct elapsed time
         let currentTime = Date()
         let existingSessionStartTime = currentActivity?.contentState.sessionStartTime ?? currentTime
-        let existingTimeRemaining = currentActivity?.contentState.timeRemaining ?? timeRemaining
-        
-        // Calculate how much time has elapsed since last update
-        let elapsedSinceLastUpdate = existingTimeRemaining - timeRemaining
         
         // Adjust sessionStartTime to account for the elapsed time
         let sessionStartTime: Date

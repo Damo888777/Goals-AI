@@ -161,13 +161,14 @@ private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivit
         return context.state.timeRemaining
     }
     
-    // Calculate elapsed time since the session actually started
+    // Calculate elapsed time since the timer was started/resumed
+    // Use the session start time instead of lastUpdateTime for accurate background calculation
     let currentTime = Date()
-    let sessionStartTime = context.state.sessionStartTime
+    let sessionStartTime = context.state.lastUpdateTime
     let totalElapsedSeconds = Int(currentTime.timeIntervalSince(sessionStartTime))
     
-    // Calculate remaining time from the total duration
-    let calculatedTime = max(0, context.state.totalDuration - totalElapsedSeconds)
+    // Calculate remaining time from the original timeRemaining when session started
+    let calculatedTime = max(0, context.state.timeRemaining - totalElapsedSeconds)
     
     // Auto-dismiss Live Activity when timer reaches zero
     if calculatedTime <= 0 && context.state.timeRemaining > 0 {
