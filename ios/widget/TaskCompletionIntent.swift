@@ -29,7 +29,11 @@ struct CompleteTaskIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        print("🚀 [CompleteTaskIntent] PERFORM CALLED! TaskId: \(taskId), Title: \(taskTitle)")
+        let startTime = Date()
+        print("🚀 [CompleteTaskIntent] ========== TASK COMPLETION STARTED ==========")
+        print("🚀 [CompleteTaskIntent] Task ID: \(taskId)")
+        print("🚀 [CompleteTaskIntent] Task Title: '\(taskTitle)'")
+        print("🚀 [CompleteTaskIntent] Timestamp: \(ISO8601DateFormatter().string(from: startTime))")
         
         // Write completion to App Group storage for app to process
         let appGroupId = "group.pro.GoalAchieverAI"
@@ -74,20 +78,23 @@ struct CompleteTaskIntent: AppIntent {
             updateWidgetData(completedTaskId: taskId)
             
             // Add haptic feedback for completion
-            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-            await impactFeedback.impactOccurred()
-            
-            // Force immediate widget timeline reload with completion callback
-            await WidgetCenter.shared.reloadAllTimelines()
-            
-            // Additional forced reload after a brief delay to ensure update
-            Task {
-                try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                await WidgetCenter.shared.reloadAllTimelines()
-                print("🚀 [CompleteTaskIntent] Double widget reload completed for instant update")
+            do {
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.prepare() // Prepare for optimal performance
+                impactFeedback.impactOccurred()
+                print("✅ [CompleteTaskIntent] Haptic feedback triggered successfully")
+            } catch {
+                print("⚠️ [CompleteTaskIntent] Haptic feedback failed: \(error)")
             }
             
-            print("🚀 [CompleteTaskIntent] Widget timelines reloaded with haptic feedback!")
+            // Modern iOS widget update pattern with optimized performance
+            performOptimizedWidgetUpdate()
+            
+            let completionTime = Date()
+            let executionTime = completionTime.timeIntervalSince(startTime)
+            print("🚀 [CompleteTaskIntent] ========== TASK COMPLETION FINISHED ==========")
+            print("🚀 [CompleteTaskIntent] Execution time: \(String(format: "%.3f", executionTime))s")
+            print("🚀 [CompleteTaskIntent] Status: SUCCESS ✅")
             
             return .result()
         } else {
@@ -101,9 +108,12 @@ struct CompleteTaskIntent: AppIntent {
         let tasksKey = "@goals_ai:widget_tasks"
         
         guard let userDefaults = UserDefaults(suiteName: appGroupId) else { 
-            print("❌ [Widget Update] Failed to access App Group")
+            print("❌ [Widget Update] CRITICAL: Failed to access App Group \(appGroupId)")
+            print("❌ [Widget Update] This indicates a configuration issue with App Groups")
             return 
         }
+        
+        print("✅ [Widget Update] Successfully accessed App Group for task: \(completedTaskId)")
         
         // Try Data first, then String for backward compatibility
         var jsonData: Data?
@@ -115,9 +125,13 @@ struct CompleteTaskIntent: AppIntent {
         }
         
         guard let validJsonData = jsonData else {
-            print("❌ [Widget Update] No widget data found")
+            print("❌ [Widget Update] CRITICAL: No widget data found in App Group")
+            print("❌ [Widget Update] Checked both Data and String formats for key: \(tasksKey)")
+            print("❌ [Widget Update] This suggests the main app hasn't written widget data yet")
             return
         }
+        
+        print("✅ [Widget Update] Found widget data (\(validJsonData.count) bytes)")
         
         do {
             var widgetData = try JSONDecoder().decode(WidgetData.self, from: validJsonData)
@@ -144,6 +158,32 @@ struct CompleteTaskIntent: AppIntent {
             print("✅ [Widget Update] Widget data updated and saved successfully")
         } catch {
             print("❌ [Widget Update] Failed to update widget data: \(error)")
+        }
+    }
+    
+    /// Performs optimized widget updates using modern iOS patterns
+    private func performOptimizedWidgetUpdate() {
+        Task { @MainActor in
+            do {
+                // Immediate update for instant UI feedback
+                WidgetCenter.shared.reloadAllTimelines()
+                print("✅ [Widget Update] Immediate reload triggered")
+                
+                // Optimized delay using modern concurrency
+                try await Task.sleep(for: .milliseconds(100))
+                
+                // Secondary update to ensure consistency
+                WidgetCenter.shared.reloadTimelines(ofKind: "widget")
+                print("🚀 [Widget Update] Optimized secondary reload completed")
+                
+            } catch {
+                print("❌ [Widget Update] Optimized update failed: \(error)")
+                // Fallback to traditional approach
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                    print("🔄 [Widget Update] Fallback reload completed")
+                }
+            }
         }
     }
 }
@@ -235,18 +275,17 @@ struct ToggleFrogTaskIntent: AppIntent {
             }
             
             // Add haptic feedback for frog task toggle
-            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-            await impactFeedback.impactOccurred()
-            
-            // Force immediate widget timeline reload
-            await WidgetCenter.shared.reloadAllTimelines()
-            
-            // Additional forced reload after brief delay for instant update
-            Task {
-                try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                await WidgetCenter.shared.reloadAllTimelines()
-                print("🐸 [ToggleFrogTaskIntent] Double widget reload completed for instant update")
+            do {
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.prepare() // Prepare for optimal performance
+                impactFeedback.impactOccurred()
+                print("✅ [ToggleFrogTaskIntent] Haptic feedback triggered successfully")
+            } catch {
+                print("⚠️ [ToggleFrogTaskIntent] Haptic feedback failed: \(error)")
             }
+            
+            // Use optimized widget update pattern
+            performOptimizedWidgetUpdate()
             
             return .result()
         } catch {

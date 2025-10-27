@@ -124,10 +124,14 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
         
         print("🔍 [LiveActivityModule] Ending any existing activities first...")
         // End all existing activities to prevent "maximum number" error
-        for activity in Activity<PomodoroActivityAttributes>.activities {
-            Task {
-                await activity.end(nil, dismissalPolicy: .immediate)
-                print("🧹 [LiveActivityModule] Ended existing activity: \(activity.id)")
+        Task { @MainActor in
+            for activity in Activity<PomodoroActivityAttributes>.activities {
+                do {
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                    print("🧹 [LiveActivityModule] Successfully ended existing activity: \(activity.id)")
+                } catch {
+                    print("⚠️ [LiveActivityModule] Failed to end activity \(activity.id): \(error)")
+                }
             }
         }
         
@@ -201,9 +205,15 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             sessionStartTime: sessionStartTime
         )
         
-        Task {
-            await activity.update(using: contentState)
-            resolve(nil)
+        Task { @MainActor in
+            do {
+                await activity.update(using: contentState)
+                print("✅ [LiveActivityModule] Activity updated successfully")
+                resolve(nil)
+            } catch {
+                print("❌ [LiveActivityModule] Failed to update activity: \(error)")
+                reject("UPDATE_ERROR", "Failed to update Live Activity: \(error.localizedDescription)", error)
+            }
         }
     }
     
@@ -220,10 +230,16 @@ class LiveActivityModule: NSObject, RCTBridgeModule {
             return
         }
         
-        Task {
-            await activity.end(dismissalPolicy: .immediate)
-            self.currentActivity = nil
-            resolve(nil)
+        Task { @MainActor in
+            do {
+                await activity.end(dismissalPolicy: .immediate)
+                print("✅ [LiveActivityModule] Activity ended successfully")
+                self.currentActivity = nil
+                resolve(nil)
+            } catch {
+                print("❌ [LiveActivityModule] Failed to end activity: \(error)")
+                reject("END_ERROR", "Failed to end Live Activity: \(error.localizedDescription)", error)
+            }
         }
     }
 }

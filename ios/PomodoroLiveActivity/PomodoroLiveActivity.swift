@@ -185,16 +185,16 @@ private func sessionTypeLabel(_ sessionType: String) -> String {
 
 // MARK: - Time Calculation for Live Activities
 private func calculateTargetDate(_ context: ActivityViewContext<PomodoroActivityAttributes>) -> Date {
-    // Calculate the target date when the timer should reach zero
     let currentTime = Date()
     let sessionStartTime = context.state.sessionStartTime
     let totalElapsedSeconds = currentTime.timeIntervalSince(sessionStartTime)
-    
-    // Calculate remaining seconds
     let remainingSeconds = max(0, Double(context.state.totalDuration) - totalElapsedSeconds)
+    let targetDate = currentTime.addingTimeInterval(remainingSeconds)
     
-    // Return the date when timer should reach zero
-    return currentTime.addingTimeInterval(remainingSeconds)
+    // Comprehensive logging for debugging timer calculations
+    print("🕐 [Live Activity] Timer calculation - Session: \(context.state.sessionType), Remaining: \(String(format: "%.1f", remainingSeconds))s")
+    
+    return targetDate
 }
 
 private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivityAttributes>) -> Int {
@@ -214,11 +214,16 @@ private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivit
     
     // Auto-dismiss Live Activity when timer reaches zero
     if calculatedTime <= 0 && context.state.timeRemaining > 0 {
-        Task {
-            // Find the current activity and end it
-            for activity in Activity<PomodoroActivityAttributes>.activities {
-                await activity.end(dismissalPolicy: .after(Date().addingTimeInterval(5))) // Dismiss after 5 seconds
-                break
+        Task { @MainActor in
+            do {
+                // Find and end the current activity gracefully
+                for activity in Activity<PomodoroActivityAttributes>.activities {
+                    await activity.end(dismissalPolicy: .after(Date().addingTimeInterval(5)))
+                    print("🏁 [Live Activity] Timer complete - activity ended gracefully")
+                    break
+                }
+            } catch {
+                print("⚠️ [Live Activity] Failed to auto-dismiss activity: \(error)")
             }
         }
     }
