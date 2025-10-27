@@ -3,8 +3,9 @@
 //  App Intent for completing tasks from widget
 //
 
-import Foundation
+import SwiftUI
 import AppIntents
+import UIKit
 import WidgetKit
 
 struct CompleteTaskIntent: AppIntent {
@@ -72,9 +73,20 @@ struct CompleteTaskIntent: AppIntent {
             // Update widget data to reflect completion immediately
             updateWidgetData(completedTaskId: taskId)
             
-            // Reload all widget timelines
+            // Add haptic feedback for completion
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            
+            // Force immediate widget timeline reload with completion callback
             WidgetCenter.shared.reloadAllTimelines()
-            print("🚀 [CompleteTaskIntent] Widget timelines reloaded, task completion finished!")
+            
+            // Additional forced reload after a brief delay to ensure update
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                WidgetCenter.shared.reloadAllTimelines()
+                print("🚀 [CompleteTaskIntent] Double widget reload completed for instant update")
+            }
+            
+            print("🚀 [CompleteTaskIntent] Widget timelines reloaded with haptic feedback!")
             
             return .result()
         } else {
@@ -87,34 +99,50 @@ struct CompleteTaskIntent: AppIntent {
         let appGroupId = "group.pro.GoalAchieverAI"
         let tasksKey = "@goals_ai:widget_tasks"
         
-        guard let userDefaults = UserDefaults(suiteName: appGroupId),
-              let tasksData = userDefaults.string(forKey: tasksKey),
-              let jsonData = tasksData.data(using: .utf8) else { return }
+        guard let userDefaults = UserDefaults(suiteName: appGroupId) else { 
+            print("❌ [Widget Update] Failed to access App Group")
+            return 
+        }
+        
+        // Try Data first, then String for backward compatibility
+        var jsonData: Data?
+        
+        if let data = userDefaults.data(forKey: tasksKey) {
+            jsonData = data
+        } else if let stringData = userDefaults.string(forKey: tasksKey) {
+            jsonData = stringData.data(using: .utf8)
+        }
+        
+        guard let validJsonData = jsonData else {
+            print("❌ [Widget Update] No widget data found")
+            return
+        }
         
         do {
-            var widgetData = try JSONDecoder().decode(WidgetData.self, from: jsonData)
+            var widgetData = try JSONDecoder().decode(WidgetData.self, from: validJsonData)
+            print("🔄 [Widget Update] Current widget data loaded, updating task: \(completedTaskId)")
             
-            // Mark frog task as completed if it matches
+            // Remove completed frog task entirely (don't just mark as completed)
             if widgetData.frogTask?.id == completedTaskId {
-                widgetData.frogTask?.isCompleted = true
+                print("🐸 [Widget Update] Removing completed frog task")
+                widgetData.frogTask = nil
             }
             
-            // Mark regular task as completed if it matches
-            if let taskIndex = widgetData.regularTasks.firstIndex(where: { $0.id == completedTaskId }) {
-                widgetData.regularTasks[taskIndex].isCompleted = true
-            }
+            // Remove completed regular task entirely (don't just mark as completed)
+            widgetData.regularTasks.removeAll { $0.id == completedTaskId }
+            print("📝 [Widget Update] Removed completed regular task, remaining: \(widgetData.regularTasks.count)")
             
             // Update timestamp
             widgetData.lastUpdated = ISO8601DateFormatter().string(from: Date())
             
-            // Save updated data
+            // Save updated data as Data (consistent with UserDefaultsManager)
             let updatedData = try JSONEncoder().encode(widgetData)
-            if let updatedString = String(data: updatedData, encoding: .utf8) {
-                userDefaults.set(updatedString, forKey: tasksKey)
-                userDefaults.synchronize()
-            }
+            userDefaults.set(updatedData, forKey: tasksKey)
+            userDefaults.synchronize()
+            
+            print("✅ [Widget Update] Widget data updated and saved successfully")
         } catch {
-            print("Failed to update widget data after completion: \(error)")
+            print("❌ [Widget Update] Failed to update widget data: \(error)")
         }
     }
 }
@@ -205,8 +233,18 @@ struct ToggleFrogTaskIntent: AppIntent {
                 userDefaults.synchronize()
             }
             
-            // Reload widget timelines
+            // Add haptic feedback for frog task toggle
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            
+            // Force immediate widget timeline reload
             WidgetCenter.shared.reloadAllTimelines()
+            
+            // Additional forced reload after brief delay for instant update
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                WidgetCenter.shared.reloadAllTimelines()
+                print("🐸 [ToggleFrogTaskIntent] Double widget reload completed for instant update")
+            }
             
             return .result()
         } catch {

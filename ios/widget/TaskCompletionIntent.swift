@@ -28,9 +28,13 @@ struct CompleteTaskIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
+        print("🚀 [CompleteTaskIntent] PERFORM CALLED! TaskId: \(taskId), Title: \(taskTitle)")
+        
         // Write completion to App Group storage for app to process
         let appGroupId = "group.pro.GoalAchieverAI"
         let completionsKey = "@goals_ai:widget_completions"
+        
+        print("🚀 [CompleteTaskIntent] Using App Group: \(appGroupId), Key: \(completionsKey)")
         
         if let userDefaults = UserDefaults(suiteName: appGroupId) {
             // Get existing completions - try Data first, then String for backward compatibility
@@ -58,19 +62,23 @@ struct CompleteTaskIntent: AppIntent {
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: completions, options: [])
                 userDefaults.set(jsonData, forKey: completionsKey)
+                print("🚀 [CompleteTaskIntent] Successfully saved completion data: \(completion)")
             } catch {
-                print("Failed to serialize completions: \(error)")
+                print("❌ [CompleteTaskIntent] Failed to serialize completions: \(error)")
             }
             userDefaults.synchronize()
+            print("🚀 [CompleteTaskIntent] UserDefaults synchronized")
             
             // Update widget data to reflect completion immediately
             updateWidgetData(completedTaskId: taskId)
             
             // Reload all widget timelines
             WidgetCenter.shared.reloadAllTimelines()
+            print("🚀 [CompleteTaskIntent] Widget timelines reloaded, task completion finished!")
             
             return .result()
         } else {
+            print("❌ [CompleteTaskIntent] Failed to access App Group: \(appGroupId)")
             throw NSError(domain: "WidgetError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to access App Group"])
         }
     }
@@ -132,6 +140,8 @@ struct ToggleFrogTaskIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
+        print("🐸 [ToggleFrogTaskIntent] PERFORM CALLED! TaskId: \(taskId), Title: \(taskTitle)")
+        
         let appGroupId = "group.pro.GoalAchieverAI"
         let tasksKey = "@goals_ai:widget_tasks"
         let completionsKey = "@goals_ai:widget_completions"

@@ -20,13 +20,23 @@ struct PomodoroLiveActivity: Widget {
                 // Expanded UI - timer and task name only
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 8) {
-                        // Timer display with real-time calculation
-                        Text(formatTime(calculateCurrentTime(context)))
-                            .font(.custom("Helvetica", size: 32))
-                            .fontWeight(.bold)
-                            .foregroundColor(context.state.sessionType == "work" ? 
-                                Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
-                                Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958 for break
+                        // Timer display with real-time countdown using Date
+                        if context.state.isRunning {
+                            Text(calculateTargetDate(context), style: .timer)
+                                .font(.custom("Helvetica", size: 32))
+                                .fontWeight(.bold)
+                                .foregroundColor(context.state.sessionType == "work" ? 
+                                    Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
+                                    Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958 for break
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text(formatTime(context.state.timeRemaining))
+                                .font(.custom("Helvetica", size: 32))
+                                .fontWeight(.bold)
+                                .foregroundColor(context.state.sessionType == "work" ? 
+                                    Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51 for work
+                                    Color(red: 0.21, green: 0.29, blue: 0.35)) // #364958 for break
+                        }
                         
                         // Task name
                         Text(context.state.taskTitle)
@@ -41,13 +51,23 @@ struct PomodoroLiveActivity: Widget {
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
-                // Compact trailing - timer with real-time calculation
-                Text(formatTimeCompact(calculateCurrentTime(context)))
-                    .font(.custom("Helvetica", size: 14))
-                    .fontWeight(.medium)
-                    .foregroundColor(context.state.sessionType == "work" ? 
-                        Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
-                        Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
+                // Compact trailing - timer with real-time countdown
+                if context.state.isRunning {
+                    Text(calculateTargetDate(context), style: .timer)
+                        .font(.custom("Helvetica", size: 14))
+                        .fontWeight(.medium)
+                        .foregroundColor(context.state.sessionType == "work" ? 
+                            Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
+                            Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text(formatTimeCompact(context.state.timeRemaining))
+                        .font(.custom("Helvetica", size: 14))
+                        .fontWeight(.medium)
+                        .foregroundColor(context.state.sessionType == "work" ? 
+                            Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
+                            Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
+                }
             } minimal: {
                 // Minimal - just the emoji
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
@@ -108,12 +128,21 @@ struct PomodoroLockScreenView: View {
                         .stroke(Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.2), lineWidth: 1)
                 )
                 
-                // Timer text with real-time calculation
-                Text(formatTime(calculateCurrentTime(context)))
-                    .font(.custom("Helvetica", size: 48))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .shadow(color: Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.8), radius: 4, x: 0, y: 2)
+                // Timer text with real-time countdown
+                if context.state.isRunning {
+                    Text(calculateTargetDate(context), style: .timer)
+                        .font(.custom("Helvetica", size: 48))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .shadow(color: Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.8), radius: 4, x: 0, y: 2)
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text(formatTime(context.state.timeRemaining))
+                        .font(.custom("Helvetica", size: 48))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .shadow(color: Color(red: 0.74, green: 0.29, blue: 0.32).opacity(0.8), radius: 4, x: 0, y: 2)
+                }
             }
             .frame(height: 100)
             
@@ -155,6 +184,19 @@ private func sessionTypeLabel(_ sessionType: String) -> String {
 }
 
 // MARK: - Time Calculation for Live Activities
+private func calculateTargetDate(_ context: ActivityViewContext<PomodoroActivityAttributes>) -> Date {
+    // Calculate the target date when the timer should reach zero
+    let currentTime = Date()
+    let sessionStartTime = context.state.sessionStartTime
+    let totalElapsedSeconds = currentTime.timeIntervalSince(sessionStartTime)
+    
+    // Calculate remaining seconds
+    let remainingSeconds = max(0, Double(context.state.totalDuration) - totalElapsedSeconds)
+    
+    // Return the date when timer should reach zero
+    return currentTime.addingTimeInterval(remainingSeconds)
+}
+
 private func calculateCurrentTime(_ context: ActivityViewContext<PomodoroActivityAttributes>) -> Int {
     // If timer is not running, return the stored time
     guard context.state.isRunning else {

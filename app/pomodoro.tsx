@@ -105,8 +105,8 @@ export default function PomodoroScreen() {
           }
           const newTime = prev - 1;
           
-          // Update Live Activity every 30 seconds (Live Activity now calculates time natively)
-          if (liveActivityId && newTime % 30 === 0) {
+          // Update Live Activity every 1 seconds for better sync (Live Activity calculates time natively)
+          if (liveActivityId && newTime % 1 === 0) {
             console.log(`🔄 [Live Activity Update] Periodic sync: ${newTime}s remaining`);
             LiveActivityModule.updatePomodoroActivity(liveActivityId, {
               timeRemaining: newTime,
@@ -218,7 +218,7 @@ export default function PomodoroScreen() {
       Alert.alert(
         'Pomodoro Complete! 🍅',
         `Great work! You've completed ${newCompletedPomodoros} pomodoro${newCompletedPomodoros > 1 ? 's' : ''} today. Time for a ${nextSession === 'longBreak' ? 'long' : 'short'} break.`,
-        [{ text: 'Start Break', onPress: () => setIsRunning(true) }]
+        [{ text: 'Start Break', onPress: () => toggleTimer() }]
       );
     } else {
       // Break completed - send notification for break end
@@ -230,7 +230,7 @@ export default function PomodoroScreen() {
       Alert.alert(
         'Break Complete! ☕',
         'Break time is over. Ready to focus again?',
-        [{ text: 'Start Focus', onPress: () => setIsRunning(true) }]
+        [{ text: 'Start Focus', onPress: () => toggleTimer() }]
       );
     }
   };

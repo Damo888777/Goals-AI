@@ -86,8 +86,8 @@ struct Provider: TimelineProvider {
         
         return SimpleEntry(
             date: Date(),
-            frogTask: frogTask?.isCompleted == true ? nil : frogTask,
-            regularTasks: regularTasks.filter { !$0.isCompleted }
+            frogTask: frogTask, // Show frog task regardless of completion (removal handled in TaskCompletionIntent)
+            regularTasks: regularTasks // Show all tasks (removal handled in TaskCompletionIntent)
         )
     }
 }
