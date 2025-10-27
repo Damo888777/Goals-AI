@@ -83,19 +83,23 @@ export default function RootLayout() {
 
   // Check if app is ready (splash finished, storage ready, and onboarding status loaded)
   useEffect(() => {
-    if (!isLoading && !isOnboardingLoading && isStorageReady) {
+    // CRITICAL: Only mark app as ready when onboarding status is definitively known
+    if (!isLoading && !isOnboardingLoading && isStorageReady && isOnboardingCompleted !== null) {
       setIsAppReady(true);
     }
-  }, [isLoading, isOnboardingLoading, isStorageReady]);
+  }, [isLoading, isOnboardingLoading, isStorageReady, isOnboardingCompleted]);
 
   // Fade in the main app when ready
   useEffect(() => {
     if (isAppReady) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300, // 300ms smooth fade in
-        useNativeDriver: true,
-      }).start();
+      // Delay the fade-in slightly to ensure splash screen has started fading out
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600, // Longer, smoother fade in that overlaps with splash fade-out
+          useNativeDriver: true,
+        }).start();
+      }, 400); // Start fade-in while splash is still fading out for seamless transition
     }
   }, [isAppReady, fadeAnim]);
 
@@ -114,35 +118,37 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SubscriptionProvider>
           <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
-          <Stack 
-            screenOptions={{ 
-              headerShown: false,
-              contentStyle: { backgroundColor: '#E9EDC9' },
-              animation: 'fade',
-              animationDuration: 300
-            }}
-            initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
-          >  
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            <Stack.Screen name="vision-board" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-task" options={{ headerShown: false }} />
-            <Stack.Screen name="goal-details" options={{ headerShown: false }} />
-            <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
-            <Stack.Screen name="task-details" options={{ headerShown: false }} />
-            <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
-            <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
-            <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
-            <Stack.Screen name="trophy" options={{ headerShown: false }} />
-            <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
-            <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
-            <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
-          </Stack>
+          <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+            <Stack 
+              screenOptions={{ 
+                headerShown: false,
+                contentStyle: { backgroundColor: '#E9EDC9' },
+                animation: 'fade',
+                animationDuration: 300
+              }}
+              initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
+            >  
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen name="vision-board" options={{ headerShown: false }} />
+              <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
+              <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
+              <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
+              <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
+              <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
+              <Stack.Screen name="manual-task" options={{ headerShown: false }} />
+              <Stack.Screen name="goal-details" options={{ headerShown: false }} />
+              <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
+              <Stack.Screen name="task-details" options={{ headerShown: false }} />
+              <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
+              <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
+              <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
+              <Stack.Screen name="trophy" options={{ headerShown: false }} />
+              <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
+              <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
+              <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
+            </Stack>
+          </Animated.View>
         </SubscriptionProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>

@@ -20,6 +20,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
   const { goals } = useGoals();
   const { milestones } = useMilestones();
   const { tasks } = useTasks();
+  
+  // Import onboarding hook to ensure status is loaded during splash
+  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = require('../hooks/useOnboarding').useOnboarding();
 
   // Preload app data and sign in user
   useEffect(() => {
@@ -30,18 +33,26 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
           await signInAnonymously();
         }
         
-        // Wait for essential data to load or timeout after 4 seconds
+        // Wait for essential data AND onboarding status to load
         console.log('🚀 [Splash] Starting preload...');
         console.log('🚀 [Splash] Goals loaded:', goals.length);
         console.log('🚀 [Splash] Milestones loaded:', milestones.length);
         console.log('🚀 [Splash] Tasks loaded:', tasks.length);
+        console.log('🚀 [Splash] Onboarding status:', isOnboardingCompleted, 'Loading:', isOnboardingLoading);
         
         const startTime = Date.now();
         const maxWaitTime = 4000; // 4 seconds max
         
-        // Wait for goals to load or timeout
-        while (goals.length === 0 && (Date.now() - startTime) < maxWaitTime) {
+        // Wait for onboarding status to be determined (critical for first launch)
+        while (isOnboardingLoading && (Date.now() - startTime) < maxWaitTime) {
           await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Wait for goals to load or timeout (only for returning users)
+        if (isOnboardingCompleted) {
+          while (goals.length === 0 && (Date.now() - startTime) < maxWaitTime) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
         }
         
         console.log('🚀 [Splash] Preload complete. Final counts:');
@@ -67,7 +78,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
     };
 
     preloadApp();
-  }, [user, signInAnonymously, goals.length, milestones.length, tasks.length]);
+  }, [user, signInAnonymously, goals.length, milestones.length, tasks.length, isOnboardingCompleted, isOnboardingLoading]);
 
   useEffect(() => {
     let isMounted = true;
@@ -117,18 +128,21 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
   // Handle transition when both animation and preloading are complete
   useEffect(() => {
     if (animationComplete && preloadComplete) {
-      // Start fade out transition
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 500, // 500ms smooth fade out
-        useNativeDriver: true,
-      }).start(() => {
-        // Cleanup sound when transitioning
-        if (sound) {
-          sound.unloadAsync();
-        }
-        onAnimationFinish();
-      });
+      // Add a small delay before starting fade out for smoother UX
+      setTimeout(() => {
+        // Start fade out transition
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 800, // Longer, smoother fade out
+          useNativeDriver: true,
+        }).start(() => {
+          // Cleanup sound when transitioning
+          if (sound) {
+            sound.unloadAsync();
+          }
+          onAnimationFinish();
+        });
+      }, 200); // Small delay to let animation settle
     }
   }, [animationComplete, preloadComplete, fadeAnim, sound, onAnimationFinish]);
 
