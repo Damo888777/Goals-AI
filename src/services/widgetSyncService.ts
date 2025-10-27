@@ -93,7 +93,10 @@ class WidgetSyncService {
       if (Platform.OS === 'ios' && UserDefaultsManager && UserDefaultsManager.getStringForAppGroup) {
         const completionsData = await UserDefaultsManager.getStringForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
         if (completionsData) {
-          return JSON.parse(completionsData) as WidgetCompletion[]
+          console.log('📱 Raw completions data from widget:', completionsData)
+          const parsed = JSON.parse(completionsData) as WidgetCompletion[]
+          console.log('📱 Parsed completions:', parsed)
+          return parsed
         }
       } else {
         const completionsData = await AsyncStorage.getItem(WIDGET_COMPLETIONS_KEY)

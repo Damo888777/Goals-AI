@@ -17,6 +17,7 @@ struct PomodoroActivityAttributes: ActivityAttributes {
         var completedPomodoros: Int
         var taskTitle: String
         var lastUpdateTime: Date
+        var sessionStartTime: Date
         
         // Helper computed property to check if timer is complete
         var isComplete: Bool {
