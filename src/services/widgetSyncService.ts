@@ -35,10 +35,10 @@ class WidgetSyncService {
   startCompletionSync() {
     if (this.syncInterval) return
 
-    // Check for completions every 2 seconds when app is active
+    // Check for completions every 1 second for more responsive sync
     this.syncInterval = setInterval(() => {
       this.processWidgetCompletions()
-    }, 2000)
+    }, 1000)
 
     console.log('📱 Widget completion sync started')
   }
@@ -98,9 +98,35 @@ class WidgetSyncService {
         const completionsData = await UserDefaultsManager.getStringForAppGroup(WIDGET_COMPLETIONS_KEY, APP_GROUP_ID)
         if (completionsData) {
           console.log('📱 Raw completions data from widget:', completionsData)
-          const parsed = JSON.parse(completionsData) as WidgetCompletion[]
+          
+          // Handle both string and already-parsed data
+          let parsed: WidgetCompletion[]
+          if (typeof completionsData === 'string') {
+            try {
+              parsed = JSON.parse(completionsData) as WidgetCompletion[]
+            } catch (parseError) {
+              console.error('❌ Failed to parse completions JSON:', parseError)
+              return []
+            }
+          } else {
+            // Data is already parsed (shouldn't happen but defensive)
+            parsed = completionsData as WidgetCompletion[]
+          }
+          
           console.log('📱 Parsed completions:', parsed)
-          return parsed
+          
+          // Validate the data structure
+          if (!Array.isArray(parsed)) {
+            console.error('❌ Completions data is not an array:', parsed)
+            return []
+          }
+          
+          return parsed.filter(completion => 
+            completion && 
+            completion.taskId && 
+            completion.action && 
+            ['complete', 'uncomplete'].includes(completion.action)
+          )
         }
       } else {
         const completionsData = await AsyncStorage.getItem(WIDGET_COMPLETIONS_KEY)
@@ -109,7 +135,7 @@ class WidgetSyncService {
         }
       }
     } catch (error) {
-      console.error('Failed to get widget completions:', error)
+      console.error('❌ Failed to get widget completions:', error)
     }
     
     return []
@@ -121,33 +147,47 @@ class WidgetSyncService {
   private async syncCompletionToDatabase(completion: WidgetCompletion) {
     try {
       if (!database) {
-        console.error('Database not initialized')
+        console.error('❌ Database not initialized')
         return
       }
 
-      const task = await database.collections
-        .get<Task>('tasks')
-        .find(completion.taskId)
+      console.log(`🔄 [Widget Sync] Looking for task: ${completion.taskId}`)
+      
+      let task: Task | null = null
+      try {
+        task = await database.collections
+          .get<Task>('tasks')
+          .find(completion.taskId)
+      } catch (findError) {
+        console.warn(`❌ Task ${completion.taskId} not found in database:`, findError)
+        return
+      }
 
       if (!task) {
-        console.warn(`Task ${completion.taskId} not found in database`)
+        console.warn(`❌ Task ${completion.taskId} not found in database`)
         return
       }
 
       const isCompleted = completion.action === 'complete'
+      console.log(`🔄 [Widget Sync] Task current state: ${task.isComplete}, target state: ${isCompleted}`)
       
       if (task.isComplete !== isCompleted) {
         await database!.write(async () => {
-          await task.update((updatedTask: Task) => {
+          await task!.update((updatedTask: Task) => {
             (updatedTask._raw as any).is_complete = isCompleted
             ;(updatedTask._raw as any).completed_at = isCompleted ? Date.now() : null
           })
         })
 
-        console.log(`✅ Task "${completion.taskTitle}" ${completion.action}d via widget`)
+        console.log(`✅ [Widget Sync] Task "${completion.taskTitle}" ${completion.action}d via widget`)
+        
+        // Force sync updated data back to widget immediately
+        await this.forceSyncToWidget()
+      } else {
+        console.log(`ℹ️ [Widget Sync] Task "${completion.taskTitle}" already in target state`)
       }
     } catch (error) {
-      console.error(`Failed to sync completion for task ${completion.taskId}:`, error)
+      console.error(`❌ [Widget Sync] Failed to sync completion for task ${completion.taskId}:`, error)
     }
   }
 

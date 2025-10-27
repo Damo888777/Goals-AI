@@ -22,7 +22,10 @@ export function FAB({ onPress, onLongPress }: FABProps) {
   
   // Safely try to get subscription context
   let subscription = null;
-  let requireAccess = null;
+  let requireAccess: ((
+    feature: 'create_goal' | 'modify_data' | 'spark_ai_voice' | 'spark_ai_vision' | 'home_widgets',
+    options?: { currentUsage?: number; currentGoalCount?: number }
+  ) => boolean) | null = null;
   let goals = null;
   let hasSubscriptionContext = false;
   

@@ -266,8 +266,11 @@ export default function PomodoroScreen() {
           return; // Don't try to start if disabled
         }
         
-        // Start Live Activity using native module with session start time
-        const sessionStartTime = new Date();
+        // Calculate session start time based on current timeLeft
+        // For resumed sessions, we need to backdate the start time
+        const now = new Date();
+        const elapsedSeconds = POMODORO_SESSIONS[currentSession].duration - timeLeft;
+        const sessionStartTime = new Date(now.getTime() - (elapsedSeconds * 1000));
         console.log('🔍 [React Native] Starting Live Activity with data:', {
           activityName: 'PomodoroTimer',
           timeRemaining: timeLeft,
