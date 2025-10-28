@@ -1,0 +1,1341 @@
+{
+  "goals": {
+    "hub": {
+      "title": "Hub Objectifs",
+      "description": "C'est ici que vos rêves prennent forme. Commencez par votre vision, puis créez le plan pour la réaliser."
+    },
+    "buttons": {
+      "trophy": "Trophée",
+      "vision": "Vision"
+    },
+    "myGoals": {
+      "title": "Mes Objectifs",
+      "description": "Ici vous trouvez tous vos objectifs actuels."
+    },
+    "loading": "Chargement de vos objectifs..."
+  },
+  "today": {
+    "greeting": {
+      "good": "Bon",
+      "morning": "Matin",
+      "afternoon": "Après-midi", 
+      "evening": "Soir",
+      "night": "Nuit"
+    },
+    "defaultTaskTitle": "Nouvelle Tâche",
+    "defaultUsername": "Utilisateur"
+  },
+  "plan": {
+    "title": "Console de Plan",
+    "description": "C'est ici que vos rêves prennent forme. Commencez par votre vision, puis créez le plan pour la réaliser.",
+    "viewModes": {
+      "thisWeek": "Cette Semaine",
+      "backlog": "Liste d'attente"
+    },
+    "filters": {
+      "scheduled": "Planifié",
+      "someday": "Un jour"
+    },
+    "sections": {
+      "somedayTasks": "Tâches Un jour"
+    },
+    "common": {
+      "dateSeparator": "-"
+    }
+  },
+  "calendar": {
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév", 
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juil",
+      "aug": "Août",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Déc"
+    },
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi", 
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    }
+  },
+  "profile": {
+    "sections": {
+      "yourProfile": "Votre Profil",
+      "subscription": "Abonnement",
+      "yourJourney": "Votre Parcours",
+      "homeScreenWidget": "Widget d'écran d'Accueil",
+      "settings": "Paramètres",
+      "supportInfo": "Support & Info",
+      "devTools": "Outils Développeur"
+    },
+    "profile": {
+      "enterYourName": "Entrez votre nom",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "signInWithApple": "Sign In with Apple",
+      "signInDescription": "Connexion pour sauvegarde et sync",
+      "dataSynced": "Données Synchronisées",
+      "emailHidden": "E-mail masqué",
+      "deleteAccount": "Supprimer le Compte",
+      "signOut": "Se Déconnecter"
+    },
+    "subscription": {
+      "loadingSubscription": "Chargement de l'abonnement...",
+      "freeTrial": "Essai Gratuit",
+      "activeSubscription": "Abonnement Actif",
+      "renewalAt": "Renouvellement le",
+      "freeTrialUntil": "Essai gratuit jusqu'au",
+      "sparkAIInputs": "Spark AI Entrées",
+      "sparkAIVisions": "Spark AI Visions",
+      "switchToAnnual": "Passer à l'Annuel",
+      "upgradePlan": "Améliorer le Plan",
+      "highestTier": "Vous êtes au niveau le plus élevé",
+      "manageSubscription": "Gérer l'Abonnement"
+    },
+    "stats": {
+      "eatTheFrogStreak": "Eat the Frog Série",
+      "goalsAchieved": "Objectifs Atteints",
+      "totalFocusTime": "Temps de Focus Total"
+    },
+    "widget": {
+      "addGoalsAIWidget": "Ajouter Widget Goals AI",
+      "widgetDescription": "Ajoutez votre widget de tâches à l'écran d'accueil pour voir votre tâche Eat the Frog et vos progrès quotidiens en un coup d'œil.",
+      "step1": "Maintenez appuyé sur votre écran d'accueil",
+      "step2": "Appuyez sur le bouton \"+\" en haut à gauche",
+      "step3": "Recherchez \"Goals AI\"",
+      "step4": "Sélectionnez le widget Tâches et appuyez sur \"Ajouter Widget\""
+    },
+    "settings": {
+      "notifications": "Notifications"
+    },
+    "menu": {
+      "supportFeedback": "Support & Commentaires",
+      "supportSubtitle": "Obtenez de l'aide ou partagez des idées pour des récompenses",
+      "credits": "Crédits",
+      "creditsSubtitle": "Icônes et illustrations par Freepik",
+      "privacyPolicy": "Politique de Confidentialité",
+      "privacySubtitle": "Comment nous protégeons vos données",
+      "termsConditions": "Conditions d'Utilisation",
+      "termsSubtitle": "Conditions de service",
+      "developerTools": "Outils Développeur",
+      "devToolsSubtitle": "Réinitialiser l'intégration, outils de débogage"
+    },
+    "userSection": {
+      "userId": "ID Utilisateur"
+    },
+    "alerts": {
+      "signInError": "Erreur de Connexion",
+      "success": "Succès",
+      "error": "Erreur",
+      "signInSuccess": "Connexion réussie avec Apple. Vos données ont été synchronisées dans le cloud.",
+      "signInFailed": "échec de la connexion avec Apple",
+      "signOutTitle": "Se Déconnecter",
+      "signOutMessage": "Êtes-vous sûr de vouloir vous déconnecter ? Vos données resteront disponibles localement.",
+      "signOutSuccess": "Déconnexion réussie. Vous pouvez continuer à utiliser l'app de manière anonyme.",
+      "signOutFailed": "échec de la déconnexion",
+      "deleteAccountTitle": "Supprimer le Compte",
+      "deleteAccountMessage": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action ne peut pas être annulée et toutes vos données seront perdues.",
+      "deleteAccountSuccess": "Votre demande de suppression de compte a été traitée. Veuillez contacter le support si vous avez besoin d'aide.",
+      "deleteAccountFailed": "échec de la suppression du compte",
+      "supabaseNotConfigured": "Supabase non configuré",
+      "emailTemplateCopied": "Modèle d'E-mail Copié",
+      "emailTemplateMessage": "Le modèle d'e-mail de support a été copié dans votre presse-papiers. Veuillez le coller dans votre app e-mail et envoyer à : support@goals-ai.app\n\nN'oubliez pas d'inclure votre ID utilisateur pour un support plus rapide.",
+      "clipboardFailed": "échec de la copie dans le presse-papiers.",
+      "usernameUpdated": "Nom d'utilisateur mis à jour avec succès",
+      "usernameUpdateFailed": "échec de la mise à jour du nom d'utilisateur. Veuillez réessayer."
+    },
+    "common": {
+      "cancel": "Annuler"
+    }
+  },
+  "completedGoal": {
+    "loading": "Chargement...",
+    "header": {
+      "title": "Victoire d'Objectif",
+      "subtitle": "Célébrez votre réussite et réfléchissez sur votre parcours."
+    },
+    "sections": {
+      "goalTitle": "Titre d'Objectif",
+      "notes": "Notes", 
+      "yourVision": "Votre Vision",
+      "achievementStatistics": "Statistiques de Réussite",
+      "achievedMilestones": "étapes Franchies",
+      "completionDetails": "Détails d'Achèvement",
+      "reflectionQuestions": "Questions de Réflexion"
+    },
+    "stats": {
+      "tasksCompleted": "Tâches Terminées",
+      "milestonesAchieved": "étapes Franchies",
+      "focusSessions": "Sessions de Focus",
+      "totalDuration": "Durée Totale"
+    },
+    "completion": {
+      "completed": "Terminé :",
+      "journeyDuration": "Durée du Parcours :"
+    },
+    "reflection": {
+      "subtitle": "Prenez un moment pour réfléchir sur votre parcours et vos apprentissages.",
+      "question1": "Quels sont vos principaux apprentissages ?",
+      "question2": "Quel défi avez-vous surmonté ?",
+      "question3": "Comment allez-vous vous améliorer à l'avenir ?",
+      "placeholder1": "Partagez les leçons les plus importantes que vous avez apprises...",
+      "placeholder2": "Décrivez le plus grand obstacle que vous avez surmonté...",
+      "placeholder3": "Que feriez-vous différemment la prochaine fois...",
+      "saveButton": "Enregistrer les Réflexions"
+    },
+    "duration": {
+      "days": "jours",
+      "months": "mois"
+    }
+  },
+  "completedTask": {
+    "header": {
+      "title": "Tâche Terminée",
+      "subtitle": "Consultez les détails de votre tâche terminée et l'historique de focus."
+    },
+    "sections": {
+      "taskTitle": "Titre de Tâche",
+      "project": "Projet", 
+      "completionDetails": "Détails d'Achèvement",
+      "notes": "Notes"
+    },
+    "loading": "Chargement...",
+    "noDate": "Aucune date",
+    "project": {
+      "linkedToProject": "Lié au projet",
+      "noProjectLinked": "Aucun projet lié"
+    },
+    "completion": {
+      "completed": "Terminé :",
+      "originallyScheduled": "Programmé initialement :"
+    },
+    "buttons": {
+      "restoreTask": "Restaurer la Tâche",
+      "delete": "Supprimer"
+    },
+    "alerts": {
+      "restoreTitle": "Restaurer la Tâche",
+      "restoreMessage": "Êtes-vous sûr de vouloir restaurer cette tâche ? Elle sera remise dans vos tâches actives.",
+      "deleteTitle": "Supprimer la Tâche Définitivement", 
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer définitivement cette tâche ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "restore": "Restaurer",
+      "delete": "Supprimer",
+      "success": "Succès",
+      "error": "Erreur",
+      "ok": "OK",
+      "taskRestoredSuccess": "Tâche restaurée avec succès",
+      "taskDeletedSuccess": "Tâche supprimée définitivement",
+      "restoreFailed": "échec de la restauration",
+      "deleteFailed": "échec de la suppression",
+      "pomodoroInfo": "Cette tâche est terminée. Démarrez une session pomodoro sur une tâche active à la place.",
+      "info": "Info"
+    }
+  },
+  "focusHistory": {
+    "title": "Historique de Focus",
+    "subtitle": "Un enregistrement du temps et de la dévotion que vous avez investis dans cette tâche.",
+    "emptyState": {
+      "title": "Aucune session de focus encore",
+      "completedTaskDescription": "Cette tâche a été terminée sans sessions de focus.",
+      "activeTaskDescription": "Démarrez un pomodoro pour suivre votre focus et créer de l'élan.",
+      "startFocusSession": "Démarrer Session de Focus"
+    },
+    "activeState": {
+      "title": "Votre activité récente",
+      "description": "Continuez le bon travail. Chaque session vous rapproche de votre objectif.",
+      "todaysProgress": "Progrès d'Aujourd'hui",
+      "sessionsInTotal": "Sessions au total :",
+      "sessions": "Sessions",
+      "totalTimeSpent": "Temps total passé :",
+      "hours": "Heures",
+      "minutes": "Minutes",
+      "sessionHistory": "Historique des sessions :",
+      "startAnotherSession": "Démarrer une Autre Session",
+      "andMoreSessions": "... et {count} sessions de plus"
+    },
+    "timeFormat": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "minutesShort": "minutes"
+    }
+  },
+  "goalDetails": {
+    "loading": "Chargement...",
+    "header": {
+      "title": "Modifier Votre Objectif",
+      "subtitle": "Mettez à jour les détails de votre objectif et suivez vos progrès."
+    },
+    "sections": {
+      "goalTitle": "Titre d'Objectif",
+      "emotions": "Comment vous sentez-vous après avoir atteint votre objectif ?",
+      "emotionsSubtitle": "Choisissez jusqu'à 5 émotions",
+      "vision": "Votre Vision",
+      "visionSubtitle": "Commencez par la fin en tête. C'est vers cela que vous travaillez.",
+      "milestones": "étapes",
+      "milestonesSubtitle": "Divisez votre objectif en étapes plus petites et gérables.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "emotions": {
+      "confident": "Confiant",
+      "grateful": "Reconnaissant", 
+      "proud": "Fier",
+      "calm": "Calme",
+      "energized": "énergisé",
+      "happy": "Heureux",
+      "empowered": "Autonomisé",
+      "excited": "Excité",
+      "fulfilled": "Accompli"
+    },
+    "vision": {
+      "chooseVision": "Choisir votre Vision",
+      "remove": "Supprimer",
+      "changeVision": "Changer la Vision"
+    },
+    "milestones": {
+      "milestonesCount": "{count} étapes",
+      "noMilestonesYet": "Aucune étape encore",
+      "emptyTitle": "Aucune étape encore",
+      "emptyDescription": "Divisez votre objectif en étapes.",
+      "noDateSet": "Aucune date définie"
+    },
+    "placeholders": {
+      "goalTitle": "Tapez ici le titre de votre objectif...",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "delete": "Supprimer",
+      "save": "Enregistrer"
+    },
+    "alerts": {
+      "deleteGoalTitle": "Supprimer l'Objectif",
+      "deleteGoalMessage": "Êtes-vous sûr de vouloir supprimer cet objectif ? Cette action ne peut pas être annulée.",
+      "deleteMilestoneTitle": "Supprimer l'étape",
+      "deleteMilestoneMessage": "Êtes-vous sûr de vouloir supprimer \"{title}\" ?",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "error": "Erreur",
+      "failedToSaveGoal": "échec de l'enregistrement de l'objectif",
+      "failedToDeleteGoal": "échec de la suppression de l'objectif"
+    }
+  },
+  "manualGoal": {
+    "header": {
+      "title": "Créer Votre Objectif",
+      "subtitle": "C'est ici qu'un manuel devient un objectif. Ajoutez les détails et donnez-lui vie."
+    },
+    "sections": {
+      "goalTitle": "Titre d'Objectif",
+      "emotions": "Comment vous sentez-vous après avoir atteint votre objectif ?",
+      "emotionsSubtitle": "Choisissez jusqu'à 5 émotions",
+      "visualizeGoal": "Visualisez votre objectif",
+      "visualizeSubtitle": "Choisissez une image de votre Tableau de Vision.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "emotions": {
+      "confident": "Confiant",
+      "grateful": "Reconnaissant",
+      "proud": "Fier", 
+      "calm": "Calme",
+      "energized": "énergisé",
+      "happy": "Heureux",
+      "empowered": "Autonomisé",
+      "excited": "Excité",
+      "fulfilled": "Accompli"
+    },
+    "vision": {
+      "changeVision": "Changer la Vision",
+      "chooseVision": "Choisir votre Vision"
+    },
+    "placeholders": {
+      "goalTitle": "Tapez ici le titre de votre objectif...",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "alerts": {
+      "error": "Erreur",
+      "success": "Succès",
+      "ok": "OK",
+      "pleaseEnterGoalTitle": "Veuillez entrer un titre d'objectif",
+      "goalCreatedSuccessfully": "Objectif créé avec succès",
+      "failedToCreateGoal": "Échec de la création de l'objectif. Veuillez réessayer."
+    }
+  },
+  "manualMilestone": {
+    "header": {
+      "title": "Créer Votre étape",
+      "subtitle": "C'est ici qu'un manuel devient une étape. Ajoutez les détails et donnez-lui vie."
+    },
+    "sections": {
+      "milestoneTitle": "Titre d'étape",
+      "dueDate": "Date d'échéance",
+      "dueDateSubtitle": "Définissez quand vous voulez terminer ceci.",
+      "myGoals": "Mes Objectifs",
+      "myGoalsSubtitle": "Attachez cette étape à votre objectif.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "datePicker": {
+      "selectDate": "Sélectionner une date",
+      "modalTitle": "Sélectionner une Date",
+      "cancel": "Annuler", 
+      "confirm": "Confirmer"
+    },
+    "goalSelection": {
+      "selectYourGoal": "Sélectionner votre objectif"
+    },
+    "placeholders": {
+      "milestoneTitle": "Tapez ici le titre de votre étape...",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "alerts": {
+      "error": "Erreur",
+      "success": "Succès",
+      "ok": "OK",
+      "pleaseEnterMilestoneTitle": "Veuillez entrer un titre d'étape",
+      "pleaseSelectGoalFirst": "Veuillez d'abord sélectionner un objectif pour créer une étape.",
+      "milestoneCreatedSuccessfully": "Étape créée avec succès",
+      "failedToCreateMilestone": "échec de la création de l'étape. Veuillez réessayer."
+    }
+  },
+  "manualTask": {
+    "header": {
+      "title": "Créer Votre Tâche",
+      "subtitle": "C'est ici qu'un manuel devient une tâche. Ajoutez les détails et donnez-lui vie."
+    },
+    "sections": {
+      "taskTitle": "Titre de Tâche",
+      "eatTheFrog": "Eat the frog",
+      "eatTheFrogDescription": "Choisissez cette tâche si la terminer fera de votre journée un succès.",
+      "goalMilestone": "Objectif / étape",
+      "goalMilestoneSubtitle": "Attachez soit un objectif soit une étape à votre tâche.",
+      "dueDate": "Date d'échéance",
+      "dueDateSubtitle": "Définissez quand vous voulez terminer ceci.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "datePicker": {
+      "selectDate": "Sélectionner une date",
+      "modalTitle": "Sélectionner une Date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "goalMilestoneSelection": {
+      "selectGoalMilestone": "Sélectionner votre objectif principal ou sous-objectif",
+      "goalSection": "Objectif",
+      "milestonesSection": "étapes"
+    },
+    "placeholders": {
+      "taskTitle": "Tapez ici le titre de votre tâche...",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "alerts": {
+      "error": "Erreur",
+      "success": "Succès",
+      "ok": "OK",
+      "pleaseEnterTitle": "Veuillez entrer un titre",
+      "replaceFrogTaskTitle": "Remplacer la Tâche Frog ?",
+      "replaceFrogTaskMessage": "Vous avez déjà \"{title}\" défini comme votre tâche frog. Une seule tâche peut être votre frog à la fois. Voulez-vous la remplacer par cette nouvelle tâche ?",
+      "replaceFrogCancel": "Annuler",
+      "replaceFrogConfirm": "Remplacer",
+      "pleaseSelectGoalFirst": "Veuillez d'abord sélectionner un objectif pour créer une étape.",
+      "taskCreatedSuccessfully": "Tâche créée avec succès",
+      "goalCreatedSuccessfully": "Objectif créé avec succès",
+      "milestoneCreatedSuccessfully": "Étape créée avec succès",
+      "failedToCreateTask": "échec de la création de la tâche. Veuillez réessayer.",
+      "failedToCreateGoal": "échec de la création de l'objectif. Veuillez réessayer.",
+      "failedToCreateMilestone": "échec de la création de l'étape. Veuillez réessayer."
+    }
+  },
+  "milestoneDetails": {
+    "header": {
+      "title": "Modifier l'étape",
+      "subtitle": "Examinez et ajustez les détails de votre étape."
+    },
+    "sections": {
+      "milestoneTitle": "Titre d'étape",
+      "myGoal": "Mon objectif",
+      "myGoalSubtitle": "Attachez cette étape à votre objectif.",
+      "dueDate": "Date d'échéance",
+      "dueDateSubtitle": "Définissez quand vous voulez terminer ceci.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "goalSelection": {
+      "selectYourGoal": "Sélectionner votre objectif"
+    },
+    "datePicker": {
+      "selectDate": "Sélectionner une date",
+      "modalTitle": "Sélectionner une Date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "placeholders": {
+      "milestoneTitle": "Tapez ici le titre de votre étape...",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "delete": "Supprimer",
+      "saveChanges": "Enregistrer les Modifications"
+    },
+    "alerts": {
+      "error": "Erreur",
+      "success": "Succès",
+      "ok": "OK",
+      "pleaseEnterMilestoneTitle": "Veuillez entrer un titre d'étape",
+      "pleaseSelectGoal": "Veuillez sélectionner un objectif pour cette étape",
+      "milestoneUpdatedSuccessfully": "Étape mise à jour avec succès",
+      "failedToUpdateMilestone": "échec de la mise à jour de l'étape. Veuillez réessayer.",
+      "deleteMilestoneTitle": "Supprimer l'étape",
+      "deleteMilestoneMessage": "Êtes-vous sûr de vouloir supprimer cette étape ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "milestoneDeletedSuccessfully": "Étape supprimée avec succès",
+      "failedToDeleteMilestone": "échec de la suppression de l'étape. Veuillez réessayer."
+    }
+  },
+  "notificationSettings": {
+    "header": {
+      "title": "Notifications"
+    },
+    "sections": {
+      "dailyReminders": "Rappels Quotidiens",
+      "enableNotifications": "Activer les Notifications",
+      "enableNotificationsDescription": "Motivation quotidienne et rappels de progrès"
+    },
+    "notificationTypes": {
+      "morningKickstart": "Coup de Pouce Matinal (7h00)",
+      "morningKickstartDescription": "Rappel quotidien pour votre tâche Frog",
+      "eveningCheckIn": "Check-in du Soir (18h00)",
+      "eveningCheckInDescription": "Célébration des progrès et suivi des séries",
+      "reEngagementCoach": "Coach de Ré-engagement",
+      "reEngagementCoachDescription": "Rappels doux après pause prolongée"
+    },
+    "permissionStatus": {
+      "permissionRequired": "Permission Requise",
+      "permissionMessage": "Pour recevoir des notifications, veuillez les activer quand demandé ou dans les paramètres de votre appareil."
+    },
+    "buttons": {
+      "testNotification": "Test de Notification"
+    },
+    "alerts": {
+      "permissionRequiredTitle": "Permission Requise",
+      "permissionRequiredMessage": "Veuillez activer les notifications dans les paramètres de votre appareil pour recevoir des rappels quotidiens et des mises à jour de progrès.",
+      "cancel": "Annuler",
+      "settings": "Paramètres",
+      "disableNotificationsTitle": "Désactiver les Notifications",
+      "disableNotificationsMessage": "Êtes-vous sûr de vouloir désactiver les notifications ? Vous manquerez la motivation quotidienne et les rappels de progrès.",
+      "disable": "Désactiver",
+      "testNotificationTitle": "Test de Notification",
+      "testNotificationMessage": "En développement, ceci enverrait une notification de test."
+    }
+  },
+  "onboardingPaywall": {
+    "loading": {
+      "loadingSubscriptionOptions": "Chargement des options d'abonnement..."
+    },
+    "hero": {
+      "title": "Investissez en Vous-même",
+      "subtitle": "Vous avez ressenti la clarté. Maintenant débloquez le système complet pour y arriver."
+    },
+    "billingPeriod": {
+      "monthly": "Mensuel",
+      "annual": "Annuel"
+    },
+    "subscriptionPlans": {
+      "noPlansAvailable": "Aucun plan d'abonnement disponible. Veuillez vérifier votre configuration RevenueCat."
+    },
+    "buttons": {
+      "startFreeTrial": "Commencer l'essai gratuit de 7 jours",
+      "processing": "Traitement...",
+      "restorePurchases": "Restaurer les Achats"
+    },
+    "disclaimers": {
+      "autoRenew": "Renouvellement automatique. Annulation 24h avant fin de période. Gestion dans paramètres App Store.",
+      "termsAndPrivacy": "En continuant, vous acceptez nos",
+      "termsOfService": "Conditions d'Utilisation",
+      "and": " et ",
+      "privacyPolicy": "Politique de Confidentialité"
+    },
+    "alerts": {
+      "welcomeTitle": "Bienvenue chez Goals AI",
+      "welcomeMessage": "Votre abonnement a été activé. Commençons à construire votre vision.",
+      "continue": "Continuer",
+      "paymentDeclinedTitle": "Paiement Refusé",
+      "paymentDeclinedMessage": "Votre méthode de paiement a été refusée. Veuillez vérifier vos informations de paiement et réessayer.",
+      "ok": "OK",
+      "connectionIssueTitle": "Problème de Connexion",
+      "connectionIssueMessage": "L'achat a été interrompu en raison d'un problème de réseau. Veuillez vérifier votre connexion et réessayer.",
+      "retry": "Réessayer",
+      "cancel": "Annuler",
+      "alreadySubscribedTitle": "Déjà Abonné",
+      "alreadySubscribedMessage": "Vous avez déjà un abonnement actif. Essayez de restaurer vos achats si vous ne voyez pas vos avantages.",
+      "restorePurchases": "Restaurer les Achats",
+      "purchaseFailedTitle": "Achat échoué",
+      "purchaseFailedMessage": "Quelque chose s'est mal passé : {error}\n\nVeuillez réessayer ou contacter le support si le problème persiste.",
+      "purchaseFailedGeneric": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      "purchaseFailedSimple": "Quelque chose s'est mal passé. Veuillez réessayer.",
+      "purchasesRestoredTitle": "Achats Restaurés",
+      "purchasesRestoredMessage": "Vos achats précédents ont été restaurés.",
+      "restoreFailedTitle": "Restauration échouée",
+      "restoreFailedMessage": "Aucun achat précédent trouvé.",
+      "restoreFailedGeneric": "Quelque chose s'est mal passé. Veuillez réessayer."
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Vision vers Victoire. Simplifié.",
+      "subtitle": "Transformez vos rêves en objectifs réalisables avec la planification assistée par IA",
+      "startJourney": "Commencer Votre Parcours"
+    },
+    "name": {
+      "title": "D'abord, quel est votre nom ?",
+      "subtitle": "Goals AI l'utilisera pour rendre votre parcours plus personnel.",
+      "placeholder": "Entrez votre nom",
+      "continue": "Continuer"
+    },
+    "personalization": {
+      "title": "Personnalisez Vos Visions",
+      "subtitle": "Pour vous faire gagner du temps, Spark peut automatiquement ajouter un sujet à vos prompts. Que devrait être votre défaut ?",
+      "options": {
+        "asMan": "En tant qu'homme",
+        "asWoman": "En tant que femme",
+        "specify": "Je préciserai dans chaque prompt"
+      },
+      "continue": "Continuer"
+    },
+    "vision": {
+      "title": "Bienvenue{name}. Chaque grand voyage commence par une seule image.",
+      "subtitle": "Quel est le rêve unique que vous voulez donner vie ? Visualisons-le.",
+      "placeholder": "Décrivez votre vision...",
+      "chooseStyle": "Choisissez votre style",
+      "styles": {
+        "photorealistic": "Photoréaliste",
+        "anime": "Anime",
+        "watercolour": "Aquarelle",
+        "cyberpunk": "Cyberpunk"
+      },
+      "generateVision": "Générer la Vision",
+      "creating": "Création...",
+      "looksGreat": "C'est magnifique, continuons"
+    },
+    "goal": {
+      "title": "Maintenant, donnons un nom clair à votre vision.",
+      "subtitle": "Ce sera l'étincelle qui allumera votre plan.",
+      "placeholder": "Entrez le titre de votre objectif",
+      "emotionTitle": "Et comment vous sentirez-vous quand vous l'atteindrez ?",
+      "emotionSubtitle": "Choisissez jusqu'à 5 émotions",
+      "emotions": {
+        "confident": "Confiant",
+        "grateful": "Reconnaissant",
+        "proud": "Fier",
+        "calm": "Calme",
+        "energized": "énergisé",
+        "happy": "Heureux",
+        "empowered": "Autonomisé",
+        "excited": "Excité",
+        "fulfilled": "Accompli"
+      },
+      "setGoal": "Définir l'Objectif"
+    },
+    "milestone": {
+      "title": "Une vision est atteinte étape par étape.",
+      "subtitle": "Quelle est la toute première étape de votre parcours vers \"{goalTitle}\" ?",
+      "placeholder": "ex. Rechercher et créer un plan d'affaires",
+      "createFirstMilestone": "Créer la Première étape"
+    },
+    "task": {
+      "title": "Rendons-le Réel.",
+      "subtitle": "Transformez cette étape en votre première action focalisée.",
+      "question": "Quelle est la tâche unique que vous pouvez faire aujourd'hui pour commencer cette étape ?",
+      "placeholder": "ex. Passer 30 minutes à rechercher les concurrents",
+      "makePriority": "En Faire la Priorité d'Aujourd'hui",
+      "creating": "Création..."
+    },
+    "alerts": {
+      "missingVision": "Vision Manquante",
+      "missingVisionMessage": "Veuillez décrire votre vision avant de générer une image.",
+      "generationFailed": "Génération échouée",
+      "generationFailedMessage": "Impossible de générer votre vision. Veuillez réessayer.",
+      "generationError": "Erreur de Génération",
+      "generationErrorMessage": "Une erreur inattendue s'est produite. Veuillez vérifier votre connexion internet et réessayer.",
+      "onboardingError": "Erreur",
+      "onboardingErrorMessage": "échec de l'intégration. Veuillez réessayer.",
+      "ok": "OK"
+    }
+  },
+  "paywall": {
+    "loading": {
+      "loadingSubscriptionOptions": "Chargement des options d'abonnement..."
+    },
+    "currentPlan": {
+      "currentPlan": "Plan Actuel"
+    },
+    "hero": {
+      "title": "Prêt pour le Niveau Suivant ?",
+      "description": "Nos niveaux supérieurs sont conçus pour les utilisateurs ambitieux qui sont prêts à atteindre plus. Explorez les plans ci-dessous."
+    },
+    "billingPeriod": {
+      "monthly": "Mensuel",
+      "annual": "Annuel"
+    },
+    "subscriptionPlans": {
+      "highestTierMessage": "Vous êtes déjà au niveau le plus élevé disponible ({tierName}). Pour changer la fréquence de facturation, veuillez gérer votre abonnement dans les paramètres de votre App Store.",
+      "noPlansAvailable": "Aucun plan d'abonnement disponible. Veuillez vérifier votre configuration RevenueCat."
+    },
+    "buttons": {
+      "upgradePlan": "Améliorer le Plan",
+      "processing": "Traitement...",
+      "restorePurchases": "Restaurer les Achats"
+    },
+    "disclaimers": {
+      "autoRenew": "Renouvellement automatique. Annulation 24h avant fin de période. Gestion dans paramètres App Store.",
+      "termsAndPrivacy": "En continuant, vous acceptez nos",
+      "termsOfService": "Conditions d'Utilisation",
+      "and": " et ",
+      "privacyPolicy": "Politique de Confidentialité"
+    },
+    "alerts": {
+      "successTitle": "Succès",
+      "successMessage": "Votre abonnement a été activé. Bienvenue chez Goals AI.",
+      "continue": "Continuer",
+      "paymentDeclinedTitle": "Paiement Refusé",
+      "paymentDeclinedMessage": "Votre méthode de paiement a été refusée. Veuillez vérifier vos informations de paiement et réessayer.",
+      "ok": "OK",
+      "connectionIssueTitle": "Problème de Connexion",
+      "connectionIssueMessage": "L'achat a été interrompu en raison d'un problème de réseau. Veuillez vérifier votre connexion et réessayer.",
+      "retry": "Réessayer",
+      "cancel": "Annuler",
+      "alreadySubscribedTitle": "Déjà Abonné",
+      "alreadySubscribedMessage": "Vous avez déjà un abonnement actif. Essayez de restaurer vos achats si vous ne voyez pas vos avantages.",
+      "restorePurchases": "Restaurer les Achats",
+      "purchaseFailedTitle": "Achat échoué",
+      "purchaseFailedMessage": "Quelque chose s'est mal passé : {error}\n\nVeuillez réessayer ou contacter le support si le problème persiste.",
+      "purchaseFailedGeneric": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      "purchaseFailedSimple": "Quelque chose s'est mal passé. Veuillez réessayer.",
+      "purchasesRestoredTitle": "Achats Restaurés",
+      "purchasesRestoredMessage": "Vos achats précédents ont été restaurés.",
+      "restoreFailedTitle": "Restauration échouée",
+      "restoreFailedMessage": "Aucun achat précédent trouvé.",
+      "restoreFailedGeneric": "Quelque chose s'est mal passé. Veuillez réessayer."
+    }
+  },
+  "pomodoro": {
+    "header": {
+      "title": "Pomodoro",
+      "description": "Vous vous rapprochez d'un pas de vos objectifs."
+    },
+    "session": {
+      "timeToFocus": "Temps de Se Concentrer",
+      "yourTask": "Votre Tâche : ",
+      "sessionProgress": "Progrès de Session",
+      "focusTime": "Temps de Focus",
+      "shortBreak": "Pause Courte",
+      "longBreak": "Pause Longue"
+    },
+    "taskPlaceholder": "[Placeholder du Titre de Tâche]",
+    "buttons": {
+      "start": "DÉMARRER",
+      "pause": "PAUSE",
+      "continue": "CONTINUER",
+      "reset": "RÉINITIALISER",
+      "complete": "TERMINER"
+    },
+    "alerts": {
+      "liveActivitiesDisabledTitle": "Live Activities Désactivées",
+      "liveActivitiesDisabledMessage": "Veuillez activer les Live Activities dans les Paramètres pour voir votre minuteur dans la Dynamic Island.",
+      "ok": "OK",
+      "liveActivityErrorTitle": "Erreur Live Activity",
+      "liveActivityErrorMessage": "Échec du démarrage de Live Activity : {error}",
+      "skipSessionTitle": "Ignorer la Session ?",
+      "skipSessionMessage": "Êtes-vous sûr de vouloir ignorer cette session ?",
+      "cancel": "Annuler",
+      "skip": "Ignorer",
+      "pomodoroCompleteTitle": "Pomodoro Terminé 🍅",
+      "pomodoroCompleteMessage": "Excellent travail. Vous avez terminé {count} pomodoro{plural} aujourd'hui. Temps pour une pause {breakType}.",
+      "startBreak": "Commencer la Pause",
+      "breakCompleteTitle": "Pause Terminée",
+      "breakCompleteMessage": "Le temps de pause est fini. Prêt à se concentrer à nouveau ?",
+      "startFocus": "Commencer le Focus"
+    },
+    "notifications": {
+      "timerTitle": "🍅 Minuteur Pomodoro",
+      "workCompleteMessage": "{sessionLabel} terminé. Temps pour une pause. 🎉",
+      "breakCompleteMessage": "Temps de pause fini. Prêt pour une autre session de focus ? 💪"
+    },
+    "breakTypes": {
+      "short": "courte",
+      "long": "longue"
+    },
+    "plurals": {
+      "single": "",
+      "multiple": "s"
+    }
+  },
+  "sparkAI": {
+    "header": {
+      "title": "Spark"
+    },
+    "recordingStates": {
+      "recording": "Enregistrement... {minutes}:{seconds}",
+      "processing": "Spark traite...",
+      "completed": "Terminé",
+      "noTextRecognized": "Aucun texte reconnu",
+      "errorOccurred": "Erreur survenue - appuyez pour réessayer",
+      "tapToStart": "Appuyez pour commencer l'enregistrement"
+    },
+    "alerts": {
+      "cancelRecordingTitle": "Annuler l'Enregistrement ?",
+      "cancelRecordingMessage": "Voulez-vous annuler votre enregistrement Spark ?",
+      "keepRecording": "Continuer l'Enregistrement",
+      "cancelRecording": "Annuler l'Enregistrement",
+      "noTextRecognizedTitle": "Aucun Texte Reconnu",
+      "noTextRecognizedMessage": "Aucun texte reconnu. Voulez-vous réessayer ?",
+      "cancel": "Annuler",
+      "tryAgain": "Réessayer"
+    }
+  },
+  "taskDetails": {
+    "header": {
+      "title": "Détails de Tâche",
+      "subtitle": "Modifiez les informations de votre tâche et suivez vos sessions de focus."
+    },
+    "sections": {
+      "taskTitle": "Titre de Tâche",
+      "taskTitleSubtitle": "Donnez à votre tâche un nom clair et descriptif.",
+      "eatTheFrog": "Eat the Frog",
+      "eatTheFrogSubtitle": "Marquez cette tâche comme votre tâche la plus importante de la journée.",
+      "eatTheFrogDescription": "Choisissez cette tâche si la terminer fera de votre journée un succès.",
+      "goalMilestone": "Objectif / étape",
+      "goalMilestoneSubtitle": "Attachez soit un objectif soit une étape à votre tâche.",
+      "dueDate": "Date d'échéance",
+      "dueDateSubtitle": "Définissez quand vous voulez terminer ceci.",
+      "notesDetails": "Notes & Détails",
+      "notesSubtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+    },
+    "datePicker": {
+      "selectDate": "Sélectionner une date",
+      "modalTitle": "Sélectionner une Date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "goalMilestoneSelection": {
+      "selectGoalMilestone": "Sélectionner votre objectif principal ou sous-objectif",
+      "goalSection": "Objectif",
+      "milestonesSection": "étapes"
+    },
+    "placeholders": {
+      "taskTitle": "Entrer le titre de la tâche",
+      "notesDetails": "Tapez ici vos notes et détails..."
+    },
+    "buttons": {
+      "deleteTask": "Supprimer la Tâche",
+      "saveChanges": "Enregistrer les Modifications"
+    },
+    "alerts": {
+      "error": "Erreur",
+      "pleaseEnterTitle": "Veuillez entrer un titre",
+      "taskNotFound": "Tâche non trouvée",
+      "failedToUpdateTask": "échec de la mise à jour de la tâche",
+      "deleteTaskTitle": "Supprimer la Tâche",
+      "deleteTaskMessage": "Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "failedToDeleteTask": "échec de la suppression de la tâche",
+      "replaceFrogTaskTitle": "Remplacer la Tâche Frog ?",
+      "replaceFrogTaskMessage": "Vous avez déjà \"{title}\" défini comme votre tâche frog. Une seule tâche peut être votre frog à la fois. Voulez-vous la remplacer par cette tâche ?",
+      "replace": "Remplacer"
+    }
+  },
+  "viewFullProgress": {
+    "header": {
+      "title": "Toutes les Tâches Terminées",
+      "description": "Consultez vos tâches terminées et célébrez vos progrès."
+    },
+    "search": {
+      "placeholder": "Rechercher les tâches terminées..."
+    },
+    "dateFilter": {
+      "placeholder": "Filtrer par date d'achèvement",
+      "clearButton": "Effacer"
+    },
+    "tasksSection": {
+      "title": "Tâches Terminées",
+      "resultsText": "{count} tâche{plural}"
+    },
+    "emptyState": {
+      "title": "Aucune tâche terminée trouvée",
+      "descriptionFiltered": "Essayez d'ajuster votre recherche ou filtre de date.",
+      "descriptionDefault": "Terminez quelques tâches pour les voir ici."
+    },
+    "datePicker": {
+      "modalTitle": "Sélectionner une Date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
+  },
+  "sparkGenerateImg": {
+    "header": {
+      "title": "Donnez Vie à Votre Vision",
+      "subtitle": "Décrivez la scène qui représente votre rêve. Plus de détails, c'est mieux.",
+      "example": "ex. \"Courir à travers la ligne d'arrivée d'un marathon, souriant et se sentant fort.\""
+    },
+    "visionInput": {
+      "placeholder": "Tapez votre vision ici..."
+    },
+    "styleSelection": {
+      "title": "Choisissez votre style",
+      "subtitle": "Spark donnera vie à votre texte dans ce style.",
+      "styles": {
+        "photorealistic": "Photoréaliste",
+        "anime": "Anime",
+        "watercolour": "Aquarelle",
+        "cyberpunk": "Cyberpunk"
+      }
+    },
+    "buttons": {
+      "createVision": "Créer la Vision",
+      "creating": "Création...",
+      "saveToVisionBoard": "Enregistrer sur le Tableau de Vision",
+      "delete": "Supprimer",
+      "recreateImage": "Recréer l'Image"
+    },
+    "alerts": {
+      "missingVision": "Vision Manquante",
+      "missingVisionMessage": "Veuillez décrire votre vision avant de créer une image.",
+      "generationFailed": "Génération échouée",
+      "generationFailedMessage": "Impossible de générer votre vision. Veuillez réessayer.",
+      "generationError": "Erreur de Génération",
+      "generationErrorMessage": "Une erreur inattendue s'est produite. Veuillez vérifier votre connexion internet et réessayer.",
+      "ok": "OK",
+      "saved": "Enregistré",
+      "savedMessage": "Votre vision a été enregistrée sur votre Tableau de Vision.",
+      "viewVisionBoard": "Voir le Tableau de Vision",
+      "error": "Erreur",
+      "saveErrorMessage": "échec de l'enregistrement de l'image sur le Tableau de Vision.",
+      "deleteImage": "Supprimer l'Image",
+      "deleteImageMessage": "Êtes-vous sûr de vouloir supprimer cette image générée ?",
+      "cancel": "Annuler"
+    }
+  },
+  "visionBoard": {
+    "header": {
+      "title": "Tableau de Vision",
+      "subtitle": "Votre endroit pour visualiser vos rêves et objectifs. Téléchargez ou générez votre vision facilement."
+    },
+    "buttons": {
+      "createVision": "Créer une Vision",
+      "uploadVision": "Télécharger une Vision"
+    },
+    "emptyState": {
+      "title": "Aucune vision encore",
+      "description": "Ajoutez votre première vision et commencez votre parcours"
+    },
+    "placeholderText": "Vision",
+    "imagePreview": {
+      "title": "Image de Vision",
+      "unknownDate": "Date inconnue",
+      "unknownSource": "Source inconnue"
+    },
+    "alerts": {
+      "deleteVision": "Supprimer la Vision",
+      "deleteVisionMessage": "Êtes-vous sûr de vouloir supprimer cette image de vision ?",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "error": "Erreur",
+      "deleteFailedMessage": "échec de la suppression de l'image."
+    }
+  },
+  "trophy": {
+    "header": {
+      "title": "Mes Victoires",
+      "subtitle": "Une galerie de vos réussites. Preuve de votre dévouement et de vos progrès."
+    },
+    "toggleButtons": {
+      "goals": "Objectifs",
+      "milestones": "étapes"
+    },
+    "emptyState": {
+      "goals": {
+        "title": "Aucun objectif terminé encore",
+        "description": "Terminez quelques objectifs pour voir vos victoires ici."
+      },
+      "milestones": {
+        "title": "Aucune étape terminée encore",
+        "description": "Terminez quelques étapes pour voir vos victoires ici."
+      }
+    }
+  },
+  "components": {
+    "completedMilestoneCard": {
+      "noGoalLinked": "Aucun objectif lià",
+      "completed": "Terminé :"
+    },
+    "completedTaskCard": {
+      "linkedToProject": "Lià au projet",
+      "noProjectLinked": "Aucun projet lià",
+      "completed": "Terminé :"
+    },
+    "completedTasksSection": {
+      "title": "Succès d'Aujourd'hui",
+      "description": "Célébrez vos progrès et réussites.",
+      "emptyState": {
+        "title": "Aucune tâche terminée aujourd'hui",
+        "description": "Terminez votre première tâche pour créer de l'élan."
+      },
+      "viewAllButton": "Toutes les Tâches Terminées",
+      "infoPopup": {
+        "title": "Tâches Terminées",
+        "content": "Consultez vos tâches terminées et célébrez vos progrès. Appuyez sur 'Voir Toutes les Tâches Terminées' pour voir votre historique complet."
+      }
+    },
+    "eatTheFrogSection": {
+      "title": "Eat the frog",
+      "description": "Choisissez la tâche unique qui aura le plus grand impact aujourd'hui.",
+      "newFrogTask": "Nouvelle Tâche Frog"
+    },
+    "goalCard": {
+      "noDateSet": "Aucune date définie",
+      "goalTitle": "Titre d'Objectif",
+      "completeMilestone": "Terminer l'étape",
+      "completeMilestoneMessage": "Avez-vous terminé \"{title}\" ?",
+      "no": "Non",
+      "yes": "Oui",
+      "milestoneCompleted": "🎉 Étape Terminée",
+      "milestoneCompletedMessage": "Excellent travail. Votre étape a été marquée comme terminée.",
+      "ok": "OK",
+      "deleteGoal": "Supprimer l'Objectif",
+      "deleteGoalMessage": "Êtes-vous sûr de vouloir supprimer \"{title}\" ?",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "emptyStates": {
+        "noGoalsYet": "Aucun objectif encore",
+        "noGoalsDescription": "Créez un objectif et commencez votre parcours",
+        "noCompletedGoals": "Aucun objectif terminé",
+        "noCompletedGoalsDescription": "Terminez quelques objectifs pour les voir ici.",
+        "noGoalsSelection": "Aucun objectif encore",
+        "noGoalsSelectionDescription": "Créez votre premier objectif et commencez votre parcours"
+      },
+      "placeholderTitle": "Titre Placeholder",
+      "sparkBadge": "SPARK",
+      "viewFullGoal": "Voir l'Objectif Complet",
+      "noMilestonesYet": "Aucune étape encore",
+      "noMilestonesDescription": "Divisez votre objectif en étapes."
+    },
+    "goalCompletionModal": {
+      "notification": {
+        "title": "Toutes les étapes Terminées 🎯",
+        "description": "Vous avez terminé toutes les étapes pour \"{goalTitle}\". Sentez-vous que vous avez atteint votre objectif ?",
+        "notYet": "Pas Encore",
+        "yes": "Oui"
+      },
+      "reflectionPrompt": {
+        "title": "🎉 Félicitations",
+        "description": "Vous avez atteint votre objectif. Souhaitez-vous réfléchir sur votre parcours ? Cela vous aide à grandir et apprendre pour les objectifs futurs.",
+        "skip": "Ignorer",
+        "reflect": "Réfléchir"
+      },
+      "questions": {
+        "question1": {
+          "title": "Quel était votre principal apprentissage de ce parcours ?",
+          "placeholder": "Tapez ici votre principale intuition ou expérience d'apprentissage..."
+        },
+        "question2": {
+          "title": "Quel était le plus grand obstacle que vous avez maîtrisé, et comment ?",
+          "placeholder": "Tapez ici un défi que vous avez surmonté..."
+        },
+        "question3": {
+          "title": "Quelle est une leçon que vous emporterez à votre prochain objectif ?",
+          "placeholder": "Tapez ici ce que vous appliquerez la prochaine fois..."
+        }
+      },
+      "buttons": {
+        "skip": "Ignorer",
+        "next": "Suivant",
+        "complete": "Terminer"
+      }
+    },
+    "milestoneCard": {
+      "emptyStates": {
+        "noMilestonesYet": "Aucune étape encore",
+        "noMilestonesDescription": "Divisez vos objectifs en étapes réalisables",
+        "noCompletedMilestones": "Aucune étape terminée",
+        "noCompletedMilestonesDescription": "Terminez quelques étapes pour les voir ici."
+      },
+      "placeholderMilestone": "étape Placeholder",
+      "noTargetDate": "Aucune date cible",
+      "sparkBadge": "SPARK",
+      "alerts": {
+        "completeMilestone": "Terminer l'étape",
+        "completeMilestoneMessage": "Avez-vous terminé \"{title}\" ?",
+        "no": "Non",
+        "yes": "Oui",
+        "milestoneCompleted": "🎉 Étape Terminée",
+        "milestoneCompletedMessage": "Excellent travail. Votre étape a été marquée comme terminée.",
+        "ok": "OK"
+      }
+    },
+    "overdueTasksModal": {
+      "title": "Tâches en Retard",
+      "subtitle": "Vous avez {count} tâche(s) en retard. Sélectionnez les tâches et choisissez une action.",
+      "taskDefaults": {
+        "noTitle": "Aucun Titre",
+        "milestone": "étape",
+        "goal": "Objectif",
+        "noProjectLinked": "Aucun projet lià",
+        "due": "échéance :"
+      },
+      "buttons": {
+        "rescheduleToToday": "Reporter à Aujourd'hui",
+        "close": "Fermer"
+      },
+      "datePicker": {
+        "title": "Sélectionner une Nouvelle Date",
+        "cancel": "Annuler",
+        "confirm": "Confirmer"
+      },
+      "alerts": {
+        "noTasksSelected": "Aucune Tâche Sélectionnée",
+        "noTasksSelectedMessage": "Veuillez sélectionner au moins une tâche pour effectuer cette action.",
+        "noTasksSelectedReschedule": "Veuillez sélectionner au moins une tâche à reporter.",
+        "markComplete": "Marquer comme Terminé",
+        "markCompleteMessage": "Êtes-vous sûr de vouloir marquer {count} tâche(s) comme terminées ?",
+        "deleteTasks": "Supprimer les Tâches",
+        "deleteTasksMessage": "Êtes-vous sûr de vouloir supprimer {count} tâche(s) ? Cette action ne peut pas être annulée.",
+        "cancel": "Annuler",
+        "complete": "Terminer",
+        "delete": "Supprimer"
+      }
+    },
+    "selectionCard": {
+      "options": {
+        "task": "Tâche",
+        "goal": "Objectif",
+        "milestone": "étape"
+      }
+    },
+    "sparkAIOutput": {
+      "header": {
+        "title": "Consultez votre Spark",
+        "subtitle": "Voici votre brouillon personnalisé de Spark. Consultez et personnalisez-le pour qu'il corresponde parfaitement à votre vision."
+      },
+      "sections": {
+        "whatISaid": "Ce que j'ai dit :",
+        "sparkSuggestion": "Suggestion de Spark :",
+        "taskTitle": "Titre de Tâche",
+        "goalTitle": "Titre d'Objectif",
+        "milestoneTitle": "Titre d'étape"
+      },
+      "placeholders": {
+        "voiceInputPlaceholder": "[Placeholder Texte Principal Entrée Vocale de l'Utilisateur]",
+        "taskTitle": "Tapez ici le titre de votre tâche...",
+        "goalTitle": "Tapez ici le titre de votre objectif...",
+        "milestoneTitle": "Tapez ici le titre de votre étape...",
+        "notesDetails": "Tapez ici vos notes et détails..."
+      },
+      "sparkSuggestions": {
+        "task": "Spark pense que c'est une Tâche. Changez-le si ce n'est pas correct.",
+        "goal": "Spark pense que c'est un Objectif. Changez-le si ce n'est pas correct.",
+        "milestone": "Spark pense que c'est une étape. Changez-le si ce n'est pas correct."
+      },
+      "eatTheFrog": {
+        "title": "Eat the frog",
+        "description": "Choisissez cette tâche si la terminer fera de votre journée un succès."
+      },
+      "emotions": {
+        "title": "Comment vous sentez-vous après avoir atteint votre objectif ?",
+        "subtitle": "Choisissez jusqu'à 5 émotions",
+        "labels": {
+          "confident": "Confiant",
+          "grateful": "Reconnaissant",
+          "proud": "Fier",
+          "calm": "Calme",
+          "energized": "énergisé",
+          "happy": "Heureux",
+          "empowered": "Autonomisé",
+          "excited": "Excité",
+          "fulfilled": "Accompli"
+        }
+      },
+      "vision": {
+        "title": "Visualisez votre objectif",
+        "subtitle": "Choisissez une image de votre Tableau de Vision.",
+        "changeVision": "Changer la Vision",
+        "chooseVision": "Choisir votre Vision"
+      },
+      "goalSelection": {
+        "title": "Mes Objectifs",
+        "subtitle": "Attachez cette étape à votre objectif.",
+        "selectGoal": "Sélectionner votre objectif"
+      },
+      "goalMilestoneSelection": {
+        "title": "Objectif / étape",
+        "subtitle": "Attachez soit un objectif soit une étape à votre tâche.",
+        "selectGoalMilestone": "Sélectionner votre objectif ou étape",
+        "goalSection": "Objectif",
+        "milestonesSection": "étapes"
+      },
+      "dateSelection": {
+        "title": "Date d'échéance",
+        "subtitle": "Définissez quand vous voulez terminer ceci.",
+        "selectDate": "Sélectionner une date"
+      },
+      "notesSection": {
+        "title": "Notes & Détails",
+        "subtitle": "Ajoutez toute pensée supplémentaire, liens ou étapes que vous voulez retenir."
+      },
+      "datePicker": {
+        "modalTitle": "Sélectionner une Date",
+        "cancel": "Annuler",
+        "confirm": "Confirmer"
+      },
+      "buttons": {
+        "cancel": "Annuler",
+        "saveChanges": "Enregistrer les modifications"
+      },
+      "alerts": {
+        "error": "Erreur",
+        "pleaseEnterTitle": "Veuillez entrer un titre",
+        "pleaseSelectGoal": "Veuillez d'abord sélectionner un objectif pour créer une étape.",
+        "success": "Succès",
+        "taskSavedSuccessfully": "Tâche enregistrée avec succès",
+        "goalSavedSuccessfully": "Objectif enregistré avec succès",
+        "milestoneSavedSuccessfully": "étape enregistrée avec succès",
+        "failedToSave": "échec de l'enregistrement. Veuillez réessayer.",
+        "ok": "OK"
+      }
+    },
+    "sparkTutorialOverlay": {
+      "title": "Maintenant, Laissez Spark Faire le Travail",
+      "body": "Dites un seul objectif, étape ou tâche : 'Rapport marketing d'ici vendredi.' Spark s'occupe du reste automatiquement.",
+      "subNote": "Maintenez appuyé pour ajouter des éléments manuellement.",
+      "button": "Compris"
+    },
+    "subscriptionCard": {
+      "badges": {
+        "popular": "POPULAIRE",
+        "bestDeal": "MEILLEURE OFFRE"
+      },
+      "pricing": {
+        "perMonth": "/mois",
+        "perYear": "/an",
+        "save": "économisez {amount}"
+      },
+      "benefits": {
+        "activeGoals": " Objectifs Actifs",
+        "sparkAIInputs": " Entrées Spark AI par mois",
+        "sparkAIVisions": " Visions Spark AI par mois",
+        "pomodoroSessions": " Sessions Pomodoro",
+        "homeScreenWidget": " Widget d'écran d'Accueil",
+        "unlimited": "Illimité",
+        "locked": "Verrouillé",
+        "unlocked": "Déverrouillé"
+      }
+    },
+    "subscriptionGate": {
+      "defaultPrompt": {
+        "title": "Amélioration Requise",
+        "message": "Cette fonctionnalité nécessite un abonnement."
+      },
+      "upgradeMessages": {
+        "createGoal": "Vous avez atteint votre limite d'objectifs. Améliorez pour {type} objectifs.",
+        "sparkAIVoice": "Vous avez utilisé toutes vos entrées vocales Spark AI ce mois-ci. Améliorez pour plus.",
+        "sparkAIVision": "Vous avez utilisé toutes vos images de vision Spark AI ce mois-ci. Améliorez pour plus.",
+        "homeWidgets": "Les Widgets d'Accueil sont disponibles avec les niveaux Achiever et Visionary.",
+        "modifyData": "Abonnez-vous pour créer, modifier et gérer vos objectifs et tâches.",
+        "unlimited": "illimités",
+        "more": "plus"
+      },
+      "button": "Voir les Plans d'Abonnement"
+    },
+    "taskCard": {
+      "emptyStates": {
+        "noFrogToday": "Aucun frog aujourd'hui",
+        "noSomedayTasks": "Aucune tâche un jour",
+        "noTasksToday": "Aucune tâche aujourd'hui",
+        "noCompletedTasks": "Aucune tâche terminée",
+        "noTasks": "Aucune tâche",
+        "dayLooksClear": "Votre journée semble libre.",
+        "somedayDescription": "Ici vous trouverez les tâches sans date."
+      },
+      "placeholderTitle": "Titre de Tâche Placeholder",
+      "sparkBadge": "SPARK",
+      "projectInfo": {
+        "linkedToProject": "Lié au projet",
+        "noProjectLinked": "Aucun projet lié"
+      },
+      "dateInfo": {
+        "completed": "Terminé :",
+        "recently": "Récemment",
+        "someday": "Un jour"
+      },
+      "alerts": {
+        "deleteTask": "Supprimer la Tâche",
+        "deleteTaskMessage": "Êtes-vous sûr de vouloir supprimer \"{title}\" ?",
+        "completeTask": "Terminer la Tâche",
+        "completeTaskMessage": "Avez-vous terminé \"{title}\" ?",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "no": "Non",
+        "yes": "Oui",
+        "taskCompleted": "🎉 Tâche Terminée",
+        "taskCompletedMessage": "Excellent travail. Votre tâche a été marquée comme terminée.",
+        "ok": "OK"
+      }
+    },
+    "todaysTasksSection": {
+      "title": "Tâches d'Aujourd'hui",
+      "description": "Agissez et rapprochez-vous d'un pas de vos rêves."
+    },
+    "trophyCard": {
+      "goalAchieved": "Objectif Atteint",
+      "completed": "Terminé :"
+    },
+    "visionPicker": {
+      "title": "Choisir l'Image de Vision",
+      "emptyState": {
+        "title": "Aucune Image de Vision",
+        "description": "Créez ou téléchargez d'abord des images de vision dans votre Tableau de Vision."
+      }
+    },
+    "weekDayCard": {
+      "emptyState": {
+        "noTasksFor": "Aucune tâche pour {weekday}",
+        "dayLooksClear": "Votre journée semble libre."
+      }
+    }
+  },
+  "screens": {
+    "visionBoard": {
+      "title": "Tableau de Vision",
+      "subtitle": "Votre endroit pour visualiser vos rêves et objectifs. Téléchargez ou générez votre vision facilement.",
+      "buttons": {
+        "createVision": "Créer une Vision",
+        "uploadVision": "Télécharger une Vision"
+      }
+    }
+  }
+}
