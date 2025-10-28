@@ -23,6 +23,8 @@ import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { useSubscription } from '../../src/hooks/useSubscription';
 import { useNotifications } from '../../src/hooks/useNotifications';
+import { useLanguage } from '../../src/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { usageTrackingService } from '../../src/services/usageTrackingService';
 import { supabase } from '../../src/lib/supabase';
 import { colors } from '../../src/constants/colors';
@@ -169,6 +171,8 @@ export default function ProfileTab() {
   } = useSubscription();
   
   const { isEnabled: notificationsEnabled, enableNotifications, disableNotifications } = useNotifications();
+  const { t } = useTranslation();
+  const { availableLanguages, currentLanguage, changeLanguage } = useLanguage();
   
   const [userName, setUserName] = useState(userPreferences?.name || 'User');
   const [originalUserName, setOriginalUserName] = useState(userPreferences?.name || 'User');
@@ -797,6 +801,38 @@ Best regards`;
                 trackColor={{ false: colors.textSecondary, true: colors.accent.frog }}
                 thumbColor={colors.secondary}
               />
+            </View>
+
+            <View style={styles.menuDivider} />
+
+            {/* Language Selection */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={styles.iconOnly}>
+                  <Ionicons name="language" size={20} color={colors.text.primary} />
+                </View>
+                <Text style={[typography.cardTitle, styles.settingLabel]}>Language</Text>
+              </View>
+              <View style={styles.languageSelector}>
+                {availableLanguages.map((language) => (
+                  <Pressable
+                    key={language.code}
+                    style={[
+                      styles.languageOption,
+                      currentLanguage === language.code && styles.languageOptionSelected
+                    ]}
+                    onPress={() => changeLanguage(language.code)}
+                  >
+                    <Text style={styles.languageFlag}>{language.flag}</Text>
+                    <Text style={[
+                      styles.languageOptionText,
+                      currentLanguage === language.code && styles.languageOptionTextSelected
+                    ]}>
+                      {language.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           </View>
         </View>
@@ -1488,5 +1524,38 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     fontFamily: 'Helvetica',
     textAlign: 'center',
+  },
+  
+  // Language selection styles
+  languageSelector: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    gap: spacing.xs,
+    minHeight: 32,
+  },
+  languageOptionSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  languageFlag: {
+    fontSize: 16,
+  },
+  languageOptionText: {
+    ...typography.caption,
+    color: colors.text.primary,
+    fontWeight: '500',
+  },
+  languageOptionTextSelected: {
+    color: colors.secondary,
   },
 });

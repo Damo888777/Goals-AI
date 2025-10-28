@@ -21,6 +21,8 @@ import { typography } from '../src/constants/typography';
 import { spacing, borderRadius } from '../src/constants/spacing';
 import { images } from '../src/constants/images';
 import { useOnboarding } from '../src/hooks/useOnboarding';
+import { useLanguage } from '../src/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
 import * as FileSystem from 'expo-file-system';
@@ -94,7 +96,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
   );
 }
 
-type OnboardingStep = 'welcome' | 'name' | 'personalization' | 'vision' | 'goal' | 'milestone' | 'task' | 'complete';
+type OnboardingStep = 'language' | 'welcome' | 'name' | 'personalization' | 'vision' | 'goal' | 'milestone' | 'task' | 'complete';
 
 interface OnboardingData {
   name: string;
@@ -110,9 +112,11 @@ interface OnboardingData {
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>('language');
   const [isPressed, setIsPressed] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
+  const { availableLanguages, currentLanguage, changeLanguage } = useLanguage();
   
   const { 
     currentSession,
@@ -143,15 +147,16 @@ export default function OnboardingScreen() {
         // Restore current step from session
         if (currentSession.currentStep) {
           const stepMap: { [key: number]: OnboardingStep } = {
-            0: 'welcome',
-            1: 'name', 
-            2: 'personalization',
-            3: 'vision',
-            4: 'goal',
-            5: 'milestone',
-            6: 'task'
+            0: 'language',
+            1: 'welcome',
+            2: 'name', 
+            3: 'personalization',
+            4: 'vision',
+            5: 'goal',
+            6: 'milestone',
+            7: 'task'
           };
-          setCurrentStep(stepMap[currentSession.currentStep] || 'welcome');
+          setCurrentStep(stepMap[currentSession.currentStep] || 'language');
         }
       }
     };
@@ -161,7 +166,7 @@ export default function OnboardingScreen() {
   // Update session data when local data changes
   useEffect(() => {
     if (currentSession && currentSession.id && data.name !== currentSession.userName && data.name) {
-      const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
+      const stepNumber = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
       updateOnboardingStep(stepNumber, { userName: data.name }).catch(error => {
         console.log('Session update failed (non-critical):', error.message);
       });
@@ -170,7 +175,7 @@ export default function OnboardingScreen() {
 
   useEffect(() => {
     if (currentSession && currentSession.id && data.personalization !== currentSession.genderPreference && data.personalization) {
-      const stepNumber = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
+      const stepNumber = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
       updateOnboardingStep(stepNumber, { genderPreference: data.personalization }).catch(error => {
         console.log('Session update failed (non-critical):', error.message);
       });
@@ -291,7 +296,7 @@ export default function OnboardingScreen() {
   const handleNext = async () => {
     console.log('🔄 handleNext called, currentStep:', currentStep);
     try {
-      const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
+      const steps: OnboardingStep[] = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
       const currentIndex = steps.indexOf(currentStep);
       console.log('🔄 Current index:', currentIndex, 'Next step will be:', steps[currentIndex + 1]);
       if (currentIndex < steps.length - 1) {
@@ -327,7 +332,7 @@ export default function OnboardingScreen() {
     } catch (error) {
       console.error('Error in handleNext:', error);
       // Still try to proceed to prevent blocking
-      const steps: OnboardingStep[] = ['welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
+      const steps: OnboardingStep[] = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task', 'complete'];
       const currentIndex = steps.indexOf(currentStep);
       if (currentIndex < steps.length - 1) {
         setCurrentStep(steps[currentIndex + 1]);
@@ -361,6 +366,59 @@ export default function OnboardingScreen() {
       setIsLoading(false);
     }
   };
+
+  const renderLanguageScreen = () => (
+    <View style={styles.centerContent}>
+      <View style={styles.welcomeContent}>
+        <View style={styles.textContainer}>
+          <Text style={[typography.title, styles.headline]}>
+            Choose Your Language
+          </Text>
+          <Text style={[typography.body, styles.subheadline]}>
+            Select your preferred language to continue
+          </Text>
+        </View>
+        
+        <View style={styles.languageContainer}>
+          {availableLanguages.map((language) => (
+            <Pressable
+              key={language.code}
+              style={[
+                styles.languageButton,
+                currentLanguage === language.code && styles.languageButtonSelected
+              ]}
+              onPress={async () => {
+                await changeLanguage(language.code);
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+            >
+              <Text style={styles.languageFlag}>{language.flag}</Text>
+              <Text style={[
+                styles.languageText,
+                currentLanguage === language.code && styles.languageTextSelected
+              ]}>
+                {language.name}
+              </Text>
+              {currentLanguage === language.code && (
+                <Ionicons name="checkmark" size={24} color={colors.primary} />
+              )}
+            </Pressable>
+          ))}
+        </View>
+      </View>
+      
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={[styles.primaryButton]}
+          onPress={handleNext}
+        >
+          <Text style={styles.primaryButtonText}>
+            Continue
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 
   const renderWelcomeScreen = () => (
     <View style={styles.centerContent}>
@@ -823,6 +881,8 @@ export default function OnboardingScreen() {
 
   const renderCurrentStep = () => {
     switch (currentStep) {
+      case 'language':
+        return renderLanguageScreen();
       case 'welcome':
         return renderWelcomeScreen();
       case 'name':
@@ -838,7 +898,7 @@ export default function OnboardingScreen() {
       case 'task':
         return renderTaskScreen();
       default:
-        return renderWelcomeScreen();
+        return renderLanguageScreen();
     }
   };
 
@@ -1162,5 +1222,44 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     zIndex: 1,
+  },
+  
+  // Language selection styles
+  languageContainer: {
+    gap: spacing.md,
+    width: '100%',
+  },
+  languageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border.primary,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: spacing.md,
+    minHeight: 44, // Apple HIG compliance
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 0,
+    elevation: 2,
+  },
+  languageButtonSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  languageFlag: {
+    fontSize: 24,
+  },
+  languageText: {
+    ...typography.body,
+    color: colors.text.primary,
+    fontWeight: '500',
+    flex: 1,
+  },
+  languageTextSelected: {
+    color: colors.secondary,
   },
 });
