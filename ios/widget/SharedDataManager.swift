@@ -54,6 +54,7 @@ class SharedDataManager {
     
     private let appGroupId = "group.pro.GoalAchieverAI"
     private let sharedTasksKey = "@goals_ai:widget_tasks"
+    private let languageKey = "user-language"
     
     private init() {}
     
@@ -151,5 +152,44 @@ class SharedDataManager {
         } catch {
             print("Failed to save updated widget data: \(error)")
         }
+    }
+    
+    // MARK: - Language Management
+    func getCurrentLanguage() -> String {
+        guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
+            return getSystemLanguage()
+        }
+        
+        // Check if user has manually selected a language in the app
+        if let appLanguage = userDefaults.string(forKey: languageKey),
+           ["en", "de", "fr"].contains(appLanguage) {
+            return appLanguage
+        }
+        
+        // Fall back to system language
+        return getSystemLanguage()
+    }
+    
+    private func getSystemLanguage() -> String {
+        // Get device's preferred language
+        guard let preferredLanguage = Locale.preferredLanguages.first else {
+            return "en"
+        }
+        
+        // Extract language code (e.g., "de-DE" -> "de")
+        let languageCode = String(preferredLanguage.prefix(2)).lowercased()
+        
+        // Return supported language or fallback to English
+        return ["en", "de", "fr"].contains(languageCode) ? languageCode : "en"
+    }
+    
+    func setLanguage(_ language: String) {
+        guard let userDefaults = UserDefaults(suiteName: appGroupId) else {
+            print("Failed to access App Group UserDefaults")
+            return
+        }
+        
+        userDefaults.set(language, forKey: languageKey)
+        print("Widget language set to: \(language)")
     }
 }

@@ -7,7 +7,7 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import Intents
-import ActivityKit
+import Foundation
 
 // MARK: - Data Models
 struct Task {
@@ -74,7 +74,7 @@ struct Provider: TimelineProvider {
             )
         }
         
-        // Update every 15 minutes
+        // Update every 15 minutes, or sooner if language changes
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
@@ -109,6 +109,8 @@ extension Color {
 struct widgetEntryView: View {
     var entry: SimpleEntry
     @Environment(\.widgetFamily) var widgetFamily
+    
+    private let localization = LocalizationHelper.shared
     
     var body: some View {
         if widgetFamily == .systemLarge { // Large widget
@@ -176,7 +178,7 @@ struct widgetEntryView: View {
             HStack {
                 // Date section
                 VStack(spacing: 2) {
-                    Text("Today")
+                    Text(localization.localizedString(for: "widget.today"))
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.widgetTextColor)
                     
@@ -184,7 +186,7 @@ struct widgetEntryView: View {
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.widgetTextColor)
                     
-                    Text(monthWeekdayString(from: entry.date))
+                    Text(localization.formatShortDate(entry.date))
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor(.widgetTextColor)
                 }
@@ -213,14 +215,14 @@ struct widgetEntryView: View {
                         }
                         
                         if entry.regularTasks.count > 3 {
-                            Text("+ \(entry.regularTasks.count - 3) more")
+                            Text(localization.localizedPluralString(for: "widget.moreTasksCount", count: entry.regularTasks.count - 3))
                                 .font(.system(size: 10, weight: .light))
                                 .foregroundColor(.widgetTextColor.opacity(0.6))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 5)
                         }
                     } else if entry.frogTask == nil {
-                        Text("No tasks scheduled")
+                        Text(localization.localizedString(for: "widget.noTasksScheduled"))
                             .font(.system(size: 12))
                             .foregroundColor(.widgetTextColor.opacity(0.8))
                             .frame(maxHeight: .infinity)
@@ -256,28 +258,18 @@ struct widgetEntryView: View {
     }
     
     private func largeDateText(from date: Date) -> some View {
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "d"
-        let day = dayFormatter.string(from: date)
-        
-        let monthFormatter = DateFormatter()
-        monthFormatter.dateFormat = "MMMM"
-        let month = monthFormatter.string(from: date)
-        
-        let weekdayFormatter = DateFormatter()
-        weekdayFormatter.dateFormat = "EEEE"
-        let weekday = weekdayFormatter.string(from: date)
+        let dateComponents = localization.formatDate(date)
         
         return HStack(spacing: 4) {
-            Text("Today")
+            Text(localization.localizedString(for: "widget.today"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.widgetTextColor)
             
-            Text("\(day).\(month),")
+            Text("\(dateComponents.day).\(dateComponents.month),")
                 .font(.system(size: 18, weight: .light))
                 .foregroundColor(.widgetTextColor)
             
-            Text(weekday)
+            Text(dateComponents.weekday)
                 .font(.system(size: 18, weight: .light))
                 .foregroundColor(.widgetTextColor)
         }
@@ -355,8 +347,10 @@ struct CompactCompleteButton: View {
 
 // MARK: - Empty State Views
 struct LargeEmptyStateView: View {
+    private let localization = LocalizationHelper.shared
+    
     var body: some View {
-        Text("All done for today")
+        Text(localization.localizedString(for: "widget.allDoneForToday"))
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(.widgetTextColor.opacity(0.8))
             .multilineTextAlignment(.center)
@@ -399,8 +393,10 @@ struct LargeRegularTaskView: View {
 }
 
 struct LargeFrogEmptyView: View {
+    private let localization = LocalizationHelper.shared
+    
     var body: some View {
-        Text("No frog task set")
+        Text(localization.localizedString(for: "widget.noFrogTaskSet"))
             .font(.system(size: 14))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
@@ -443,8 +439,10 @@ struct MediumRegularTaskView: View {
 }
 
 struct MediumFrogEmptyView: View {
+    private let localization = LocalizationHelper.shared
+    
     var body: some View {
-        Text("No frog task set")
+        Text(localization.localizedString(for: "widget.noFrogTaskSet"))
             .font(.system(size: 12, weight: .regular))
             .foregroundColor(.widgetFrogTextColor.opacity(0.7))
             .lineLimit(1)
@@ -460,15 +458,31 @@ struct widget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             widgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Goals AI Tasks")
-        .description("View today's Eat the Frog task and regular tasks.")
+        .configurationDisplayName(getLocalizedDisplayName())
+        .description(getLocalizedDescription())
         .supportedFamilies([.systemMedium, .systemLarge])
+    }
+    
+    private func getLocalizedDisplayName() -> String {
+        let localization = LocalizationHelper.shared
+        return localization.localizedString(for: "widget.displayName")
+    }
+    
+    private func getLocalizedDescription() -> String {
+        let localization = LocalizationHelper.shared
+        return localization.localizedString(for: "widget.description")
     }
 }
 
 // MARK: - Widget Bundle
 @main
 struct GoalsAIWidgetBundle: WidgetBundle {
+    init() {
+        #if DEBUG
+        WidgetBuildValidator.validateConfiguration()
+        #endif
+    }
+    
     var body: some Widget {
         widget()
     }

@@ -11,10 +11,10 @@ interface WithWidgetProps {
 
 const EXTENSION_TARGET_NAME = "widget";
 const LIVE_ACTIVITY_TARGET_NAME = "PomodoroLiveActivity";
-const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
+const TOP_LEVEL_FILES = ["widget.swift", "SharedDataManager.swift", "TaskIntents.swift", "TaskCompletionIntent.swift", "LocalizationHelper.swift", "WidgetBuildValidator.swift", "Assets.xcassets", "Info.plist", "widget.entitlements"];
 const LIVE_ACTIVITY_TARGET_FILES = ["PomodoroLiveActivity.swift", "Info.plist", "Assets.xcassets", "PomodoroLiveActivity.entitlements"];
 const LIVE_ACTIVITY_FILES = ["LiveActivityBridge.swift", "LiveActivityModule.m", "PomodoroActivityAttributes.swift", "LiveActivityModule.swift"];
-const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m", "UserDefaultsManager.swift", "UserDefaultsManager.m"];
+const WIDGET_KIT_FILES = ["WidgetKitReloader.swift", "WidgetKitReloader.m", "UserDefaultsManager.swift", "UserDefaultsManager.m", "WidgetLanguageSync.swift", "WidgetLanguageSync.m"];
 
 const WIDGET_BUILD_CONFIGURATION_SETTINGS = {
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor",

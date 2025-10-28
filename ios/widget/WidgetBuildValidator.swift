@@ -95,4 +95,11 @@ class WidgetBuildValidator {
     }
 }
 
-// Note: Validation is called from GoalsAIWidgetBundle.init() in widget.swift
+// Run validation during widget initialization
+extension GoalsAIWidgetBundle {
+    init() {
+        #if DEBUG
+        WidgetBuildValidator.validateConfiguration()
+        #endif
+    }
+}
