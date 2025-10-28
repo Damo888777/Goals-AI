@@ -183,6 +183,7 @@ export default function ProfileTab() {
   const [showDevTools, setShowDevTools] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showUpgradePaywall, setShowUpgradePaywall] = useState(false);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [stats, setStats] = useState<Stats>({
     eatTheFrogStreak: 0,
     goalsAchieved: 0,
@@ -445,6 +446,13 @@ Best regards`;
 
   const handlePressIn = (id: string) => setIsPressed(id);
   const handlePressOut = () => setIsPressed(null);
+
+  // Close language dropdown when tapping outside
+  const handleCloseLanguageDropdown = () => {
+    if (showLanguageDropdown) {
+      setShowLanguageDropdown(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -807,33 +815,54 @@ Best regards`;
 
             {/* Language Selection */}
             <View style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <View style={styles.iconOnly}>
-                  <Ionicons name="language" size={20} color={colors.text.primary} />
+              <Pressable 
+                style={styles.languageHeader}
+                onPress={() => setShowLanguageDropdown(!showLanguageDropdown)}
+              >
+                <View style={styles.settingLeft}>
+                  <View style={styles.iconOnly}>
+                    <Ionicons name="language" size={20} color={colors.text.primary} />
+                  </View>
+                  <Text style={[typography.cardTitle, styles.settingLabel]}>Language</Text>
                 </View>
-                <Text style={[typography.cardTitle, styles.settingLabel]}>Language</Text>
-              </View>
-              <View style={styles.languageSelector}>
+                <Ionicons 
+                  name={showLanguageDropdown ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color={colors.textSecondary} 
+                />
+              </Pressable>
+            </View>
+            
+            {/* Language Cards - Collapsible */}
+            {showLanguageDropdown && (
+              <View style={styles.languageCardsContainer}>
                 {availableLanguages.map((language) => (
                   <Pressable
                     key={language.code}
                     style={[
-                      styles.languageOption,
-                      currentLanguage === language.code && styles.languageOptionSelected
+                      styles.languageCard,
+                      currentLanguage === language.code && styles.languageCardSelected
                     ]}
                     onPress={() => changeLanguage(language.code)}
                   >
-                    <Text style={styles.languageFlag}>{language.flag}</Text>
-                    <Text style={[
-                      styles.languageOptionText,
-                      currentLanguage === language.code && styles.languageOptionTextSelected
-                    ]}>
-                      {language.name}
-                    </Text>
+                    <View style={styles.languageCardContent}>
+                      <Text style={styles.languageCardFlag}>{language.flag}</Text>
+                      <Text style={[
+                        styles.languageCardText,
+                        currentLanguage === language.code && styles.languageCardTextSelected
+                      ]}>
+                        {language.name}
+                      </Text>
+                    </View>
+                    {currentLanguage === language.code && (
+                      <View style={styles.languageCardCheckmark}>
+                        <Ionicons name="checkmark-circle" size={20} color={colors.accent.frog} />
+                      </View>
+                    )}
                   </Pressable>
                 ))}
               </View>
-            </View>
+            )}
           </View>
         </View>
 
@@ -1526,36 +1555,63 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   
-  // Language selection styles
-  languageSelector: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  languageOption: {
+  // Language section styles
+  languageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  languageCardsContainer: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+    gap: spacing.md,
+  },
+  languageCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.secondary,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: colors.border.primary,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    gap: spacing.xs,
-    minHeight: 32,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    minHeight: 56,
+    shadowColor: '#364958', // Dark blue shadow to match app pattern
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  languageOptionSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+  languageCardSelected: {
+    borderColor: colors.accent.frog,
+    borderWidth: 1,
+    shadowColor: '#364958', // Keep consistent shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  languageFlag: {
-    fontSize: 16,
+  languageCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    flex: 1,
   },
-  languageOptionText: {
-    ...typography.caption,
+  languageCardFlag: {
+    fontSize: 20,
+  },
+  languageCardText: {
+    ...typography.cardTitle,
     color: colors.text.primary,
     fontWeight: '500',
   },
-  languageOptionTextSelected: {
-    color: colors.secondary,
+  languageCardTextSelected: {
+    color: colors.text.primary, // Keep text color consistent
+    fontWeight: '600',
+  },
+  languageCardCheckmark: {
+    // No additional margin needed
   },
 });
