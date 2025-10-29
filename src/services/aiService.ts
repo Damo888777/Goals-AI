@@ -21,9 +21,9 @@ export interface AIProcessingResult {
 
 // OpenAI Whisper Service
 export class WhisperService {
-  static async transcribeAudio(audioUri: string): Promise<string> {
+  static async transcribeAudio(audioUri: string, language: string = 'en'): Promise<string> {
     try {
-      console.log('🎤 [Whisper] Starting transcription for:', audioUri);
+      console.log('🎤 [Whisper] Starting transcription for:', audioUri, 'Language:', language);
       
       const formData = new FormData();
       
@@ -36,6 +36,7 @@ export class WhisperService {
       formData.append('audio', audioFile);
       formData.append('model', 'whisper-1');
       formData.append('response_format', 'text');
+      formData.append('language', language);
       
       const apiUrl = getApiUrl('/api/whisper');
       console.log('🎤 [Whisper] Sending request to:', apiUrl);
@@ -91,7 +92,8 @@ export class GeminiService {
   static async processTranscription(
     transcription: string, 
     existingGoals: any[] = [], 
-    existingMilestones: any[] = []
+    existingMilestones: any[] = [],
+    language: string = 'en'
   ): Promise<GeminiResponse> {
     try {
       console.log('🤖 [Gemini] Starting classification for:', transcription);
@@ -115,7 +117,8 @@ export class GeminiService {
         body: JSON.stringify({ 
           transcription, 
           existingGoals, 
-          existingMilestones 
+          existingMilestones,
+          language
         }),
       });
       
@@ -180,15 +183,16 @@ export class AIService {
   static async processVoiceInput(
     audioUri: string, 
     existingGoals: any[] = [], 
-    existingMilestones: any[] = []
+    existingMilestones: any[] = [],
+    language: string = 'en'
   ): Promise<AIProcessingResult> {
     try {
       console.log('🚀 [AI Service] Starting voice processing pipeline');
-      console.log('🚀 [AI Service] Audio URI:', audioUri);
+      console.log('🚀 [AI Service] Audio URI:', audioUri, 'Language:', language);
       
       // Stage 1: Transcribe audio with Whisper
       console.log('🚀 [AI Service] Stage 1: Starting transcription');
-      const transcription = await WhisperService.transcribeAudio(audioUri);
+      const transcription = await WhisperService.transcribeAudio(audioUri, language);
       
       if (!transcription || transcription.trim().length === 0) {
         console.error('🚀 [AI Service] No transcription received');
@@ -199,7 +203,7 @@ export class AIService {
       
       // Stage 2: Process transcription with Gemini
       console.log('🚀 [AI Service] Stage 2: Starting classification');
-      const classification = await GeminiService.processTranscription(transcription, existingGoals, existingMilestones);
+      const classification = await GeminiService.processTranscription(transcription, existingGoals, existingMilestones, language);
       
       console.log('🚀 [AI Service] Stage 2 complete. Classification:', classification);
       

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
 import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
 import { Button } from '../src/components/Button';
@@ -20,6 +21,7 @@ export default function CompletedTaskDetailsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
   const { tasks, deleteTask, updateTask } = useTasks();
   const { goals } = useGoals();
   const { milestones } = useMilestones();
@@ -58,7 +60,7 @@ export default function CompletedTaskDetailsScreen() {
   }, [task?.goalId, task?.milestoneId, goals, milestones]);
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No date';
+    if (!dateString) return t('completedTask.noDate');
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
@@ -70,32 +72,32 @@ export default function CompletedTaskDetailsScreen() {
   const getProjectText = () => {
     if (milestoneName) return milestoneName;
     if (goalName) return goalName;
-    if (task?.goalId || task?.milestoneId) return 'Linked to project';
-    return 'No project linked';
+    if (task?.goalId || task?.milestoneId) return t('completedTask.project.linkedToProject');
+    return t('completedTask.project.noProjectLinked');
   };
 
   const handleRestore = () => {
     if (!task || !task.id) return;
 
     Alert.alert(
-      'Restore Task',
-      'Are you sure you want to restore this task? It will be moved back to your active tasks.',
+      t('completedTask.alerts.restoreTitle'),
+      t('completedTask.alerts.restoreMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('completedTask.alerts.cancel'), style: 'cancel' },
         {
-          text: 'Restore',
+          text: t('completedTask.alerts.restore'),
           onPress: async () => {
             try {
               await updateTask(task.id, {
                 isComplete: false,
                 updatedAt: new Date()
               });
-              Alert.alert('Success', 'Task restored successfully!', [
-                { text: 'OK', onPress: () => router.back() }
+              Alert.alert(t('completedTask.alerts.success'), t('completedTask.alerts.taskRestoredSuccess'), [
+                { text: t('completedTask.alerts.ok'), onPress: () => router.back() }
               ]);
             } catch (error) {
               console.error('Error restoring task:', error);
-              Alert.alert('Error', 'Failed to restore task');
+              Alert.alert(t('completedTask.alerts.error'), t('completedTask.alerts.restoreFailed'));
             }
           },
         },
@@ -107,21 +109,21 @@ export default function CompletedTaskDetailsScreen() {
     if (!task || !task.id) return;
 
     Alert.alert(
-      'Delete Task Permanently',
-      'Are you sure you want to permanently delete this task? This action cannot be undone.',
+      t('completedTask.alerts.deleteTitle'),
+      t('completedTask.alerts.deleteMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('completedTask.alerts.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('completedTask.alerts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteTask(task.id);
-              Alert.alert('Success', 'Task deleted permanently!', [
-                { text: 'OK', onPress: () => router.back() }
+              Alert.alert(t('completedTask.alerts.success'), t('completedTask.alerts.taskDeletedSuccess'), [
+                { text: t('completedTask.alerts.ok'), onPress: () => router.back() }
               ]);
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete task');
+              Alert.alert(t('completedTask.alerts.error'), t('completedTask.alerts.deleteFailed'));
             }
           },
         },
@@ -144,39 +146,39 @@ export default function CompletedTaskDetailsScreen() {
               onPress={() => router.back()}
               style={styles.backButton}
             />
-            <Text style={styles.headerTitle}>Completed Task</Text>
+            <Text style={styles.headerTitle}>{t('completedTask.header.title')}</Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            Review your completed task details and focus history.
+            {t('completedTask.header.subtitle')}
           </Text>
         </View>
 
         {/* Task Title Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Task Title</Text>
+          <Text style={styles.sectionTitle}>{t('completedTask.sections.taskTitle')}</Text>
           <View style={styles.titleDisplay}>
-            <Text style={styles.titleText}>{task?.title || 'Loading...'}</Text>
+            <Text style={styles.titleText}>{task?.title || t('completedTask.loading')}</Text>
           </View>
         </View>
 
         {/* Project Info Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Project</Text>
+          <Text style={styles.sectionTitle}>{t('completedTask.sections.project')}</Text>
           <View style={styles.projectDisplay}>
-            <Text style={styles.projectText}>{task ? getProjectText() : 'Loading...'}</Text>
+            <Text style={styles.projectText}>{task ? getProjectText() : t('completedTask.loading')}</Text>
           </View>
         </View>
 
         {/* Completion Info Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Completion Details</Text>
+          <Text style={styles.sectionTitle}>{t('completedTask.sections.completionDetails')}</Text>
           <View style={styles.completionDisplay}>
             <Text style={styles.completionText}>
-              Completed: {task?.updatedAt ? formatDate(task.updatedAt.toISOString()) : 'Loading...'}
+              {t('completedTask.completion.completed')} {task?.updatedAt ? formatDate(task.updatedAt.toISOString()) : t('completedTask.loading')}
             </Text>
             {task?.scheduledDate && (
               <Text style={styles.completionText}>
-                Originally scheduled: {formatDate(task.scheduledDate)}
+                {t('completedTask.completion.originallyScheduled')} {formatDate(task.scheduledDate)}
               </Text>
             )}
           </View>
@@ -185,7 +187,7 @@ export default function CompletedTaskDetailsScreen() {
         {/* Notes Section */}
         {task?.notes && (
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Notes</Text>
+            <Text style={styles.sectionTitle}>{t('completedTask.sections.notes')}</Text>
             <View style={styles.notesDisplay}>
               <Text style={styles.notesText}>{task.notes}</Text>
             </View>
@@ -200,7 +202,7 @@ export default function CompletedTaskDetailsScreen() {
             timeStats={timeStats}
             onStartPomodoro={() => {
               // Completed tasks shouldn't start new pomodoro sessions
-              Alert.alert('Info', 'This task is completed. Start a pomodoro session on an active task instead.');
+              Alert.alert(t('completedTask.alerts.info'), t('completedTask.alerts.pomodoroInfo'));
             }}
             isCompletedTask={true}
           />
@@ -211,13 +213,13 @@ export default function CompletedTaskDetailsScreen() {
           {task && (
             <>
               <Button
-                title="Restore Task"
+                title={t('completedTask.buttons.restoreTask')}
                 variant="save"
                 onPress={handleRestore}
                 style={styles.restoreButton}
               />
               <Button
-                title="Delete"
+                title={t('completedTask.buttons.delete')}
                 variant="delete"
                 onPress={handleDelete}
                 style={styles.deleteButton}

@@ -17,3 +17,27 @@
   - Exclude from translation: "Goals AI" "Spark" "Eat The Frog" "Sign In with Apple"
   - Use short phrasings and do it UX friendly
   - Avoid long words translations, BUT maintain the sense of it
+
+## Translation Implementation Process:
+  - 3 Steps for Adding Translations:
+    1. Import - Add useTranslation import and hook:
+       ```typescript
+       import { useTranslation } from 'react-i18next';
+       const { t } = useTranslation();
+       ```
+    2. Replace - Change hardcoded text to t() calls:
+       ```typescript
+       // Before:
+       <Text>Goals Hub</Text>
+
+       // After:
+       <Text>{t('goals.hub.title')}</Text>
+       ```
+    3. Reference - Use as reference en.json and the keys exactly:
+       ```json
+       "goals": {
+         "hub": {
+           "title": "Goals Hub"
+         }
+       }
+       ```

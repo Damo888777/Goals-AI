@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSubscription } from '../hooks/useSubscription';
@@ -21,9 +22,10 @@ export function SubscriptionGate({
   currentUsage = 0, 
   currentGoalCount = 0,
   showUpgradePrompt = false,
-  upgradePromptTitle = "Upgrade Required",
-  upgradePromptMessage = "This feature requires a subscription."
+  upgradePromptTitle,
+  upgradePromptMessage
 }: SubscriptionGateProps) {
+  const { t } = useTranslation();
   const subscription = useSubscription();
 
   const hasAccess = () => {
@@ -48,17 +50,18 @@ export function SubscriptionGate({
     
     switch (feature) {
       case 'create_goal':
-        return `You've reached your goal limit. Upgrade to create ${limits?.maxGoals === null ? 'unlimited' : 'more'} goals.`;
+        const goalType = limits?.maxGoals === null ? t('subscriptionGate.upgradeMessages.unlimited') : t('subscriptionGate.upgradeMessages.more');
+        return t('subscriptionGate.upgradeMessages.createGoal', { type: goalType });
       case 'spark_ai_voice':
-        return `You've used all your Spark AI voice inputs this month. Upgrade for more.`;
+        return t('subscriptionGate.upgradeMessages.sparkAIVoice');
       case 'spark_ai_vision':
-        return `You've used all your Spark AI vision images this month. Upgrade for more.`;
+        return t('subscriptionGate.upgradeMessages.sparkAIVision');
       case 'home_widgets':
-        return `Home Screen Widgets are available with Achiever and Visionary tiers.`;
+        return t('subscriptionGate.upgradeMessages.homeWidgets');
       case 'modify_data':
-        return `Subscribe to create, edit, and manage your goals and tasks.`;
+        return t('subscriptionGate.upgradeMessages.modifyData');
       default:
-        return upgradePromptMessage;
+        return upgradePromptMessage || t('subscriptionGate.defaultPrompt.message');
     }
   };
 
@@ -94,7 +97,7 @@ export function SubscriptionGate({
             marginLeft: 12,
             fontFamily: 'Helvetica',
           }}>
-            {upgradePromptTitle}
+            {upgradePromptTitle || t('subscriptionGate.defaultPrompt.title')}
           </Text>
         </View>
         
@@ -109,7 +112,7 @@ export function SubscriptionGate({
         </Text>
         
         <Button
-          title="View Subscription Plans"
+          title={t('subscriptionGate.button')}
           variant="primary"
           size="medium"
           onPress={() => router.push('/paywall?type=feature_upgrade')}

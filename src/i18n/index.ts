@@ -67,7 +67,7 @@ const initI18n = async () => {
     });
 };
 
-// Initialize immediately
-initI18n();
+// Initialize immediately - DISABLED to avoid conflict with src/services/i18next.js
+// initI18n();
 
 export default i18n;

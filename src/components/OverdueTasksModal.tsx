@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -37,6 +38,7 @@ export function OverdueTasksModal({
   onComplete,
   onDelete,
 }: OverdueTasksModalProps) {
+  const { t } = useTranslation();
   const [selectableTasks, setSelectableTasks] = useState<SelectableTask[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -78,7 +80,7 @@ export function OverdueTasksModal({
     const selectedIds = getSelectedTaskIds();
     
     if (selectedIds.length === 0) {
-      Alert.alert('No Tasks Selected', 'Please select at least one task to perform this action.');
+      Alert.alert(t('overdueTasksModal.alerts.noTasksSelected'), t('overdueTasksModal.alerts.noTasksSelectedMessage'));
       return;
     }
 
@@ -88,12 +90,12 @@ export function OverdueTasksModal({
       setShowDatePicker(true);
     } else if (type === 'complete') {
       Alert.alert(
-        'Mark as Complete',
-        `Are you sure you want to mark ${selectedIds.length} task(s) as complete?`,
+        t('overdueTasksModal.alerts.markComplete'),
+        t('overdueTasksModal.alerts.markCompleteMessage', { count: selectedIds.length }),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('overdueTasksModal.alerts.cancel'), style: 'cancel' },
           {
-            text: 'Complete',
+            text: t('overdueTasksModal.alerts.complete'),
             onPress: async () => {
               await onComplete(selectedIds);
               // Remove completed tasks from selection
@@ -104,12 +106,12 @@ export function OverdueTasksModal({
       );
     } else if (type === 'delete') {
       Alert.alert(
-        'Delete Tasks',
-        `Are you sure you want to delete ${selectedIds.length} task(s)? This action cannot be undone.`,
+        t('overdueTasksModal.alerts.deleteTasks'),
+        t('overdueTasksModal.alerts.deleteTasksMessage', { count: selectedIds.length }),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('overdueTasksModal.alerts.cancel'), style: 'cancel' },
           {
-            text: 'Delete',
+            text: t('overdueTasksModal.alerts.delete'),
             style: 'destructive',
             onPress: async () => {
               await onDelete(selectedIds);
@@ -139,7 +141,7 @@ export function OverdueTasksModal({
     const selectedIds = getSelectedTaskIds();
     
     if (selectedIds.length === 0) {
-      Alert.alert('No Tasks Selected', 'Please select at least one task to reschedule.');
+      Alert.alert(t('overdueTasksModal.alerts.noTasksSelected'), t('overdueTasksModal.alerts.noTasksSelectedReschedule'));
       return;
     }
 
@@ -165,13 +167,13 @@ export function OverdueTasksModal({
     
     if (milestoneId) {
       const milestone = milestones.find(m => m.id === milestoneId);
-      return milestone?.title || 'Milestone';
+      return milestone?.title || t('overdueTasksModal.taskDefaults.milestone');
     }
     if (goalId) {
       const goal = goals.find(g => g.id === goalId);
-      return goal?.title || 'Goal';
+      return goal?.title || t('overdueTasksModal.taskDefaults.goal');
     }
-    return 'No project linked';
+    return t('overdueTasksModal.taskDefaults.noProjectLinked');
   };
 
   // Auto-close modal when no tasks remain
@@ -194,9 +196,9 @@ export function OverdueTasksModal({
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Overdue Tasks</Text>
+            <Text style={styles.modalTitle}>{t('overdueTasksModal.title')}</Text>
             <Text style={styles.modalSubtitle}>
-              You have {selectableTasks.length} overdue task(s). Select tasks and choose an action.
+              {t('overdueTasksModal.subtitle', { count: selectableTasks.length })}
             </Text>
           </View>
 
@@ -233,7 +235,7 @@ export function OverdueTasksModal({
                     {/* Task Content */}
                     <View style={styles.taskInfo}>
                       <Text style={styles.taskTitle} numberOfLines={3}>
-                        {task._raw?.title || task.title || 'No Title'}
+                        {task._raw?.title || task.title || t('overdueTasksModal.taskDefaults.noTitle')}
                       </Text>
                     
                     <View style={styles.taskMeta}>
@@ -246,7 +248,7 @@ export function OverdueTasksModal({
                       <View style={styles.metaRow}>
                         <Ionicons name="calendar-outline" size={12} color="#BC4B51" />
                         <Text style={[styles.metaText, styles.overdueText]}>
-                          Due: {formatDate(task._raw?.scheduled_date || task.scheduledDate || new Date().toISOString())}
+                          {t('overdueTasksModal.taskDefaults.due')} {formatDate(task._raw?.scheduled_date || task.scheduledDate || new Date().toISOString())}
                         </Text>
                       </View>
                     </View>
@@ -274,7 +276,7 @@ export function OverdueTasksModal({
               style={[styles.actionButton, styles.rescheduleButton]}
               onPress={handleRescheduleToday}
             >
-              <Text style={styles.actionButtonText}>Reschedule to Today</Text>
+              <Text style={styles.actionButtonText}>{t('overdueTasksModal.buttons.rescheduleToToday')}</Text>
             </TouchableOpacity>
 
             <View style={styles.actionButtonRow}>
@@ -306,7 +308,7 @@ export function OverdueTasksModal({
             style={styles.closeButton}
             onPress={onClose}
           >
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.closeButtonText}>{t('overdueTasksModal.buttons.close')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -320,7 +322,7 @@ export function OverdueTasksModal({
           <View style={styles.modalOverlay}>
             <View style={styles.dateModalContainer}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select New Date</Text>
+                <Text style={styles.modalTitle}>{t('overdueTasksModal.datePicker.title')}</Text>
               </View>
               
               <View style={styles.datePickerWrapper}>
@@ -340,14 +342,14 @@ export function OverdueTasksModal({
                   style={styles.modalCancelButton}
                   onPress={() => setShowDatePicker(false)}
                 >
-                  <Text style={styles.modalCancelText}>Cancel</Text>
+                  <Text style={styles.modalCancelText}>{t('overdueTasksModal.datePicker.cancel')}</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
                   style={styles.modalConfirmButton}
                   onPress={handleDateConfirm}
                 >
-                  <Text style={styles.modalConfirmText}>Confirm</Text>
+                  <Text style={styles.modalConfirmText}>{t('overdueTasksModal.datePicker.confirm')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

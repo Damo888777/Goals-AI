@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useSubscription } from '../src/hooks/useSubscription';
 import { SubscriptionCard } from '../src/components/SubscriptionCard';
 
 export default function PaywallScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedPlan, setSelectedPlan] = useState<string | null>('tier_achiever');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
@@ -39,8 +41,8 @@ export default function PaywallScreen() {
   // Get paywall content - this is now feature upgrade only
   const getPaywallContent = () => {
     return {
-      title: 'Ready for the Next Level?',
-      description: 'Our higher tiers are designed for ambitious users who are ready to achieve more. Explore the plans below.',
+      title: t('paywall.hero.title'),
+      description: t('paywall.hero.description'),
       canDismiss: true,
     };
   };
@@ -65,9 +67,9 @@ export default function PaywallScreen() {
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
         Alert.alert(
-          'Success!',
-          'Your subscription has been activated. Welcome to Goals AI!',
-          [{ text: 'Continue', onPress: () => router.back() }]
+          t('paywall.alerts.success'),
+          t('paywall.alerts.subscriptionActivated'),
+          [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
         );
       } else {
         // Handle different types of purchase errors
@@ -79,42 +81,42 @@ export default function PaywallScreen() {
             return;
           } else if (errorMessage.includes('declined') || errorMessage.includes('payment declined')) {
             Alert.alert(
-              'Payment Declined',
-              'Your payment method was declined. Please check your payment information and try again.',
-              [{ text: 'OK' }]
+              t('paywall.alerts.paymentDeclined'),
+              t('paywall.alerts.paymentDeclinedMessage'),
+              [{ text: t('paywall.alerts.ok') }]
             );
           } else if (errorMessage.includes('interrupted') || errorMessage.includes('network')) {
             Alert.alert(
-              'Connection Issue',
-              'The purchase was interrupted due to a network issue. Please check your connection and try again.',
-              [{ text: 'Retry', onPress: () => handlePurchase() }, { text: 'Cancel' }]
+              t('paywall.alerts.connectionIssue'),
+              t('paywall.alerts.connectionIssueMessage'),
+              [{ text: t('paywall.alerts.retry'), onPress: () => handlePurchase() }, { text: t('paywall.alerts.cancel') }]
             );
           } else if (errorMessage.includes('already purchased') || errorMessage.includes('already subscribed')) {
             Alert.alert(
-              'Already Subscribed',
-              'You already have an active subscription. Try restoring your purchases if you don\'t see your benefits.',
+              t('paywall.alerts.alreadySubscribed'),
+              t('paywall.alerts.alreadySubscribedMessage'),
               [
-                { text: 'Restore Purchases', onPress: () => handleRestore() },
-                { text: 'OK' }
+                { text: t('paywall.alerts.restorePurchases'), onPress: () => handleRestore() },
+                { text: t('paywall.alerts.ok') }
               ]
             );
           } else {
             Alert.alert(
-              'Purchase Failed',
-              `Something went wrong: ${result.error}\n\nPlease try again or contact support if the issue persists.`,
-              [{ text: 'OK' }]
+              t('paywall.alerts.purchaseFailed'),
+              t('paywall.alerts.purchaseFailedMessage', { error: result.error }),
+              [{ text: t('paywall.alerts.ok') }]
             );
           }
         } else {
           Alert.alert(
-            'Purchase Failed',
-            'An unexpected error occurred. Please try again.',
-            [{ text: 'OK' }]
+            t('paywall.alerts.purchaseFailed'),
+            t('paywall.alerts.unexpectedError'),
+            [{ text: t('paywall.alerts.ok') }]
           );
         }
       }
     } catch (error) {
-      Alert.alert('Purchase Failed', 'Something went wrong. Please try again.');
+      Alert.alert(t('paywall.alerts.purchaseFailed'), t('paywall.alerts.somethingWentWrong'));
     } finally {
       setIsLoading(false);
     }
@@ -126,15 +128,15 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
       if (result.success) {
         Alert.alert(
-          'Purchases Restored',
-          'Your previous purchases have been restored.',
-          [{ text: 'Continue', onPress: () => router.back() }]
+          t('paywall.alerts.purchasesRestored'),
+          t('paywall.alerts.purchasesRestoredMessage'),
+          [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
         );
       } else {
-        Alert.alert('Restore Failed', result.error || 'No previous purchases found.');
+        Alert.alert(t('paywall.alerts.restoreFailed'), result.error || t('paywall.alerts.noPurchasesFound'));
       }
     } catch (error) {
-      Alert.alert('Restore Failed', 'Something went wrong. Please try again.');
+      Alert.alert(t('paywall.alerts.restoreFailed'), t('paywall.alerts.somethingWentWrong'));
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +158,7 @@ export default function PaywallScreen() {
           fontFamily: 'Helvetica',
           fontWeight: '300',
         }}>
-          Loading subscription options...
+          {t('paywall.loading.subscriptionOptions')}
         </Text>
       </View>
     );
@@ -211,7 +213,7 @@ export default function PaywallScreen() {
               textAlign: 'center',
               marginBottom: 4,
             }}>
-              Current Plan
+              {t('paywall.currentPlan.label')}
             </Text>
             <Text style={{
               fontSize: 18,
@@ -291,7 +293,7 @@ export default function PaywallScreen() {
               color: billingPeriod === 'monthly' ? '#FFFFFF' : '#364958',
               fontFamily: 'Helvetica',
             }}>
-              Monthly
+              {t('paywall.billingPeriod.monthly')}
             </Text>
           </Pressable>
           <Pressable
@@ -312,7 +314,7 @@ export default function PaywallScreen() {
               color: billingPeriod === 'annual' ? '#FFFFFF' : '#364958',
               fontFamily: 'Helvetica',
             }}>
-              Annual
+              {t('paywall.billingPeriod.annual')}
             </Text>
           </Pressable>
         </View>
@@ -340,8 +342,8 @@ export default function PaywallScreen() {
                 fontWeight: '600',
               }}>
                 {isSubscribed && currentTier ? 
-                  `You're already on the highest available tier (${currentTier.name}). To change billing frequency, please manage your subscription in your App Store settings.` :
-                  'No subscription plans available. Please check your RevenueCat configuration.'
+                  t('paywall.noPlans.highestTier', { tierName: currentTier.name }) :
+                  t('paywall.noPlans.noPlansAvailable')
                 }
               </Text>
             </View>
@@ -383,7 +385,7 @@ export default function PaywallScreen() {
               color: selectedPlan ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
-              {isLoading ? 'Processing...' : 'Upgrade Plan'}
+              {isLoading ? t('paywall.buttons.processing') : t('paywall.buttons.upgradePlan')}
             </Text>
           </Pressable>
 
@@ -399,7 +401,7 @@ export default function PaywallScreen() {
             marginTop: 12,
             paddingHorizontal: 16,
           }}>
-            This subscription will automatically renew unless you cancel it at least 24 hours before the current period ends; you can manage or cancel your subscription anytime in your App Store account settings.
+            {t('paywall.disclaimer.autoRenew')}
           </Text>
 
           <Pressable
@@ -417,7 +419,7 @@ export default function PaywallScreen() {
               fontFamily: 'Helvetica',
               fontWeight: '400',
             }}>
-              Restore Purchases
+              {t('paywall.buttons.restorePurchases')}
             </Text>
           </Pressable>
         </View>
@@ -438,10 +440,10 @@ export default function PaywallScreen() {
             fontFamily: 'Helvetica',
             fontWeight: '300',
           }}>
-            By continuing, you agree to our{'\n'}
-            <Text style={{ textDecorationLine: 'underline' }}>Terms of Service</Text>
-            {' and '}
-            <Text style={{ textDecorationLine: 'underline' }}>Privacy Policy</Text>
+            {t('paywall.legal.byContinuing')}{'\n'}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.legal.termsOfService')}</Text>
+            {t('paywall.legal.and')}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.legal.privacyPolicy')}</Text>
           </Text>
         </View>
       </ScrollView>

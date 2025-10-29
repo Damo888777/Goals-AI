@@ -18,6 +18,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
 import { images } from '../src/constants/images';
 import VisionPicker from '../src/components/VisionPicker';
@@ -25,16 +26,17 @@ import { Button } from '../src/components/Button';
 import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
 import { spacing } from '../src/constants/spacing';
 
-const EMOTIONS = [
-  { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
-  { label: 'Grateful', color: '#a1c181', textColor: '#081c15' },
-  { label: 'Proud', color: '#cdb4db', textColor: '#3d405b' },
-  { label: 'Calm', color: '#dedbd2', textColor: '#335c67' },
-  { label: 'Energized', color: '#eec170', textColor: '#780116' },
-  { label: 'Happy', color: '#bde0fe', textColor: '#023047' },
-  { label: 'Empowered', color: '#eae2b7', textColor: '#bb3e03' },
-  { label: 'Excited', color: '#f4a261', textColor: '#b23a48' },
-  { label: 'Fulfilled', color: '#f8ad9d', textColor: '#e07a5f' },
+// Emotions will be translated dynamically using t() function
+const getEmotions = (t: any) => [
+  { label: t('goalDetails.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+  { label: t('goalDetails.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
+  { label: t('goalDetails.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
+  { label: t('goalDetails.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
+  { label: t('goalDetails.emotions.energized'), color: '#eec170', textColor: '#780116' },
+  { label: t('goalDetails.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
+  { label: t('goalDetails.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+  { label: t('goalDetails.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
+  { label: t('goalDetails.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
 ];
 
 // Emotion Selection Component
@@ -44,6 +46,9 @@ interface EmotionSelectionProps {
 }
 
 const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
+  const { t } = useTranslation();
+  const emotions = getEmotions(t);
+  
   const handleEmotionPress = (emotion: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
@@ -57,13 +62,13 @@ const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, o
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        How do you feel after you achieved your goal?
+        {t('goalDetails.sections.emotions')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Choose up to 5 emotions
+        {t('goalDetails.sections.emotionsSubtitle')}
       </Text>
       <View style={styles.emotionGrid}>
-        {EMOTIONS.map((emotion, index) => {
+        {emotions.map((emotion, index) => {
           const isSelected = selectedEmotions.includes(emotion.label);
           return (
             <TouchableOpacity
@@ -99,13 +104,15 @@ interface VisionBoardSelectionProps {
 }
 
 const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImageUrl, onChangeVision, onRemoveVision }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Your Vision
+        {t('goalDetails.sections.vision')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Begin with the end in mind. This is what you're working towards.
+        {t('goalDetails.sections.visionSubtitle')}
       </Text>
       <TouchableOpacity style={styles.visionButtonTouchable} onPress={onChangeVision}>
         <View style={[styles.visionButton, visionImageUrl ? styles.visionButtonWithImage : null]}>
@@ -118,7 +125,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
           </View>
           {!visionImageUrl && (
             <Text style={styles.visionButtonText}>
-              Choose your Vision
+              {t('goalDetails.vision.chooseVision')}
             </Text>
           )}
         </View>
@@ -132,7 +139,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
             style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
             <Text style={styles.actionButtonText}>
-              Remove
+              {t('goalDetails.vision.remove')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -140,7 +147,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
             style={[styles.actionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
           >
             <Text style={styles.actionButtonText}>
-              Change Vision
+              {t('goalDetails.vision.changeVision')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -160,18 +167,20 @@ interface MilestoneCardProps {
 }
 
 const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilestoneComplete, onMilestonePress, onMilestoneDelete, isLast }) => {
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No date set';
+    if (!dateString) return t('goalDetails.milestones.noDateSet');
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
+    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}.${day}.${year}`;
   };
 
   const handleGestureEvent = Animated.event(
@@ -282,16 +291,17 @@ interface MilestonesSectionProps {
 }
 
 const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestones, goal, onMilestonePress, onMilestoneComplete }) => {
+  const { t } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const goalMilestones = milestones.filter(m => m.goalId === goalId);
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Milestones
+        {t('goalDetails.sections.milestones')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Break down your goal into smaller, manageable steps.
+        {t('goalDetails.sections.milestonesSubtitle')}
       </Text>
       
       {/* Dropdown Container - wraps both button and content */}
@@ -302,7 +312,7 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
           style={styles.milestonesDropdownButton}
         >
           <Text style={styles.milestonesDropdownText}>
-            {goalMilestones.length > 0 ? `${goalMilestones.length} Milestones` : 'No milestones yet'}
+            {goalMilestones.length > 0 ? t('goalDetails.milestones.milestonesCount', { count: goalMilestones.length }) : t('goalDetails.milestones.noMilestonesYet')}
           </Text>
           <ChevronButton
             direction={showDropdown ? "up" : "down"}
@@ -327,12 +337,12 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
                     onMilestoneComplete={onMilestoneComplete}
                     onMilestoneDelete={(milestoneId) => {
                       Alert.alert(
-                        'Delete Milestone',
-                        `Are you sure you want to delete "${milestone.title}"?`,
+                        t('goalDetails.alerts.deleteMilestoneTitle'),
+                        t('goalDetails.alerts.deleteMilestoneMessage', { title: milestone.title }),
                         [
-                          { text: 'Cancel', style: 'cancel' },
+                          { text: t('goalDetails.alerts.cancel'), style: 'cancel' },
                           {
-                            text: 'Delete',
+                            text: t('goalDetails.alerts.delete'),
                             style: 'destructive',
                             onPress: () => {
                               // Handle delete - you'll need to implement this
@@ -349,10 +359,10 @@ const MilestonesSection: React.FC<MilestonesSectionProps> = ({ goalId, milestone
             ) : (
               <View style={styles.emptyMilestoneContainer}>
                 <Text style={styles.emptyMilestoneTitle}>
-                  No milestones yet
+                  {t('goalDetails.milestones.emptyTitle')}
                 </Text>
                 <Text style={styles.emptyMilestoneDescription}>
-                  Break your goal down into milestones.
+                  {t('goalDetails.milestones.emptyDescription')}
                 </Text>
               </View>
             )}
@@ -370,18 +380,20 @@ interface NotesSectionProps {
 }
 
 const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Notes & Details
+        {t('goalDetails.sections.notesDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Add any extra thoughts, links, or steps you want to remember.
+        {t('goalDetails.sections.notesSubtitle')}
       </Text>
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder="Type here your notes and details..."
+        placeholder={t('goalDetails.placeholders.notesDetails')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -396,6 +408,7 @@ export default function GoalDetailsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
   const { goals, updateGoal, deleteGoal } = useGoals();
   const { milestones } = useMilestones();
   
@@ -439,7 +452,7 @@ export default function GoalDetailsScreen() {
       });
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to save goal');
+      Alert.alert(t('goalDetails.alerts.error'), t('goalDetails.alerts.failedToSaveGoal'));
     }
   };
 
@@ -447,19 +460,19 @@ export default function GoalDetailsScreen() {
     if (!goal) return;
 
     Alert.alert(
-      'Delete Goal',
-      'Are you sure you want to delete this goal? This action cannot be undone.',
+      t('goalDetails.alerts.deleteGoalTitle'),
+      t('goalDetails.alerts.deleteGoalMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('goalDetails.alerts.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('goalDetails.alerts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteGoal(goal.id);
               router.back();
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete goal');
+              Alert.alert(t('goalDetails.alerts.error'), t('goalDetails.alerts.failedToDeleteGoal'));
             }
           },
         },
@@ -495,7 +508,7 @@ export default function GoalDetailsScreen() {
   if (!goal) {
     return (
       <View style={[styles.container, { paddingTop: insets.top + 100 }]}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{t('goalDetails.loading')}</Text>
       </View>
     );
   }
@@ -521,23 +534,23 @@ export default function GoalDetailsScreen() {
               style={styles.backButton}
             />
             <Text style={styles.headerTitle}>
-              Edit Your Goal
+              {t('goalDetails.header.title')}
             </Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            Update your goal details and track your progress.
+            {t('goalDetails.header.subtitle')}
           </Text>
         </View>
 
         {/* Goal Title */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Goal Title
+            {t('goalDetails.sections.goalTitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Type here your goal title..."
+            placeholder={t('goalDetails.placeholders.goalTitle')}
             placeholderTextColor="#364958"
             style={styles.textInput}
           />
@@ -574,12 +587,12 @@ export default function GoalDetailsScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <Button
-            title="Delete"
+            title={t('goalDetails.buttons.delete')}
             variant="delete"
             onPress={handleDelete}
           />
           <Button
-            title="Save"
+            title={t('goalDetails.buttons.save')}
             variant="save"
             onPress={handleSave}
           />

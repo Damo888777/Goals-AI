@@ -11,6 +11,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Image } from 'expo-image';
 import { images } from '../src/constants/images';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import { useGoals } from '../src/hooks/useDatabase';
 import { router } from 'expo-router';
 import VisionImage from '../src/db/models/VisionImage';
@@ -28,16 +29,17 @@ interface EmotionSelectionProps {
 }
 
 const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
+  const { t } = useTranslation();
   const emotions = [
-    { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
-    { label: 'Grateful', color: '#a1c181', textColor: '#081c15' },
-    { label: 'Proud', color: '#cdb4db', textColor: '#3d405b' },
-    { label: 'Calm', color: '#dedbd2', textColor: '#335c67' },
-    { label: 'Energized', color: '#eec170', textColor: '#780116' },
-    { label: 'Happy', color: '#bde0fe', textColor: '#023047' },
-    { label: 'Empowered', color: '#eae2b7', textColor: '#bb3e03' },
-    { label: 'Excited', color: '#f4a261', textColor: '#b23a48' },
-    { label: 'Fulfilled', color: '#f8ad9d', textColor: '#e07a5f' },
+    { label: t('manualGoal.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+    { label: t('manualGoal.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
+    { label: t('manualGoal.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
+    { label: t('manualGoal.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
+    { label: t('manualGoal.emotions.energized'), color: '#eec170', textColor: '#780116' },
+    { label: t('manualGoal.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
+    { label: t('manualGoal.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+    { label: t('manualGoal.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
+    { label: t('manualGoal.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
   ];
 
   const handleEmotionPress = (emotion: string) => {
@@ -53,10 +55,10 @@ const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, o
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        How do you feel after you achieved your goal?
+        {t('manualGoal.sections.emotions')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Choose up to 5 emotions
+        {t('manualGoal.sections.emotionsSubtitle')}
       </Text>
       <View style={styles.emotionGrid}>
         {emotions.map((emotion, index) => {
@@ -95,13 +97,15 @@ interface VisionSectionProps {
 }
 
 const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVisionImageSelect, onVisionPress }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Visualize your goal
+        {t('manualGoal.sections.visualizeGoal')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Choose an image from your Vision Board.
+        {t('manualGoal.sections.visualizeSubtitle')}
       </Text>
       <TouchableOpacity style={styles.visionButtonTouchable} onPress={onVisionPress}>
         <View style={styles.visionButton}>
@@ -113,7 +117,7 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
             />
           </View>
           <Text style={styles.visionButtonText}>
-            {selectedVisionImage ? 'Change Vision' : 'Choose your Vision'}
+            {selectedVisionImage ? t('manualGoal.vision.changeVision') : t('manualGoal.vision.chooseVision')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -128,18 +132,20 @@ interface NotesSectionProps {
 }
 
 const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Notes & Details
+        {t('manualGoal.sections.notesAndDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Add any extra thoughts, links, or steps you want to remember.
+        {t('manualGoal.sections.notesSubtitle')}
       </Text>
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder="Type here your notes and details..."
+        placeholder={t('manualGoal.placeholders.notesPlaceholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -151,6 +157,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
 
 // Main Manual Goal Screen Component
 export default function ManualGoalScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { goals, createGoal } = useGoals();
   const [selectedType, setSelectedType] = useState<'task' | 'goal' | 'milestone'>('goal');
@@ -170,7 +177,7 @@ export default function ManualGoalScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a goal title');
+      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.enterGoalTitle'));
       return;
     }
 
@@ -185,13 +192,13 @@ export default function ManualGoalScreen() {
 
       // Show success confirmation
       Alert.alert(
-        'Success',
-        'Goal created successfully!',
-        [{ text: 'OK', onPress: () => router.push('/(tabs)/goals') }]
+        t('manualGoal.alerts.success'),
+        t('manualGoal.alerts.goalCreatedSuccess'),
+        [{ text: t('manualGoal.alerts.ok'), onPress: () => router.push('/(tabs)/goals') }]
       );
     } catch (error) {
       console.error('Error creating goal:', error);
-      Alert.alert('Error', 'Failed to create goal. Please try again.');
+      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.createGoalFailed'));
     }
   };
 
@@ -220,23 +227,23 @@ export default function ManualGoalScreen() {
               style={styles.backButton}
             />
             <Text style={styles.headerTitle}>
-              Create Your Goal
+              {t('manualGoal.header.title')}
             </Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            This is where a manual becomes a goal. Add the details and bring it to life.
+            {t('manualGoal.header.subtitle')}
           </Text>
         </View>
 
         {/* Goal Title */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Goal Title
+            {t('manualGoal.sections.goalTitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Type here your goal title..."
+            placeholder={t('manualGoal.placeholders.goalTitlePlaceholder')}
             placeholderTextColor="#364958"
             style={styles.textInput}
           />
@@ -264,12 +271,12 @@ export default function ManualGoalScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <Button
-            title="Cancel"
+            title={t('manualGoal.buttons.cancel')}
             variant="cancel"
             onPress={handleCancel}
           />
           <Button
-            title="Save"
+            title={t('manualGoal.buttons.save')}
             variant="save"
             onPress={handleSave}
           />

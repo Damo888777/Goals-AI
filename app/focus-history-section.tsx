@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { PomodoroSessionData, TaskTimeStats } from '../src/hooks/usePomodoroSessions';
 
 interface FocusHistorySectionProps {
@@ -20,6 +21,7 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
   onStartPomodoro,
   isCompletedTask = false
 }) => {
+  const { t } = useTranslation();
   // Use timeStats if available, otherwise calculate from sessions
   const totalSessions = timeStats?.totalSessions || focusSessions.length;
   const totalMinutes = timeStats?.totalMinutes || focusSessions.reduce((sum, session) => sum + session.durationMinutes, 0);
@@ -49,9 +51,9 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
     });
     
     if (isToday) {
-      return `Today, ${timeStr}`;
+      return `${t('focusHistory.timeFormat.today')}, ${timeStr}`;
     } else if (isYesterday) {
-      return `Yesterday, ${timeStr}`;
+      return `${t('focusHistory.timeFormat.yesterday')}, ${timeStr}`;
     } else {
       return `${date.toLocaleDateString('en-US', { 
         month: 'short', 
@@ -63,10 +65,10 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Focus History
+        {t('focusHistory.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        A record of the time and dedication you've invested in this task.
+        {t('focusHistory.subtitle')}
       </Text>
       
       <View style={styles.focusHistoryCard}>
@@ -74,12 +76,12 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
           // Empty State
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateTitle}>
-              No focus sessions yet
+              {t('focusHistory.emptyState.title')}
             </Text>
             <Text style={styles.emptyStateDescription}>
               {isCompletedTask 
-                ? 'This task was completed without any focus sessions.'
-                : 'Start a pomodoro to track your focus and build momentum.'}
+                ? t('focusHistory.emptyState.completedTaskDescription')
+                : t('focusHistory.emptyState.activeTaskDescription')}
             </Text>
             {!isCompletedTask && (
               <TouchableOpacity
@@ -89,22 +91,22 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
                   onStartPomodoro();
                 }}
               >
-                <Text style={styles.startPomodoroButtonText}>Start Focus Session</Text>
+                <Text style={styles.startPomodoroButtonText}>{t('focusHistory.emptyState.startFocusSession')}</Text>
               </TouchableOpacity>
             )}
           </View>
         ) : (
           // Active State with Sessions
           <>
-            <Text style={styles.focusHistoryCardTitle}>Your recent activity</Text>
+            <Text style={styles.focusHistoryCardTitle}>{t('focusHistory.activeState.title')}</Text>
             <Text style={styles.focusHistoryDescription}>
-              Keep up the great work! Every session brings you closer to your goal.
+              {t('focusHistory.activeState.description')}
             </Text>
             
             {/* Today's Progress Indicators */}
             {todayPomodoroCount > 0 && (
               <View style={styles.sessionIndicatorSection}>
-                <Text style={styles.sessionIndicatorLabel}>Today's Progress</Text>
+                <Text style={styles.sessionIndicatorLabel}>{t('focusHistory.activeState.todaysProgress')}</Text>
                 <View style={styles.sessionIndicators}>
                   {[...Array(4)].map((_, index) => (
                     <View
@@ -121,15 +123,15 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
             
             {/* Session Statistics */}
             <View style={styles.sessionStats}>
-              <Text style={styles.sessionStatsText}>Sessions in total: {totalSessions} Sessions</Text>
+              <Text style={styles.sessionStatsText}>{t('focusHistory.activeState.sessionsInTotal')} {totalSessions} {t('focusHistory.activeState.sessions')}</Text>
               <Text style={styles.sessionStatsText}>
-                Total time spent: {totalHours > 0 ? `${totalHours} Hours ` : ''}{remainingMinutes} Minutes
+                {t('focusHistory.activeState.totalTimeSpent')} {totalHours > 0 ? `${totalHours} ${t('focusHistory.activeState.hours')} ` : ''}{remainingMinutes} {t('focusHistory.activeState.minutes')}
               </Text>
             </View>
             
             {/* Session History */}
             <View style={styles.sessionHistorySection}>
-              <Text style={styles.sessionHistoryTitle}>Session history:</Text>
+              <Text style={styles.sessionHistoryTitle}>{t('focusHistory.activeState.sessionHistory')}</Text>
               <View style={styles.sessionHistoryList}>
                 {focusSessions.slice(0, 5).map((session) => {
                   const sessionDate = session.completedAt ? new Date(session.completedAt) : new Date(session.createdAt);
@@ -137,14 +139,14 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
                     <View key={session.id} style={styles.sessionHistoryItem}>
                       <View style={styles.sessionBullet} />
                       <Text style={styles.sessionHistoryText}>
-                        {formatSessionTime(sessionDate)} - {session.durationMinutes} minutes
+                        {formatSessionTime(sessionDate)} - {session.durationMinutes} {t('focusHistory.timeFormat.minutesShort')}
                       </Text>
                     </View>
                   );
                 })}
                 {focusSessions.length > 5 && (
                   <Text style={[styles.sessionHistoryText, { fontStyle: 'italic', textAlign: 'center', marginTop: 8 }]}>
-                    ... and {focusSessions.length - 5} more sessions
+                    {t('focusHistory.activeState.andMoreSessions', { count: focusSessions.length - 5 })}
                   </Text>
                 )}
               </View>
@@ -158,7 +160,7 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
                 onStartPomodoro();
               }}
             >
-              <Text style={styles.startPomodoroButtonText}>Start Another Session</Text>
+              <Text style={styles.startPomodoroButtonText}>{t('focusHistory.activeState.startAnotherSession')}</Text>
             </TouchableOpacity>
           </>
         )}

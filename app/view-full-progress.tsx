@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useState, useEffect, useMemo } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
@@ -16,6 +17,7 @@ import { Button } from '../src/components/Button';
 import { BackChevronButton } from '../src/components/ChevronButton';
 
 export default function ViewFullProgressScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -102,9 +104,9 @@ export default function ViewFullProgressScreen() {
               onPress={handleBack}
               style={styles.backButton}
             />
-            <Text style={styles.headerTitle}>All Completed Tasks</Text>
+            <Text style={styles.headerTitle}>{t('viewFullProgress.header.title')}</Text>
           </View>
-          <Text style={styles.headerDescription}>Review your completed tasks and celebrate your progress.</Text>
+          <Text style={styles.headerDescription}>{t('viewFullProgress.header.description')}</Text>
         </View>
 
         {/* Search and Date Filter Container */}
@@ -115,7 +117,7 @@ export default function ViewFullProgressScreen() {
               <Icon name="search" size={20} color="#7C7C7C" style={styles.searchIcon} />
               <TextInput
                 style={styles.searchInput}
-                placeholder="Search completed tasks..."
+                placeholder={t('viewFullProgress.search.placeholder')}
                 placeholderTextColor="#7C7C7C"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -136,12 +138,12 @@ export default function ViewFullProgressScreen() {
               onPress={handleDatePickerPress}
             >
               <Text style={styles.datePickerButtonText}>
-                {selectedDate ? formatDate(selectedDate) : 'Filter by completion date'}
+                {selectedDate ? formatDate(selectedDate) : t('viewFullProgress.dateFilter.placeholder')}
               </Text>
             </TouchableOpacity>
             {selectedDate && (
               <TouchableOpacity onPress={clearDateFilter} style={styles.clearDateButton}>
-                <Text style={styles.clearDateButtonText}>Clear</Text>
+                <Text style={styles.clearDateButtonText}>{t('viewFullProgress.dateFilter.clearButton')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -150,9 +152,9 @@ export default function ViewFullProgressScreen() {
         {/* Completed Tasks Section */}
         <View style={styles.completedTasksContainer}>
           <View style={styles.completedTasksHeader}>
-            <Text style={styles.completedTasksTitle}>Completed Tasks</Text>
+            <Text style={styles.completedTasksTitle}>{t('viewFullProgress.tasksSection.title')}</Text>
             <Text style={styles.resultsText}>
-              {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
+              {t('viewFullProgress.tasksSection.resultsText', { count: filteredTasks.length })}
             </Text>
           </View>
 
@@ -169,10 +171,10 @@ export default function ViewFullProgressScreen() {
             ) : (
               <CompletedTaskCard
                 emptyState={{
-                  title: "No completed tasks found",
+                  title: t('viewFullProgress.emptyState.title'),
                   description: searchQuery || selectedDate 
-                    ? 'Try adjusting your search or date filter.'
-                    : 'Complete some tasks to see them here.'
+                    ? t('viewFullProgress.emptyState.descriptionFiltered')
+                    : t('viewFullProgress.emptyState.descriptionDefault')
                 }}
               />
             )}
@@ -190,7 +192,7 @@ export default function ViewFullProgressScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
+              <Text style={styles.modalTitle}>{t('viewFullProgress.datePicker.modalTitle')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -209,13 +211,13 @@ export default function ViewFullProgressScreen() {
                 style={[styles.modalButton, styles.cancelModalButton]}
                 onPress={handleDateCancel}
               >
-                <Text style={styles.cancelModalButtonText}>Cancel</Text>
+                <Text style={styles.cancelModalButtonText}>{t('viewFullProgress.datePicker.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmModalButton]}
                 onPress={handleDateConfirm}
               >
-                <Text style={styles.confirmModalButtonText}>Confirm</Text>
+                <Text style={styles.confirmModalButtonText}>{t('viewFullProgress.datePicker.confirm')}</Text>
               </TouchableOpacity>
             </View>
           </View>

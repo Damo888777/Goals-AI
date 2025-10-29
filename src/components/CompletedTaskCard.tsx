@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTranslation } from 'react-i18next';
 import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
@@ -18,6 +19,7 @@ interface CompletedTaskCardProps {
 }
 
 export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCardProps) {
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const [goalName, setGoalName] = useState<string | null>(null);
   const [milestoneName, setMilestoneName] = useState<string | null>(null);
@@ -59,9 +61,9 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
       return goalName;
     }
     if (task?.goalId || task?.milestoneId) {
-      return 'Linked to project';
+      return t('components.completedTaskCard.linkedToProject');
     }
-    return 'No project linked';
+    return t('components.completedTaskCard.noProjectLinked');
   };
 
   // Empty state rendering
@@ -113,7 +115,7 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
           <View style={styles.dateRow}>
             <Ionicons name="calendar-outline" size={12} color="#364958" />
             <Text style={styles.completionDate}>
-              Completed: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
+              {t('components.completedTaskCard.completed')}: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
             </Text>
           </View>
         </View>

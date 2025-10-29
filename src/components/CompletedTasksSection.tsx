@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import { CompletedTaskCard } from './CompletedTaskCard';
 import { InfoPopup } from './InfoPopup';
 import { InfoButton } from './InfoButton';
@@ -17,6 +18,7 @@ interface CompletedTasksSectionProps {
 }
 
 export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, onToggleComplete }: CompletedTasksSectionProps) {
+  const { t } = useTranslation();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
   
@@ -39,7 +41,7 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
           </View>
           
           <Text style={styles.title}>
-            Today's Wins
+            {t('components.completedTasksSection.title')}
           </Text>
           
           {/* Info Button */}
@@ -47,7 +49,7 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
         </View>
 
         <Text style={styles.description}>
-          Celebrate your progress and achievements.
+          {t('components.completedTasksSection.description')}
         </Text>
       </View>
 
@@ -65,8 +67,8 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
       ) : (
         <CompletedTaskCard
           emptyState={{
-            title: "No completed tasks today",
-            description: "Complete your first task to start building momentum!"
+            title: t('components.completedTasksSection.emptyState.title'),
+            description: t('components.completedTasksSection.emptyState.description')
           }}
         />
       )}
@@ -77,15 +79,15 @@ export function CompletedTasksSection({ tasks, onTaskPress, onViewAllFinished, o
         style={styles.viewAllButton}
       >
         <Text style={styles.viewAllButtonText}>
-          All Completed Tasks
+          {t('components.completedTasksSection.viewAllButton')}
         </Text>
       </Pressable>
       
       {/* Info Popup */}
       <InfoPopup
         visible={showInfoPopup}
-        title="Completed Tasks"
-        content="Review your completed tasks and celebrate your progress. Tap 'View All Finished Tasks' to see your complete history."
+        title={t('components.completedTasksSection.infoPopup.title')}
+        content={t('components.completedTasksSection.infoPopup.content')}
         onClose={() => setShowInfoPopup(false)}
       />
     </View>

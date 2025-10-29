@@ -58,6 +58,20 @@
       "nov": "Nov",
       "dec": "Déc"
     },
+    "monthsFull": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
     "days": {
       "monday": "Lundi",
       "tuesday": "Mardi", 
@@ -884,7 +898,8 @@
     },
     "tasksSection": {
       "title": "Tâches Terminées",
-      "resultsText": "{count} tâche{plural}"
+      "resultsText_one": "{{count}} tâche",
+      "resultsText_other": "{{count}} tâches"
     },
     "emptyState": {
       "title": "Aucune tâche terminée trouvée",

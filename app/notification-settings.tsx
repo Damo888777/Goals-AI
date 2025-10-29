@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, Switch, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../src/hooks/useNotifications';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { Button } from '../src/components/Button';
 import { colors } from '../src/constants/colors';
 
 export default function NotificationSettingsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { 
     isEnabled, 
@@ -22,11 +24,11 @@ export default function NotificationSettingsScreen() {
       const success = await enableNotifications();
       if (!success) {
         Alert.alert(
-          'Permission Required',
-          'Please enable notifications in your device settings to receive daily reminders and progress updates.',
+          t('notificationSettings.alerts.permissionRequired'),
+          t('notificationSettings.alerts.enableInSettings'),
           [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Settings', onPress: () => {
+            { text: t('notificationSettings.alerts.cancel'), style: 'cancel' },
+            { text: t('notificationSettings.alerts.settings'), onPress: () => {
               // In a real app, you would open device settings
               console.log('Open device settings');
             }}
@@ -35,11 +37,11 @@ export default function NotificationSettingsScreen() {
       }
     } else {
       Alert.alert(
-        'Disable Notifications',
-        'Are you sure you want to disable notifications? You\'ll miss daily motivation and progress reminders.',
+        t('notificationSettings.alerts.disableNotifications'),
+        t('notificationSettings.alerts.disableConfirmation'),
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Disable', style: 'destructive', onPress: disableNotifications }
+          { text: t('notificationSettings.alerts.cancel'), style: 'cancel' },
+          { text: t('notificationSettings.alerts.disable'), style: 'destructive', onPress: disableNotifications }
         ]
       );
     }
@@ -62,7 +64,7 @@ export default function NotificationSettingsScreen() {
             color: colors.text.primary,
             marginLeft: 16
           }}>
-            Notifications
+            {t('notificationSettings.header.title')}
           </Text>
         </View>
 
@@ -81,7 +83,7 @@ export default function NotificationSettingsScreen() {
             color: colors.text.primary,
             marginBottom: 16
           }}>
-            Daily Reminders
+            {t('notificationSettings.sections.dailyReminders')}
           </Text>
 
           {/* Main Toggle */}
@@ -98,14 +100,14 @@ export default function NotificationSettingsScreen() {
                 color: colors.text.primary,
                 marginBottom: 4
               }}>
-                Enable Notifications
+                {t('notificationSettings.mainToggle.enableNotifications')}
               </Text>
               <Text style={{
                 fontSize: 14,
                 color: colors.text.tertiary,
                 lineHeight: 20
               }}>
-                Get daily motivation and progress reminders
+                {t('notificationSettings.mainToggle.description')}
               </Text>
             </View>
             <Switch
@@ -136,14 +138,14 @@ export default function NotificationSettingsScreen() {
                   color: colors.text.primary,
                   marginBottom: 8
                 }}>
-                  Morning Kickstart (7:00 AM)
+                  {t('notificationSettings.notificationTypes.morningKickstart')}
                 </Text>
                 <Text style={{
                   fontSize: 14,
                   color: colors.text.tertiary,
                   lineHeight: 20
                 }}>
-                  Daily reminder to set or tackle your "Eat the Frog" task
+                  {t('notificationSettings.notificationTypes.morningDescription')}
                 </Text>
               </View>
 
@@ -154,14 +156,14 @@ export default function NotificationSettingsScreen() {
                   color: colors.text.primary,
                   marginBottom: 8
                 }}>
-                  Evening Check-in (6:00 PM)
+                  {t('notificationSettings.notificationTypes.eveningCheckin')}
                 </Text>
                 <Text style={{
                   fontSize: 14,
                   color: colors.text.tertiary,
                   lineHeight: 20
                 }}>
-                  Progress celebration and streak tracking
+                  {t('notificationSettings.notificationTypes.eveningDescription')}
                 </Text>
               </View>
 
@@ -172,14 +174,14 @@ export default function NotificationSettingsScreen() {
                   color: colors.text.primary,
                   marginBottom: 8
                 }}>
-                  Re-engagement Coach
+                  {t('notificationSettings.notificationTypes.reengagementCoach')}
                 </Text>
                 <Text style={{
                   fontSize: 14,
                   color: colors.text.tertiary,
                   lineHeight: 20
                 }}>
-                  Gentle reminders when you've been away for a few days
+                  {t('notificationSettings.notificationTypes.reengagementDescription')}
                 </Text>
               </View>
             </>
@@ -202,14 +204,14 @@ export default function NotificationSettingsScreen() {
               color: '#92400E',
               marginBottom: 4
             }}>
-              Permission Required
+              {t('notificationSettings.permissionStatus.title')}
             </Text>
             <Text style={{
               fontSize: 14,
               color: '#92400E',
               lineHeight: 20
             }}>
-              To receive notifications, please enable them when prompted or in your device settings.
+              {t('notificationSettings.permissionStatus.description')}
             </Text>
           </View>
         )}
@@ -217,10 +219,10 @@ export default function NotificationSettingsScreen() {
         {/* Test Notification Button (Development) */}
         {__DEV__ && isEnabled && (
           <Button
-            title="Test Notification"
+            title={t('notificationSettings.testButton.title')}
             variant="secondary"
             onPress={() => {
-              Alert.alert('Test Notification', 'In development, this would send a test notification.');
+              Alert.alert(t('notificationSettings.testButton.alertTitle'), t('notificationSettings.testButton.alertMessage'));
             }}
           />
         )}

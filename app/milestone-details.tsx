@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { useGoals, useMilestones } from '../src/hooks/useDatabase';
 import type { Goal, Milestone } from '../src/types';
@@ -318,6 +319,7 @@ const styles = StyleSheet.create({
 });
 
 export default function MilestoneDetailsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -350,12 +352,12 @@ export default function MilestoneDetailsScreen() {
 
   const handleSave = async () => {
     if (!milestone || !title.trim()) {
-      Alert.alert('Error', 'Please enter a milestone title');
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.enterMilestoneTitle'));
       return;
     }
 
     if (!selectedGoalId) {
-      Alert.alert('Error', 'Please select a goal for this milestone');
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.selectGoalForMilestone'));
       return;
     }
 
@@ -367,36 +369,36 @@ export default function MilestoneDetailsScreen() {
       });
       
       Alert.alert(
-        'Success',
-        'Milestone updated successfully!',
-        [{ text: 'OK', onPress: () => router.back() }]
+        t('milestoneDetails.alerts.success'),
+        t('milestoneDetails.alerts.milestoneUpdatedSuccess'),
+        [{ text: t('milestoneDetails.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error updating milestone:', error);
-      Alert.alert('Error', 'Failed to update milestone. Please try again.');
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.updateMilestoneFailed'));
     }
   };
 
   const handleDelete = () => {
     Alert.alert(
-      'Delete Milestone',
-      'Are you sure you want to delete this milestone? This action cannot be undone.',
+      t('milestoneDetails.alerts.deleteMilestone'),
+      t('milestoneDetails.alerts.deleteConfirmation'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('milestoneDetails.alerts.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('milestoneDetails.alerts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteMilestone(milestone.id);
               Alert.alert(
-                'Success',
-                'Milestone deleted successfully!',
-                [{ text: 'OK', onPress: () => router.back() }]
+                t('milestoneDetails.alerts.success'),
+                t('milestoneDetails.alerts.milestoneDeletedSuccess'),
+                [{ text: t('milestoneDetails.alerts.ok'), onPress: () => router.back() }]
               );
             } catch (error) {
               console.error('Error deleting milestone:', error);
-              Alert.alert('Error', 'Failed to delete milestone. Please try again.');
+              Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.deleteMilestoneFailed'));
             }
           },
         },
@@ -472,23 +474,23 @@ export default function MilestoneDetailsScreen() {
               style={styles.backButton}
             />
             <Text style={styles.headerTitle}>
-              Edit Milestone
+              {t('milestoneDetails.header.title')}
             </Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            Review and adjust the details of your milestone.
+            {t('milestoneDetails.header.subtitle')}
           </Text>
         </View>
 
         {/* Milestone Title */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Milestone Title
+            {t('milestoneDetails.sections.milestoneTitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Type here your milestone title..."
+            placeholder={t('milestoneDetails.placeholders.milestoneTitlePlaceholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -497,10 +499,10 @@ export default function MilestoneDetailsScreen() {
         {/* Goal Selection */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            My goal
+            {t('milestoneDetails.sections.myGoal')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            Attach this milestone to your goal.
+            {t('milestoneDetails.sections.myGoalSubtitle')}
           </Text>
           
           {/* Dropdown Container */}
@@ -511,7 +513,7 @@ export default function MilestoneDetailsScreen() {
               onPress={handleDropdownPress}
             >
               <Text style={styles.goalAttachmentText}>
-                {selectedGoal ? selectedGoal.title : 'Select your goal'}
+                {selectedGoal ? selectedGoal.title : t('milestoneDetails.goalSelection.selectYourGoal')}
               </Text>
               <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
                 <View style={styles.chevronLine1} />
@@ -557,10 +559,10 @@ export default function MilestoneDetailsScreen() {
         {/* Date Picker */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Due Date
+            {t('milestoneDetails.sections.dueDate')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            Set when you want to complete this.
+            {t('milestoneDetails.sections.dueDateSubtitle')}
           </Text>
           <TouchableOpacity 
             style={styles.datePickerContainer}
@@ -568,7 +570,7 @@ export default function MilestoneDetailsScreen() {
           >
             <View style={styles.datePickerContent}>
               <Text style={styles.datePickerText}>
-                {targetDate ? formatDate(targetDate) : 'Select date'}
+                {targetDate ? formatDate(targetDate) : t('milestoneDetails.datePicker.selectDate')}
               </Text>
             </View>
           </TouchableOpacity>
@@ -583,7 +585,7 @@ export default function MilestoneDetailsScreen() {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContainer}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Select Date</Text>
+                  <Text style={styles.modalTitle}>{t('milestoneDetails.datePicker.selectDate')}</Text>
                 </View>
                 
                 <View style={styles.datePickerWrapper}>
@@ -601,14 +603,14 @@ export default function MilestoneDetailsScreen() {
                     style={styles.modalCancelButton}
                     onPress={handleDateCancel}
                   >
-                    <Text style={styles.modalCancelText}>Cancel</Text>
+                    <Text style={styles.modalCancelText}>{t('milestoneDetails.datePicker.cancel')}</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity 
                     style={styles.modalConfirmButton}
                     onPress={handleDateConfirm}
                   >
-                    <Text style={styles.modalConfirmText}>Confirm</Text>
+                    <Text style={styles.modalConfirmText}>{t('milestoneDetails.datePicker.confirm')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -619,15 +621,15 @@ export default function MilestoneDetailsScreen() {
         {/* Notes Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Notes & Details
+            {t('milestoneDetails.sections.notesAndDetails')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            Add any extra thoughts, links, or steps you want to remember.
+            {t('milestoneDetails.sections.notesSubtitle')}
           </Text>
           <TextInput
             value={notes}
             onChangeText={setNotes}
-            placeholder="Type here your notes and details..."
+            placeholder={t('milestoneDetails.placeholders.notesPlaceholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={[styles.textInput, styles.textInputMultiline]}
             multiline
@@ -638,13 +640,13 @@ export default function MilestoneDetailsScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <Button
-            title="Delete"
+            title={t('milestoneDetails.buttons.delete')}
             variant="delete"
             onPress={handleDelete}
             style={styles.deleteButton}
           />
           <Button
-            title="Save Changes"
+            title={t('milestoneDetails.buttons.saveChanges')}
             variant="save"
             onPress={handleSave}
             style={styles.saveButton}

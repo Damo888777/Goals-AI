@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTranslation } from 'react-i18next';
 import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { typography } from '../src/constants/typography';
@@ -22,6 +23,7 @@ export default function CompletedGoalDetailsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
   
   const { goals } = useGoals();
   const { milestones } = useMilestones();
@@ -78,11 +80,11 @@ export default function CompletedGoalDetailsScreen() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 30) {
-      return `${diffDays} days`;
+      return `${diffDays} ${t('completedGoal.duration.days')}`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
       const remainingDays = diffDays % 30;
-      return remainingDays > 0 ? `${months}m ${remainingDays}d` : `${months} months`;
+      return remainingDays > 0 ? `${months}m ${remainingDays}d` : `${months} ${t('completedGoal.duration.months')}`;
     } else {
       const years = Math.floor(diffDays / 365);
       const remainingDays = diffDays % 365;
@@ -108,7 +110,7 @@ export default function CompletedGoalDetailsScreen() {
   if (!goal) {
     return (
       <View style={[styles.container, { paddingTop: insets.top + 100 }]}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{t('completedGoal.loading')}</Text>
       </View>
     );
   }
@@ -128,17 +130,17 @@ export default function CompletedGoalDetailsScreen() {
               style={styles.backButton}
             />
             <Text style={styles.headerTitle}>
-              Goal Victory
+              {t('completedGoal.header.title')}
             </Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            Celebrate your achievement and reflect on your journey.
+            {t('completedGoal.header.subtitle')}
           </Text>
         </View>
 
         {/* Goal Title */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Goal Title</Text>
+          <Text style={styles.sectionTitle}>{t('completedGoal.sections.goalTitle')}</Text>
           <View style={styles.readOnlyContainer}>
             <Text style={styles.readOnlyText}>{goal.title}</Text>
           </View>
@@ -147,7 +149,7 @@ export default function CompletedGoalDetailsScreen() {
         {/* Notes */}
         {goal.notes && (
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Notes</Text>
+            <Text style={styles.sectionTitle}>{t('completedGoal.sections.notes')}</Text>
             <View style={styles.readOnlyContainer}>
               <Text style={styles.readOnlyText}>{goal.notes}</Text>
             </View>
@@ -157,7 +159,7 @@ export default function CompletedGoalDetailsScreen() {
         {/* Vision Image */}
         {goal.visionImageUrl && (
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Your Vision</Text>
+            <Text style={styles.sectionTitle}>{t('completedGoal.sections.yourVision')}</Text>
             <View style={styles.visionContainer}>
               <Image 
                 source={{ uri: goal.visionImageUrl }}
@@ -170,27 +172,27 @@ export default function CompletedGoalDetailsScreen() {
 
         {/* Statistics Container */}
         <View style={styles.statisticsContainer}>
-          <Text style={styles.sectionTitle}>Achievement Statistics</Text>
+          <Text style={styles.sectionTitle}>{t('completedGoal.sections.achievementStatistics')}</Text>
           
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{completedTasks.length}</Text>
-              <Text style={styles.statLabel}>Tasks Completed</Text>
+              <Text style={styles.statLabel}>{t('completedGoal.stats.tasksCompleted')}</Text>
             </View>
             
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{completedMilestones.length}</Text>
-              <Text style={styles.statLabel}>Milestones Achieved</Text>
+              <Text style={styles.statLabel}>{t('completedGoal.stats.milestonesAchieved')}</Text>
             </View>
             
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{calculatePomodoroSessions()}</Text>
-              <Text style={styles.statLabel}>Focus Sessions</Text>
+              <Text style={styles.statLabel}>{t('completedGoal.stats.focusSessions')}</Text>
             </View>
             
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{calculateDuration()}</Text>
-              <Text style={styles.statLabel}>Total Duration</Text>
+              <Text style={styles.statLabel}>{t('completedGoal.stats.totalDuration')}</Text>
             </View>
           </View>
         </View>
@@ -198,7 +200,7 @@ export default function CompletedGoalDetailsScreen() {
         {/* Achieved Milestones */}
         {completedMilestones.length > 0 && (
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Achieved Milestones</Text>
+            <Text style={styles.sectionTitle}>{t('completedGoal.sections.achievedMilestones')}</Text>
             <View style={styles.milestonesContainer}>
               {completedMilestones.map((milestone, index) => (
                 <View key={milestone.id} style={styles.milestoneItem}>
@@ -214,18 +216,18 @@ export default function CompletedGoalDetailsScreen() {
 
         {/* Completion Details */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Completion Details</Text>
+          <Text style={styles.sectionTitle}>{t('completedGoal.sections.completionDetails')}</Text>
           <View style={styles.completionDetails}>
             <View style={styles.completionRow}>
               <Ionicons name="calendar-outline" size={16} color="#364958" />
               <Text style={styles.completionText}>
-                Completed: {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
+                {t('completedGoal.completion.completed')} {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
               </Text>
             </View>
             <View style={styles.completionRow}>
               <Ionicons name="time-outline" size={16} color="#364958" />
               <Text style={styles.completionText}>
-                Journey Duration: {calculateDuration()}
+                {t('completedGoal.completion.journeyDuration')} {calculateDuration()}
               </Text>
             </View>
           </View>
@@ -233,21 +235,21 @@ export default function CompletedGoalDetailsScreen() {
 
         {/* Reflection Questions */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Reflection Questions</Text>
+          <Text style={styles.sectionTitle}>{t('completedGoal.sections.reflectionQuestions')}</Text>
           <Text style={styles.sectionSubtitle}>
-            Take a moment to reflect on your journey and learnings.
+            {t('completedGoal.reflection.subtitle')}
           </Text>
           
           {/* Question 1 */}
           <View style={styles.questionContainer}>
             <View style={styles.questionHeader}>
               <Text style={styles.diamondIcon}>◊</Text>
-              <Text style={styles.questionTitle}>What are your key takeaways?</Text>
+              <Text style={styles.questionTitle}>{t('completedGoal.reflection.question1')}</Text>
             </View>
             <TextInput
               value={reflection1}
               onChangeText={setReflection1}
-              placeholder="Share the most important lessons you learned..."
+              placeholder={t('completedGoal.reflection.placeholder1')}
               placeholderTextColor="rgba(54,73,88,0.5)"
               style={styles.reflectionInput}
               multiline
@@ -259,12 +261,12 @@ export default function CompletedGoalDetailsScreen() {
           <View style={styles.questionContainer}>
             <View style={styles.questionHeader}>
               <Text style={styles.diamondIcon}>◊</Text>
-              <Text style={styles.questionTitle}>What challenge did you conquer?</Text>
+              <Text style={styles.questionTitle}>{t('completedGoal.reflection.question2')}</Text>
             </View>
             <TextInput
               value={reflection2}
               onChangeText={setReflection2}
-              placeholder="Describe the biggest obstacle you overcame..."
+              placeholder={t('completedGoal.reflection.placeholder2')}
               placeholderTextColor="rgba(54,73,88,0.5)"
               style={styles.reflectionInput}
               multiline
@@ -276,12 +278,12 @@ export default function CompletedGoalDetailsScreen() {
           <View style={styles.questionContainer}>
             <View style={styles.questionHeader}>
               <Text style={styles.diamondIcon}>◊</Text>
-              <Text style={styles.questionTitle}>How will you improve in the future?</Text>
+              <Text style={styles.questionTitle}>{t('completedGoal.reflection.question3')}</Text>
             </View>
             <TextInput
               value={reflection3}
               onChangeText={setReflection3}
-              placeholder="What would you do differently next time..."
+              placeholder={t('completedGoal.reflection.placeholder3')}
               placeholderTextColor="rgba(54,73,88,0.5)"
               style={styles.reflectionInput}
               multiline
@@ -298,7 +300,7 @@ export default function CompletedGoalDetailsScreen() {
             console.log('Save reflections:', { reflection1, reflection2, reflection3 });
           }}
         >
-          <Text style={styles.saveButtonText}>Save Reflections</Text>
+          <Text style={styles.saveButtonText}>{t('completedGoal.reflection.saveButton')}</Text>
         </Pressable>
       </ScrollView>
     </View>

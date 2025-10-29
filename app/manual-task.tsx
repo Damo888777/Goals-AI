@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -26,15 +27,17 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
   isSelected, 
   onToggle 
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.eatFrogContainer}>
       <View style={styles.eatFrogContent}>
         <View style={styles.eatFrogTextContainer}>
           <Text style={styles.eatFrogTitle}>
-            Eat the frog
+            {t('manualTask.eatTheFrog.title')}
           </Text>
           <Text style={styles.eatFrogDescription}>
-            Choose this task if completing it will make your day a success.
+            {t('manualTask.eatTheFrog.description')}
           </Text>
         </View>
         <TouchableOpacity
@@ -65,6 +68,7 @@ interface DatePickerProps {
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
+  const { t } = useTranslation();
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(selectedDate || new Date());
 
@@ -104,10 +108,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Due Date
+        {t('manualTask.sections.dueDate')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Set when you want to complete this.
+        {t('manualTask.sections.dueDateSubtitle')}
       </Text>
       <TouchableOpacity 
         style={styles.datePickerContainer}
@@ -115,7 +119,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : 'Select date'}
+            {selectedDate ? formatDate(selectedDate) : t('manualTask.datePicker.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -130,7 +134,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
+              <Text style={styles.modalTitle}>{t('manualTask.datePicker.selectDate')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -148,14 +152,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 style={styles.modalCancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={styles.modalCancelText}>{t('manualTask.datePicker.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.modalConfirmButton}
                 onPress={handleConfirm}
               >
-                <Text style={styles.modalConfirmText}>Confirm</Text>
+                <Text style={styles.modalConfirmText}>{t('manualTask.datePicker.confirm')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -179,6 +183,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   onGoalSelect, 
   onMilestoneSelect 
 }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
   const { milestones } = useMilestones();
@@ -208,16 +213,16 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const getDisplayText = () => {
     if (selectedGoal) return selectedGoal.title;
     if (selectedMilestone) return selectedMilestone.title;
-    return 'Select your main or sub goal';
+    return t('manualTask.goalMilestoneSelection.selectYourGoal');
   };
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Goal / Milestone
+        {t('manualTask.sections.goalMilestone')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach either a goal or milestone to your task.
+        {t('manualTask.sections.goalMilestoneSubtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -240,7 +245,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
-            <Text style={styles.dropdownSectionTitle}>Goal</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.goal')}</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -268,7 +273,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             )}
             
             {/* Milestones Section */}
-            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.milestones')}</Text>
             {milestones.length > 0 ? (
               milestones.map((milestone) => (
                 <TouchableOpacity
@@ -320,18 +325,20 @@ interface NotesSectionProps {
 }
 
 const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Notes & Details
+        {t('manualTask.sections.notesAndDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Add any extra thoughts, links, or steps you want to remember.
+        {t('manualTask.sections.notesSubtitle')}
       </Text>
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder="Type here your notes and details..."
+        placeholder={t('manualTask.placeholders.notesPlaceholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -343,6 +350,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
 
 // Main Manual Task Screen Component
 export default function ManualTaskScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedType, setSelectedType] = useState<'task' | 'goal' | 'milestone'>('task');
   const [title, setTitle] = useState('');
@@ -365,7 +373,7 @@ export default function ManualTaskScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a title');
+      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.enterTitle'));
       return;
     }
 
@@ -387,7 +395,7 @@ export default function ManualTaskScreen() {
         });
       } else if (selectedType === 'milestone') {
         if (!selectedGoalId) {
-          Alert.alert('Error', 'Please select a goal first to create a milestone.');
+          Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.selectGoalFirst'));
           setIsLoading(false);
           return;
         }
@@ -402,13 +410,13 @@ export default function ManualTaskScreen() {
 
       // Show success confirmation
       Alert.alert(
-        'Success',
-        `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} created successfully!`,
-        [{ text: 'OK', onPress: () => router.back() }]
+        t('manualTask.alerts.success'),
+        t('manualTask.alerts.taskCreatedSuccess'),
+        [{ text: t('manualTask.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert('Error', `Failed to create ${selectedType}. Please try again.`);
+      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.createTaskFailed'));
     }
   };
 
@@ -435,13 +443,13 @@ export default function ManualTaskScreen() {
               style={styles.chevronButton}
             />
             <Text style={styles.headerTitle}>
-              Create Your Task
+              {t('manualTask.header.title')}
             </Text>
             <View style={styles.headerSpacer} />
           </View>
           <View style={styles.descriptionContainer}>
             <Text style={styles.headerSubtitle}>
-              This is where a manual becomes a task. Add the details and bring it to life.
+              {t('manualTask.header.subtitle')}
             </Text>
           </View>
         </View>
@@ -449,12 +457,12 @@ export default function ManualTaskScreen() {
         {/* Task Title */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Task Title
+            {t('manualTask.sections.taskTitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Type here your task title..."
+            placeholder={t('manualTask.placeholders.taskTitlePlaceholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -471,16 +479,16 @@ export default function ManualTaskScreen() {
                   const existingFrogTask = await checkExistingFrogTask();
                   if (existingFrogTask) {
                     Alert.alert(
-                      'Replace Frog Task?',
-                      `You already have "${existingFrogTask.title}" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this new task?`,
+                      t('manualTask.eatTheFrog.replaceTitle'),
+                      t('manualTask.eatTheFrog.replaceMessage', { taskTitle: existingFrogTask.title }),
                       [
                         {
-                          text: 'Cancel',
+                          text: t('manualTask.eatTheFrog.cancel'),
                           style: 'cancel',
                           onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                         },
                         {
-                          text: 'Replace',
+                          text: t('manualTask.eatTheFrog.replace'),
                           onPress: () => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             setIsEatTheFrog(true);
@@ -526,7 +534,7 @@ export default function ManualTaskScreen() {
             style={[styles.actionButton, styles.cancelButton]}
           >
             <Text style={styles.actionButtonText}>
-              Cancel
+              {t('manualTask.buttons.cancel')}
             </Text>
           </TouchableOpacity>
 
@@ -535,7 +543,7 @@ export default function ManualTaskScreen() {
             style={[styles.actionButton, styles.saveButton]}
           >
             <Text style={styles.actionButtonText}>
-              Save
+              {t('manualTask.buttons.save')}
             </Text>
           </TouchableOpacity>
         </View>

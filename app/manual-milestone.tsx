@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { useGoals, useMilestones } from '../src/hooks/useDatabase';
 import type { Goal } from '../src/types';
@@ -30,6 +31,7 @@ interface DatePickerProps {
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
+  const { t } = useTranslation();
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(selectedDate || new Date());
 
@@ -69,10 +71,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Due Date
+        {t('manualMilestone.sections.dueDate')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Set when you want to complete this.
+        {t('manualMilestone.sections.dueDateSubtitle')}
       </Text>
       <TouchableOpacity 
         style={styles.datePickerContainer}
@@ -80,7 +82,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : 'Select date'}
+            {selectedDate ? formatDate(selectedDate) : t('manualMilestone.datePicker.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -95,7 +97,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
+              <Text style={styles.modalTitle}>{t('manualMilestone.datePicker.selectDate')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -113,14 +115,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 style={styles.modalCancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={styles.modalCancelText}>{t('manualMilestone.datePicker.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.modalConfirmButton}
                 onPress={handleConfirm}
               >
-                <Text style={styles.modalConfirmText}>Confirm</Text>
+                <Text style={styles.modalConfirmText}>{t('manualMilestone.datePicker.confirm')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -138,6 +140,7 @@ interface GoalSelectionProps {
 }
 
 const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSelect, onDropdownToggle }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
 
@@ -160,10 +163,10 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        My Goals
+        {t('manualMilestone.sections.myGoals')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach this milestone to your goal.
+        {t('manualMilestone.sections.myGoalsSubtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -174,7 +177,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal ? selectedGoal.title : 'Select your goal'}
+            {selectedGoal ? selectedGoal.title : t('manualMilestone.goalSelection.selectYourGoal')}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -226,18 +229,20 @@ interface NotesSectionProps {
 }
 
 const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Notes & Details
+        {t('manualMilestone.sections.notesAndDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Add any extra thoughts, links, or steps you want to remember.
+        {t('manualMilestone.sections.notesSubtitle')}
       </Text>
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder="Type here your notes and details..."
+        placeholder={t('manualMilestone.placeholders.notesPlaceholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -249,6 +254,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
 
 // Main Manual Milestone Screen Component
 export default function ManualMilestoneScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedType, setSelectedType] = useState<'task' | 'goal' | 'milestone'>('milestone');
   const [title, setTitle] = useState('');
@@ -267,12 +273,12 @@ export default function ManualMilestoneScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a milestone title');
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.enterMilestoneTitle'));
       return;
     }
 
     if (!selectedGoalId) {
-      Alert.alert('Error', 'Please select a goal first to create a milestone.');
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.selectGoalFirst'));
       return;
     }
 
@@ -286,13 +292,13 @@ export default function ManualMilestoneScreen() {
 
       // Show success confirmation
       Alert.alert(
-        'Success',
-        'Milestone created successfully!',
-        [{ text: 'OK', onPress: () => router.back() }]
+        t('manualMilestone.alerts.success'),
+        t('manualMilestone.alerts.milestoneCreatedSuccess'),
+        [{ text: t('manualMilestone.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error saving milestone:', error);
-      Alert.alert('Error', 'Failed to create milestone. Please try again.');
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.createMilestoneFailed'));
     }
   };
 
@@ -319,13 +325,13 @@ export default function ManualMilestoneScreen() {
               style={styles.chevronButton}
             />
             <Text style={styles.headerTitle}>
-              Create Your Milestone
+              {t('manualMilestone.header.title')}
             </Text>
             <View style={styles.headerSpacer} />
           </View>
           <View style={styles.descriptionContainer}>
             <Text style={styles.headerSubtitle}>
-              This is where a manual becomes a milestone. Add the details and bring it to life.
+              {t('manualMilestone.header.subtitle')}
             </Text>
           </View>
         </View>
@@ -333,12 +339,12 @@ export default function ManualMilestoneScreen() {
         {/* Milestone Title */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Milestone Title
+            {t('manualMilestone.sections.milestoneTitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Type here your milestone title..."
+            placeholder={t('manualMilestone.placeholders.milestoneTitlePlaceholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -367,12 +373,12 @@ export default function ManualMilestoneScreen() {
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <Button
-            title="Cancel"
+            title={t('manualMilestone.buttons.cancel')}
             variant="cancel"
             onPress={handleCancel}
           />
           <Button
-            title="Save"
+            title={t('manualMilestone.buttons.save')}
             variant="save"
             onPress={handleSave}
           />

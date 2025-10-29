@@ -58,6 +58,20 @@
       "nov": "Nov",
       "dec": "Dec"
     },
+    "monthsFull": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
     "days": {
       "monday": "Monday",
       "tuesday": "Tuesday", 
@@ -884,7 +898,8 @@
     },
     "tasksSection": {
       "title": "Completed Tasks",
-      "resultsText": "{count} task{plural}"
+      "resultsText_one": "{{count}} task",
+      "resultsText_other": "{{count}} tasks"
     },
     "emptyState": {
       "title": "No completed tasks found",
@@ -992,11 +1007,6 @@
   "components": {
     "completedMilestoneCard": {
       "noGoalLinked": "No goal linked",
-      "completed": "Completed:"
-    },
-    "completedTaskCard": {
-      "linkedToProject": "Linked to project",
-      "noProjectLinked": "No project linked",
       "completed": "Completed:"
     },
     "completedTasksSection": {
@@ -1336,6 +1346,44 @@
         "createVision": "Create Vision",
         "uploadVision": "Upload Vision"
       }
+    }
+  },
+  "imageGenerationAnimation": {
+    "states": {
+      "generating": "Spark is creating your vision...",
+      "completed": "Vision created successfully!",
+      "error": "Something went wrong"
+    },
+    "messages": {
+      "pleaseWait": "This may take a moment...",
+      "visionComplete": "Your vision has been brought to life!",
+      "errorMessage": "Unable to create your vision. Please try again."
+    }
+  },
+  "infoContent": {
+    "eatTheFrog": {
+      "title": "Eat the Frog",
+      "content": "Start your day by tackling your most challenging or important task first. This technique helps you build momentum and ensures your biggest priority gets done when your energy is highest."
+    },
+    "todaysTasks": {
+      "title": "Today's Tasks",
+      "content": "Focus on completing specific tasks scheduled for today. Keep your daily task list manageable and actionable to maintain productivity and avoid overwhelm."
+    },
+    "pomodoroTechnique": {
+      "title": "Pomodoro Technique",
+      "content": "Work in focused 25-minute intervals followed by 5-minute breaks. After 4 pomodoros, take a longer 15-30 minute break. This technique helps maintain focus and prevents burnout."
+    },
+    "goalSetting": {
+      "title": "Goal Setting",
+      "content": "Break down large goals into smaller, actionable milestones. Set specific deadlines and regularly review your progress to stay on track and motivated."
+    },
+    "sparkAI": {
+      "title": "Spark AI",
+      "content": "**Record one item at a time for best results.**\n\n**Tasks:** \"Buy groceries tomorrow\"\n**Goals:** \"Save 10,000 euros\"\n**Milestones:** \"Get first client by March\"\n\n**Link to existing goals:**\nSay the goal name clearly:\n\"This milestone is for my saving 10,000 euros goal\"\n\"Add task to my fitness goal\"\n\n**Tips:**\n• Speak 5-15 seconds\n• Use exact goal names\n• Be specific with dates\n• One item per recording"
+    },
+    "visionBoard": {
+      "title": "Vision Board",
+      "content": "Create your visual inspiration board in two ways:\n\n**Upload Images:** Add personal photos from your gallery that represent your dreams and goals.\n\n**Generate with Spark:** Use Spark AI to create custom vision images based on your descriptions.\n\nYour vision board helps you visualize and stay motivated toward achieving your goals."
     }
   }
 }

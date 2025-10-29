@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { useSubscription } from '../src/hooks/useSubscription';
@@ -85,6 +86,7 @@ function StyleButton({ style, selected, onPress, imageUri, label }: StyleButtonP
 }
 
 export default function SparkGenerateIMGScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { addVisionImage } = useVisionImages();
   const { userPreferences } = useOnboarding();
@@ -103,22 +105,22 @@ export default function SparkGenerateIMGScreen() {
   const styleOptions = [
     {
       id: 'photorealistic' as StyleOption,
-      label: 'Photorealistic',
+      label: t('sparkGenerateImg.styleSelection.styles.photorealistic'),
       imageUri: require('../assets/styles/style_photorealistic.png')
     },
     {
       id: 'anime' as StyleOption,
-      label: 'Anime',
+      label: t('sparkGenerateImg.styleSelection.styles.anime'),
       imageUri: require('../assets/styles/style_anime.png')
     },
     {
       id: 'watercolour' as StyleOption,
-      label: 'Watercolour',
+      label: t('sparkGenerateImg.styleSelection.styles.watercolour'),
       imageUri: require('../assets/styles/style_watercolour.png')
     },
     {
       id: 'cyberpunk' as StyleOption,
-      label: 'Cyberpunk',
+      label: t('sparkGenerateImg.styleSelection.styles.cyberpunk'),
       imageUri: require('../assets/styles/style_cyberpunk.png')
     }
   ];
@@ -129,7 +131,7 @@ export default function SparkGenerateIMGScreen() {
 
   const handleCreateVision = async () => {
     if (!visionText.trim()) {
-      Alert.alert('Missing Vision', 'Please describe your vision before creating an image.');
+      Alert.alert(t('sparkGenerateImg.alerts.missingVision'), t('sparkGenerateImg.alerts.missingVisionMessage'));
       return;
     }
 
@@ -179,11 +181,11 @@ export default function SparkGenerateIMGScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         
         Alert.alert(
-          'Generation Failed', 
-          result.error || 'Unable to generate your vision. Please try again.',
+          t('sparkGenerateImg.alerts.generationFailed'),
+          result.error || t('sparkGenerateImg.alerts.generationFailedMessage'),
           [
             {
-              text: 'OK',
+              text: t('sparkGenerateImg.alerts.ok'),
               onPress: () => setGenerationState('idle')
             }
           ]
@@ -195,11 +197,11 @@ export default function SparkGenerateIMGScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       
       Alert.alert(
-        'Generation Error',
-        'An unexpected error occurred. Please check your internet connection and try again.',
+        t('sparkGenerateImg.alerts.generationError'),
+        t('sparkGenerateImg.alerts.generationErrorMessage'),
         [
           {
-            text: 'OK',
+            text: t('sparkGenerateImg.alerts.ok'),
             onPress: () => setGenerationState('idle')
           }
         ]
@@ -251,7 +253,7 @@ export default function SparkGenerateIMGScreen() {
                   fontFamily: 'Helvetica-Bold',
                   lineHeight: 0,
                 }}>
-                  Bring Your Vision to Life
+                  {t('sparkGenerateImg.header.title')}
                 </Text>
               </View>
               <Text style={{
@@ -261,7 +263,7 @@ export default function SparkGenerateIMGScreen() {
                 lineHeight: 0,
                 width: '100%',
               }}>
-                Describe the scene that represents your dream. The more detail, the better.
+                {t('sparkGenerateImg.header.subtitle')}
               </Text>
               <Text style={{
                 color: '#F5EBE0',
@@ -270,7 +272,7 @@ export default function SparkGenerateIMGScreen() {
                 lineHeight: 0,
                 width: '100%',
               }}>
-                e.g. "Running across the finish line of a marathon, smiling and feeling strong."
+                {t('sparkGenerateImg.header.example')}
               </Text>
             </View>
 
@@ -291,7 +293,7 @@ export default function SparkGenerateIMGScreen() {
               <TextInput
                 value={visionText}
                 onChangeText={setVisionText}
-                placeholder="Type your vision here..."
+                placeholder={t('sparkGenerateImg.visionInput.placeholder')}
                 placeholderTextColor="rgba(54,73,88,0.5)"
                 multiline
                 numberOfLines={4}
@@ -315,7 +317,7 @@ export default function SparkGenerateIMGScreen() {
                   lineHeight: 0,
                   width: '100%',
                 }}>
-                  Choose your style
+                  {t('sparkGenerateImg.styleSelection.title')}
                 </Text>
                 <Text style={{
                   color: '#F5EBE0',
@@ -324,7 +326,7 @@ export default function SparkGenerateIMGScreen() {
                   lineHeight: 0,
                   width: '100%',
                 }}>
-                  Spark will bring your text to life in this style.
+                  {t('sparkGenerateImg.styleSelection.subtitle')}
                 </Text>
               </View>
 
@@ -408,7 +410,7 @@ export default function SparkGenerateIMGScreen() {
               fontFamily: 'Helvetica-Bold',
               lineHeight: 0,
             }}>
-              {isGenerating ? 'Creating...' : 'Create Vision'}
+              {isGenerating ? t('sparkGenerateImg.buttons.creating') : t('sparkGenerateImg.buttons.createVision')}
             </Text>
           </Pressable>
         </View>
@@ -490,16 +492,16 @@ export default function SparkGenerateIMGScreen() {
                     await addVisionImage(generatedImageUri, aspectRatio, 'generated');
                     
                     // Show success and redirect to vision board
-                    Alert.alert('Saved!', 'Your vision has been saved to your Vision Board.', [
+                    Alert.alert(t('sparkGenerateImg.alerts.saved'), t('sparkGenerateImg.alerts.savedMessage'), [
                       {
-                        text: 'View Vision Board',
+                        text: t('sparkGenerateImg.alerts.viewVisionBoard'),
                         onPress: () => {
                           router.push('/vision-board');
                         }
                       }
                     ]);
                   } catch (error) {
-                    Alert.alert('Error', 'Failed to save image to Vision Board.');
+                    Alert.alert(t('sparkGenerateImg.alerts.error'), t('sparkGenerateImg.alerts.saveErrorMessage'));
                   }
                 }
               }}
@@ -517,7 +519,7 @@ export default function SparkGenerateIMGScreen() {
                 fontSize: 16,
                 fontFamily: 'Helvetica-Bold',
               }}>
-                Save to Vision Board
+                {t('sparkGenerateImg.buttons.saveToVisionBoard')}
               </Text>
             </Pressable>
           </View>
@@ -546,12 +548,12 @@ export default function SparkGenerateIMGScreen() {
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   Alert.alert(
-                    'Delete Image',
-                    'Are you sure you want to delete this generated image?',
+                    t('sparkGenerateImg.alerts.deleteImage'),
+                    t('sparkGenerateImg.alerts.deleteImageMessage'),
                     [
-                      { text: 'Cancel', style: 'cancel' },
+                      { text: t('sparkGenerateImg.alerts.cancel'), style: 'cancel' },
                       {
-                        text: 'Delete',
+                        text: t('sparkGenerateImg.alerts.delete'),
                         style: 'destructive',
                         onPress: () => {
                           setGenerationState('idle');
@@ -578,7 +580,7 @@ export default function SparkGenerateIMGScreen() {
                   fontSize: 16,
                   fontFamily: 'Helvetica-Bold',
                 }}>
-                  Delete
+                  {t('sparkGenerateImg.buttons.delete')}
                 </Text>
               </Pressable>
             </View>
@@ -633,7 +635,7 @@ export default function SparkGenerateIMGScreen() {
                   fontSize: 15,
                   fontFamily: 'Helvetica-Bold',
                 }}>
-                  Recreate Image
+                  {t('sparkGenerateImg.buttons.recreateImage')}
                 </Text>
               </Pressable>
             </View>

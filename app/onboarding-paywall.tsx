@@ -54,42 +54,42 @@ export default function OnboardingPaywallScreen() {
             return;
           } else if (errorMessage.includes('declined') || errorMessage.includes('payment declined')) {
             Alert.alert(
-              'Payment Declined',
-              'Your payment method was declined. Please check your payment information and try again.',
-              [{ text: 'OK' }]
+              t('onboardingPaywall.alerts.paymentDeclined'),
+              t('onboardingPaywall.alerts.paymentDeclinedMessage'),
+              [{ text: t('onboardingPaywall.alerts.ok') }]
             );
           } else if (errorMessage.includes('interrupted') || errorMessage.includes('network')) {
             Alert.alert(
-              'Connection Issue',
-              'The purchase was interrupted due to a network issue. Please check your connection and try again.',
-              [{ text: 'Retry', onPress: () => handlePurchase() }, { text: 'Cancel' }]
+              t('onboardingPaywall.alerts.connectionIssue'),
+              t('onboardingPaywall.alerts.connectionIssueMessage'),
+              [{ text: t('onboardingPaywall.alerts.retry'), onPress: () => handlePurchase() }, { text: t('onboardingPaywall.alerts.cancel') }]
             );
           } else if (errorMessage.includes('already purchased') || errorMessage.includes('already subscribed')) {
             Alert.alert(
-              'Already Subscribed',
-              'You already have an active subscription. Try restoring your purchases if you don\'t see your benefits.',
+              t('onboardingPaywall.alerts.alreadySubscribed'),
+              t('onboardingPaywall.alerts.alreadySubscribedMessage'),
               [
-                { text: 'Restore Purchases', onPress: () => handleRestore() },
-                { text: 'OK' }
+                { text: t('onboardingPaywall.alerts.restorePurchases'), onPress: () => handleRestore() },
+                { text: t('onboardingPaywall.alerts.ok') }
               ]
             );
           } else {
             Alert.alert(
-              'Purchase Failed',
-              `Something went wrong: ${result.error}\n\nPlease try again or contact support if the issue persists.`,
-              [{ text: 'OK' }]
+              t('onboardingPaywall.alerts.purchaseFailed'),
+              t('onboardingPaywall.alerts.purchaseFailedMessage', { error: result.error }),
+              [{ text: t('onboardingPaywall.alerts.ok') }]
             );
           }
         } else {
           Alert.alert(
-            'Purchase Failed',
-            'An unexpected error occurred. Please try again.',
-            [{ text: 'OK' }]
+            t('onboardingPaywall.alerts.purchaseFailed'),
+            t('onboardingPaywall.alerts.unexpectedError'),
+            [{ text: t('onboardingPaywall.alerts.ok') }]
           );
         }
       }
     } catch (error) {
-      Alert.alert('Purchase Failed', 'Something went wrong. Please try again.');
+      Alert.alert(t('onboardingPaywall.alerts.purchaseFailed'), t('onboardingPaywall.alerts.somethingWentWrong'));
     } finally {
       setIsLoading(false);
     }
@@ -101,15 +101,15 @@ export default function OnboardingPaywallScreen() {
       const result = await restorePurchases();
       if (result.success) {
         Alert.alert(
-          'Purchases Restored',
-          'Your previous purchases have been restored.',
-          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
+          t('onboardingPaywall.alerts.purchasesRestored'),
+          t('onboardingPaywall.alerts.purchasesRestoredMessage'),
+          [{ text: t('onboardingPaywall.alerts.continue'), onPress: () => router.replace('/(tabs)') }]
         );
       } else {
-        Alert.alert('Restore Failed', result.error || 'No previous purchases found.');
+        Alert.alert(t('onboardingPaywall.alerts.restoreFailed'), result.error || t('onboardingPaywall.alerts.noPurchasesFound'));
       }
     } catch (error) {
-      Alert.alert('Restore Failed', 'Something went wrong. Please try again.');
+      Alert.alert(t('onboardingPaywall.alerts.restoreFailed'), t('onboardingPaywall.alerts.somethingWentWrong'));
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +131,7 @@ export default function OnboardingPaywallScreen() {
           fontFamily: 'Helvetica',
           fontWeight: '300',
         }}>
-          Loading subscription options...
+          {t('onboardingPaywall.loading.subscriptionOptions')}
         </Text>
       </View>
     );
@@ -166,7 +166,7 @@ export default function OnboardingPaywallScreen() {
             marginBottom: 16,
             lineHeight: 38,
           }}>
-            Invest in Yourself
+            {t('onboardingPaywall.hero.title')}
           </Text>
           <Text style={{
             fontSize: 18,
@@ -177,7 +177,7 @@ export default function OnboardingPaywallScreen() {
             lineHeight: 24,
             paddingHorizontal: 8,
           }}>
-            You've felt the clarity. Now unlock the full system to make it happen.
+            {t('onboardingPaywall.hero.subtitle')}
           </Text>
         </View>
 
@@ -214,7 +214,7 @@ export default function OnboardingPaywallScreen() {
               color: billingPeriod === 'monthly' ? '#FFFFFF' : '#364958',
               fontFamily: 'Helvetica',
             }}>
-              Monthly
+              {t('onboardingPaywall.billingPeriod.monthly')}
             </Text>
           </Pressable>
           <Pressable
@@ -235,7 +235,7 @@ export default function OnboardingPaywallScreen() {
               color: billingPeriod === 'annual' ? '#FFFFFF' : '#364958',
               fontFamily: 'Helvetica',
             }}>
-              Annual
+              {t('onboardingPaywall.billingPeriod.annual')}
             </Text>
           </Pressable>
         </View>
@@ -262,7 +262,7 @@ export default function OnboardingPaywallScreen() {
                 fontFamily: 'Helvetica',
                 fontWeight: '600',
               }}>
-                No subscription plans available. Please check your RevenueCat configuration.
+                {t('onboardingPaywall.noPlans.message')}
               </Text>
             </View>
           ) : (
@@ -303,7 +303,7 @@ export default function OnboardingPaywallScreen() {
               color: selectedPlan ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
-              {isLoading ? 'Processing...' : 'Start 7-day free trial'}
+              {isLoading ? t('onboardingPaywall.buttons.processing') : t('onboardingPaywall.buttons.startTrial')}
             </Text>
           </Pressable>
 
@@ -319,7 +319,7 @@ export default function OnboardingPaywallScreen() {
             marginTop: 12,
             paddingHorizontal: 16,
           }}>
-            This subscription will automatically renew unless you cancel it at least 24 hours before the current period ends; you can manage or cancel your subscription anytime in your App Store account settings.
+            {t('onboardingPaywall.disclaimer.autoRenew')}
           </Text>
 
           <Pressable
@@ -337,7 +337,7 @@ export default function OnboardingPaywallScreen() {
               fontFamily: 'Helvetica',
               fontWeight: '400',
             }}>
-              Restore Purchases
+              {t('onboardingPaywall.buttons.restorePurchases')}
             </Text>
           </Pressable>
         </View>
@@ -358,10 +358,10 @@ export default function OnboardingPaywallScreen() {
             fontFamily: 'Helvetica',
             fontWeight: '300',
           }}>
-            By continuing, you agree to our{'\n'}
-            <Text style={{ textDecorationLine: 'underline' }}>Terms of Service</Text>
-            {' and '}
-            <Text style={{ textDecorationLine: 'underline' }}>Privacy Policy</Text>
+            {t('onboardingPaywall.legal.byContinuing')}{'\n'}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.legal.termsOfService')}</Text>
+            {t('onboardingPaywall.legal.and')}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.legal.privacyPolicy')}</Text>
           </Text>
         </View>
       </ScrollView>

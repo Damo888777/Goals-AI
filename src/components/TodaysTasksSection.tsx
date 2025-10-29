@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { TaskCard } from './TaskCard';
 import { InfoPopup } from './InfoPopup';
 import { InfoButton } from './InfoButton';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
-import { INFO_CONTENT } from '../constants/infoContent';
 import type { Task } from '../types';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ interface TodaysTasksSectionProps {
 }
 
 export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComplete, onDelete }: TodaysTasksSectionProps) {
+  const { t } = useTranslation();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const hasTasks = tasks.length > 0;
 
@@ -34,7 +35,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
           />
           
           <Text style={styles.title}>
-            Todays Tasks
+            {t('components.todaysTasksSection.title')}
           </Text>
           
           {/* Info Button */}
@@ -42,7 +43,7 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
         </View>
 
         <Text style={styles.description}>
-          Take action and get a step closer to your dreams.
+          {t('components.todaysTasksSection.description')}
         </Text>
       </View>
 
@@ -75,8 +76,8 @@ export function TodaysTasksSection({ tasks, onTaskPress, onAddTask, onToggleComp
       {/* Info Popup */}
       <InfoPopup
         visible={showInfoPopup}
-        title={INFO_CONTENT.TODAYS_TASKS.title}
-        content={INFO_CONTENT.TODAYS_TASKS.content}
+        title={t('infoContent.todaysTasks.title')}
+        content={t('infoContent.todaysTasks.content')}
         onClose={() => setShowInfoPopup(false)}
       />
     </View>

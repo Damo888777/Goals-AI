@@ -58,6 +58,20 @@
       "nov": "Nov",
       "dec": "Dez"
     },
+    "monthsFull": {
+      "january": "Januar",
+      "february": "Februar",
+      "march": "März",
+      "april": "April",
+      "may": "Mai",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "August",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Dezember"
+    },
     "days": {
       "monday": "Montag",
       "tuesday": "Dienstag", 
@@ -649,11 +663,11 @@
       "emotionTitle": "Und wie wirst du dich fühlen wenn du es erreichst?",
       "emotionSubtitle": "Wähle bis zu 5 Emotionen",
       "emotions": {
-        "confident": "Selbstbewusst",
+        "confident": "Selbstsicher",
         "grateful": "Dankbar",
         "proud": "Stolz",
         "calm": "Ruhig",
-        "energized": "Energiegeladen",
+        "energized": "Vital",
         "happy": "Glücklich",
         "empowered": "Gestärkt",
         "excited": "Aufgeregt",
@@ -884,7 +898,8 @@
     },
     "tasksSection": {
       "title": "Erledigte Aufgaben",
-      "resultsText": "{count} Aufgabe{plural}"
+      "resultsText_one": "{{count}} Aufgabe",
+      "resultsText_other": "{{count}} Aufgaben"
     },
     "emptyState": {
       "title": "Keine erledigten Aufgaben gefunden",

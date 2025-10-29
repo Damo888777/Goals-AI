@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { notificationService } from '../src/services/notificationService';
 import * as Notifications from 'expo-notifications';
 import LiveActivityModule from '../src/modules/LiveActivityModule';
+import { useTranslation } from 'react-i18next';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -36,6 +37,7 @@ const POMODORO_SESSIONS: Record<SessionType, PomodoroSession> = {
 };
 
 export default function PomodoroScreen() {
+  const { t } = useTranslation();
   const { taskTitle, taskId } = useLocalSearchParams<{ taskTitle?: string; taskId?: string }>();
   
   const [fontsLoaded] = useFonts({
@@ -46,7 +48,7 @@ export default function PomodoroScreen() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentSession, setCurrentSession] = useState<SessionType>('work');
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
-  const [currentTask, setCurrentTask] = useState(taskTitle || '[Placeholder of Task Title]');
+  const [currentTask, setCurrentTask] = useState(taskTitle || t('pomodoro.placeholders.taskTitle'));
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
   const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
   const [hasShownBackgroundAlert, setHasShownBackgroundAlert] = useState(false);
@@ -216,9 +218,12 @@ export default function PomodoroScreen() {
       setTimeLeft(POMODORO_SESSIONS[nextSession].duration);
       
       Alert.alert(
-        'Pomodoro Complete! 🍅',
-        `Great work! You've completed ${newCompletedPomodoros} pomodoro${newCompletedPomodoros > 1 ? 's' : ''} today. Time for a ${nextSession === 'longBreak' ? 'long' : 'short'} break.`,
-        [{ text: 'Start Break', onPress: () => toggleTimer() }]
+        t('pomodoro.alerts.pomodoroComplete'),
+        t('pomodoro.alerts.pomodoroCompleteMessage', {
+          count: newCompletedPomodoros,
+          breakType: nextSession === 'longBreak' ? t('pomodoro.breakTypes.long') : t('pomodoro.breakTypes.short')
+        }),
+        [{ text: t('pomodoro.alerts.startBreak'), onPress: () => toggleTimer() }]
       );
     } else {
       // Break completed - send notification for break end
@@ -228,9 +233,9 @@ export default function PomodoroScreen() {
       setTimeLeft(POMODORO_SESSIONS.work.duration);
       
       Alert.alert(
-        'Break Complete! ☕',
-        'Break time is over. Ready to focus again?',
-        [{ text: 'Start Focus', onPress: () => toggleTimer() }]
+        t('pomodoro.alerts.breakComplete'),
+        t('pomodoro.alerts.breakCompleteMessage'),
+        [{ text: t('pomodoro.alerts.startFocus'), onPress: () => toggleTimer() }]
       );
     }
   };
@@ -259,9 +264,9 @@ export default function PomodoroScreen() {
         if (!areEnabled) {
           console.warn('❌ [React Native] Live Activities are not enabled');
           Alert.alert(
-            'Live Activities Disabled',
-            'Please enable Live Activities in Settings to see your timer in the Dynamic Island.',
-            [{ text: 'OK' }]
+            t('pomodoro.alerts.liveActivitiesDisabled'),
+            t('pomodoro.alerts.enableLiveActivities'),
+            [{ text: t('pomodoro.alerts.ok') }]
           );
           return; // Don't try to start if disabled
         }
@@ -307,9 +312,9 @@ export default function PomodoroScreen() {
         } catch (error) {
           console.error('❌ [React Native] Failed to start Live Activity:', error);
           Alert.alert(
-            'Live Activity Error',
-            `Failed to start Live Activity: ${error}`,
-            [{ text: 'OK' }]
+            t('pomodoro.alerts.liveActivityError'),
+            t('pomodoro.alerts.failedToStartLiveActivity', { error }),
+            [{ text: t('pomodoro.alerts.ok') }]
           );
         }
 
@@ -319,12 +324,12 @@ export default function PomodoroScreen() {
         // Schedule local notification for timer completion
         const sessionInfo = POMODORO_SESSIONS[currentSession];
         const notificationMessage = currentSession === 'work' 
-          ? `${sessionInfo.label} complete! Time for a break! 🎉`
-          : `Break time over! Ready for another focus session? 💪`;
+          ? t('pomodoro.notifications.workComplete')
+          : t('pomodoro.notifications.breakComplete');
 
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: '🍅 Pomodoro Timer',
+            title: t('pomodoro.notifications.title'),
             body: notificationMessage,
             sound: 'default',
             priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -383,11 +388,11 @@ export default function PomodoroScreen() {
 
   const skipSession = () => {
     Alert.alert(
-      'Skip Session?',
-      'Are you sure you want to skip this session?',
+      t('pomodoro.alerts.skipSession'),
+      t('pomodoro.alerts.skipSessionConfirmation'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Skip', onPress: () => handleSessionComplete(false) } // false = manual completion
+        { text: t('pomodoro.alerts.cancel'), style: 'cancel' },
+        { text: t('pomodoro.alerts.skip'), onPress: () => handleSessionComplete(false) } // false = manual completion
       ]
     );
   };
@@ -417,12 +422,12 @@ export default function PomodoroScreen() {
             >
               <Ionicons name="chevron-back" size={24} color="#4a5568" />
             </TouchableOpacity>
-            <Text style={styles.title}>Pomodoro</Text>
+            <Text style={styles.title}>{t('pomodoro.header.title')}</Text>
             <View style={styles.headerSpacer} />
           </View>
           <View style={styles.descriptionContainer}>
             <Text style={styles.description}>
-              You're getting one step closer towards your goals.
+              {t('pomodoro.header.description')}
             </Text>
           </View>
         </View>
@@ -430,15 +435,15 @@ export default function PomodoroScreen() {
         {/* Centered Pomodoro Section */}
         <View style={styles.centeredContainer}>
           <View style={styles.pomodoroSection}>
-            <Text style={styles.sectionTitleLeft}>Time to Focus</Text>
+            <Text style={styles.sectionTitleLeft}>{t('pomodoro.sections.timeToFocus')}</Text>
             <Text style={styles.pomodoroDescription}>
-              <Text style={styles.taskLabel}>Your Task: </Text>
+              <Text style={styles.taskLabel}>{t('pomodoro.labels.yourTask')}: </Text>
               <Text style={styles.taskTitle}>{currentTask}</Text>
             </Text>
 
             {/* Session Indicators */}
             <View style={styles.sessionIndicatorSection}>
-              <Text style={styles.sessionIndicatorLabel}>Session Progress</Text>
+              <Text style={styles.sessionIndicatorLabel}>{t('pomodoro.labels.sessionProgress')}</Text>
               <View style={styles.sessionIndicators}>
                 {[...Array(4)].map((_, index) => (
                   <View
@@ -483,7 +488,7 @@ export default function PomodoroScreen() {
                   style={styles.startButton}
                   onPress={toggleTimer}
                 >
-                  <Text style={styles.startButtonText}>START</Text>
+                  <Text style={styles.startButtonText}>{t('pomodoro.buttons.start')}</Text>
                 </TouchableOpacity>
               ) : !isRunning ? (
                 <View style={styles.runningButtons}>
@@ -491,14 +496,14 @@ export default function PomodoroScreen() {
                     style={styles.resetButton}
                     onPress={resetTimer}
                   >
-                    <Text style={styles.resetButtonText}>RESET</Text>
+                    <Text style={styles.resetButtonText}>{t('pomodoro.buttons.reset')}</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
                     style={styles.continueButton}
                     onPress={toggleTimer}
                   >
-                    <Text style={styles.continueButtonText}>CONTINUE</Text>
+                    <Text style={styles.continueButtonText}>{t('pomodoro.buttons.continue')}</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -507,14 +512,14 @@ export default function PomodoroScreen() {
                     style={styles.completeButton}
                     onPress={() => handleSessionComplete(false)} // false = manual completion
                   >
-                    <Text style={styles.completeButtonText}>COMPLETE</Text>
+                    <Text style={styles.completeButtonText}>{t('pomodoro.buttons.complete')}</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
                     style={styles.pauseButton}
                     onPress={toggleTimer}
                   >
-                    <Text style={styles.pauseButtonText}>PAUSE</Text>
+                    <Text style={styles.pauseButtonText}>{t('pomodoro.buttons.pause')}</Text>
                   </TouchableOpacity>
                 </View>
               )}

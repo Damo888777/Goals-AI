@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -24,6 +25,7 @@ interface WeekDayCardProps {
 }
 
 export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask, onToggleComplete, onDeleteTask }: WeekDayCardProps) {
+  const { t } = useTranslation();
   // Check if this day is today to expand by default
   const isToday = () => {
     const today = new Date();
@@ -123,12 +125,12 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
                 ...typography.emptyTitle,
                 marginBottom: emptyStateSpacing.titleMarginBottom,
               }}>
-                No tasks for {weekday}
+                {t('weekDayCard.emptyState.noTasksFor', { weekday })}
               </Text>
               <Text style={{
                 ...typography.emptyDescription,
               }}>
-                Your day looks clear.
+                {t('weekDayCard.emptyState.dayLooksClear')}
               </Text>
             </View>
           )}

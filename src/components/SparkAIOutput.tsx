@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
@@ -47,6 +48,7 @@ interface DatePickerProps {
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
+  const { t } = useTranslation();
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(selectedDate || new Date());
 
@@ -94,10 +96,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Due Date
+        {t('components.sparkAIOutput.dateSelection.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Set when you want to complete this.
+        {t('components.sparkAIOutput.dateSelection.subtitle')}
       </Text>
       <TouchableOpacity 
         style={styles.datePickerContainer}
@@ -105,7 +107,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : 'Select date'}
+            {selectedDate ? formatDate(selectedDate) : t('components.sparkAIOutput.dateSelection.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -120,7 +122,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
+              <Text style={styles.modalTitle}>{t('components.sparkAIOutput.datePicker.modalTitle')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -136,13 +138,13 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
 
             <View style={styles.modalActions}>
               <Button
-                title="Cancel"
+                title={t('components.sparkAIOutput.datePicker.cancel')}
                 variant="cancel"
                 onPress={handleCancel}
                 style={styles.modalButton}
               />
               <Button
-                title="Confirm"
+                title={t('components.sparkAIOutput.datePicker.confirm')}
                 variant="confirm"
                 onPress={handleConfirm}
                 style={styles.modalButton}
@@ -160,15 +162,16 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
   isSelected, 
   onToggle 
 }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.eatFrogContainer}>
       <View style={styles.eatFrogContent}>
         <View style={styles.eatFrogTextContainer}>
           <Text style={styles.eatFrogTitle}>
-            Eat the frog
+            {t('components.sparkAIOutput.eatTheFrog.title')}
           </Text>
           <Text style={styles.eatFrogDescription}>
-            Choose this task if completing it will make your day a success.
+            {t('components.sparkAIOutput.eatTheFrog.description')}
           </Text>
         </View>
         <TouchableOpacity
@@ -199,16 +202,17 @@ interface EmotionSelectionProps {
 }
 
 const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
+  const { t } = useTranslation();
   const emotions = [
-    { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
-    { label: 'Grateful', color: '#a1c181', textColor: '#081c15' },
-    { label: 'Proud', color: '#cdb4db', textColor: '#3d405b' },
-    { label: 'Calm', color: '#dedbd2', textColor: '#335c67' },
-    { label: 'Energized', color: '#eec170', textColor: '#780116' },
-    { label: 'Happy', color: '#bde0fe', textColor: '#023047' },
-    { label: 'Empowered', color: '#eae2b7', textColor: '#bb3e03' },
-    { label: 'Excited', color: '#f4a261', textColor: '#b23a48' },
-    { label: 'Fulfilled', color: '#f8ad9d', textColor: '#e07a5f' },
+    { label: t('components.sparkAIOutput.emotions.labels.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+    { label: t('components.sparkAIOutput.emotions.labels.grateful'), color: '#a1c181', textColor: '#081c15' },
+    { label: t('components.sparkAIOutput.emotions.labels.proud'), color: '#cdb4db', textColor: '#3d405b' },
+    { label: t('components.sparkAIOutput.emotions.labels.calm'), color: '#dedbd2', textColor: '#335c67' },
+    { label: t('components.sparkAIOutput.emotions.labels.energized'), color: '#eec170', textColor: '#780116' },
+    { label: t('components.sparkAIOutput.emotions.labels.happy'), color: '#bde0fe', textColor: '#023047' },
+    { label: t('components.sparkAIOutput.emotions.labels.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+    { label: t('components.sparkAIOutput.emotions.labels.excited'), color: '#f4a261', textColor: '#b23a48' },
+    { label: t('components.sparkAIOutput.emotions.labels.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
   ];
 
   const handleEmotionPress = (emotion: string) => {
@@ -225,10 +229,10 @@ const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, o
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        How do you feel after you achieved your goal?
+        {t('components.sparkAIOutput.emotions.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Choose up to 5 emotions
+        {t('components.sparkAIOutput.emotions.subtitle')}
       </Text>
       <View style={styles.emotionGrid}>
         {emotions.map((emotion, index) => {
@@ -269,6 +273,7 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   selectedVisionImage, 
   onVisionImageSelect 
 }) => {
+  const { t } = useTranslation();
   const [showVisionPicker, setShowVisionPicker] = useState(false);
   const { goals } = useGoals();
 
@@ -292,10 +297,10 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Visualize your goal
+        {t('components.sparkAIOutput.vision.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Choose an image from your Vision Board.
+        {t('components.sparkAIOutput.vision.subtitle')}
       </Text>
       
       <TouchableOpacity 
@@ -305,9 +310,10 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
         <View style={styles.visionButton}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={{ 
-                uri: selectedVisionImage?.imageUri || images.visionPlaceholder 
-              }}
+              source={selectedVisionImage?.imageUri ? 
+                { uri: selectedVisionImage.imageUri } : 
+                images.icons.createVision
+              }
               style={styles.visionImage}
               contentFit="cover"
             />
@@ -321,7 +327,7 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
             </TouchableOpacity>
           )}
           <Text style={styles.visionButtonText}>
-            {selectedVisionImage ? 'Change Vision' : 'Choose your Vision'}
+            {selectedVisionImage ? t('components.sparkAIOutput.vision.changeVision') : t('components.sparkAIOutput.vision.chooseVision')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -345,6 +351,7 @@ interface GoalSelectionProps {
 }
 
 const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSelect, onDropdownToggle }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
 
@@ -383,10 +390,10 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        My Goals
+        {t('components.sparkAIOutput.goalSelection.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach this milestone to your goal.
+        {t('components.sparkAIOutput.goalSelection.subtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -397,7 +404,7 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
           onPress={handleDropdownPress}
         >
           <Text style={styles.goalAttachmentText}>
-            {selectedGoal ? selectedGoal.title : 'Select your goal'}
+            {selectedGoal ? selectedGoal.title : t('components.sparkAIOutput.goalSelection.selectGoal')}
           </Text>
           <View style={[styles.chevronIcon, isDropdownOpen && styles.chevronIconRotated]}>
             <View style={styles.chevronLine1} />
@@ -454,6 +461,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   onGoalSelect, 
   onMilestoneSelect 
 }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(Boolean(selectedGoalId || selectedMilestoneId));
   const { goals } = useGoals();
   const { milestones } = useMilestones();
@@ -493,13 +501,13 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const getDropdownButtonText = () => {
     if (selectedGoalId) {
       const goal = goals.find(g => g.id === selectedGoalId);
-      return goal ? goal.title : 'Select your goal or milestone';
+      return goal ? goal.title : t('components.sparkAIOutput.goalMilestoneSelection.selectGoalMilestone');
     }
     if (selectedMilestoneId) {
       const milestone = milestones.find(m => m.id === selectedMilestoneId);
-      return milestone ? milestone.title : 'Select your goal or milestone';
+      return milestone ? milestone.title : t('components.sparkAIOutput.goalMilestoneSelection.selectGoalMilestone');
     }
-    return 'Select your goal or milestone';
+    return t('components.sparkAIOutput.goalMilestoneSelection.selectGoalMilestone');
   };
 
   const selectedGoal = goals.find(goal => goal.id === selectedGoalId);
@@ -508,10 +516,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Goal / Milestone
+        {t('components.sparkAIOutput.goalMilestoneSelection.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach either a goal or a milestone to your task.
+        {t('components.sparkAIOutput.goalMilestoneSelection.subtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -534,7 +542,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
-            <Text style={styles.dropdownSectionTitle}>Goal</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('components.sparkAIOutput.goalMilestoneSelection.goalSection')}</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -562,7 +570,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             )}
             
             {/* Milestones Section */}
-            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('components.sparkAIOutput.goalMilestoneSelection.milestonesSection')}</Text>
             {milestones.length > 0 ? (
               milestones.map((milestone) => (
                 <TouchableOpacity
@@ -611,18 +619,19 @@ const NotesSection: React.FC<{ notes: string; onNotesChange: (text: string) => v
   notes, 
   onNotesChange 
 }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Notes & Details
+        {t('components.sparkAIOutput.notesSection.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Add any extra thoughts, links, or steps you want to remember.
+        {t('components.sparkAIOutput.notesSection.subtitle')}
       </Text>
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder="Type here your notes and details..."
+        placeholder={t('components.sparkAIOutput.placeholders.notesDetails')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -643,6 +652,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   onSave, 
   onCancel 
 }) => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedType, setSelectedType] = useState<SparkOutputType>(initialType);
   const [title, setTitle] = useState(aiTitle);
@@ -717,28 +727,28 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
   const getSparkSuggestionText = () => {
     switch (initialType) {
       case 'task':
-        return "Spark thinks this is a Task. Change it if that's not right.";
+        return t('components.sparkAIOutput.sparkSuggestions.task');
       case 'goal':
-        return "Spark thinks this is a Goal. Change it if that's not right.";
+        return t('components.sparkAIOutput.sparkSuggestions.goal');
       case 'milestone':
-        return "Spark thinks this is a Milestone. Change it if that's not right.";
+        return t('components.sparkAIOutput.sparkSuggestions.milestone');
     }
   };
 
   const getTitlePlaceholder = () => {
     switch (selectedType) {
       case 'task':
-        return 'Type here your task title...';
+        return t('components.sparkAIOutput.placeholders.taskTitle');
       case 'goal':
-        return 'Type here your goal title...';
+        return t('components.sparkAIOutput.placeholders.goalTitle');
       case 'milestone':
-        return 'Type here your milestone title...';
+        return t('components.sparkAIOutput.placeholders.milestoneTitle');
     }
   };
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a title');
+      Alert.alert(t('components.sparkAIOutput.alerts.error'), t('components.sparkAIOutput.alerts.pleaseEnterTitle'));
       return;
     }
 
@@ -772,7 +782,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
         case 'milestone':
           if (!selectedGoalId) {
-            Alert.alert('Error', 'Please select a goal first to create a milestone.');
+            Alert.alert(t('components.sparkAIOutput.alerts.error'), t('components.sparkAIOutput.alerts.pleaseSelectGoal'));
             return;
           }
           await createMilestone({
@@ -785,12 +795,16 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
       }
 
       // Show success confirmation
+      const successMessage = selectedType === 'task' ? t('components.sparkAIOutput.alerts.taskSavedSuccessfully') :
+                            selectedType === 'goal' ? t('components.sparkAIOutput.alerts.goalSavedSuccessfully') :
+                            t('components.sparkAIOutput.alerts.milestoneSavedSuccessfully');
+      
       Alert.alert(
-        'Success!',
-        `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} saved successfully`,
+        t('components.sparkAIOutput.alerts.success'),
+        successMessage,
         [
           {
-            text: 'OK',
+            text: t('components.sparkAIOutput.alerts.ok'),
             onPress: () => {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               onSave({
@@ -805,7 +819,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
       );
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert('Error', 'Failed to save. Please try again.');
+      Alert.alert(t('components.sparkAIOutput.alerts.error'), t('components.sparkAIOutput.alerts.failedToSave'));
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
@@ -826,27 +840,27 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         {/* Header */}
         <View style={styles.headerContainer}>
           <Text style={styles.headerTitle}>
-            Review your Spark
+            {t('components.sparkAIOutput.header.title')}
           </Text>
           <Text style={styles.headerSubtitle}>
-            Here's your personalized draft from Spark. Review and customize it to match your vision perfectly.
+            {t('components.sparkAIOutput.header.subtitle')}
           </Text>
         </View>
 
         {/* User Voice Input */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            What I've said:
+            {t('components.sparkAIOutput.sections.whatISaid')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            {userVoiceInput || '[Placeholder Body Text Voice Input of User]'}
+            {userVoiceInput || t('components.sparkAIOutput.placeholders.voiceInputPlaceholder')}
           </Text>
         </View>
 
         {/* Spark's Suggestion */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Spark's Suggestion:
+            {t('components.sparkAIOutput.sections.sparkSuggestion')}
           </Text>
           <Text style={styles.sectionSubtitle}>
             {getSparkSuggestionText()}
@@ -860,9 +874,9 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         {/* Title Input */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            {selectedType === 'task' ? 'Task Title' : 
-             selectedType === 'goal' ? 'Goal Title' : 
-             'Milestone Title'}
+            {selectedType === 'task' ? t('components.sparkAIOutput.sections.taskTitle') : 
+             selectedType === 'goal' ? t('components.sparkAIOutput.sections.goalTitle') : 
+             t('components.sparkAIOutput.sections.milestoneTitle')}
           </Text>
           <TextInput
             value={title}
@@ -926,13 +940,13 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <Button
-            title="Cancel"
+            title={t('components.sparkAIOutput.buttons.cancel')}
             variant="cancel"
             onPress={onCancel}
             style={styles.cancelButton}
           />
           <Button
-            title="Save changes"
+            title={t('components.sparkAIOutput.buttons.saveChanges')}
             variant="save"
             onPress={handleSave}
             style={styles.saveButton}
@@ -1214,7 +1228,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 0.5,
     borderColor: '#a3b18a',
-    backgroundColor: '#f5ebe0',
     position: 'relative',
     overflow: 'hidden',
   },

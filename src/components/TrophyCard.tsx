@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
@@ -16,6 +17,7 @@ interface TrophyCardProps {
 }
 
 export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProps) {
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   
   const formatDate = (date: Date) => {
@@ -64,13 +66,13 @@ export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProp
                 <Ionicons name="trophy" size={12} color="#B69121" />
               </View>
               <Text style={styles.achievedText}>
-                Goal Achieved
+                {t('trophyCard.goalAchieved')}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <Ionicons name="calendar-outline" size={12} color="#364958" />
               <Text style={styles.completionDate}>
-                Completed: {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
+                {t('trophyCard.completed')} {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
               </Text>
             </View>
           </View>

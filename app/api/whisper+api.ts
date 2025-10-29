@@ -11,8 +11,10 @@ export async function POST(request: Request) {
     
     // @ts-ignore - FormData.get() exists in runtime
     const audioFile = formData.get('audio');
+    const language = formData.get('language') || 'en';
     console.log('🤖 [Whisper API] Audio file:', audioFile ? 'Found' : 'Not found');
     console.log('🤖 [Whisper API] Audio file type:', audioFile?.constructor.name);
+    console.log('🤖 [Whisper API] Language:', language);
     
     if (!audioFile) {
       console.error(' [Whisper API] No audio file in request');
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
     // Use turbo model for faster transcription with minimal accuracy loss
     whisperFormData.append('model', 'whisper-1'); // Note: OpenAI API uses 'whisper-1' which maps to turbo
     whisperFormData.append('response_format', 'json'); // Use JSON for better error handling
-    whisperFormData.append('language', 'en'); // Optimize for English (change if needed)
+    whisperFormData.append('language', language as string); // Use detected language
     whisperFormData.append('temperature', '0'); // Deterministic output
 
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {

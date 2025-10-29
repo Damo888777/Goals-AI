@@ -1,28 +1,30 @@
-export const INFO_CONTENT = {
+import { useTranslation } from 'react-i18next';
+
+export const getInfoContent = (t: ReturnType<typeof useTranslation>['t']) => ({
   EAT_THE_FROG: {
-    title: "Eat the Frog",
-    content: "Start your day by tackling your most challenging or important task first. This technique helps you build momentum and ensures your biggest priority gets done when your energy is highest."
+    title: t('infoContent.eatTheFrog.title'),
+    content: t('infoContent.eatTheFrog.content')
   },
   TODAYS_TASKS: {
-    title: "Today's Tasks",
-    content: "Focus on completing specific tasks scheduled for today. Keep your daily task list manageable and actionable to maintain productivity and avoid overwhelm."
+    title: t('infoContent.todaysTasks.title'),
+    content: t('infoContent.todaysTasks.content')
   },
   POMODORO_TECHNIQUE: {
-    title: "Pomodoro Technique", 
-    content: "Work in focused 25-minute intervals followed by 5-minute breaks. After 4 pomodoros, take a longer 15-30 minute break. This technique helps maintain focus and prevents burnout."
+    title: t('infoContent.pomodoroTechnique.title'),
+    content: t('infoContent.pomodoroTechnique.content')
   },
   GOAL_SETTING: {
-    title: "Goal Setting",
-    content: "Break down large goals into smaller, actionable milestones. Set specific deadlines and regularly review your progress to stay on track and motivated."
+    title: t('infoContent.goalSetting.title'),
+    content: t('infoContent.goalSetting.content')
   },
   SPARK_AI: {
-    title: "Spark AI",
-    content: "**Record one item at a time for best results.**\n\n**Tasks:** \"Buy groceries tomorrow\"\n**Goals:** \"Save 10,000 euros\"\n**Milestones:** \"Get first client by March\"\n\n**Link to existing goals:**\nSay the goal name clearly:\n\"This milestone is for my saving 10,000 euros goal\"\n\"Add task to my fitness goal\"\n\n**Tips:**\n• Speak 5-15 seconds\n• Use exact goal names\n• Be specific with dates\n• One item per recording"
+    title: t('infoContent.sparkAI.title'),
+    content: t('infoContent.sparkAI.content')
   },
   VISION_BOARD: {
-    title: "Vision Board",
-    content: "Create your visual inspiration board in two ways:\n\n**Upload Images:** Add personal photos from your gallery that represent your dreams and goals.\n\n**Generate with Spark:** Use Spark AI to create custom vision images based on your descriptions.\n\nYour vision board helps you visualize and stay motivated toward achieving your goals."
+    title: t('infoContent.visionBoard.title'),
+    content: t('infoContent.visionBoard.content')
   }
-} as const;
+} as const);
 
-export type InfoContentKey = keyof typeof INFO_CONTENT;
+export type InfoContentKey = keyof ReturnType<typeof getInfoContent>;

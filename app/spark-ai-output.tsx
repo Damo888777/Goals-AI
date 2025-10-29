@@ -1,9 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import SparkAIOutput, { SparkOutputType } from '../src/components/SparkAIOutput';
 
 export default function SparkAIOutputScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{
     type: SparkOutputType;

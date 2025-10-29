@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import TrophyCard from '../src/components/TrophyCard';
 import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import { CompletedMilestoneCard } from '../src/components/CompletedMilestoneCard';
@@ -20,6 +21,7 @@ import type { Goal, Milestone, Task } from '../src/types';
 type ViewMode = 'goals' | 'milestones';
 
 export default function TrophyScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [viewMode, setViewMode] = useState<ViewMode>('goals');
   
@@ -62,10 +64,10 @@ export default function TrophyScreen() {
               onPress={handleBackPress}
               style={styles.backButton}
             />
-            <Text style={styles.headerTitle}>My Victories</Text>
+            <Text style={styles.headerTitle}>{t('trophy.header.title')}</Text>
           </View>
           <Text style={styles.headerDescription}>
-            A gallery of your achievements. Proof of your dedication and progress.
+            {t('trophy.header.description')}
           </Text>
         </View>
         
@@ -82,7 +84,7 @@ export default function TrophyScreen() {
               styles.toggleButtonText,
               viewMode === 'goals' && styles.toggleButtonTextActive
             ]}>
-              Goals
+              {t('trophy.viewModes.goals')}
             </Text>
           </Pressable>
           <Pressable
@@ -96,7 +98,7 @@ export default function TrophyScreen() {
               styles.toggleButtonText,
               viewMode === 'milestones' && styles.toggleButtonTextActive
             ]}>
-              Milestones
+              {t('trophy.viewModes.milestones')}
             </Text>
           </Pressable>
         </View>
@@ -132,8 +134,8 @@ export default function TrophyScreen() {
             ) : (
               <TrophyCard
                 emptyState={{
-                  title: "No completed goals yet",
-                  description: "Complete some goals to see your victories here."
+                  title: t('trophy.emptyStates.noGoalsTitle'),
+                  description: t('trophy.emptyStates.noGoalsDescription')
                 }}
               />
             )
@@ -149,9 +151,9 @@ export default function TrophyScreen() {
             ) : (
               <View style={styles.emptyStateCard}>
                 <View style={styles.emptyStateInner}>
-                  <Text style={styles.emptyStateTitle}>No completed milestones yet</Text>
+                  <Text style={styles.emptyStateTitle}>{t('trophy.emptyStates.noMilestonesTitle')}</Text>
                   <Text style={styles.emptyStateDescription}>
-                    Complete some milestones to see your victories here.
+                    {t('trophy.emptyStates.noMilestonesDescription')}
                   </Text>
                 </View>
               </View>

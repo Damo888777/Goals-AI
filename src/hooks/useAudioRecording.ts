@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
+import { useTranslation } from 'react-i18next';
 import { AIService, AIProcessingResult } from '../services/aiService';
 import { useGoals, useMilestones } from './useDatabase';
 
@@ -28,7 +29,8 @@ export function useAudioRecording(): UseAudioRecordingReturn {
   const recording = useRef<Audio.Recording | null>(null);
   const durationInterval = useRef<NodeJS.Timeout | null>(null);
   
-  // Get existing goals and milestones for AI matching
+  // Get current language and existing goals/milestones for AI matching
+  const { i18n } = useTranslation();
   const { goals } = useGoals();
   const { milestones } = useMilestones();
 
@@ -147,7 +149,7 @@ export function useAudioRecording(): UseAudioRecordingReturn {
       console.log('🎤 [Audio Recording] Safe goals count:', safeGoals.length);
       console.log('🎤 [Audio Recording] Safe milestones count:', safeMilestones.length);
       
-      const aiResult = await AIService.processVoiceInput(uri, safeGoals, safeMilestones);
+      const aiResult = await AIService.processVoiceInput(uri, safeGoals, safeMilestones, i18n.language);
       
       console.log('🎤 [Audio Recording] AI Result received:', {
         type: aiResult.classification.type,

@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTranslation } from 'react-i18next';
 import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
@@ -18,6 +19,7 @@ interface CompletedMilestoneCardProps {
 }
 
 export function CompletedMilestoneCard({ milestone, onPress, emptyState }: CompletedMilestoneCardProps) {
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const [goalName, setGoalName] = useState<string | null>(null);
   
@@ -86,13 +88,13 @@ export function CompletedMilestoneCard({ milestone, onPress, emptyState }: Compl
                 <Ionicons name="flag" size={12} color="#364958" />
               </View>
               <Text style={styles.projectText}>
-                {goalName || 'No goal linked'}
+                {goalName || t('completedMilestoneCard.noGoalLinked')}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <Ionicons name="calendar-outline" size={12} color="#364958" />
               <Text style={styles.completionDate}>
-                Completed: {formatDate(milestone.updatedAt?.toISOString() || new Date().toISOString())}
+                {t('completedMilestoneCard.completed')}: {formatDate(milestone.updatedAt?.toISOString() || new Date().toISOString())}
               </Text>
             </View>
           </View>

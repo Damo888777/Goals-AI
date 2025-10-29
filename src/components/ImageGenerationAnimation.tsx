@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { images } from '../constants/images';
 
@@ -11,6 +12,7 @@ interface ImageGenerationAnimationProps {
 }
 
 export function ImageGenerationAnimation({ state, progress = 0 }: ImageGenerationAnimationProps) {
+  const { t } = useTranslation();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -135,11 +137,11 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
   const getStatusText = (): string => {
     switch (state) {
       case 'generating':
-        return 'Spark is creating your vision...';
+        return t('imageGenerationAnimation.states.generating');
       case 'completed':
-        return 'Vision created successfully!';
+        return t('imageGenerationAnimation.states.completed');
       case 'error':
-        return 'Something went wrong';
+        return t('imageGenerationAnimation.states.error');
       default:
         return '';
     }
@@ -327,7 +329,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               textAlign: 'center',
               opacity: 0.8,
             }}>
-              This may take a moment...
+              {t('imageGenerationAnimation.messages.pleaseWait')}
             </Text>
           </View>
         )}
@@ -348,7 +350,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               fontFamily: 'Helvetica-Light',
               textAlign: 'center',
             }}>
-              Your vision has been brought to life!
+              {t('imageGenerationAnimation.messages.visionComplete')}
             </Text>
           </View>
         )}
@@ -369,7 +371,7 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               fontFamily: 'Helvetica-Light',
               textAlign: 'center',
             }}>
-              Unable to create your vision. Please try again.
+              {t('imageGenerationAnimation.messages.errorMessage')}
             </Text>
           </View>
         )}

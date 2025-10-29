@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets } from '../constants/spacing';
@@ -21,22 +22,27 @@ interface SelectionCardProps {
 export function SelectionCard({ 
   selectedType, 
   onTypeChange, 
-  options = [
-    { type: 'task', label: 'Task' },
-    { type: 'goal', label: 'Goal' },
-    { type: 'milestone', label: 'Milestone' }
-  ]
+  options
 }: SelectionCardProps) {
+  const { t } = useTranslation();
+  
+  const defaultOptions = [
+    { type: 'task' as SelectionType, label: t('components.selectionCard.options.task') },
+    { type: 'goal' as SelectionType, label: t('components.selectionCard.options.goal') },
+    { type: 'milestone' as SelectionType, label: t('components.selectionCard.options.milestone') }
+  ];
+  
+  const finalOptions = options || defaultOptions;
   return (
     <BaseCard variant="secondary" padding="xs" style={styles.cardContainer} innerStyle={styles.cardInner}>
       <View style={styles.container}>
-        {options.map((option, index) => (
+        {finalOptions.map((option, index) => (
           <TouchableOpacity
             key={option.type}
             style={[
               styles.optionButton,
               index === 0 && styles.firstOption,
-              index === options.length - 1 && styles.lastOption,
+              index === finalOptions.length - 1 && styles.lastOption,
             ]}
             onPress={() => onTypeChange(option.type)}
           >

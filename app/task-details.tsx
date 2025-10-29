@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter, useLocalSearchParams, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { GoalCard } from '../src/components/GoalCard';
 import * as Haptics from 'expo-haptics';
 import { useTasks, useGoals, useMilestones } from '../src/hooks/useDatabase';
@@ -32,6 +33,7 @@ interface DatePickerProps {
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
+  const { t } = useTranslation();
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [tempDate, setTempDate] = useState(selectedDate || new Date());
 
@@ -60,9 +62,9 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   };
 
   const formatDate = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
+    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${month}.${day}.${year}`;
@@ -71,10 +73,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Due Date
+        {t('taskDetails.dueDate.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Set when you want to complete this.
+        {t('taskDetails.dueDate.subtitle')}
       </Text>
       <TouchableOpacity 
         style={styles.datePickerContainer}
@@ -82,7 +84,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : 'Select date'}
+            {selectedDate ? formatDate(selectedDate) : t('taskDetails.dueDate.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -97,7 +99,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date</Text>
+              <Text style={styles.modalTitle}>{t('taskDetails.dueDate.selectDateModal')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -115,14 +117,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 style={styles.modalCancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={styles.modalCancelText}>{t('taskDetails.buttons.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.modalConfirmButton}
                 onPress={handleConfirm}
               >
-                <Text style={styles.modalConfirmText}>Confirm</Text>
+                <Text style={styles.modalConfirmText}>{t('taskDetails.buttons.confirm')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -146,6 +148,7 @@ interface PomodoroSectionProps {
 }
 
 export default function TaskDetailsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { goals } = useGoals();
@@ -197,12 +200,12 @@ export default function TaskDetailsScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a title');
+      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.enterTitle'));
       return;
     }
 
     if (!task) {
-      Alert.alert('Error', 'Task not found');
+      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.taskNotFound'));
       return;
     }
 
@@ -223,30 +226,30 @@ export default function TaskDetailsScreen() {
       
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Failed to update task');
+      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.failedToUpdateTask'));
     }
   };
 
   const handleDelete = () => {
     if (!task) {
-      Alert.alert('Error', 'Task not found');
+      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.taskNotFound'));
       return;
     }
 
     Alert.alert(
-      'Delete Task',
-      'Are you sure you want to delete this task? This action cannot be undone.',
+      t('taskDetails.alerts.deleteTask'),
+      t('taskDetails.alerts.deleteTaskConfirmation'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('taskDetails.buttons.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('taskDetails.buttons.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteTask(task.id);
               router.back();
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete task');
+              Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.failedToDeleteTask'));
             }
           },
         },
@@ -283,23 +286,23 @@ export default function TaskDetailsScreen() {
               }}
               style={styles.backButton}
             />
-            <Text style={styles.headerTitle}>Task Details</Text>
+            <Text style={styles.headerTitle}>{t('taskDetails.header.title')}</Text>
           </View>
           <Text style={styles.headerSubtitle}>
-            Edit your task information and track your focus sessions.
+            {t('taskDetails.header.subtitle')}
           </Text>
         </View>
 
         {/* Task Title Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Task Title</Text>
+          <Text style={styles.sectionTitle}>{t('taskDetails.taskTitle.title')}</Text>
           <Text style={styles.sectionSubtitle}>
-            Give your task a clear and descriptive name.
+            {t('taskDetails.taskTitle.subtitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Enter task title"
+            placeholder={t('taskDetails.taskTitle.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -307,9 +310,9 @@ export default function TaskDetailsScreen() {
 
         {/* Eat the Frog Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Eat the Frog</Text>
+          <Text style={styles.sectionTitle}>{t('taskDetails.eatTheFrog.title')}</Text>
           <Text style={styles.sectionSubtitle}>
-            Mark this task as your most important task of the day.
+            {t('taskDetails.eatTheFrog.subtitle')}
           </Text>
           <EatTheFrogSection 
             isSelected={isFrog} 
@@ -319,16 +322,16 @@ export default function TaskDetailsScreen() {
                 const existingFrogTask = tasks.find(t => t.isFrog && !t.isComplete && t.id !== task?.id);
                 if (existingFrogTask) {
                   Alert.alert(
-                    'Replace Frog Task?',
-                    `You already have "${existingFrogTask.title}" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this task?`,
+                    t('taskDetails.eatTheFrog.replaceFrogTask'),
+                    t('taskDetails.eatTheFrog.replaceFrogTaskMessage', { taskTitle: existingFrogTask.title }),
                     [
                       {
-                        text: 'Cancel',
+                        text: t('taskDetails.buttons.cancel'),
                         style: 'cancel',
                         onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                       },
                       {
-                        text: 'Replace',
+                        text: t('taskDetails.eatTheFrog.replace'),
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                           setIsFrog(true);
@@ -376,15 +379,15 @@ export default function TaskDetailsScreen() {
         {/* Notes Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            Notes & Details
+            {t('taskDetails.notes.title')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            Add any extra thoughts, links, or steps you want to remember.
+            {t('taskDetails.notes.subtitle')}
           </Text>
           <TextInput
             value={notes}
             onChangeText={setNotes}
-            placeholder="Type here your notes and details..."
+            placeholder={t('taskDetails.notes.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={[styles.textInput, styles.textInputMultiline]}
             multiline
@@ -396,13 +399,13 @@ export default function TaskDetailsScreen() {
         {task && (
           <View style={styles.actionButtonsContainer}>
             <Button
-              title="Delete Task"
+              title={t('taskDetails.buttons.deleteTask')}
               variant="delete"
               onPress={handleDelete}
               style={styles.cancelButton}
             />
             <Button
-              title="Save Changes"
+              title={t('taskDetails.buttons.saveChanges')}
               variant="save"
               onPress={handleSave}
               style={styles.saveButton}
@@ -1002,15 +1005,16 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
   isSelected, 
   onToggle 
 }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.eatFrogContainer}>
       <View style={styles.eatFrogContent}>
         <View style={styles.eatFrogTextContainer}>
           <Text style={styles.eatFrogTitle}>
-            Eat the frog
+            {t('taskDetails.eatTheFrogComponent.title')}
           </Text>
           <Text style={styles.eatFrogDescription}>
-            Choose this task if completing it will make your day a success.
+            {t('taskDetails.eatTheFrogComponent.description')}
           </Text>
         </View>
         <TouchableOpacity
@@ -1047,6 +1051,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   onGoalSelect, 
   onMilestoneSelect 
 }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
   const { milestones } = useMilestones();
@@ -1076,16 +1081,16 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const getDisplayText = () => {
     if (selectedGoal) return selectedGoal.title;
     if (selectedMilestone) return selectedMilestone.title;
-    return 'Select your main or sub goal';
+    return t('taskDetails.goalMilestone.placeholder');
   };
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        Goal / Milestone
+        {t('taskDetails.goalMilestone.title')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        Attach either a goal or milestone to your task.
+        {t('taskDetails.goalMilestone.subtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -1108,7 +1113,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
-            <Text style={styles.dropdownSectionTitle}>Goal</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestone.goal')}</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -1136,7 +1141,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             )}
             
             {/* Milestones Section */}
-            <Text style={styles.dropdownSectionTitle}>Milestones</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestone.milestones')}</Text>
             {milestones.length > 0 ? (
               milestones.map((milestone) => (
                 <TouchableOpacity

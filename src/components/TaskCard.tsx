@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Animated, StyleSheet, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
@@ -45,6 +46,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, creationSource }: TaskCardProps) {
+  const { t } = useTranslation();
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -112,18 +114,18 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       
       Alert.alert(
-        'Delete Task',
-        `Are you sure you want to delete "${task.title}"?`,
+        t('components.taskCard.alerts.deleteTask'),
+        t('components.taskCard.alerts.deleteTaskMessage', { title: task.title }),
         [
           {
-            text: 'Cancel',
+            text: t('components.taskCard.alerts.cancel'),
             style: 'cancel',
             onPress: () => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
           },
           {
-            text: 'Delete',
+            text: t('components.taskCard.alerts.delete'),
             style: 'destructive',
             onPress: async () => {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -141,29 +143,29 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
       switch (variant) {
         case 'empty-frog':
           return {
-            title: 'No frog for today',
-            description: 'Your day looks clear.'
+            title: t('components.taskCard.emptyStates.noFrogToday'),
+            description: t('components.taskCard.emptyStates.dayLooksClear')
           };
         case 'empty-someday':
           return {
-            title: 'No someday tasks',
-            description: 'Here you\'ll find tasks without date.'
+            title: t('components.taskCard.emptyStates.noSomedayTasks'),
+            description: t('components.taskCard.emptyStates.somedayDescription')
           };
         case 'empty-weekday':
         case 'empty-today':
           return {
-            title: 'No tasks for today',
-            description: 'Your day looks clear.'
+            title: t('components.taskCard.emptyStates.noTasksToday'),
+            description: t('components.taskCard.emptyStates.dayLooksClear')
           };
         case 'empty-completed':
           return {
-            title: 'No completed tasks',
-            description: 'Your day looks clear.'
+            title: t('components.taskCard.emptyStates.noCompletedTasks'),
+            description: t('components.taskCard.emptyStates.dayLooksClear')
           };
         default:
           return {
-            title: 'No tasks',
-            description: 'Your day looks clear.'
+            title: t('components.taskCard.emptyStates.noTasks'),
+            description: t('components.taskCard.emptyStates.dayLooksClear')
           };
       }
     };
@@ -228,11 +230,11 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
             { flex: 1 },
             isCompleted && styles.completedTitle
           ]} numberOfLines={3}>
-            {task?.title || 'Placeholder Task Title'}
+            {task?.title || t('components.taskCard.placeholderTitle')}
           </Text>
           {showSparkBadge && (
             <View style={styles.sparkBadge}>
-              <Text style={styles.sparkBadgeText}>SPARK</Text>
+              <Text style={styles.sparkBadgeText}>{t('components.taskCard.sparkBadge')}</Text>
             </View>
           )}
         </View>
@@ -251,7 +253,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
               ]} numberOfLines={1}>
                 {milestoneName ? milestoneName : 
                  goalName ? goalName : 
-                 task?.goalId || task?.milestoneId ? 'Linked to project' : 'No project linked'}
+                 task?.goalId || task?.milestoneId ? t('components.taskCard.projectInfo.linkedToProject') : t('components.taskCard.projectInfo.noProjectLinked')}
               </Text>
             </View>
             <View style={styles.dateRow}>
@@ -263,8 +265,8 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                 {hasDate && task?.scheduledDate 
                   ? formatDate(new Date(task.scheduledDate)) 
                   : variant === 'completed' 
-                    ? `Completed: ${task?.updatedAt ? formatDate(new Date(task.updatedAt)) : 'Recently'}` 
-                    : 'Someday'
+                    ? `${t('components.taskCard.dateInfo.completed')} ${task?.updatedAt ? formatDate(new Date(task.updatedAt)) : t('components.taskCard.dateInfo.recently')}` 
+                    : t('components.taskCard.dateInfo.someday')
                 }
               </Text>
             </View>
@@ -290,18 +292,18 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   
                   Alert.alert(
-                    'Complete Task',
-                    `Did you complete "${task.title}"?`,
+                    t('components.taskCard.alerts.completeTask'),
+                    t('components.taskCard.alerts.completeTaskMessage', { title: task.title }),
                     [
                       {
-                        text: 'No',
+                        text: t('components.taskCard.alerts.no'),
                         style: 'cancel',
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }
                       },
                       {
-                        text: 'Yes',
+                        text: t('components.taskCard.alerts.yes'),
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                           soundService.playCompleteSound(); // Play completion sound
@@ -310,9 +312,9 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                           // Show completion confirmation
                           setTimeout(() => {
                             Alert.alert(
-                              '🎉 Task Completed!',
-                              'Great job! Your task has been marked as complete.',
-                              [{ text: 'OK', onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
+                              t('components.taskCard.alerts.taskCompleted'),
+                              t('components.taskCard.alerts.taskCompletedMessage'),
+                              [{ text: t('components.taskCard.alerts.ok'), onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
                             );
                           }, 300);
                         }

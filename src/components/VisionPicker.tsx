@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVisionImages } from '../hooks/useDatabase';
@@ -25,6 +26,7 @@ export default function VisionPicker({
   onVisionSelect,
   selectedVisionImage
 }: VisionPickerProps) {
+  const { t } = useTranslation();
   const { visionImages } = useVisionImages();
 
   const handleVisionSelect = (image: VisionImage) => {
@@ -47,7 +49,7 @@ export default function VisionPicker({
         >
           {/* Header */}
           <View style={styles.visionModalHeader}>
-            <Text style={styles.visionModalTitle}>Choose Vision Image</Text>
+            <Text style={styles.visionModalTitle}>{t('visionPicker.title')}</Text>
             <TouchableOpacity
               onPress={onClose}
               style={styles.visionModalCloseButton}
@@ -120,9 +122,9 @@ export default function VisionPicker({
               </ScrollView>
             ) : (
               <View style={styles.visionEmptyState}>
-                <Text style={styles.visionEmptyTitle}>No Vision Images</Text>
+                <Text style={styles.visionEmptyTitle}>{t('visionPicker.emptyState.title')}</Text>
                 <Text style={styles.visionEmptyDescription}>
-                  Create or upload vision images in your Vision Board first.
+                  {t('visionPicker.emptyState.description')}
                 </Text>
               </View>
             )}

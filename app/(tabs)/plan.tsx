@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { WeekDayCard } from '../../src/components/WeekDayCard';
 import { TaskCard } from '../../src/components/TaskCard';
 import { FAB } from '../../src/components/FAB';
@@ -16,6 +17,7 @@ type BacklogFilter = 'someday' | 'scheduled';
 
 export default function PlanTab() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const scrollViewRef = useRef<ScrollView>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [backlogFilter, setBacklogFilter] = useState<BacklogFilter>('scheduled');
@@ -80,10 +82,10 @@ export default function PlanTab() {
         {/* Plan Console Header */}
         <View className="gap-2">
           <Text style={typography.title}>
-            Plan Console
+            {t('plan.title')}
           </Text>
           <Text style={typography.body}>
-            This is where your dreams take shape. Start with your vision, then build the plan to make it real.
+            {t('plan.description')}
           </Text>
         </View>
 
@@ -104,7 +106,7 @@ export default function PlanTab() {
                   styles.toggleButtonText,
                   viewMode === 'week' && styles.toggleButtonTextActive
                 ]}>
-                  This Week
+                  {t('plan.viewModes.thisWeek')}
                 </Text>
               </Pressable>
               <Pressable
@@ -118,7 +120,7 @@ export default function PlanTab() {
                   styles.toggleButtonText,
                   viewMode === 'backlog' && styles.toggleButtonTextActive
                 ]}>
-                  Backlog
+                  {t('plan.viewModes.backlog')}
                 </Text>
               </Pressable>
             </View>
@@ -137,7 +139,7 @@ export default function PlanTab() {
                     styles.toggleButtonText,
                     backlogFilter === 'scheduled' && styles.toggleButtonTextActive
                   ]}>
-                    Scheduled
+                    {t('plan.filters.scheduled')}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -151,7 +153,7 @@ export default function PlanTab() {
                     styles.toggleButtonText,
                     backlogFilter === 'someday' && styles.toggleButtonTextActive
                   ]}>
-                    Someday
+                    {t('plan.filters.someday')}
                   </Text>
                 </Pressable>
               </View>
@@ -335,7 +337,7 @@ export default function PlanTab() {
                 marginBottom: 16,
                 color: '#364958',
               }}>
-                Someday Tasks
+                {t('plan.sections.somedayTasks')}
               </Text>
               
               <View style={{ gap: 12 }}>

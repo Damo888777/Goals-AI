@@ -1,6 +1,7 @@
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GreetingMessage } from '../../src/components/GreetingMessage';
 import { EatTheFrogSection } from '../../src/components/EatTheFrogSection';
 import { TodaysTasksSection } from '../../src/components/TodaysTasksSection';
@@ -16,6 +17,7 @@ import type { Task } from '../../src/types';
 
 export default function TodayTab() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { 
     tasks: todaysTasks, 
     frogTask, 

@@ -188,29 +188,29 @@ export default function OnboardingScreen() {
   const styleOptions = [
     {
       id: 'photorealistic' as StyleOption,
-      label: 'Photorealistic',
+      label: t('onboarding.vision.styles.photorealistic'),
       imageUri: require('../assets/styles/style_photorealistic.png')
     },
     {
       id: 'anime' as StyleOption,
-      label: 'Anime',
+      label: t('onboarding.vision.styles.anime'),
       imageUri: require('../assets/styles/style_anime.png')
     },
     {
       id: 'watercolour' as StyleOption,
-      label: 'Watercolour',
+      label: t('onboarding.vision.styles.watercolour'),
       imageUri: require('../assets/styles/style_watercolour.png')
     },
     {
       id: 'cyberpunk' as StyleOption,
-      label: 'Cyberpunk',
+      label: t('onboarding.vision.styles.cyberpunk'),
       imageUri: require('../assets/styles/style_cyberpunk.png')
     }
   ];
 
   const handleGenerateVision = async () => {
     if (!data.visionPrompt.trim()) {
-      Alert.alert('Missing Vision', 'Please describe your vision before generating an image.');
+      Alert.alert(t('onboarding.alerts.missingVision'), t('onboarding.alerts.missingVisionMessage'));
       return;
     }
 
@@ -263,11 +263,11 @@ export default function OnboardingScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         
         Alert.alert(
-          'Generation Failed', 
-          result.error || 'Unable to generate your vision. Please try again.',
+          t('onboarding.alerts.generationFailed'), 
+          result.error || t('onboarding.alerts.generationFailedMessage'),
           [
             {
-              text: 'OK',
+              text: t('onboarding.alerts.ok'),
               onPress: () => setGenerationState('idle')
             }
           ]
@@ -279,11 +279,11 @@ export default function OnboardingScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       
       Alert.alert(
-        'Generation Error',
-        'An unexpected error occurred. Please check your internet connection and try again.',
+        t('onboarding.alerts.generationError'),
+        t('onboarding.alerts.generationErrorMessage'),
         [
           {
-            text: 'OK',
+            text: t('onboarding.alerts.ok'),
             onPress: () => setGenerationState('idle')
           }
         ]
@@ -360,7 +360,7 @@ export default function OnboardingScreen() {
       // Navigate to onboarding paywall
       router.replace('/onboarding-paywall');
     } catch (error) {
-      Alert.alert('Error', 'Failed to complete onboarding. Please try again.');
+      Alert.alert(t('onboarding.alerts.error'), t('onboarding.alerts.onboardingFailed'));
       console.error('Onboarding completion error:', error);
     } finally {
       setIsLoading(false);
@@ -372,10 +372,10 @@ export default function OnboardingScreen() {
       <View style={styles.welcomeContent}>
         <View style={styles.textContainer}>
           <Text style={[typography.title, styles.headline]}>
-            Choose Your Language
+            {t('onboarding.language.title')}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            Select your preferred language to continue
+            {t('onboarding.language.subtitle')}
           </Text>
         </View>
         
@@ -413,7 +413,7 @@ export default function OnboardingScreen() {
           onPress={handleNext}
         >
           <Text style={styles.primaryButtonText}>
-            Continue
+            {t('onboarding.buttons.continue')}
           </Text>
         </Pressable>
       </View>
@@ -433,10 +433,10 @@ export default function OnboardingScreen() {
         
         <View style={styles.textContainer}>
           <Text style={[typography.title, styles.headline]}>
-            Vision to Victory. Simplified.
+            {t('onboarding.welcome.title')}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            Transform your dreams into achievable goals with AI-powered planning
+            {t('onboarding.welcome.subtitle')}
           </Text>
         </View>
       </View>
@@ -461,7 +461,7 @@ export default function OnboardingScreen() {
           }}
         >
           <Text style={[typography.button, styles.primaryButtonText]}>
-            Start Your Journey
+            {t('onboarding.welcome.startJourney')}
           </Text>
         </Pressable>
       </View>
@@ -472,10 +472,10 @@ export default function OnboardingScreen() {
     <View style={styles.centerContent}>
       <View style={styles.content}>
         <Text style={[typography.title, styles.headline]}>
-          First, what's your name?
+          {t('onboarding.name.title')}
         </Text>
         <Text style={[typography.body, styles.subheadline]}>
-          Goals AI will use it to make your journey more personal.
+          {t('onboarding.name.subtitle')}
         </Text>
         
         <View style={styles.inputContainer}>
@@ -483,7 +483,7 @@ export default function OnboardingScreen() {
             style={styles.textInput}
             value={data.name}
             onChangeText={(text) => setData(prev => ({ ...prev, name: text }))}
-            placeholder="Enter your name"
+            placeholder={t('onboarding.name.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             autoFocus
             scrollEnabled={false}
@@ -516,17 +516,17 @@ export default function OnboardingScreen() {
     <View style={styles.centerContent}>
       <View style={styles.content}>
         <Text style={[typography.title, styles.headline]}>
-          Personalize Your Visions
+          {t('onboarding.personalization.title')}
         </Text>
         <Text style={[typography.body, styles.subheadline]}>
-          To save you time, Spark can automatically add a subject to your prompts. What should be your default?
+          {t('onboarding.personalization.subtitle')}
         </Text>
         
         <View style={styles.optionsContainer}>
           {[
-            { key: 'man', label: 'As a man' },
-            { key: 'woman', label: 'As a woman' },
-            { key: 'specify', label: "I'll specify in each prompt" },
+            { key: 'man', label: t('onboarding.personalization.options.man') },
+            { key: 'woman', label: t('onboarding.personalization.options.woman') },
+            { key: 'specify', label: t('onboarding.personalization.options.specify') },
           ].map((option) => (
             <Pressable
               key={option.key}
@@ -576,10 +576,10 @@ export default function OnboardingScreen() {
       <View style={styles.content}>
         <View>
           <Text style={[typography.title, styles.headline]}>
-            Welcome{data.name ? `, ${data.name}` : ''}. Every great journey starts with a single image.
+            {t('onboarding.vision.title', { name: data.name || '' })}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            What's the one dream you want to bring to life? Let's visualize it.
+            {t('onboarding.vision.subtitle')}
           </Text>
         </View>
         
@@ -590,7 +590,7 @@ export default function OnboardingScreen() {
                 style={[styles.textInput, styles.multilineInput]}
                 value={data.visionPrompt}
                 onChangeText={(text) => setData(prev => ({ ...prev, visionPrompt: text }))}
-                placeholder="Describe your vision..."
+                placeholder={t('onboarding.vision.placeholder')}
                 placeholderTextColor="rgba(54,73,88,0.5)"
                 multiline
                 numberOfLines={3}
@@ -602,7 +602,7 @@ export default function OnboardingScreen() {
             {/* Style Selection */}
             <View style={styles.styleSection}>
               <Text style={[typography.body, styles.styleTitle]}>
-                Choose your style
+                {t('onboarding.vision.chooseStyle')}
               </Text>
               
               <View style={styles.styleGrid}>
@@ -652,7 +652,7 @@ export default function OnboardingScreen() {
               contentFit="contain"
             />
             <Text style={[typography.button, styles.primaryButtonText]}>
-              {isGenerating ? 'Creating...' : 'Generate Vision'}
+              {isGenerating ? t('onboarding.vision.creating') : t('onboarding.vision.generateVision')}
             </Text>
           </Pressable>
         )}
@@ -668,7 +668,7 @@ export default function OnboardingScreen() {
             onPressOut={() => setIsPressed(null)}
           >
             <Text style={[typography.button, styles.primaryButtonText]}>
-              Looks great, let's continue
+              {t('onboarding.vision.looksGreat')}
             </Text>
           </Pressable>
         )}
@@ -682,10 +682,10 @@ export default function OnboardingScreen() {
       <View style={styles.content}>
         <View>
           <Text style={[typography.title, styles.headline]}>
-            Now, let's give your vision a clear name.
+            {t('onboarding.goal.title')}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            This will be the spark that ignites your plan.
+            {t('onboarding.goal.subtitle')}
           </Text>
         </View>
         
@@ -694,7 +694,7 @@ export default function OnboardingScreen() {
             style={styles.textInput}
             value={data.goalTitle}
             onChangeText={(text) => setData(prev => ({ ...prev, goalTitle: text }))}
-            placeholder="Enter your goal title"
+            placeholder={t('onboarding.goal.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             autoFocus
             scrollEnabled={false}
@@ -703,23 +703,23 @@ export default function OnboardingScreen() {
         
         <View style={[styles.emotionSection, { marginTop: 40 }]}>
           <Text style={[typography.title, styles.emotionTitle]}>
-            And how will you feel when you achieve it?
+            {t('onboarding.goal.emotionTitle')}
           </Text>
           <Text style={[typography.body, styles.emotionSubtitle]}>
-            Choose up to 5 emotions
+            {t('onboarding.goal.emotionSubtitle')}
           </Text>
           
           <View style={styles.emotionGrid}>
             {[
-              { label: 'Confident', color: '#f7e1d7', textColor: '#a4133c' },
-              { label: 'Grateful', color: '#a1c181', textColor: '#081c15' },
-              { label: 'Proud', color: '#cdb4db', textColor: '#3d405b' },
-              { label: 'Calm', color: '#dedbd2', textColor: '#335c67' },
-              { label: 'Energized', color: '#eec170', textColor: '#780116' },
-              { label: 'Happy', color: '#bde0fe', textColor: '#023047' },
-              { label: 'Empowered', color: '#eae2b7', textColor: '#bb3e03' },
-              { label: 'Excited', color: '#f4a261', textColor: '#b23a48' },
-              { label: 'Fulfilled', color: '#f8ad9d', textColor: '#e07a5f' },
+              { label: t('onboarding.goal.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+              { label: t('onboarding.goal.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
+              { label: t('onboarding.goal.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
+              { label: t('onboarding.goal.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
+              { label: t('onboarding.goal.emotions.energized'), color: '#eec170', textColor: '#780116' },
+              { label: t('onboarding.goal.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
+              { label: t('onboarding.goal.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+              { label: t('onboarding.goal.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
+              { label: t('onboarding.goal.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
             ].map((emotion, index) => {
               const isSelected = data.emotions.includes(emotion.label);
               return (
@@ -769,7 +769,7 @@ export default function OnboardingScreen() {
           disabled={!data.goalTitle.trim()}
         >
           <Text style={[typography.button, styles.primaryButtonText]}>
-            Set Goal
+            {t('onboarding.goal.setGoal')}
           </Text>
         </Pressable>
         
@@ -782,10 +782,10 @@ export default function OnboardingScreen() {
       <View style={styles.content}>
         <View>
           <Text style={[typography.title, styles.headline]}>
-            A vision is reached one step at a time.
+            {t('onboarding.milestone.title')}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            What is the very first milestone on your journey to "{data.goalTitle}"?
+            {t('onboarding.milestone.subtitle', { goalTitle: data.goalTitle })}
           </Text>
         </View>
         
@@ -794,7 +794,7 @@ export default function OnboardingScreen() {
             style={styles.textInput}
             value={data.milestoneTitle}
             onChangeText={(text) => setData(prev => ({ ...prev, milestoneTitle: text }))}
-            placeholder="e.g., Research and create a business plan"
+            placeholder={t('onboarding.milestone.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             autoFocus
             scrollEnabled={false}
@@ -815,7 +815,7 @@ export default function OnboardingScreen() {
           disabled={!data.milestoneTitle.trim()}
         >
           <Text style={[typography.button, styles.primaryButtonText]}>
-            Create First Milestone
+            {t('onboarding.milestone.createMilestone')}
           </Text>
         </Pressable>
         
@@ -828,15 +828,15 @@ export default function OnboardingScreen() {
       <View style={styles.content}>
         <View>
           <Text style={[typography.title, styles.headline]}>
-            Let's Make It Real.
+            {t('onboarding.task.title')}
           </Text>
           <Text style={[typography.body, styles.subheadline]}>
-            Turn this milestone into your first focused action.
+            {t('onboarding.task.subtitle')}
           </Text>
         </View>
         
         <Text style={[typography.body, styles.taskQuestion]}>
-          What is the one task you can do today to start this milestone?
+          {t('onboarding.task.question')}
         </Text>
         
         <View style={styles.inputContainer}>
@@ -844,7 +844,7 @@ export default function OnboardingScreen() {
             style={styles.textInput}
             value={data.taskTitle}
             onChangeText={(text) => setData(prev => ({ ...prev, taskTitle: text }))}
-            placeholder="e.g., Spend 30 minutes researching competitors"
+            placeholder={t('onboarding.task.placeholder')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             autoFocus
             scrollEnabled={false}
@@ -871,7 +871,7 @@ export default function OnboardingScreen() {
             contentFit="contain"
           />
           <Text style={[typography.button, styles.primaryButtonText]}>
-            {(isLoading || onboardingLoading) ? 'Creating...' : "Make it Today's Priority"}
+            {(isLoading || onboardingLoading) ? t('onboarding.task.creating') : t('onboarding.task.makePriority')}
           </Text>
         </Pressable>
         

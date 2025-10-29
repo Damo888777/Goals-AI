@@ -287,7 +287,7 @@ export default function ProfileTab() {
         })
 
         if (error) {
-          Alert.alert('Sign In Error', error.message)
+          Alert.alert(t('profile.alerts.signInError'), error.message)
         } else {
           // Use authService to handle the upgrade from anonymous to authenticated
           const { authService } = await import('../../src/services/authService')
@@ -301,7 +301,7 @@ export default function ProfileTab() {
             setUserName(credential.fullName.givenName)
           }
           
-          Alert.alert('Success', 'Successfully signed in with Apple! Your data has been synced to the cloud.')
+          Alert.alert(t('profile.alerts.success'), t('profile.alerts.signInSuccess'))
         }
       }
     } catch (e: any) {
@@ -309,7 +309,7 @@ export default function ProfileTab() {
         // User canceled the sign-in flow
         console.log('User canceled Apple Sign In')
       } else {
-        Alert.alert('Error', 'Failed to sign in with Apple')
+        Alert.alert(t('profile.alerts.error'), t('profile.alerts.signInFailed'))
         console.error('Apple Sign In error:', e)
       }
     }
@@ -317,15 +317,15 @@ export default function ProfileTab() {
 
   const handleSignOut = async () => {
     Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out? Your data will remain available locally.',
+      t('profile.alerts.signOutTitle'),
+      t('profile.alerts.signOutMessage'),
       [
         {
-          text: 'Cancel',
+          text: t('profile.common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sign Out',
+          text: t('profile.profile.signOut'),
           style: 'default',
           onPress: async () => {
             try {
@@ -335,9 +335,9 @@ export default function ProfileTab() {
               
               setIsSignedIn(false)
               setUserEmail(null)
-              Alert.alert('Success', 'Successfully signed out. You can continue using the app anonymously.')
+              Alert.alert(t('profile.alerts.success'), t('profile.alerts.signOutSuccess'))
             } catch (error) {
-              Alert.alert('Error', 'Failed to sign out')
+              Alert.alert(t('profile.alerts.error'), t('profile.alerts.signOutFailed'))
             }
           }
         }
@@ -347,20 +347,20 @@ export default function ProfileTab() {
 
   const handleDeleteAccount = async () => {
     if (!supabase) {
-      Alert.alert('Error', 'Supabase not configured');
+      Alert.alert(t('profile.alerts.error'), t('profile.alerts.supabaseNotConfigured'));
       return;
     }
 
     Alert.alert(
-      'Delete Account',
-      'Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.',
+      t('profile.alerts.deleteAccountTitle'),
+      t('profile.alerts.deleteAccountMessage'),
       [
         {
-          text: 'Cancel',
+          text: t('profile.common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Delete Account',
+          text: t('profile.profile.deleteAccount'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -368,17 +368,17 @@ export default function ProfileTab() {
               // For now, we'll just sign out the user
               const { error } = await supabase!.auth.signOut();
               if (error) {
-                Alert.alert('Error', 'Failed to delete account');
+                Alert.alert(t('profile.alerts.error'), t('profile.alerts.deleteAccountFailed'));
               } else {
                 setIsSignedIn(false);
                 setUserEmail(null);
                 Alert.alert(
-                  'Account Deletion', 
-                  'Your account deletion request has been processed. Please contact support if you need assistance.'
+                  t('profile.alerts.deleteAccountTitle'), 
+                  t('profile.alerts.deleteAccountSuccess')
                 );
               }
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete account');
+              Alert.alert(t('profile.alerts.error'), t('profile.alerts.deleteAccountFailed'));
             }
           }
         }
@@ -400,11 +400,11 @@ Best regards`;
     try {
       Clipboard.setString(emailContent);
       Alert.alert(
-        'Email Template Copied!', 
-        'The support email template has been copied to your clipboard. Please paste it into your email app and send to: support@goals-ai.app\n\nDon\'t forget to include your User ID for faster support!'
+        t('profile.alerts.emailTemplateCopied'), 
+        t('profile.alerts.emailTemplateMessage')
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to copy email template to clipboard.');
+      Alert.alert(t('profile.alerts.error'), t('profile.alerts.clipboardFailed'));
     }
   };
 
@@ -431,10 +431,10 @@ Best regards`;
         await updateUserPreferences({ name: userName.trim() });
         setOriginalUserName(userName.trim());
         setIsEditingName(false);
-        Alert.alert('Success', 'Username updated successfully!');
+        Alert.alert(t('profile.alerts.success'), t('profile.alerts.usernameUpdated'));
       } catch (error) {
         console.error('Error updating username:', error);
-        Alert.alert('Error', 'Failed to update username. Please try again.');
+        Alert.alert(t('profile.alerts.error'), t('profile.alerts.usernameUpdateFailed'));
       }
     }
   };
@@ -471,7 +471,7 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="person" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Your Profile</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.yourProfile')}</Text>
             </View>
           </View>
           
@@ -490,21 +490,21 @@ Best regards`;
                       onChangeText={setUserName}
                       autoFocus
                       placeholderTextColor="rgba(245,235,224,0.5)"
-                      placeholder="Enter your name"
+                      placeholder={t('profile.profile.enterYourName')}
                     />
                     <View style={styles.nameEditButtons}>
                       <Pressable
                         style={[styles.nameEditButton, styles.cancelButton]}
                         onPress={handleCancelEditUsername}
                       >
-                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                        <Text style={styles.cancelButtonText}>{t('profile.profile.cancel')}</Text>
                       </Pressable>
                       <Pressable
                         style={[styles.nameEditButton, styles.saveButton]}
                         onPress={handleSaveUsername}
                         disabled={!userName.trim() || userName === originalUserName}
                       >
-                        <Text style={styles.saveButtonText}>Save</Text>
+                        <Text style={styles.saveButtonText}>{t('profile.profile.save')}</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -533,10 +533,10 @@ Best regards`;
                       onPressOut={handlePressOut}
                     >
                       <Ionicons name="logo-apple" size={20} color={colors.secondary} />
-                      <Text style={[typography.button, styles.buttonText]}>Sign In with Apple</Text>
+                      <Text style={[typography.button, styles.buttonText]}>{t('profile.profile.signInWithApple')}</Text>
                     </Pressable>
                     <Text style={[typography.caption, styles.appleSignInDescription]}>
-                      Sign in to permanently save your data and sync across devices
+                      {t('profile.profile.signInDescription')}
                     </Text>
                   </>
                 ) : (
@@ -544,9 +544,9 @@ Best regards`;
                   <View style={styles.signedInContainer}>
                     <View style={styles.accountInfo}>
                       <View style={styles.accountDetails}>
-                        <Text style={[typography.cardTitle, styles.accountLabel]}>Data Synced</Text>
+                        <Text style={[typography.cardTitle, styles.accountLabel]}>{t('profile.profile.dataSynced')}</Text>
                         <Text style={[typography.caption, styles.accountEmail]}>
-                          {userEmail ? userEmail.replace(/(.{2})(.*)(@.*)/, '$1***$3') : 'Email hidden'}
+                          {userEmail ? userEmail.replace(/(.{2})(.*)(@.*)/, '$1***$3') : t('profile.profile.emailHidden')}
                         </Text>
                       </View>
                     </View>
@@ -558,7 +558,7 @@ Best regards`;
                         onPressIn={() => handlePressIn('delete')}
                         onPressOut={handlePressOut}
                       >
-                        <Text style={[typography.caption, styles.deleteButtonText]}>Delete Account</Text>
+                        <Text style={[typography.caption, styles.deleteButtonText]}>{t('profile.profile.deleteAccount')}</Text>
                       </Pressable>
                       
                       <Pressable 
@@ -567,7 +567,7 @@ Best regards`;
                         onPressIn={() => handlePressIn('signout')}
                         onPressOut={handlePressOut}
                       >
-                        <Text style={[typography.caption, styles.signOutButtonText]}>Sign Out</Text>
+                        <Text style={[typography.caption, styles.signOutButtonText]}>{t('profile.profile.signOut')}</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -582,14 +582,14 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="diamond" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Subscription</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.subscription')}</Text>
             </View>
           </View>
           
           <View style={styles.subscriptionCard}>
             {isSubscriptionLoading ? (
               <View style={styles.subscriptionLoading}>
-                <Text style={styles.subscriptionLoadingText}>Loading subscription...</Text>
+                <Text style={styles.subscriptionLoadingText}>{t('profile.subscription.loadingSubscription')}</Text>
               </View>
             ) : (
               <>
@@ -597,14 +597,14 @@ Best regards`;
                 <View style={styles.subscriptionHeader}>
                   <View style={styles.subscriptionInfo}>
                     <Text style={styles.subscriptionTier}>
-                      {currentTier?.name || 'Free Trial'}
+                      {currentTier?.name || t('profile.subscription.freeTrial')}
                     </Text>
                     <Text style={styles.subscriptionStatus}>
                       {isSubscribed 
                         ? customerInfo?.latestExpirationDate 
-                          ? `Renewal at ${new Date(customerInfo.latestExpirationDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
-                          : 'Active Subscription'
-                        : `Free trial until ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
+                          ? `${t('profile.subscription.renewalAt')} ${new Date(customerInfo.latestExpirationDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
+                          : t('profile.subscription.activeSubscription')
+                        : `${t('profile.subscription.freeTrialUntil')} ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/,/g, '.')}`
                       }
                     </Text>
                   </View>
@@ -619,7 +619,7 @@ Best regards`;
                         {usageStats.voiceInputsUsed}
                       </Text>
                       <Text style={{ fontWeight: '300' }}>
-                        /{currentTier?.sparkAIVoiceInputs || 0} Spark AI Inputs
+                        /{currentTier?.sparkAIVoiceInputs || 0} {t('profile.subscription.sparkAIInputs')}
                       </Text>
                     </Text>
                   </View>
@@ -631,7 +631,7 @@ Best regards`;
                         {usageStats.visionImagesUsed}
                       </Text>
                       <Text style={{ fontWeight: '300' }}>
-                        /{currentTier?.sparkAIVisionImages || 0} Spark AI Visions
+                        /{currentTier?.sparkAIVisionImages || 0} {t('profile.subscription.sparkAIVisions')}
                       </Text>
                     </Text>
                   </View>
@@ -646,7 +646,7 @@ Best regards`;
                       onPress={() => router.push('/paywall')}
                     >
                       <Text style={styles.upgradeButtonText}>
-                        {currentTier?.id === 'tier_visionary' && !isCurrentSubscriptionAnnual ? 'Switch to Annual' : 'Upgrade Plan'}
+                        {currentTier?.id === 'tier_visionary' && !isCurrentSubscriptionAnnual ? t('profile.subscription.switchToAnnual') : t('profile.subscription.upgradePlan')}
                       </Text>
                       <Ionicons name="sparkles" size={16} color="#F5EBE0" />
                     </Pressable>
@@ -656,7 +656,7 @@ Best regards`;
                   {currentTier?.id === 'tier_visionary' && isCurrentSubscriptionAnnual && (
                     <View style={styles.maxTierIndicator}>
                       <Ionicons name="checkmark-circle" size={20} color="#8FBC8F" />
-                      <Text style={styles.maxTierText}>You're on the highest tier!</Text>
+                      <Text style={styles.maxTierText}>{t('profile.subscription.highestTier')}</Text>
                     </View>
                   )}
 
@@ -672,7 +672,7 @@ Best regards`;
                         }
                       }}
                     >
-                      <Text style={styles.manageButtonText}>Manage Subscription</Text>
+                      <Text style={styles.manageButtonText}>{t('profile.subscription.manageSubscription')}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -686,7 +686,7 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="trophy" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Your Journey</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.yourJourney')}</Text>
             </View>
           </View>
           
@@ -697,7 +697,7 @@ Best regards`;
               </View>
               <View style={styles.statContent}>
                 <Text style={styles.statValue}>{stats.eatTheFrogStreak}</Text>
-                <Text style={[typography.caption, styles.statLabel]}>Eat the Frog Streak</Text>
+                <Text style={[typography.caption, styles.statLabel]}>{t('profile.stats.eatTheFrogStreak')}</Text>
               </View>
             </View>
             
@@ -712,7 +712,7 @@ Best regards`;
               </View>
               <View style={styles.statContent}>
                 <Text style={styles.statValue}>{stats.goalsAchieved}</Text>
-                <Text style={[typography.caption, styles.statLabel]}>Goals Achieved</Text>
+                <Text style={[typography.caption, styles.statLabel]}>{t('profile.stats.goalsAchieved')}</Text>
               </View>
             </View>
             
@@ -722,7 +722,7 @@ Best regards`;
               </View>
               <View style={styles.statContent}>
                 <Text style={styles.statValue}>{formatFocusTime(stats.totalFocusTime)}</Text>
-                <Text style={[typography.caption, styles.statLabel]}>Total Focus Time</Text>
+                <Text style={[typography.caption, styles.statLabel]}>{t('profile.stats.totalFocusTime')}</Text>
               </View>
             </View>
           </View>
@@ -734,18 +734,18 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="apps" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Home Screen Widget</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.homeScreenWidget')}</Text>
             </View>
           </View>
           
           <View style={styles.widgetGuideCard}>
             <View style={styles.widgetGuideHeader}>
               <Ionicons name="phone-portrait" size={24} color={colors.text.primary} />
-              <Text style={[typography.cardTitle, styles.widgetGuideTitle]}>Add Goals AI Widget</Text>
+              <Text style={[typography.cardTitle, styles.widgetGuideTitle]}>{t('profile.widget.addGoalsAIWidget')}</Text>
             </View>
             
             <Text style={[typography.caption, styles.widgetGuideDescription]}>
-              Add your task widget to the home screen to see your Eat the Frog task and daily progress at a glance.
+              {t('profile.widget.widgetDescription')}
             </Text>
             
             <View style={styles.widgetSteps}>
@@ -753,28 +753,28 @@ Best regards`;
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>1</Text>
                 </View>
-                <Text style={styles.stepText}>Long press on your home screen</Text>
+                <Text style={styles.stepText}>{t('profile.widget.step1')}</Text>
               </View>
               
               <View style={styles.widgetStep}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>2</Text>
                 </View>
-                <Text style={styles.stepText}>Tap the "+" button in the top-left</Text>
+                <Text style={styles.stepText}>{t('profile.widget.step2')}</Text>
               </View>
               
               <View style={styles.widgetStep}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>3</Text>
                 </View>
-                <Text style={styles.stepText}>Search for "Goals AI"</Text>
+                <Text style={styles.stepText}>{t('profile.widget.step3')}</Text>
               </View>
               
               <View style={styles.widgetStep}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>4</Text>
                 </View>
-                <Text style={styles.stepText}>Select the Tasks widget and tap "Add Widget"</Text>
+                <Text style={styles.stepText}>{t('profile.widget.step4')}</Text>
               </View>
             </View>
           </View>
@@ -785,7 +785,7 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="settings" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Settings</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.settings')}</Text>
             </View>
           </View>
           
@@ -795,7 +795,7 @@ Best regards`;
                 <View style={styles.iconOnly}>
                   <Ionicons name="notifications" size={20} color={colors.text.primary} />
                 </View>
-                <Text style={[typography.cardTitle, styles.settingLabel]}>Notifications</Text>
+                <Text style={[typography.cardTitle, styles.settingLabel]}>{t('profile.settings.notifications')}</Text>
               </View>
               <Switch
                 value={notificationsEnabled}
@@ -871,7 +871,7 @@ Best regards`;
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
               <Ionicons name="help-circle" size={20} color={colors.secondary} />
-              <Text style={[typography.title, styles.sectionTitle]}>Support & Info</Text>
+              <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.supportInfo')}</Text>
             </View>
           </View>
           
@@ -888,8 +888,8 @@ Best regards`;
                   <Ionicons name="mail" size={20} color={colors.text.primary} />
                 </View>
                 <View style={styles.menuTextContainer}>
-                  <Text style={[typography.cardTitle, styles.menuLabel]}>Support & Feedback</Text>
-                  <Text style={[typography.caption, styles.menuSubtitle]}>Get help or share ideas for rewards</Text>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.supportFeedback')}</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.supportSubtitle')}</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
@@ -904,8 +904,8 @@ Best regards`;
                   <Ionicons name="heart" size={20} color={colors.text.primary} />
                 </View>
                 <View style={styles.menuTextContainer}>
-                  <Text style={[typography.cardTitle, styles.menuLabel]}>Credits</Text>
-                  <Text style={[typography.caption, styles.menuSubtitle]}>Icons and illustrations by Freepik</Text>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.credits')}</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.creditsSubtitle')}</Text>
                 </View>
               </View>
             </View>
@@ -924,8 +924,8 @@ Best regards`;
                   <Ionicons name="shield" size={20} color={colors.text.primary} />
                 </View>
                 <View style={styles.menuTextContainer}>
-                  <Text style={[typography.cardTitle, styles.menuLabel]}>Privacy Policy</Text>
-                  <Text style={[typography.caption, styles.menuSubtitle]}>How we protect your data</Text>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.privacyPolicy')}</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.privacySubtitle')}</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
@@ -945,8 +945,8 @@ Best regards`;
                   <Ionicons name="document-text" size={20} color={colors.text.primary} />
                 </View>
                 <View style={styles.menuTextContainer}>
-                  <Text style={[typography.cardTitle, styles.menuLabel]}>Terms & Conditions</Text>
-                  <Text style={[typography.caption, styles.menuSubtitle]}>Service terms and conditions</Text>
+                  <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.termsConditions')}</Text>
+                  <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.termsSubtitle')}</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
@@ -960,7 +960,7 @@ Best regards`;
             <View style={styles.sectionHeader}>
               <View style={styles.sectionHeaderLeft}>
                 <Ionicons name="code" size={20} color={colors.secondary} />
-                <Text style={[typography.title, styles.sectionTitle]}>Dev Tools</Text>
+                <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.devTools')}</Text>
               </View>
             </View>
             
@@ -976,8 +976,8 @@ Best regards`;
                     <Ionicons name="construct" size={20} color={colors.text.primary} />
                   </View>
                   <View style={styles.menuTextContainer}>
-                    <Text style={[typography.cardTitle, styles.menuLabel]}>Developer Tools</Text>
-                    <Text style={[typography.caption, styles.menuSubtitle]}>Reset onboarding, debug tools</Text>
+                    <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.developerTools')}</Text>
+                    <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.devToolsSubtitle')}</Text>
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={16} color={colors.text.primary} />
@@ -988,7 +988,7 @@ Best regards`;
 
         {/* User ID */}
         <View style={styles.userIdSection}>
-          <Text style={[typography.caption, styles.userIdLabel]}>User ID</Text>
+          <Text style={[typography.caption, styles.userIdLabel]}>{t('profile.userSection.userId')}</Text>
           <Text style={[typography.caption, styles.userIdText]}>{userId}</Text>
         </View>
       </ScrollView>

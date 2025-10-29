@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { SubscriptionPlan } from '../services/subscriptionService';
 
@@ -11,6 +12,7 @@ interface SubscriptionCardProps {
 }
 
 export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = 'monthly' }: SubscriptionCardProps) {
+  const { t } = useTranslation();
   const { tier, monthlyPrice, annualPrice, savings } = plan;
   const isAnnual = billingPeriod === 'annual';
 
@@ -18,27 +20,27 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
     switch (tier.id) {
       case 'tier_starter':
         return [
-          { bold: '3', light: ' Active Goals', icon: 'flag' },
-          { bold: '40', light: ' Spark AI Inputs per month', icon: 'mic' },
-          { bold: '10', light: ' Spark AI Visions per month', icon: 'image' },
-          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
-          { bold: 'Locked', light: ' Home Screen Widget', icon: 'apps' }
+          { bold: '3', light: t('subscriptionCard.benefits.activeGoals'), icon: 'flag' },
+          { bold: '40', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '10', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('subscriptionCard.benefits.locked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       case 'tier_achiever':
         return [
-          { bold: '10', light: ' Active Goals', icon: 'flag' },
-          { bold: '150', light: ' Spark AI Inputs per month', icon: 'mic' },
-          { bold: '20', light: ' Spark AI Visions per month', icon: 'image' },
-          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
-          { bold: 'Unlocked', light: ' Home Screen Widget', icon: 'apps' }
+          { bold: '10', light: t('subscriptionCard.benefits.activeGoals'), icon: 'flag' },
+          { bold: '150', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '20', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('subscriptionCard.benefits.unlocked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       case 'tier_visionary':
         return [
-          { bold: 'Unlimited', light: ' Active Goals', icon: 'infinite' },
-          { bold: '500', light: ' Spark AI Inputs per month', icon: 'mic' },
-          { bold: '60', light: ' Spark AI Visions per month', icon: 'image' },
-          { bold: 'Unlimited', light: ' Pomodoro Sessions', icon: 'timer' },
-          { bold: 'Unlocked', light: ' Home Screen Widget', icon: 'apps' }
+          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.activeGoals'), icon: 'infinite' },
+          { bold: '500', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '60', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('subscriptionCard.benefits.unlocked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       default:
         return [];
@@ -47,9 +49,9 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
 
   const getDisplayPrice = () => {
     if (isAnnual && annualPrice) {
-      return annualPrice + '/year';
+      return annualPrice + t('subscriptionCard.pricing.perYear');
     }
-    return monthlyPrice + '/month';
+    return monthlyPrice + t('subscriptionCard.pricing.perMonth');
   };
 
 
@@ -96,7 +98,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
             fontSize: 12,
             fontWeight: 'bold',
             textTransform: 'uppercase',
-          }}>POPULAR</Text>
+          }}>{t('subscriptionCard.badges.popular')}</Text>
         </View>
       )}
       {tier.id === 'tier_visionary' && isAnnual && savings && (
@@ -120,7 +122,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
             fontSize: 12,
             fontWeight: 'bold',
             textTransform: 'uppercase',
-          }}>BEST DEAL</Text>
+          }}>{t('subscriptionCard.badges.bestDeal')}</Text>
         </View>
       )}
 
@@ -171,7 +173,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
               fontWeight: 'bold',
               textAlign: 'left',
             }}>
-              Save {savings}
+              {t('subscriptionCard.pricing.save', { amount: savings })}
             </Text>
           </View>
         )}

@@ -5,14 +5,15 @@ import { Image } from 'expo-image';
 import { useState, useEffect, useRef } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import { images } from '../src/constants/images';
 import { useAudioRecording } from '../src/hooks/useAudioRecording';
 import { InfoPopup } from '../src/components/InfoPopup';
-import { INFO_CONTENT } from '../src/constants/infoContent';
 import { useAccessControl } from '../src/components/AccessControl';
 import { SubscriptionGate } from '../src/components/SubscriptionGate';
 
 export default function SparkAIScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const { requireAccess } = useAccessControl();
@@ -39,15 +40,15 @@ export default function SparkAIScreen() {
     // Show confirmation dialog if recording or processing
     if (isRecording || isProcessing) {
       Alert.alert(
-        'Cancel Recording?',
-        'Do you want to cancel your Spark Recording?',
+        t('sparkAI.alerts.cancelRecordingTitle'),
+        t('sparkAI.alerts.cancelRecordingMessage'),
         [
           {
-            text: 'Keep Recording',
+            text: t('sparkAI.alerts.keepRecording'),
             style: 'cancel',
           },
           {
-            text: 'Cancel Recording',
+            text: t('sparkAI.alerts.cancelRecording'),
             style: 'destructive',
             onPress: async () => {
               await resetRecording();
@@ -94,11 +95,11 @@ export default function SparkAIScreen() {
       if (error === 'no_text_recognized') {
         setTimeout(() => {
           Alert.alert(
-            'No Text Recognized',
-            'No text recognized. Do you want to try again?',
+            t('sparkAI.alerts.noTextRecognizedTitle'),
+            t('sparkAI.alerts.noTextRecognizedMessage'),
             [
               {
-                text: 'Cancel',
+                text: t('sparkAI.alerts.cancel'),
                 style: 'cancel',
                 onPress: async () => {
                   await resetRecording();
@@ -106,7 +107,7 @@ export default function SparkAIScreen() {
                 },
               },
               {
-                text: 'Try Again',
+                text: t('sparkAI.alerts.tryAgain'),
                 onPress: async () => {
                   await resetRecording();
                 },
@@ -312,7 +313,7 @@ export default function SparkAIScreen() {
           </View>
         </Pressable>
         
-        <Text style={styles.title}>Spark</Text>
+        <Text style={styles.title}>{t('sparkAI.header.title')}</Text>
         
         <Pressable onPress={handleInfoPress} style={styles.headerButton}>
           <View style={styles.infoIcon}>
@@ -350,19 +351,19 @@ export default function SparkAIScreen() {
 
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
-          {recordingState === 'recording' ? `Recording... ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
-           recordingState === 'processing' ? 'Spark is processing...' :
-           recordingState === 'completed' ? 'Complete!' :
-           recordingState === 'error' ? (error === 'no_text_recognized' ? 'No text recognized' : 'Error occurred - tap to try again') :
-           'Tap to start recording'}
+          {recordingState === 'recording' ? t('sparkAI.recordingStates.recording', { minutes: Math.floor(duration / 60), seconds: (duration % 60).toString().padStart(2, '0') }) :
+           recordingState === 'processing' ? t('sparkAI.recordingStates.processing') :
+           recordingState === 'completed' ? t('sparkAI.recordingStates.completed') :
+           recordingState === 'error' ? (error === 'no_text_recognized' ? t('sparkAI.recordingStates.noTextRecognized') : t('sparkAI.recordingStates.errorOccurred')) :
+           t('sparkAI.recordingStates.tapToStart')}
         </Text>
       </View>
 
       {/* Info Popup */}
       <InfoPopup
         visible={showInfoPopup}
-        title={INFO_CONTENT.SPARK_AI.title}
-        content={INFO_CONTENT.SPARK_AI.content}
+        title={t('infoContent.sparkAI.title')}
+        content={t('infoContent.sparkAI.content')}
         onClose={() => setShowInfoPopup(false)}
       />
     </View>

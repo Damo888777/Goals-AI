@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { router, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -24,6 +25,7 @@ interface MilestoneCardProps {
 }
 
 const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilestoneComplete, onMilestoneDelete }) => {
+  const { t } = useTranslation();
   const translateX = useRef(new Animated.Value(0)).current;
   const isDeleting = useRef(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -243,6 +245,7 @@ export function GoalCard({
   onGoalComplete,
   allMilestones = []
 }: GoalCardProps) {
+  const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const router = useRouter();
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
@@ -365,8 +368,8 @@ export function GoalCard({
   if (variant === 'selection-empty') {
     return (
       <View style={styles.goalSelectionEmptyCard}>
-        <Text style={styles.goalSelectionEmptyTitle}>No goals yet</Text>
-        <Text style={styles.goalSelectionEmptyDescription}>Create your first goal and start your journey</Text>
+        <Text style={styles.goalSelectionEmptyTitle}>{t('components.goalCard.emptyStates.noGoalsYet')}</Text>
+        <Text style={styles.goalSelectionEmptyDescription}>{t('components.goalCard.emptyStates.noGoalsDescription')}</Text>
       </View>
     );
   }
@@ -375,8 +378,8 @@ export function GoalCard({
   if (variant === 'empty' || variant === 'empty-completed') {
     const isCompletedEmpty = variant === 'empty-completed';
     const content = isCompletedEmpty 
-      ? { title: 'No completed goals', description: 'Complete some goals to see them here.' }
-      : { title: 'No goals yet', description: 'Create a goal and start your journey' };
+      ? { title: t('components.goalCard.emptyStates.noCompletedGoals'), description: t('components.goalCard.emptyStates.noCompletedGoalsDescription') }
+      : { title: t('components.goalCard.emptyStates.noGoalsYet'), description: t('components.goalCard.emptyStates.noGoalsDescription') };
 
     return (
       <Pressable onPress={onPress} style={[
@@ -415,7 +418,7 @@ export function GoalCard({
   const goalMilestones = milestones || goal?.milestones || [];
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No date set';
+    if (!dateString) return t('components.goalCard.milestones.noDateSet');
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       month: 'short', 

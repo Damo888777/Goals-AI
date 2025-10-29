@@ -1,45 +1,24 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
 import { TaskCard } from './TaskCard';
 import { InfoPopup } from './InfoPopup';
 import { InfoButton } from './InfoButton';
 import { images } from '../constants/images';
 import { typography } from '../constants/typography';
-import { INFO_CONTENT } from '../constants/infoContent';
 import type { Task } from '../types';
 import { useState } from 'react';
 
 interface EatTheFrogSectionProps {
   frogTask?: Task | null;
-  onAddFrogTask?: (taskData: {
-    title: string;
-    scheduledDate: Date;
-    isFrog: boolean;
-    creationSource: 'spark' | 'manual';
-  }) => Promise<void>;
   onSelectFrog?: () => void;
   onToggleComplete?: (taskId: string) => Promise<void>;
   onDelete?: (taskId: string) => Promise<void>;
 }
 
-export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onToggleComplete, onDelete }: EatTheFrogSectionProps) {
+export function EatTheFrogSection({ frogTask, onSelectFrog, onToggleComplete, onDelete }: EatTheFrogSectionProps) {
+  const { t } = useTranslation();
   const [showInfoPopup, setShowInfoPopup] = useState(false);
-  const handleSelectFrog = async () => {
-    try {
-      // Create a new frog task for today if none exists
-      if (!frogTask) {
-        const today = new Date();
-        await onAddFrogTask?.({
-          title: 'New Frog Task',
-          scheduledDate: today,
-          isFrog: true,
-          creationSource: 'manual'
-        });
-      }
-    } catch (error) {
-      console.error('Error creating frog task:', error);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -54,7 +33,7 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onTog
           />
           
           <Text style={styles.title}>
-            Eat the frog
+            {t('components.eatTheFrogSection.title')}
           </Text>
           
           {/* Info Button */}
@@ -63,7 +42,7 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onTog
 
         {/* Description */}
         <Text style={styles.description}>
-          Choose the one task that will make the biggest impact today.
+          {t('components.eatTheFrogSection.description')}
         </Text>
       </View>
 
@@ -79,8 +58,8 @@ export function EatTheFrogSection({ frogTask, onAddFrogTask, onSelectFrog, onTog
       {/* Info Popup */}
       <InfoPopup
         visible={showInfoPopup}
-        title={INFO_CONTENT.EAT_THE_FROG.title}
-        content={INFO_CONTENT.EAT_THE_FROG.content}
+        title={t('infoContent.eatTheFrog.title')}
+        content={t('infoContent.eatTheFrog.content')}
         onClose={() => setShowInfoPopup(false)}
       />
     </View>

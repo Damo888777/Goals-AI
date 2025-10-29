@@ -2,7 +2,7 @@ import { serverApiKeyService } from '../../src/services/apiKeyService-server';
 
 export async function POST(request: Request) {
   try {
-    const { transcription, existingGoals = [], existingMilestones = [] } = await request.json();
+    const { transcription, existingGoals = [], existingMilestones = [], language = 'en' } = await request.json();
     
     if (!transcription) {
       return Response.json({ error: 'No transcription provided' }, { status: 400 });
@@ -29,7 +29,18 @@ export async function POST(request: Request) {
       ? `\nAvailable Milestones: ${existingMilestones.map((m: any) => `"${m.title}" (ID: ${m.id})`).join(', ')}`
       : '';
     
-    const systemPrompt = `You are an intelligent assistant integrated into the Spark productivity app. Your role is to analyze user voice input (transcribed by Whisper) and classify it as either a Task, Goal, or Milestone, then extract the title, any timestamp mentioned, and identify any existing goals/milestones the user is referring to.
+    // Create language-specific system prompt
+    const getSystemPrompt = (lang: string) => {
+      const basePrompt = lang === 'de' ? 
+        `Du bist ein intelligenter Assistent, der in die Spark Produktivitäts-App integriert ist. Deine Aufgabe ist es, Benutzereingaben (von Whisper transkribiert) zu analysieren und als Aufgabe, Ziel oder Meilenstein zu klassifizieren, dann den Titel und alle erwähnten Zeitstempel zu extrahieren und bestehende Ziele/Meilensteine zu identifizieren, auf die sich der Benutzer bezieht.` :
+        lang === 'fr' ?
+        `Tu es un assistant intelligent intégré dans l'application de productivité Spark. Ton rôle est d'analyser les entrées vocales des utilisateurs (transcrites par Whisper) et de les classer comme Tâche, Objectif ou Jalon, puis d'extraire le titre, tout horodatage mentionné, et d'identifier les objectifs/jalons existants auxquels l'utilisateur fait référence.` :
+        `You are an intelligent assistant integrated into the Spark productivity app. Your role is to analyze user voice input (transcribed by Whisper) and classify it as either a Task, Goal, or Milestone, then extract the title, any timestamp mentioned, and identify any existing goals/milestones the user is referring to.`;
+      
+      return basePrompt;
+    };
+    
+    const systemPrompt = `${getSystemPrompt(language)}
 
 ## Classification Rules:
 

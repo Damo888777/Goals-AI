@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -38,6 +39,7 @@ function MasonryGrid() {
 }
 
 export default function VisionBoardScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
@@ -80,7 +82,7 @@ export default function VisionBoardScreen() {
               color: '#F5EBE0',
             }}
           >
-            Vision Board
+            {t('screens.visionBoard.title')}
           </Text>
           <Text
             style={{
@@ -90,7 +92,7 @@ export default function VisionBoardScreen() {
               lineHeight: 18,
             }}
           >
-            Your place to visualize your dreams and goals. Upload or generate your vision easily.
+            {t('screens.visionBoard.subtitle')}
           </Text>
         </View>
 
@@ -123,7 +125,7 @@ export default function VisionBoardScreen() {
                 color: '#F5EBE0',
               }}
             >
-              Create Vision
+              {t('screens.visionBoard.buttons.createVision')}
             </Text>
           </Pressable>
 
@@ -154,7 +156,7 @@ export default function VisionBoardScreen() {
                 color: '#F5EBE0',
               }}
             >
-              Upload Vision
+              {t('screens.visionBoard.buttons.uploadVision')}
             </Text>
           </Pressable>
         </View>

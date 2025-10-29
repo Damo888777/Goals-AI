@@ -5,12 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { typography } from '../src/constants/typography';
 import { emptyStateSpacing } from '../src/constants/spacing';
 import { images } from '../src/constants/images';
 import { InfoPopup } from '../src/components/InfoPopup';
 import { BackChevronButton } from '../src/components/ChevronButton';
-import { INFO_CONTENT } from '../src/constants/infoContent';
 import { useVisionImages } from '../src/hooks/useDatabase';
 import * as ImagePicker from 'expo-image-picker';
 import VisionImage from '../src/db/models/VisionImage';
@@ -22,6 +22,7 @@ interface VisionImageProps {
 }
 
 function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -47,7 +48,7 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
             opacity: 0.2,
           }}
         >
-          <Text style={{ fontSize: 12, color: '#999' }}>Vision</Text>
+          <Text style={{ fontSize: 12, color: '#999' }}>{t('visionBoard.placeholder.vision')}</Text>
         </View>
       )}
     </View>
@@ -75,6 +76,7 @@ interface MasonryGridProps {
 }
 
 function MasonryGrid({ visionImages, onImagePress }: MasonryGridProps) {
+  const { t } = useTranslation();
   const gap = 12;
   const numColumns = 2;
   
@@ -101,10 +103,10 @@ function MasonryGrid({ visionImages, onImagePress }: MasonryGridProps) {
           ...typography.emptyTitle,
           marginBottom: emptyStateSpacing.titleMarginBottom,
         }}>
-          No vision yet
+          {t('visionBoard.emptyState.title')}
         </Text>
         <Text style={typography.emptyDescription}>
-          Add your first vision and start your journey
+          {t('visionBoard.emptyState.description')}
         </Text>
       </View>
     );
@@ -120,6 +122,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
   isEmpty: boolean,
   onImagePress: (visionItem: VisionItem) => void 
 }) {
+  const { t } = useTranslation();
   // Distribute items across columns using Pinterest algorithm
   const columns: Column[] = Array.from({ length: numColumns }, () => ({ items: [], height: 0 }));
   
@@ -187,7 +190,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
                     fontSize: isEmpty ? 10 : 12, 
                     color: isEmpty ? '#AAA' : '#999' 
                   }}>
-                    {isEmpty ? '' : 'Vision'}
+                    {isEmpty ? '' : t('visionBoard.placeholder.vision')}
                   </Text>
                 </View>
               )}
@@ -202,6 +205,7 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
 export default function VisionBoardScreen() {
   console.log('🟢 VisionBoardScreen component mounting');
   
+  const { t } = useTranslation();
   console.log('🟢 Getting safe area insets...');
   const insets = useSafeAreaInsets();
   console.log('🟢 Safe area insets:', insets);
@@ -274,12 +278,12 @@ export default function VisionBoardScreen() {
   const handleDeleteImage = async () => {
     if (selectedImage?.visionImage) {
       Alert.alert(
-        'Delete Vision',
-        'Are you sure you want to delete this vision image?',
+        t('visionBoard.deleteAlert.title'),
+        t('visionBoard.deleteAlert.message'),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('visionBoard.deleteAlert.cancel'), style: 'cancel' },
           {
-            text: 'Delete',
+            text: t('visionBoard.deleteAlert.delete'),
             style: 'destructive',
             onPress: async () => {
               try {
@@ -288,7 +292,7 @@ export default function VisionBoardScreen() {
                 setSelectedImage(null);
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               } catch (error) {
-                Alert.alert('Error', 'Failed to delete image.');
+                Alert.alert(t('visionBoard.deleteAlert.error'), t('visionBoard.deleteAlert.errorMessage'));
               }
             }
           }
@@ -357,7 +361,7 @@ export default function VisionBoardScreen() {
               fontFamily: 'Helvetica-Bold',
               lineHeight: 0,
             }}>
-              Vision Board
+              {t('visionBoard.header.title')}
             </Text>
             
             {/* Info Button */}
@@ -401,7 +405,7 @@ export default function VisionBoardScreen() {
             lineHeight: 0,
             width: '100%',
           }}>
-            Your place to visualize your dreams and goals. Upload or generate your vision easily.
+            {t('visionBoard.header.description')}
           </Text>
         </View>
 
@@ -464,7 +468,7 @@ export default function VisionBoardScreen() {
                 color: '#F5EBE0',
               }}
             >
-              Create Vision
+              {t('visionBoard.buttons.createVision')}
             </Text>
             </Pressable>
           </View>
@@ -544,7 +548,7 @@ export default function VisionBoardScreen() {
                 color: '#F5EBE0',
               }}
             >
-              Upload Vision
+              {t('visionBoard.buttons.uploadVision')}
             </Text>
             </Pressable>
           </View>
@@ -557,8 +561,8 @@ export default function VisionBoardScreen() {
       {/* Info Popup */}
       <InfoPopup
         visible={showInfoPopup}
-        title={INFO_CONTENT.VISION_BOARD.title}
-        content={INFO_CONTENT.VISION_BOARD.content}
+        title={t('infoContent.visionBoard.title')}
+        content={t('infoContent.visionBoard.content')}
         onClose={() => setShowInfoPopup(false)}
       />
 
@@ -731,7 +735,7 @@ export default function VisionBoardScreen() {
                   fontWeight: 'bold',
                   textAlign: 'center',
                 }}>
-                  Vision Image
+                  {t('visionBoard.imagePreview.title')}
                 </Text>
                 
                 {/* Timestamp */}
@@ -740,7 +744,7 @@ export default function VisionBoardScreen() {
                   fontSize: 14,
                   textAlign: 'center',
                 }}>
-                  {selectedImage.createdAt ? formatTimestamp(selectedImage.createdAt) : 'Unknown date'}
+                  {selectedImage.createdAt ? formatTimestamp(selectedImage.createdAt) : t('visionBoard.imagePreview.unknownDate')}
                 </Text>
                 
                 {/* Source */}
@@ -750,7 +754,7 @@ export default function VisionBoardScreen() {
                   textAlign: 'center',
                   textTransform: 'capitalize',
                 }}>
-                  {selectedImage.source || 'Unknown source'}
+                  {selectedImage.source || t('visionBoard.imagePreview.unknownSource')}
                 </Text>
               </View>
             </>

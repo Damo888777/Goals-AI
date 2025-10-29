@@ -7,6 +7,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { colors } from '../constants/colors';
@@ -26,6 +27,7 @@ export function SparkTutorialOverlay({
   onComplete, 
   fabPosition 
 }: SparkTutorialOverlayProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
@@ -125,19 +127,18 @@ export function SparkTutorialOverlay({
               />
             </View>
             <Text style={[typography.cardTitle, styles.tooltipTitle]}>
-              Now, Let Spark Do the Work
+              {t('sparkTutorialOverlay.title')}
             </Text>
           </View>
           
           {/* Main content */}
           <Text style={[typography.body, styles.tooltipBody]}>
-            Speak a single goal, milestone, or task: 'Marketing report by Friday.'
-            Spark handles the rest automatically.
+            {t('sparkTutorialOverlay.body')}
           </Text>
           
           {/* Sub-note */}
           <Text style={[typography.caption, styles.tooltipSubNote]}>
-            Press and hold to add items manually.
+            {t('sparkTutorialOverlay.subNote')}
           </Text>
           
           {/* Action button */}
@@ -146,7 +147,7 @@ export function SparkTutorialOverlay({
             onPress={onComplete}
           >
             <Text style={[typography.button, styles.tooltipButtonText]}>
-              Got It!
+              {t('sparkTutorialOverlay.button')}
             </Text>
           </Pressable>
         </View>

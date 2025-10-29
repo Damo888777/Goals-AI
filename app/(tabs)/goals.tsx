@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { images } from '../../src/constants/images';
 import { GoalCard } from '../../src/components/GoalCard';
 import { FAB } from '../../src/components/FAB';
@@ -15,6 +16,7 @@ import type { Goal } from '../../src/types';
 
 export default function GoalsScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
   const [isTrophyPressed, setIsTrophyPressed] = useState(false);
   const [isVisionPressed, setIsVisionPressed] = useState(false);
@@ -97,7 +99,7 @@ export default function GoalsScreen() {
   //     <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
   //       <ActivityIndicator size="large" color="#A3B18A" />
   //       <Text style={[typography.body, { marginTop: 16, color: '#588157' }]}>
-  //         Loading your goals...
+  //         {t('goals.loading')}
   //       </Text>
   //     </View>
   //   );
@@ -152,10 +154,10 @@ export default function GoalsScreen() {
         {/* Goals Hub Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>
-            Goals Hub
+            {t('goals.hub.title')}
           </Text>
           <Text style={styles.headerDescription}>
-            This is where your dreams take shape. Start with your vision, then build the plan to make it real.
+            {t('goals.hub.description')}
           </Text>
         </View>
 
@@ -176,7 +178,7 @@ export default function GoalsScreen() {
               />
             </View>
             <Text style={styles.buttonLabel}>
-              Trophy
+              {t('goals.buttons.trophy')}
             </Text>
           </Pressable>
 
@@ -206,7 +208,7 @@ export default function GoalsScreen() {
               </View>
             </View>
             <Text style={styles.buttonLabel}>
-              Vision
+              {t('goals.buttons.vision')}
             </Text>
           </Pressable>
         </View>
@@ -215,10 +217,10 @@ export default function GoalsScreen() {
         <View style={styles.goalsSectionContainer}>
           <View style={styles.goalsSectionHeader}>
             <Text style={styles.headerTitle}>
-              My Goals
+              {t('goals.myGoals.title')}
             </Text>
             <Text style={styles.headerDescription}>
-              Here you find all your current goals.
+              {t('goals.myGoals.description')}
             </Text>
           </View>
 
