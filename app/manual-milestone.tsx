@@ -97,7 +97,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('manualMilestone.datePicker.selectDate')}</Text>
+              <Text style={styles.modalTitle}>{t('manualMilestone.datePicker.modalTitle')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -234,7 +234,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {t('manualMilestone.sections.notesAndDetails')}
+        {t('manualMilestone.sections.notesDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
         {t('manualMilestone.sections.notesSubtitle')}
@@ -242,7 +242,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder={t('manualMilestone.placeholders.notesPlaceholder')}
+        placeholder={t('manualMilestone.placeholders.notesDetails')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -273,12 +273,12 @@ export default function ManualMilestoneScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.enterMilestoneTitle'));
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.pleaseEnterMilestoneTitle'));
       return;
     }
 
     if (!selectedGoalId) {
-      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.selectGoalFirst'));
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.pleaseSelectGoalFirst'));
       return;
     }
 
@@ -293,12 +293,12 @@ export default function ManualMilestoneScreen() {
       // Show success confirmation
       Alert.alert(
         t('manualMilestone.alerts.success'),
-        t('manualMilestone.alerts.milestoneCreatedSuccess'),
+        t('manualMilestone.alerts.milestoneCreatedSuccessfully'),
         [{ text: t('manualMilestone.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error saving milestone:', error);
-      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.createMilestoneFailed'));
+      Alert.alert(t('manualMilestone.alerts.error'), t('manualMilestone.alerts.failedToCreateMilestone'));
     }
   };
 
@@ -344,7 +344,7 @@ export default function ManualMilestoneScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder={t('manualMilestone.placeholders.milestoneTitlePlaceholder')}
+            placeholder={t('manualMilestone.placeholders.milestoneTitle')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />

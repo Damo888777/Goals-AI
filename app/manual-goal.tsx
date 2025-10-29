@@ -137,7 +137,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {t('manualGoal.sections.notesAndDetails')}
+        {t('manualGoal.sections.notesDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
         {t('manualGoal.sections.notesSubtitle')}
@@ -145,7 +145,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder={t('manualGoal.placeholders.notesPlaceholder')}
+        placeholder={t('manualGoal.placeholders.notesDetails')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -177,7 +177,7 @@ export default function ManualGoalScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.enterGoalTitle'));
+      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.pleaseEnterGoalTitle'));
       return;
     }
 
@@ -193,12 +193,12 @@ export default function ManualGoalScreen() {
       // Show success confirmation
       Alert.alert(
         t('manualGoal.alerts.success'),
-        t('manualGoal.alerts.goalCreatedSuccess'),
+        t('manualGoal.alerts.goalCreatedSuccessfully'),
         [{ text: t('manualGoal.alerts.ok'), onPress: () => router.push('/(tabs)/goals') }]
       );
     } catch (error) {
       console.error('Error creating goal:', error);
-      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.createGoalFailed'));
+      Alert.alert(t('manualGoal.alerts.error'), t('manualGoal.alerts.failedToCreateGoal'));
     }
   };
 
@@ -243,7 +243,7 @@ export default function ManualGoalScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder={t('manualGoal.placeholders.goalTitlePlaceholder')}
+            placeholder={t('manualGoal.placeholders.goalTitle')}
             placeholderTextColor="#364958"
             style={styles.textInput}
           />

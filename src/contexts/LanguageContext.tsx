@@ -29,14 +29,14 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
   const [isLoading, setIsLoading] = useState(true);
 
   const availableLanguages: Language[] = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' }
+    { code: 'en', name: t('onboarding.language.languages.en'), flag: '🇺🇸' },
+    { code: 'de', name: t('onboarding.language.languages.de'), flag: '🇩🇪' },
+    { code: 'fr', name: t('onboarding.language.languages.fr'), flag: '🇫🇷' }
   ];
 
   const changeLanguage = async (language: string) => {

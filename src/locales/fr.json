@@ -620,6 +620,18 @@
     }
   },
   "onboarding": {
+    "language": {
+      "title": "Choisissez Votre Langue",
+      "subtitle": "Sélectionnez votre langue préférée pour commencer.",
+      "languages": {
+        "en": "English",
+        "de": "Deutsch", 
+        "fr": "Français"
+      }
+    },
+    "buttons": {
+      "continue": "Continuer"
+    },
     "welcome": {
       "title": "Vision vers Victoire. Simplifié.",
       "subtitle": "Transformez vos rêves en objectifs réalisables avec la planification assistée par IA",
@@ -635,14 +647,13 @@
       "title": "Personnalisez Vos Visions",
       "subtitle": "Pour vous faire gagner du temps, Spark peut automatiquement ajouter un sujet à vos prompts. Que devrait être votre défaut ?",
       "options": {
-        "asMan": "En tant qu'homme",
-        "asWoman": "En tant que femme",
+        "man": "En tant qu'homme",
+        "woman": "En tant que femme",
         "specify": "Je préciserai dans chaque prompt"
-      },
-      "continue": "Continuer"
+      }
     },
     "vision": {
-      "title": "Bienvenue{name}. Chaque grand voyage commence par une seule image.",
+      "title": "Bienvenue {name}. Chaque grand voyage commence par une seule image.",
       "subtitle": "Quel est le rêve unique que vous voulez donner vie ? Visualisons-le.",
       "placeholder": "Décrivez votre vision...",
       "chooseStyle": "Choisissez votre style",
@@ -679,7 +690,7 @@
       "title": "Une vision est atteinte étape par étape.",
       "subtitle": "Quelle est la toute première étape de votre parcours vers \"{goalTitle}\" ?",
       "placeholder": "ex. Rechercher et créer un plan d'affaires",
-      "createFirstMilestone": "Créer la Première étape"
+      "createMilestone": "Créer la Première étape"
     },
     "task": {
       "title": "Rendons-le Réel.",
@@ -696,8 +707,8 @@
       "generationFailedMessage": "Impossible de générer votre vision. Veuillez réessayer.",
       "generationError": "Erreur de Génération",
       "generationErrorMessage": "Une erreur inattendue s'est produite. Veuillez vérifier votre connexion internet et réessayer.",
-      "onboardingError": "Erreur",
-      "onboardingErrorMessage": "échec de l'intégration. Veuillez réessayer.",
+      "error": "Erreur",
+      "onboardingFailed": "échec de l'intégration. Veuillez réessayer.",
       "ok": "OK"
     }
   },

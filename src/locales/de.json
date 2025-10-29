@@ -302,11 +302,11 @@
       "notesSubtitle": "Füge zusätzliche Gedanken, Links oder Schritte hinzu die du dir merken möchtest."
     },
     "emotions": {
-      "confident": "Selbstbewusst",
+      "confident": "Sicher",
       "grateful": "Dankbar", 
       "proud": "Stolz",
       "calm": "Ruhig",
-      "energized": "Energiegeladen",
+      "energized": "Vital",
       "happy": "Glücklich",
       "empowered": "Gestärkt",
       "excited": "Aufgeregt",
@@ -359,11 +359,11 @@
       "notesSubtitle": "Füge zusätzliche Gedanken, Links oder Schritte hinzu die du dir merken möchtest."
     },
     "emotions": {
-      "confident": "Selbstbewusst",
+      "confident": "Sicher",
       "grateful": "Dankbar",
       "proud": "Stolz", 
       "calm": "Ruhig",
-      "energized": "Energiegeladen",
+      "energized": "Vital",
       "happy": "Glücklich",
       "empowered": "Gestärkt",
       "excited": "Aufgeregt",
@@ -620,6 +620,18 @@
     }
   },
   "onboarding": {
+    "language": {
+      "title": "Sprache wählen",
+      "subtitle": "Wähle deine bevorzugte Sprache um zu beginnen.",
+      "languages": {
+        "en": "English",
+        "de": "Deutsch", 
+        "fr": "Français"
+      }
+    },
+    "buttons": {
+      "continue": "Weiter"
+    },
     "welcome": {
       "title": "Vision zu Sieg. Vereinfacht.",
       "subtitle": "Verwandle deine Träume in erreichbare Ziele mit KI-gestützter Planung",
@@ -635,14 +647,13 @@
       "title": "Personalisiere deine Visionen",
       "subtitle": "Um dir Zeit zu sparen kann Spark automatisch ein Subjekt zu deinen Prompts hinzufügen. Was soll dein Standard sein?",
       "options": {
-        "asMan": "Als Mann",
-        "asWoman": "Als Frau",
+        "man": "Als Mann",
+        "woman": "Als Frau",
         "specify": "Ich spezifiziere in jedem Prompt"
-      },
-      "continue": "Weiter"
+      }
     },
     "vision": {
-      "title": "Willkommen{name}. Jede große Reise beginnt mit einem einzigen Bild.",
+      "title": "Willkommen {name}. Jede große Reise beginnt mit einem einzigen Bild.",
       "subtitle": "Was ist der eine Traum den du zum Leben erwecken möchtest? Lass ihn uns visualisieren.",
       "placeholder": "Beschreibe deine Vision...",
       "chooseStyle": "Stil wählen",
@@ -663,7 +674,7 @@
       "emotionTitle": "Und wie wirst du dich fühlen wenn du es erreichst?",
       "emotionSubtitle": "Wähle bis zu 5 Emotionen",
       "emotions": {
-        "confident": "Selbstsicher",
+        "confident": "Sicher",
         "grateful": "Dankbar",
         "proud": "Stolz",
         "calm": "Ruhig",
@@ -679,7 +690,7 @@
       "title": "Eine Vision wird Schritt für Schritt erreicht.",
       "subtitle": "Was ist der allererste Meilenstein auf deiner Reise zu \"{goalTitle}\"?",
       "placeholder": "z.B. Recherchieren und einen Businessplan erstellen",
-      "createFirstMilestone": "Ersten Meilenstein erstellen"
+      "createMilestone": "Ersten Meilenstein erstellen"
     },
     "task": {
       "title": "Lass es uns real machen.",
@@ -696,8 +707,8 @@
       "generationFailedMessage": "Kann deine Vision nicht erstellen. Bitte versuche es erneut.",
       "generationError": "Erstellungsfehler",
       "generationErrorMessage": "Ein unerwarteter Fehler ist aufgetreten. Bitte prüfe deine Internetverbindung und versuche es erneut.",
-      "onboardingError": "Fehler",
-      "onboardingErrorMessage": "Onboarding abschließen fehlgeschlagen. Bitte versuche es erneut.",
+      "error": "Fehler",
+      "onboardingFailed": "Onboarding abschließen fehlgeschlagen. Bitte versuche es erneut.",
       "ok": "OK"
     }
   },
@@ -1184,11 +1195,11 @@
         "title": "Wie fühlst du dich nachdem du dein Ziel erreicht hast?",
         "subtitle": "Wähle bis zu 5 Emotionen",
         "labels": {
-          "confident": "Selbstbewusst",
+          "confident": "Sicher",
           "grateful": "Dankbar",
           "proud": "Stolz",
           "calm": "Ruhig",
-          "energized": "Energiegeladen",
+          "energized": "Vital",
           "happy": "Glücklich",
           "empowered": "Gestärkt",
           "excited": "Aufgeregt",

@@ -504,7 +504,7 @@ export default function OnboardingScreen() {
           disabled={!data.name.trim()}
         >
           <Text style={[typography.button, styles.primaryButtonText]}>
-            Continue
+            {t('onboarding.buttons.continue')}
           </Text>
         </Pressable>
         
@@ -563,7 +563,7 @@ export default function OnboardingScreen() {
           disabled={!data.personalization}
         >
           <Text style={[typography.button, styles.primaryButtonText]}>
-            Continue
+            {t('onboarding.buttons.continue')}
           </Text>
         </Pressable>
         

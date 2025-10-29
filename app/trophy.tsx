@@ -84,7 +84,7 @@ export default function TrophyScreen() {
               styles.toggleButtonText,
               viewMode === 'goals' && styles.toggleButtonTextActive
             ]}>
-              {t('trophy.viewModes.goals')}
+              {t('trophy.toggleButtons.goals')}
             </Text>
           </Pressable>
           <Pressable
@@ -98,7 +98,7 @@ export default function TrophyScreen() {
               styles.toggleButtonText,
               viewMode === 'milestones' && styles.toggleButtonTextActive
             ]}>
-              {t('trophy.viewModes.milestones')}
+              {t('trophy.toggleButtons.milestones')}
             </Text>
           </Pressable>
         </View>
@@ -134,8 +134,8 @@ export default function TrophyScreen() {
             ) : (
               <TrophyCard
                 emptyState={{
-                  title: t('trophy.emptyStates.noGoalsTitle'),
-                  description: t('trophy.emptyStates.noGoalsDescription')
+                  title: t('trophy.emptyState.goals.title'),
+                  description: t('trophy.emptyState.goals.description')
                 }}
               />
             )
@@ -151,9 +151,9 @@ export default function TrophyScreen() {
             ) : (
               <View style={styles.emptyStateCard}>
                 <View style={styles.emptyStateInner}>
-                  <Text style={styles.emptyStateTitle}>{t('trophy.emptyStates.noMilestonesTitle')}</Text>
+                  <Text style={styles.emptyStateTitle}>{t('trophy.emptyState.milestones.title')}</Text>
                   <Text style={styles.emptyStateDescription}>
-                    {t('trophy.emptyStates.noMilestonesDescription')}
+                    {t('trophy.emptyState.milestones.description')}
                   </Text>
                 </View>
               </View>

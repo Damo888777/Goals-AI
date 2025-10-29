@@ -620,6 +620,18 @@
     }
   },
   "onboarding": {
+    "language": {
+      "title": "Choose Your Language",
+      "subtitle": "Select your preferred language to get started.",
+      "languages": {
+        "en": "English",
+        "de": "Deutsch", 
+        "fr": "Français"
+      }
+    },
+    "buttons": {
+      "continue": "Continue"
+    },
     "welcome": {
       "title": "Vision to Victory. Simplified.",
       "subtitle": "Transform your dreams into achievable goals with AI-powered planning",
@@ -635,14 +647,13 @@
       "title": "Personalize Your Visions",
       "subtitle": "To save you time, Spark can automatically add a subject to your prompts. What should be your default?",
       "options": {
-        "asMan": "As a man",
-        "asWoman": "As a woman",
+        "man": "As a man",
+        "woman": "As a woman",
         "specify": "I'll specify in each prompt"
-      },
-      "continue": "Continue"
+      }
     },
     "vision": {
-      "title": "Welcome{name}. Every great journey starts with a single image.",
+      "title": "Welcome {name}. Every great journey starts with a single image.",
       "subtitle": "What's the one dream you want to bring to life? Let's visualize it.",
       "placeholder": "Describe your vision...",
       "chooseStyle": "Choose your style",
@@ -679,7 +690,7 @@
       "title": "A vision is reached one step at a time.",
       "subtitle": "What is the very first milestone on your journey to \"{goalTitle}\"?",
       "placeholder": "e.g., Research and create a business plan",
-      "createFirstMilestone": "Create First Milestone"
+      "createMilestone": "Create First Milestone"
     },
     "task": {
       "title": "Let's Make It Real.",
@@ -696,8 +707,8 @@
       "generationFailedMessage": "Unable to generate your vision. Please try again.",
       "generationError": "Generation Error",
       "generationErrorMessage": "An unexpected error occurred. Please check your internet connection and try again.",
-      "onboardingError": "Error",
-      "onboardingErrorMessage": "Failed to complete onboarding. Please try again.",
+      "error": "Error",
+      "onboardingFailed": "Failed to complete onboarding. Please try again.",
       "ok": "OK"
     }
   },

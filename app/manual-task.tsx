@@ -34,10 +34,10 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
       <View style={styles.eatFrogContent}>
         <View style={styles.eatFrogTextContainer}>
           <Text style={styles.eatFrogTitle}>
-            {t('manualTask.eatTheFrog.title')}
+            {t('manualTask.sections.eatTheFrog')}
           </Text>
           <Text style={styles.eatFrogDescription}>
-            {t('manualTask.eatTheFrog.description')}
+            {t('manualTask.sections.eatTheFrogDescription')}
           </Text>
         </View>
         <TouchableOpacity
@@ -134,7 +134,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('manualTask.datePicker.selectDate')}</Text>
+              <Text style={styles.modalTitle}>{t('manualTask.datePicker.modalTitle')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -213,7 +213,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const getDisplayText = () => {
     if (selectedGoal) return selectedGoal.title;
     if (selectedMilestone) return selectedMilestone.title;
-    return t('manualTask.goalMilestoneSelection.selectYourGoal');
+    return t('manualTask.goalMilestoneSelection.selectGoalMilestone');
   };
 
   return (
@@ -245,7 +245,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
-            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.goal')}</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.goalSection')}</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -273,7 +273,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             )}
             
             {/* Milestones Section */}
-            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.milestones')}</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.milestonesSection')}</Text>
             {milestones.length > 0 ? (
               milestones.map((milestone) => (
                 <TouchableOpacity
@@ -330,7 +330,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {t('manualTask.sections.notesAndDetails')}
+        {t('manualTask.sections.notesDetails')}
       </Text>
       <Text style={styles.sectionSubtitle}>
         {t('manualTask.sections.notesSubtitle')}
@@ -338,7 +338,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({ notes, onNotesChange }) => 
       <TextInput
         value={notes}
         onChangeText={onNotesChange}
-        placeholder={t('manualTask.placeholders.notesPlaceholder')}
+        placeholder={t('manualTask.placeholders.notesDetails')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         style={[styles.textInput, styles.textInputMultiline]}
         multiline
@@ -373,7 +373,7 @@ export default function ManualTaskScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.enterTitle'));
+      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.pleaseEnterTitle'));
       return;
     }
 
@@ -395,7 +395,7 @@ export default function ManualTaskScreen() {
         });
       } else if (selectedType === 'milestone') {
         if (!selectedGoalId) {
-          Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.selectGoalFirst'));
+          Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.pleaseSelectGoalFirst'));
           setIsLoading(false);
           return;
         }
@@ -411,12 +411,12 @@ export default function ManualTaskScreen() {
       // Show success confirmation
       Alert.alert(
         t('manualTask.alerts.success'),
-        t('manualTask.alerts.taskCreatedSuccess'),
+        t('manualTask.alerts.taskCreatedSuccessfully'),
         [{ text: t('manualTask.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.createTaskFailed'));
+      Alert.alert(t('manualTask.alerts.error'), t('manualTask.alerts.failedToCreateTask'));
     }
   };
 
@@ -462,7 +462,7 @@ export default function ManualTaskScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder={t('manualTask.placeholders.taskTitlePlaceholder')}
+            placeholder={t('manualTask.placeholders.taskTitle')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
