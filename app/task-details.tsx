@@ -73,10 +73,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {t('taskDetails.dueDate.title')}
+        {t('taskDetails.sections.dueDate')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        {t('taskDetails.dueDate.subtitle')}
+        {t('taskDetails.sections.dueDateSubtitle')}
       </Text>
       <TouchableOpacity 
         style={styles.datePickerContainer}
@@ -84,7 +84,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : t('taskDetails.dueDate.selectDate')}
+            {selectedDate ? formatDate(selectedDate) : t('taskDetails.datePicker.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -99,7 +99,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('taskDetails.dueDate.selectDateModal')}</Text>
+              <Text style={styles.modalTitle}>{t('taskDetails.datePicker.modalTitle')}</Text>
             </View>
             
             <View style={styles.datePickerWrapper}>
@@ -117,14 +117,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 style={styles.modalCancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.modalCancelText}>{t('taskDetails.buttons.cancel')}</Text>
+                <Text style={styles.modalCancelText}>{t('taskDetails.datePicker.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.modalConfirmButton}
                 onPress={handleConfirm}
               >
-                <Text style={styles.modalConfirmText}>{t('taskDetails.buttons.confirm')}</Text>
+                <Text style={styles.modalConfirmText}>{t('taskDetails.datePicker.confirm')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -200,7 +200,7 @@ export default function TaskDetailsScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.enterTitle'));
+      Alert.alert(t('taskDetails.alerts.error'), t('taskDetails.alerts.pleaseEnterTitle'));
       return;
     }
 
@@ -237,12 +237,12 @@ export default function TaskDetailsScreen() {
     }
 
     Alert.alert(
-      t('taskDetails.alerts.deleteTask'),
-      t('taskDetails.alerts.deleteTaskConfirmation'),
+      t('taskDetails.alerts.deleteTaskTitle'),
+      t('taskDetails.alerts.deleteTaskMessage'),
       [
-        { text: t('taskDetails.buttons.cancel'), style: 'cancel' },
+        { text: t('taskDetails.alerts.cancel'), style: 'cancel' },
         {
-          text: t('taskDetails.buttons.delete'),
+          text: t('taskDetails.alerts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -295,14 +295,14 @@ export default function TaskDetailsScreen() {
 
         {/* Task Title Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('taskDetails.taskTitle.title')}</Text>
+          <Text style={styles.sectionTitle}>{t('taskDetails.sections.taskTitle')}</Text>
           <Text style={styles.sectionSubtitle}>
-            {t('taskDetails.taskTitle.subtitle')}
+            {t('taskDetails.sections.taskTitleSubtitle')}
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder={t('taskDetails.taskTitle.placeholder')}
+            placeholder={t('taskDetails.placeholders.taskTitle')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -310,9 +310,9 @@ export default function TaskDetailsScreen() {
 
         {/* Eat the Frog Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('taskDetails.eatTheFrog.title')}</Text>
+          <Text style={styles.sectionTitle}>{t('taskDetails.sections.eatTheFrog')}</Text>
           <Text style={styles.sectionSubtitle}>
-            {t('taskDetails.eatTheFrog.subtitle')}
+            {t('taskDetails.sections.eatTheFrogSubtitle')}
           </Text>
           <EatTheFrogSection 
             isSelected={isFrog} 
@@ -322,16 +322,16 @@ export default function TaskDetailsScreen() {
                 const existingFrogTask = tasks.find(t => t.isFrog && !t.isComplete && t.id !== task?.id);
                 if (existingFrogTask) {
                   Alert.alert(
-                    t('taskDetails.eatTheFrog.replaceFrogTask'),
-                    t('taskDetails.eatTheFrog.replaceFrogTaskMessage', { taskTitle: existingFrogTask.title }),
+                    t('taskDetails.alerts.replaceFrogTaskTitle'),
+                    t('taskDetails.alerts.replaceFrogTaskMessage', { title: existingFrogTask.title }),
                     [
                       {
-                        text: t('taskDetails.buttons.cancel'),
+                        text: t('taskDetails.alerts.cancel'),
                         style: 'cancel',
                         onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                       },
                       {
-                        text: t('taskDetails.eatTheFrog.replace'),
+                        text: t('taskDetails.alerts.replace'),
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                           setIsFrog(true);
@@ -379,15 +379,15 @@ export default function TaskDetailsScreen() {
         {/* Notes Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            {t('taskDetails.notes.title')}
+            {t('taskDetails.sections.notesDetails')}
           </Text>
           <Text style={styles.sectionSubtitle}>
-            {t('taskDetails.notes.subtitle')}
+            {t('taskDetails.sections.notesSubtitle')}
           </Text>
           <TextInput
             value={notes}
             onChangeText={setNotes}
-            placeholder={t('taskDetails.notes.placeholder')}
+            placeholder={t('taskDetails.placeholders.notesDetails')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={[styles.textInput, styles.textInputMultiline]}
             multiline
@@ -1011,10 +1011,10 @@ const EatTheFrogSection: React.FC<{ isSelected: boolean; onToggle: () => void }>
       <View style={styles.eatFrogContent}>
         <View style={styles.eatFrogTextContainer}>
           <Text style={styles.eatFrogTitle}>
-            {t('taskDetails.eatTheFrogComponent.title')}
+            {t('taskDetails.sections.eatTheFrog')}
           </Text>
           <Text style={styles.eatFrogDescription}>
-            {t('taskDetails.eatTheFrogComponent.description')}
+            {t('taskDetails.sections.eatTheFrogDescription')}
           </Text>
         </View>
         <TouchableOpacity
@@ -1081,16 +1081,16 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const getDisplayText = () => {
     if (selectedGoal) return selectedGoal.title;
     if (selectedMilestone) return selectedMilestone.title;
-    return t('taskDetails.goalMilestone.placeholder');
+    return t('taskDetails.goalMilestoneSelection.selectGoalMilestone');
   };
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
-        {t('taskDetails.goalMilestone.title')}
+        {t('taskDetails.sections.goalMilestone')}
       </Text>
       <Text style={styles.sectionSubtitle}>
-        {t('taskDetails.goalMilestone.subtitle')}
+        {t('taskDetails.sections.goalMilestoneSubtitle')}
       </Text>
       
       {/* Dropdown Container */}
@@ -1113,7 +1113,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
-            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestone.goal')}</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestoneSelection.goalSection')}</Text>
             {goals.length > 0 ? (
               goals.map((goal) => (
                 <GoalCard
@@ -1141,7 +1141,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             )}
             
             {/* Milestones Section */}
-            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestone.milestones')}</Text>
+            <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestoneSelection.milestonesSection')}</Text>
             {milestones.length > 0 ? (
               milestones.map((milestone) => (
                 <TouchableOpacity

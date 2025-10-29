@@ -30,10 +30,11 @@ interface PomodoroSession {
   label: string;
 }
 
-const POMODORO_SESSIONS: Record<SessionType, PomodoroSession> = {
-  work: { type: 'work', duration: 25 * 60, label: 'Focus Time' },
-  shortBreak: { type: 'shortBreak', duration: 5 * 60, label: 'Short Break' },
-  longBreak: { type: 'longBreak', duration: 30 * 60, label: 'Long Break' }
+// Session configurations - labels will be translated dynamically
+const POMODORO_SESSIONS: Record<SessionType, Omit<PomodoroSession, 'label'> & { labelKey: string }> = {
+  work: { type: 'work', duration: 25 * 60, labelKey: 'pomodoro.sessions.work' },
+  shortBreak: { type: 'shortBreak', duration: 5 * 60, labelKey: 'pomodoro.sessions.shortBreak' },
+  longBreak: { type: 'longBreak', duration: 30 * 60, labelKey: 'pomodoro.sessions.longBreak' }
 };
 
 export default function PomodoroScreen() {
@@ -48,7 +49,7 @@ export default function PomodoroScreen() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentSession, setCurrentSession] = useState<SessionType>('work');
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
-  const [currentTask, setCurrentTask] = useState(taskTitle || t('pomodoro.placeholders.taskTitle'));
+  const [currentTask, setCurrentTask] = useState(taskTitle || t('pomodoro.taskPlaceholder'));
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
   const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
   const [hasShownBackgroundAlert, setHasShownBackgroundAlert] = useState(false);
@@ -218,9 +219,10 @@ export default function PomodoroScreen() {
       setTimeLeft(POMODORO_SESSIONS[nextSession].duration);
       
       Alert.alert(
-        t('pomodoro.alerts.pomodoroComplete'),
+        t('pomodoro.alerts.pomodoroCompleteTitle'),
         t('pomodoro.alerts.pomodoroCompleteMessage', {
           count: newCompletedPomodoros,
+          plural: newCompletedPomodoros === 1 ? t('pomodoro.plurals.single') : t('pomodoro.plurals.multiple'),
           breakType: nextSession === 'longBreak' ? t('pomodoro.breakTypes.long') : t('pomodoro.breakTypes.short')
         }),
         [{ text: t('pomodoro.alerts.startBreak'), onPress: () => toggleTimer() }]
@@ -233,7 +235,7 @@ export default function PomodoroScreen() {
       setTimeLeft(POMODORO_SESSIONS.work.duration);
       
       Alert.alert(
-        t('pomodoro.alerts.breakComplete'),
+        t('pomodoro.alerts.breakCompleteTitle'),
         t('pomodoro.alerts.breakCompleteMessage'),
         [{ text: t('pomodoro.alerts.startFocus'), onPress: () => toggleTimer() }]
       );
@@ -264,8 +266,8 @@ export default function PomodoroScreen() {
         if (!areEnabled) {
           console.warn('❌ [React Native] Live Activities are not enabled');
           Alert.alert(
-            t('pomodoro.alerts.liveActivitiesDisabled'),
-            t('pomodoro.alerts.enableLiveActivities'),
+            t('pomodoro.alerts.liveActivitiesDisabledTitle'),
+            t('pomodoro.alerts.liveActivitiesDisabledMessage'),
             [{ text: t('pomodoro.alerts.ok') }]
           );
           return; // Don't try to start if disabled
@@ -312,8 +314,8 @@ export default function PomodoroScreen() {
         } catch (error) {
           console.error('❌ [React Native] Failed to start Live Activity:', error);
           Alert.alert(
-            t('pomodoro.alerts.liveActivityError'),
-            t('pomodoro.alerts.failedToStartLiveActivity', { error }),
+            t('pomodoro.alerts.liveActivityErrorTitle'),
+            t('pomodoro.alerts.liveActivityErrorMessage', { error }),
             [{ text: t('pomodoro.alerts.ok') }]
           );
         }
@@ -324,12 +326,12 @@ export default function PomodoroScreen() {
         // Schedule local notification for timer completion
         const sessionInfo = POMODORO_SESSIONS[currentSession];
         const notificationMessage = currentSession === 'work' 
-          ? t('pomodoro.notifications.workComplete')
-          : t('pomodoro.notifications.breakComplete');
+          ? t('pomodoro.notifications.workCompleteMessage')
+          : t('pomodoro.notifications.breakCompleteMessage');
 
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: t('pomodoro.notifications.title'),
+            title: t('pomodoro.notifications.timerTitle'),
             body: notificationMessage,
             sound: 'default',
             priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -388,8 +390,8 @@ export default function PomodoroScreen() {
 
   const skipSession = () => {
     Alert.alert(
-      t('pomodoro.alerts.skipSession'),
-      t('pomodoro.alerts.skipSessionConfirmation'),
+      t('pomodoro.alerts.skipSessionTitle'),
+      t('pomodoro.alerts.skipSessionMessage'),
       [
         { text: t('pomodoro.alerts.cancel'), style: 'cancel' },
         { text: t('pomodoro.alerts.skip'), onPress: () => handleSessionComplete(false) } // false = manual completion

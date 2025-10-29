@@ -446,9 +446,9 @@ export default function MilestoneDetailsScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
+    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${month}.${day}.${year}`;

@@ -762,13 +762,17 @@
       "title": "Pomodoro",
       "description": "You're getting one step closer towards your goals."
     },
-    "session": {
-      "timeToFocus": "Time to Focus",
-      "yourTask": "Your Task: ",
-      "sessionProgress": "Session Progress",
-      "focusTime": "Focus Time",
+    "sessions": {
+      "work": "Focus Time",
       "shortBreak": "Short Break",
       "longBreak": "Long Break"
+    },
+    "sections": {
+      "timeToFocus": "Time to Focus"
+    },
+    "labels": {
+      "yourTask": "Your Task",
+      "sessionProgress": "Session Progress"
     },
     "taskPlaceholder": "[Placeholder of Task Title]",
     "buttons": {

@@ -351,7 +351,10 @@ export default function SparkAIScreen() {
 
         {/* Instruction Text */}
         <Text style={styles.instructionText}>
-          {recordingState === 'recording' ? t('sparkAI.recordingStates.recording', { minutes: Math.floor(duration / 60), seconds: (duration % 60).toString().padStart(2, '0') }) :
+          {recordingState === 'recording' ? t('sparkAI.recordingStates.recording', { 
+            minutes: Math.floor(duration / 60).toString().padStart(2, '0'), 
+            seconds: (duration % 60).toString().padStart(2, '0') 
+          }) :
            recordingState === 'processing' ? t('sparkAI.recordingStates.processing') :
            recordingState === 'completed' ? t('sparkAI.recordingStates.completed') :
            recordingState === 'error' ? (error === 'no_text_recognized' ? t('sparkAI.recordingStates.noTextRecognized') : t('sparkAI.recordingStates.errorOccurred')) :
