@@ -80,7 +80,7 @@ export function OverdueTasksModal({
     const selectedIds = getSelectedTaskIds();
     
     if (selectedIds.length === 0) {
-      Alert.alert(t('overdueTasksModal.alerts.noTasksSelected'), t('overdueTasksModal.alerts.noTasksSelectedMessage'));
+      Alert.alert(t('components.overdueTasksModal.alerts.noTasksSelected'), t('components.overdueTasksModal.alerts.noTasksSelectedMessage'));
       return;
     }
 
@@ -90,12 +90,12 @@ export function OverdueTasksModal({
       setShowDatePicker(true);
     } else if (type === 'complete') {
       Alert.alert(
-        t('overdueTasksModal.alerts.markComplete'),
-        t('overdueTasksModal.alerts.markCompleteMessage', { count: selectedIds.length }),
+        t('components.overdueTasksModal.alerts.markComplete'),
+        t('components.overdueTasksModal.alerts.markCompleteMessage', { count: selectedIds.length }),
         [
-          { text: t('overdueTasksModal.alerts.cancel'), style: 'cancel' },
+          { text: t('components.overdueTasksModal.alerts.cancel'), style: 'cancel' },
           {
-            text: t('overdueTasksModal.alerts.complete'),
+            text: t('components.overdueTasksModal.alerts.complete'),
             onPress: async () => {
               await onComplete(selectedIds);
               // Remove completed tasks from selection
@@ -106,12 +106,12 @@ export function OverdueTasksModal({
       );
     } else if (type === 'delete') {
       Alert.alert(
-        t('overdueTasksModal.alerts.deleteTasks'),
-        t('overdueTasksModal.alerts.deleteTasksMessage', { count: selectedIds.length }),
+        t('components.overdueTasksModal.alerts.deleteTasks'),
+        t('components.overdueTasksModal.alerts.deleteTasksMessage', { count: selectedIds.length }),
         [
-          { text: t('overdueTasksModal.alerts.cancel'), style: 'cancel' },
+          { text: t('components.overdueTasksModal.alerts.cancel'), style: 'cancel' },
           {
-            text: t('overdueTasksModal.alerts.delete'),
+            text: t('components.overdueTasksModal.alerts.delete'),
             style: 'destructive',
             onPress: async () => {
               await onDelete(selectedIds);
@@ -141,7 +141,7 @@ export function OverdueTasksModal({
     const selectedIds = getSelectedTaskIds();
     
     if (selectedIds.length === 0) {
-      Alert.alert(t('overdueTasksModal.alerts.noTasksSelected'), t('overdueTasksModal.alerts.noTasksSelectedReschedule'));
+      Alert.alert(t('components.overdueTasksModal.alerts.noTasksSelected'), t('components.overdueTasksModal.alerts.noTasksSelectedReschedule'));
       return;
     }
 
@@ -153,9 +153,9 @@ export function OverdueTasksModal({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
+    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                       'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${month}.${day}.${year}`;
@@ -167,13 +167,13 @@ export function OverdueTasksModal({
     
     if (milestoneId) {
       const milestone = milestones.find(m => m.id === milestoneId);
-      return milestone?.title || t('overdueTasksModal.taskDefaults.milestone');
+      return milestone?.title || t('components.overdueTasksModal.taskDefaults.milestone');
     }
     if (goalId) {
       const goal = goals.find(g => g.id === goalId);
-      return goal?.title || t('overdueTasksModal.taskDefaults.goal');
+      return goal?.title || t('components.overdueTasksModal.taskDefaults.goal');
     }
-    return t('overdueTasksModal.taskDefaults.noProjectLinked');
+    return t('components.overdueTasksModal.taskDefaults.noProjectLinked');
   };
 
   // Auto-close modal when no tasks remain
@@ -196,9 +196,9 @@ export function OverdueTasksModal({
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t('overdueTasksModal.title')}</Text>
+            <Text style={styles.modalTitle}>{t('components.overdueTasksModal.title')}</Text>
             <Text style={styles.modalSubtitle}>
-              {t('overdueTasksModal.subtitle', { count: selectableTasks.length })}
+              {t('components.overdueTasksModal.subtitle', { count: selectableTasks.length })}
             </Text>
           </View>
 
@@ -235,7 +235,7 @@ export function OverdueTasksModal({
                     {/* Task Content */}
                     <View style={styles.taskInfo}>
                       <Text style={styles.taskTitle} numberOfLines={3}>
-                        {task._raw?.title || task.title || t('overdueTasksModal.taskDefaults.noTitle')}
+                        {task._raw?.title || task.title || t('components.overdueTasksModal.taskDefaults.noTitle')}
                       </Text>
                     
                     <View style={styles.taskMeta}>
@@ -248,7 +248,7 @@ export function OverdueTasksModal({
                       <View style={styles.metaRow}>
                         <Ionicons name="calendar-outline" size={12} color="#BC4B51" />
                         <Text style={[styles.metaText, styles.overdueText]}>
-                          {t('overdueTasksModal.taskDefaults.due')} {formatDate(task._raw?.scheduled_date || task.scheduledDate || new Date().toISOString())}
+                          {t('components.overdueTasksModal.taskDefaults.due')} {formatDate(task._raw?.scheduled_date || task.scheduledDate || new Date().toISOString())}
                         </Text>
                       </View>
                     </View>
@@ -276,7 +276,7 @@ export function OverdueTasksModal({
               style={[styles.actionButton, styles.rescheduleButton]}
               onPress={handleRescheduleToday}
             >
-              <Text style={styles.actionButtonText}>{t('overdueTasksModal.buttons.rescheduleToToday')}</Text>
+              <Text style={styles.actionButtonText}>{t('components.overdueTasksModal.buttons.rescheduleToToday')}</Text>
             </TouchableOpacity>
 
             <View style={styles.actionButtonRow}>
@@ -308,7 +308,7 @@ export function OverdueTasksModal({
             style={styles.closeButton}
             onPress={onClose}
           >
-            <Text style={styles.closeButtonText}>{t('overdueTasksModal.buttons.close')}</Text>
+            <Text style={styles.closeButtonText}>{t('components.overdueTasksModal.buttons.close')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -322,7 +322,7 @@ export function OverdueTasksModal({
           <View style={styles.modalOverlay}>
             <View style={styles.dateModalContainer}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{t('overdueTasksModal.datePicker.title')}</Text>
+                <Text style={styles.modalTitle}>{t('components.overdueTasksModal.datePicker.title')}</Text>
               </View>
               
               <View style={styles.datePickerWrapper}>
@@ -342,14 +342,14 @@ export function OverdueTasksModal({
                   style={styles.modalCancelButton}
                   onPress={() => setShowDatePicker(false)}
                 >
-                  <Text style={styles.modalCancelText}>{t('overdueTasksModal.datePicker.cancel')}</Text>
+                  <Text style={styles.modalCancelText}>{t('components.overdueTasksModal.datePicker.cancel')}</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
                   style={styles.modalConfirmButton}
                   onPress={handleDateConfirm}
                 >
-                  <Text style={styles.modalConfirmText}>{t('overdueTasksModal.datePicker.confirm')}</Text>
+                  <Text style={styles.modalConfirmText}>{t('components.overdueTasksModal.datePicker.confirm')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

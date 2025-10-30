@@ -191,7 +191,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
   const isCompleted = variant === 'completed';
   const isFrog = task?.isFrog || variant === 'active-frog';
   const hasDate = variant === 'active-with-date' || task?.scheduledDate;
-  const showSparkBadge = creationSource === 'spark';
+  const showSparkBadge = false; // Disabled Spark badge display
 
   return (
     <View style={styles.container}>

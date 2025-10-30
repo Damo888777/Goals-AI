@@ -479,16 +479,16 @@ export default function ManualTaskScreen() {
                   const existingFrogTask = await checkExistingFrogTask();
                   if (existingFrogTask) {
                     Alert.alert(
-                      t('manualTask.eatTheFrog.replaceTitle'),
-                      t('manualTask.eatTheFrog.replaceMessage', { taskTitle: existingFrogTask.title }),
+                      t('manualTask.alerts.replaceFrogTaskTitle'),
+                      t('manualTask.alerts.replaceFrogTaskMessage', { title: existingFrogTask.title }),
                       [
                         {
-                          text: t('manualTask.eatTheFrog.cancel'),
+                          text: t('manualTask.alerts.replaceFrogCancel'),
                           style: 'cancel',
                           onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                         },
                         {
-                          text: t('manualTask.eatTheFrog.replace'),
+                          text: t('manualTask.alerts.replaceFrogConfirm'),
                           onPress: () => {
                             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             setIsEatTheFrog(true);

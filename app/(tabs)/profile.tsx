@@ -823,7 +823,7 @@ Best regards`;
                   <View style={styles.iconOnly}>
                     <Ionicons name="language" size={20} color={colors.text.primary} />
                   </View>
-                  <Text style={[typography.cardTitle, styles.settingLabel]}>Language</Text>
+                  <Text style={[typography.cardTitle, styles.settingLabel]}>{t('profile.settings.language')}</Text>
                 </View>
                 <Ionicons 
                   name={showLanguageDropdown ? "chevron-up" : "chevron-down"} 

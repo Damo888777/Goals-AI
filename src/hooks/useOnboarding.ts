@@ -14,15 +14,22 @@ export const useOnboarding = () => {
 
   const loadOnboardingState = async () => {
     try {
-      const [completed, data, showTutorial] = await Promise.all([
+      const [completed, data, showTutorial, incompleteSession] = await Promise.all([
         onboardingService.isOnboardingCompleted(),
         onboardingService.getOnboardingData(),
         onboardingService.shouldShowSparkTutorial(),
+        onboardingService.loadIncompleteSession(),
       ]);
 
       setIsOnboardingCompleted(completed);
       setOnboardingData(data);
       setShouldShowSparkTutorial(showTutorial && completed);
+      
+      // If there's an incomplete session, set it as current
+      if (incompleteSession && !completed) {
+        setCurrentSession(incompleteSession);
+        console.log('🔄 Restored incomplete onboarding session from database');
+      }
     } catch (error) {
       console.error('Error loading onboarding state:', error);
       setIsOnboardingCompleted(false);
@@ -135,6 +142,19 @@ export const useOnboarding = () => {
     }
   };
 
+  const loadIncompleteSession = async () => {
+    try {
+      const session = await onboardingService.loadIncompleteSession();
+      if (session) {
+        setCurrentSession(session);
+      }
+      return session;
+    } catch (error) {
+      console.error('Error loading incomplete session:', error);
+      return null;
+    }
+  };
+
   return {
     isOnboardingCompleted,
     onboardingData,
@@ -152,5 +172,6 @@ export const useOnboarding = () => {
     getPersonalizationPreference,
     updateUserPreferences,
     refreshOnboardingState: loadOnboardingState,
+    loadIncompleteSession,
   };
 };

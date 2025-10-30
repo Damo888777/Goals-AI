@@ -506,47 +506,23 @@ export default function VisionBoardScreen() {
                 borderRadius: 10,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
                 height: 44,
                 flex: 1,
               }}
             >
-            <View
-              style={{
-                width: 16,
-                height: 16,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <View
-                style={{
-                  position: 'absolute',
-                  width: 12,
-                  height: 3,
-                  backgroundColor: '#F5EBE0',
-                  borderRadius: 1.5,
-                }}
-              />
-              <View
-                style={{
-                  position: 'absolute',
-                  width: 3,
-                  height: 12,
-                  backgroundColor: '#F5EBE0',
-                  borderRadius: 1.5,
-                }}
-              />
-            </View>
             <Text
               style={{
                 fontSize: 15,
                 fontWeight: 'bold',
                 color: '#F5EBE0',
+                textAlign: 'center',
+                flex: 1,
               }}
+              numberOfLines={1}
+              adjustsFontSizeToFit={true}
+              minimumFontScale={0.8}
             >
               {t('visionBoard.buttons.uploadVision')}
             </Text>

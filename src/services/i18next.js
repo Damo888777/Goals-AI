@@ -53,7 +53,9 @@ i18next
     resources: languageResources,
     interpolation: {
       escapeValue: false,
+      skipOnVariables: false,
     },
+    debug: true,
     react: {
       useSuspense: false,
     },

@@ -118,7 +118,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
         <View style={[styles.visionButton, visionImageUrl ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={{ uri: visionImageUrl || images.visionPlaceholder }}
+              source={visionImageUrl ? { uri: visionImageUrl } : images.icons.createVision}
               style={styles.visionImage}
               contentFit="cover"
             />

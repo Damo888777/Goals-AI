@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useSubscription } from '../src/hooks/useSubscription';
 import { SubscriptionCard } from '../src/components/SubscriptionCard';
 
 export default function OnboardingPaywallScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedPlan, setSelectedPlan] = useState<string | null>('tier_achiever');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
@@ -40,9 +42,9 @@ export default function OnboardingPaywallScreen() {
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
         Alert.alert(
-          'Welcome to Goals AI!',
-          'Your subscription has been activated. Let\'s start building your vision!',
-          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
+          t('onboardingPaywall.alerts.welcomeTitle'),
+          t('onboardingPaywall.alerts.welcomeMessage'),
+          [{ text: t('onboardingPaywall.alerts.continue'), onPress: () => router.replace('/(tabs)') }]
         );
       } else {
         // Handle different types of purchase errors
@@ -54,19 +56,19 @@ export default function OnboardingPaywallScreen() {
             return;
           } else if (errorMessage.includes('declined') || errorMessage.includes('payment declined')) {
             Alert.alert(
-              t('onboardingPaywall.alerts.paymentDeclined'),
+              t('onboardingPaywall.alerts.paymentDeclinedTitle'),
               t('onboardingPaywall.alerts.paymentDeclinedMessage'),
               [{ text: t('onboardingPaywall.alerts.ok') }]
             );
           } else if (errorMessage.includes('interrupted') || errorMessage.includes('network')) {
             Alert.alert(
-              t('onboardingPaywall.alerts.connectionIssue'),
+              t('onboardingPaywall.alerts.connectionIssueTitle'),
               t('onboardingPaywall.alerts.connectionIssueMessage'),
               [{ text: t('onboardingPaywall.alerts.retry'), onPress: () => handlePurchase() }, { text: t('onboardingPaywall.alerts.cancel') }]
             );
           } else if (errorMessage.includes('already purchased') || errorMessage.includes('already subscribed')) {
             Alert.alert(
-              t('onboardingPaywall.alerts.alreadySubscribed'),
+              t('onboardingPaywall.alerts.alreadySubscribedTitle'),
               t('onboardingPaywall.alerts.alreadySubscribedMessage'),
               [
                 { text: t('onboardingPaywall.alerts.restorePurchases'), onPress: () => handleRestore() },
@@ -75,21 +77,21 @@ export default function OnboardingPaywallScreen() {
             );
           } else {
             Alert.alert(
-              t('onboardingPaywall.alerts.purchaseFailed'),
+              t('onboardingPaywall.alerts.purchaseFailedTitle'),
               t('onboardingPaywall.alerts.purchaseFailedMessage', { error: result.error }),
               [{ text: t('onboardingPaywall.alerts.ok') }]
             );
           }
         } else {
           Alert.alert(
-            t('onboardingPaywall.alerts.purchaseFailed'),
-            t('onboardingPaywall.alerts.unexpectedError'),
+            t('onboardingPaywall.alerts.purchaseFailedTitle'),
+            t('onboardingPaywall.alerts.purchaseFailedGeneric'),
             [{ text: t('onboardingPaywall.alerts.ok') }]
           );
         }
       }
     } catch (error) {
-      Alert.alert(t('onboardingPaywall.alerts.purchaseFailed'), t('onboardingPaywall.alerts.somethingWentWrong'));
+      Alert.alert(t('onboardingPaywall.alerts.purchaseFailedTitle'), t('onboardingPaywall.alerts.purchaseFailedSimple'));
     } finally {
       setIsLoading(false);
     }
@@ -101,15 +103,15 @@ export default function OnboardingPaywallScreen() {
       const result = await restorePurchases();
       if (result.success) {
         Alert.alert(
-          t('onboardingPaywall.alerts.purchasesRestored'),
+          t('onboardingPaywall.alerts.purchasesRestoredTitle'),
           t('onboardingPaywall.alerts.purchasesRestoredMessage'),
           [{ text: t('onboardingPaywall.alerts.continue'), onPress: () => router.replace('/(tabs)') }]
         );
       } else {
-        Alert.alert(t('onboardingPaywall.alerts.restoreFailed'), result.error || t('onboardingPaywall.alerts.noPurchasesFound'));
+        Alert.alert(t('onboardingPaywall.alerts.restoreFailedTitle'), result.error || t('onboardingPaywall.alerts.restoreFailedMessage'));
       }
     } catch (error) {
-      Alert.alert(t('onboardingPaywall.alerts.restoreFailed'), t('onboardingPaywall.alerts.somethingWentWrong'));
+      Alert.alert(t('onboardingPaywall.alerts.restoreFailedTitle'), t('onboardingPaywall.alerts.restoreFailedGeneric'));
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +133,7 @@ export default function OnboardingPaywallScreen() {
           fontFamily: 'Helvetica',
           fontWeight: '300',
         }}>
-          {t('onboardingPaywall.loading.subscriptionOptions')}
+          {t('onboardingPaywall.loading.loadingSubscriptionOptions')}
         </Text>
       </View>
     );
@@ -262,7 +264,7 @@ export default function OnboardingPaywallScreen() {
                 fontFamily: 'Helvetica',
                 fontWeight: '600',
               }}>
-                {t('onboardingPaywall.noPlans.message')}
+                {t('onboardingPaywall.subscriptionPlans.noPlansAvailable')}
               </Text>
             </View>
           ) : (
@@ -303,7 +305,7 @@ export default function OnboardingPaywallScreen() {
               color: selectedPlan ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
-              {isLoading ? t('onboardingPaywall.buttons.processing') : t('onboardingPaywall.buttons.startTrial')}
+              {isLoading ? t('onboardingPaywall.buttons.processing') : t('onboardingPaywall.buttons.startFreeTrial')}
             </Text>
           </Pressable>
 
@@ -319,7 +321,7 @@ export default function OnboardingPaywallScreen() {
             marginTop: 12,
             paddingHorizontal: 16,
           }}>
-            {t('onboardingPaywall.disclaimer.autoRenew')}
+            {t('onboardingPaywall.disclaimers.autoRenew')}
           </Text>
 
           <Pressable
@@ -358,10 +360,10 @@ export default function OnboardingPaywallScreen() {
             fontFamily: 'Helvetica',
             fontWeight: '300',
           }}>
-            {t('onboardingPaywall.legal.byContinuing')}{'\n'}
-            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.legal.termsOfService')}</Text>
-            {t('onboardingPaywall.legal.and')}
-            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.legal.privacyPolicy')}</Text>
+            {t('onboardingPaywall.disclaimers.termsAndPrivacy')}{'\n'}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.disclaimers.termsOfService')}</Text>
+            {t('onboardingPaywall.disclaimers.and')}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.disclaimers.privacyPolicy')}</Text>
           </Text>
         </View>
       </ScrollView>

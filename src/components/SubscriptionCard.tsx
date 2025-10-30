@@ -20,27 +20,27 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
     switch (tier.id) {
       case 'tier_starter':
         return [
-          { bold: '3', light: t('subscriptionCard.benefits.activeGoals'), icon: 'flag' },
-          { bold: '40', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
-          { bold: '10', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
-          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
-          { bold: t('subscriptionCard.benefits.locked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
+          { bold: '3', light: t('components.subscriptionCard.benefits.activeGoals'), icon: 'flag' },
+          { bold: '40', light: t('components.subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '10', light: t('components.subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('components.subscriptionCard.benefits.unlimited'), light: t('components.subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('components.subscriptionCard.benefits.unlocked'), light: t('components.subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       case 'tier_achiever':
         return [
-          { bold: '10', light: t('subscriptionCard.benefits.activeGoals'), icon: 'flag' },
-          { bold: '150', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
-          { bold: '20', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
-          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
-          { bold: t('subscriptionCard.benefits.unlocked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
+          { bold: '10', light: t('components.subscriptionCard.benefits.activeGoals'), icon: 'flag' },
+          { bold: '150', light: t('components.subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '20', light: t('components.subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('components.subscriptionCard.benefits.unlimited'), light: t('components.subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('components.subscriptionCard.benefits.unlocked'), light: t('components.subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       case 'tier_visionary':
         return [
-          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.activeGoals'), icon: 'infinite' },
-          { bold: '500', light: t('subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
-          { bold: '60', light: t('subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
-          { bold: t('subscriptionCard.benefits.unlimited'), light: t('subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
-          { bold: t('subscriptionCard.benefits.unlocked'), light: t('subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
+          { bold: t('components.subscriptionCard.benefits.unlimited'), light: t('components.subscriptionCard.benefits.activeGoals'), icon: 'infinite' },
+          { bold: '500', light: t('components.subscriptionCard.benefits.sparkAIInputs'), icon: 'mic' },
+          { bold: '60', light: t('components.subscriptionCard.benefits.sparkAIVisions'), icon: 'image' },
+          { bold: t('components.subscriptionCard.benefits.unlimited'), light: t('components.subscriptionCard.benefits.pomodoroSessions'), icon: 'timer' },
+          { bold: t('components.subscriptionCard.benefits.unlocked'), light: t('components.subscriptionCard.benefits.homeScreenWidget'), icon: 'apps' }
         ];
       default:
         return [];
@@ -49,9 +49,9 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
 
   const getDisplayPrice = () => {
     if (isAnnual && annualPrice) {
-      return annualPrice + t('subscriptionCard.pricing.perYear');
+      return annualPrice + t('components.subscriptionCard.pricing.perYear');
     }
-    return monthlyPrice + t('subscriptionCard.pricing.perMonth');
+    return monthlyPrice + t('components.subscriptionCard.pricing.perMonth');
   };
 
 
@@ -98,7 +98,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
             fontSize: 12,
             fontWeight: 'bold',
             textTransform: 'uppercase',
-          }}>{t('subscriptionCard.badges.popular')}</Text>
+          }}>{t('components.subscriptionCard.badges.popular')}</Text>
         </View>
       )}
       {tier.id === 'tier_visionary' && isAnnual && savings && (
@@ -122,7 +122,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
             fontSize: 12,
             fontWeight: 'bold',
             textTransform: 'uppercase',
-          }}>{t('subscriptionCard.badges.bestDeal')}</Text>
+          }}>{t('components.subscriptionCard.badges.bestDeal')}</Text>
         </View>
       )}
 
@@ -173,7 +173,7 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
               fontWeight: 'bold',
               textAlign: 'left',
             }}>
-              {t('subscriptionCard.pricing.save', { amount: savings })}
+              {t('components.subscriptionCard.pricing.save', { amount: savings })}
             </Text>
           </View>
         )}

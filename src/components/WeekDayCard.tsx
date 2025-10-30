@@ -125,12 +125,12 @@ export function WeekDayCard({ weekday, date, dateObj, tasks, onPress, onAddTask,
                 ...typography.emptyTitle,
                 marginBottom: emptyStateSpacing.titleMarginBottom,
               }}>
-                {t('weekDayCard.emptyState.noTasksFor', { weekday })}
+                {t('components.weekDayCard.emptyState.noTasksFor', { weekday })}
               </Text>
               <Text style={{
                 ...typography.emptyDescription,
               }}>
-                {t('weekDayCard.emptyState.dayLooksClear')}
+                {t('components.weekDayCard.emptyState.dayLooksClear')}
               </Text>
             </View>
           )}

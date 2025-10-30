@@ -59,6 +59,62 @@ class OnboardingService {
   private currentSession: OnboardingSessionData | null = null;
 
   /**
+   * Load incomplete onboarding session from database
+   */
+  async loadIncompleteSession(): Promise<OnboardingSessionData | null> {
+    try {
+      // Check Supabase for incomplete sessions
+      if (isSupabaseConfigured && supabase) {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          const { data, error } = await supabase
+            .from('onboarding_sessions')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .eq('is_completed', false)
+            .order('started_at', { ascending: false })
+            .limit(1)
+            .single();
+          
+          if (!error && data) {
+            // Map Supabase data to OnboardingSessionData
+            const sessionData: OnboardingSessionData = {
+              id: data.id,
+              userId: data.user_id,
+              startedAt: new Date(data.started_at),
+              completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+              currentStep: data.current_step || 1,
+              isCompleted: data.is_completed || false,
+              userName: data.user_name,
+              genderPreference: data.gender_preference,
+              visionPrompt: data.vision_prompt,
+              visionImageUrl: data.vision_image_url,
+              visionStyle: data.vision_style,
+              goalTitle: data.goal_title,
+              goalEmotions: data.goal_emotions,
+              milestoneTitle: data.milestone_title,
+              firstTaskTitle: data.first_task_title,
+              createdGoalId: data.created_goal_id,
+              createdMilestoneId: data.created_milestone_id,
+              createdTaskId: data.created_task_id,
+              createdVisionImageId: data.created_vision_image_id
+            };
+            
+            this.currentSession = sessionData;
+            console.log('✅ Recovered incomplete onboarding session:', sessionData.id);
+            return sessionData;
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error loading incomplete session:', error);
+      return null;
+    }
+  }
+
+  /**
    * Check if the user has completed onboarding
    */
   async isOnboardingCompleted(): Promise<boolean> {
@@ -96,7 +152,7 @@ class OnboardingService {
   }
 
   /**
-   * Start a new onboarding session
+   * Start a new onboarding session or recover existing one
    */
   async startOnboardingSession(): Promise<OnboardingSessionData> {
     console.log('🚀 Starting onboarding session...');
@@ -113,6 +169,15 @@ class OnboardingService {
       throw new Error('No authenticated user found');
     }
     console.log('👤 Current user:', { id: currentUser.id, isAnonymous: currentUser.isAnonymous });
+
+    // First, try to recover any existing incomplete session
+    const existingSession = await this.loadIncompleteSession();
+    if (existingSession) {
+      console.log('🔄 Recovered existing onboarding session');
+      // Clean up any other old sessions
+      await this.cleanupOldSessions();
+      return existingSession;
+    }
 
     const sessionData: OnboardingSessionData = {
       userId: currentUser.id,
@@ -336,6 +401,42 @@ class OnboardingService {
       await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
     } catch (error) {
       console.error('Error marking onboarding as completed:', error);
+    }
+  }
+
+  /**
+   * Clean up old incomplete sessions (keep only the most recent one)
+   */
+  async cleanupOldSessions(): Promise<void> {
+    try {
+      if (isSupabaseConfigured && supabase) {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          // Get all incomplete sessions for this user
+          const { data: sessions, error } = await supabase
+            .from('onboarding_sessions')
+            .select('id, started_at')
+            .eq('user_id', currentUser.id)
+            .eq('is_completed', false)
+            .order('started_at', { ascending: false });
+          
+          if (!error && sessions && sessions.length > 1) {
+            // Keep only the most recent, delete the rest
+            const sessionsToDelete = sessions.slice(1).map(s => s.id);
+            
+            if (sessionsToDelete.length > 0) {
+              await supabase
+                .from('onboarding_sessions')
+                .delete()
+                .in('id', sessionsToDelete);
+              
+              console.log('🧹 Cleaned up', sessionsToDelete.length, 'old incomplete sessions');
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up old sessions:', error);
     }
   }
 

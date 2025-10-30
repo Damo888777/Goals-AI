@@ -75,13 +75,13 @@ export function GoalCompletionModal({
 
   const renderNotificationStep = () => (
     <View style={styles.content}>
-      <Text style={styles.title}>{t('goalCompletionModal.notification.title')}</Text>
+      <Text style={styles.title}>{t('components.components.goalCompletionModal.notification.title')}</Text>
       <Text style={styles.description}>
-        {t('goalCompletionModal.notification.description', { goalTitle: goal?.title })}
+        {t('components.components.goalCompletionModal.notification.description', { goalTitle: goal?.title })}
       </Text>
       <View style={styles.buttonContainer}>
         <Pressable style={styles.secondaryButton} onPress={onClose}>
-          <Text style={styles.secondaryButtonText}>{t('goalCompletionModal.notification.notYet')}</Text>
+          <Text style={styles.secondaryButtonText}>{t('components.goalCompletionModal.notification.notYet')}</Text>
         </Pressable>
         <Pressable 
           style={styles.primaryButton} 
@@ -90,7 +90,7 @@ export function GoalCompletionModal({
             handleStepTransition('reflection-prompt');
           }}
         >
-          <Text style={styles.primaryButtonText}>{t('goalCompletionModal.notification.yes')}</Text>
+          <Text style={styles.primaryButtonText}>{t('components.goalCompletionModal.notification.yes')}</Text>
         </Pressable>
       </View>
     </View>
@@ -98,19 +98,19 @@ export function GoalCompletionModal({
 
   const renderReflectionPrompt = () => (
     <View style={styles.content}>
-      <Text style={styles.title}>{t('goalCompletionModal.reflectionPrompt.title')}</Text>
+      <Text style={styles.title}>{t('components.goalCompletionModal.reflectionPrompt.title')}</Text>
       <Text style={styles.description}>
-        {t('goalCompletionModal.reflectionPrompt.description')}
+        {t('components.goalCompletionModal.reflectionPrompt.description')}
       </Text>
       <View style={styles.buttonContainer}>
         <Pressable style={styles.secondaryButton} onPress={handleSkipReflection}>
-          <Text style={styles.secondaryButtonText}>{t('goalCompletionModal.reflectionPrompt.skip')}</Text>
+          <Text style={styles.secondaryButtonText}>{t('components.goalCompletionModal.reflectionPrompt.skip')}</Text>
         </Pressable>
         <Pressable 
           style={styles.primaryButton} 
           onPress={() => handleStepTransition('question1')}
         >
-          <Text style={styles.primaryButtonText}>{t('goalCompletionModal.reflectionPrompt.reflect')}</Text>
+          <Text style={styles.primaryButtonText}>{t('components.goalCompletionModal.reflectionPrompt.reflect')}</Text>
         </Pressable>
       </View>
     </View>
@@ -118,12 +118,12 @@ export function GoalCompletionModal({
 
   const renderQuestion1 = () => (
     <View style={styles.content}>
-      <Text style={styles.questionTitle}>{t('goalCompletionModal.questions.question1.title')}</Text>
+      <Text style={styles.questionTitle}>{t('components.goalCompletionModal.questions.question1.title')}</Text>
       <TextInput
         style={styles.textInput}
         multiline
         numberOfLines={4}
-        placeholder={t('goalCompletionModal.questions.question1.placeholder')}
+        placeholder={t('components.goalCompletionModal.questions.question1.placeholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         value={reflectionData.keyTakeaway}
         onChangeText={(text) => setReflectionData(prev => ({ ...prev, keyTakeaway: text }))}
@@ -133,13 +133,13 @@ export function GoalCompletionModal({
           style={styles.secondaryButton} 
           onPress={() => handleStepTransition('question2')}
         >
-          <Text style={styles.secondaryButtonText}>{t('goalCompletionModal.buttons.skip')}</Text>
+          <Text style={styles.secondaryButtonText}>{t('components.goalCompletionModal.buttons.skip')}</Text>
         </Pressable>
         <Pressable 
           style={styles.primaryButton} 
           onPress={() => handleStepTransition('question2')}
         >
-          <Text style={styles.primaryButtonText}>{t('goalCompletionModal.buttons.next')}</Text>
+          <Text style={styles.primaryButtonText}>{t('components.goalCompletionModal.buttons.next')}</Text>
         </Pressable>
       </View>
     </View>
@@ -147,12 +147,12 @@ export function GoalCompletionModal({
 
   const renderQuestion2 = () => (
     <View style={styles.content}>
-      <Text style={styles.questionTitle}>{t('goalCompletionModal.questions.question2.title')}</Text>
+      <Text style={styles.questionTitle}>{t('components.goalCompletionModal.questions.question2.title')}</Text>
       <TextInput
         style={styles.textInput}
         multiline
         numberOfLines={4}
-        placeholder={t('goalCompletionModal.questions.question2.placeholder')}
+        placeholder={t('components.goalCompletionModal.questions.question2.placeholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         value={reflectionData.biggestHurdle}
         onChangeText={(text) => setReflectionData(prev => ({ ...prev, biggestHurdle: text }))}
@@ -162,13 +162,13 @@ export function GoalCompletionModal({
           style={styles.secondaryButton} 
           onPress={() => handleStepTransition('question3')}
         >
-          <Text style={styles.secondaryButtonText}>{t('goalCompletionModal.buttons.skip')}</Text>
+          <Text style={styles.secondaryButtonText}>{t('components.goalCompletionModal.buttons.skip')}</Text>
         </Pressable>
         <Pressable 
           style={styles.primaryButton} 
           onPress={() => handleStepTransition('question3')}
         >
-          <Text style={styles.primaryButtonText}>{t('goalCompletionModal.buttons.next')}</Text>
+          <Text style={styles.primaryButtonText}>{t('components.goalCompletionModal.buttons.next')}</Text>
         </Pressable>
       </View>
     </View>
@@ -176,12 +176,12 @@ export function GoalCompletionModal({
 
   const renderQuestion3 = () => (
     <View style={styles.content}>
-      <Text style={styles.questionTitle}>{t('goalCompletionModal.questions.question3.title')}</Text>
+      <Text style={styles.questionTitle}>{t('components.goalCompletionModal.questions.question3.title')}</Text>
       <TextInput
         style={styles.textInput}
         multiline
         numberOfLines={4}
-        placeholder={t('goalCompletionModal.questions.question3.placeholder')}
+        placeholder={t('components.goalCompletionModal.questions.question3.placeholder')}
         placeholderTextColor="rgba(54,73,88,0.5)"
         value={reflectionData.lessonForNext}
         onChangeText={(text) => setReflectionData(prev => ({ ...prev, lessonForNext: text }))}
@@ -191,13 +191,13 @@ export function GoalCompletionModal({
           style={styles.secondaryButton} 
           onPress={handleCompleteWithReflection}
         >
-          <Text style={styles.secondaryButtonText}>{t('goalCompletionModal.buttons.skip')}</Text>
+          <Text style={styles.secondaryButtonText}>{t('components.goalCompletionModal.buttons.skip')}</Text>
         </Pressable>
         <Pressable 
           style={styles.primaryButton} 
           onPress={handleCompleteWithReflection}
         >
-          <Text style={styles.primaryButtonText}>{t('goalCompletionModal.buttons.complete')}</Text>
+          <Text style={styles.primaryButtonText}>{t('components.goalCompletionModal.buttons.complete')}</Text>
         </Pressable>
       </View>
     </View>

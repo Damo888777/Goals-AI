@@ -23,6 +23,7 @@ import { images } from '../src/constants/images';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { useLanguage } from '../src/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import i18n from '../src/services/i18next';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
 import * as FileSystem from 'expo-file-system';
@@ -143,25 +144,55 @@ export default function OnboardingScreen() {
     const initializeSession = async () => {
       if (!currentSession) {
         await startOnboardingSession();
-      } else {
-        // Restore current step from session
-        if (currentSession.currentStep) {
-          const stepMap: { [key: number]: OnboardingStep } = {
-            0: 'language',
-            1: 'welcome',
-            2: 'name', 
-            3: 'personalization',
-            4: 'vision',
-            5: 'goal',
-            6: 'milestone',
-            7: 'task'
-          };
-          setCurrentStep(stepMap[currentSession.currentStep] || 'language');
-        }
       }
     };
     initializeSession();
   }, []);
+
+  // Handle session recovery and step restoration
+  useEffect(() => {
+    if (currentSession) {
+      console.log('🔄 Processing current session:', currentSession);
+      
+      // Restore current step from session
+      const stepMap: { [key: number]: OnboardingStep } = {
+        0: 'language',
+        1: 'welcome',
+        2: 'name', 
+        3: 'personalization',
+        4: 'vision',
+        5: 'goal',
+        6: 'milestone',
+        7: 'task'
+      };
+      
+      const restoredStep = stepMap[currentSession.currentStep] || 'language';
+      setCurrentStep(restoredStep);
+      console.log('🔄 Restored to step:', restoredStep, 'from currentStep:', currentSession.currentStep);
+      
+      // Restore all session data to local state
+      setData({
+        name: currentSession.userName || '',
+        personalization: currentSession.genderPreference || null,
+        visionPrompt: currentSession.visionPrompt || '',
+        visionImageUrl: currentSession.visionImageUrl || null,
+        selectedStyle: (currentSession.visionStyle as StyleOption) || 'photorealistic',
+        goalTitle: currentSession.goalTitle || '',
+        emotions: currentSession.goalEmotions || [],
+        milestoneTitle: currentSession.milestoneTitle || '',
+        taskTitle: currentSession.firstTaskTitle || '',
+      });
+      
+      console.log('✅ Session data restored:', {
+        step: restoredStep,
+        hasName: !!currentSession.userName,
+        hasVisionPrompt: !!currentSession.visionPrompt,
+        hasVisionImage: !!currentSession.visionImageUrl,
+        hasGoalTitle: !!currentSession.goalTitle,
+        emotionsCount: currentSession.goalEmotions?.length || 0
+      });
+    }
+  }, [currentSession]);
 
   // Update session data when local data changes
   useEffect(() => {
@@ -208,6 +239,38 @@ export default function OnboardingScreen() {
     }
   ];
 
+  const optimizeGoalTitle = async (visionPrompt: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transcription: visionPrompt,
+          language: i18n.language,
+          mode: 'optimize_goal_title',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to optimize goal title');
+      }
+
+      const result = await response.json();
+      
+      // If Gemini successfully optimized the title, use it; otherwise fall back to original
+      if (result.title && result.title.trim() && result.title !== 'Failed to process') {
+        return result.title;
+      }
+      
+      return visionPrompt; // Fallback to original
+    } catch (error) {
+      console.error('Goal title optimization error:', error);
+      return visionPrompt; // Fallback to original
+    }
+  };
+
   const handleGenerateVision = async () => {
     if (!data.visionPrompt.trim()) {
       Alert.alert(t('onboarding.alerts.missingVision'), t('onboarding.alerts.missingVisionMessage'));
@@ -239,10 +302,13 @@ export default function OnboardingScreen() {
           encoding: FileSystem.EncodingType.Base64,
         });
         
+        // Optimize the vision prompt into a proper goal title
+        const optimizedGoalTitle = await optimizeGoalTitle(data.visionPrompt);
+        
         setData(prev => ({ 
           ...prev, 
           visionImageUrl: fileUri,
-          goalTitle: prev.visionPrompt 
+          goalTitle: optimizedGoalTitle 
         }));
         
         // Update session with vision data
@@ -250,7 +316,7 @@ export default function OnboardingScreen() {
           visionPrompt: data.visionPrompt,
           visionImageUrl: fileUri,
           visionStyle: data.selectedStyle,
-          goalTitle: data.visionPrompt
+          goalTitle: optimizedGoalTitle
         });
         
         setGenerationState('preview');

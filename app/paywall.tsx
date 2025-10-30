@@ -67,8 +67,8 @@ export default function PaywallScreen() {
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
         Alert.alert(
-          t('paywall.alerts.success'),
-          t('paywall.alerts.subscriptionActivated'),
+          t('paywall.alerts.successTitle'),
+          t('paywall.alerts.successMessage'),
           [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
         );
       } else {
@@ -81,19 +81,19 @@ export default function PaywallScreen() {
             return;
           } else if (errorMessage.includes('declined') || errorMessage.includes('payment declined')) {
             Alert.alert(
-              t('paywall.alerts.paymentDeclined'),
+              t('paywall.alerts.paymentDeclinedTitle'),
               t('paywall.alerts.paymentDeclinedMessage'),
               [{ text: t('paywall.alerts.ok') }]
             );
           } else if (errorMessage.includes('interrupted') || errorMessage.includes('network')) {
             Alert.alert(
-              t('paywall.alerts.connectionIssue'),
+              t('paywall.alerts.connectionIssueTitle'),
               t('paywall.alerts.connectionIssueMessage'),
               [{ text: t('paywall.alerts.retry'), onPress: () => handlePurchase() }, { text: t('paywall.alerts.cancel') }]
             );
           } else if (errorMessage.includes('already purchased') || errorMessage.includes('already subscribed')) {
             Alert.alert(
-              t('paywall.alerts.alreadySubscribed'),
+              t('paywall.alerts.alreadySubscribedTitle'),
               t('paywall.alerts.alreadySubscribedMessage'),
               [
                 { text: t('paywall.alerts.restorePurchases'), onPress: () => handleRestore() },
@@ -102,21 +102,21 @@ export default function PaywallScreen() {
             );
           } else {
             Alert.alert(
-              t('paywall.alerts.purchaseFailed'),
+              t('paywall.alerts.purchaseFailedTitle'),
               t('paywall.alerts.purchaseFailedMessage', { error: result.error }),
               [{ text: t('paywall.alerts.ok') }]
             );
           }
         } else {
           Alert.alert(
-            t('paywall.alerts.purchaseFailed'),
-            t('paywall.alerts.unexpectedError'),
+            t('paywall.alerts.purchaseFailedTitle'),
+            t('paywall.alerts.purchaseFailedGeneric'),
             [{ text: t('paywall.alerts.ok') }]
           );
         }
       }
     } catch (error) {
-      Alert.alert(t('paywall.alerts.purchaseFailed'), t('paywall.alerts.somethingWentWrong'));
+      Alert.alert(t('paywall.alerts.purchaseFailedTitle'), t('paywall.alerts.purchaseFailedSimple'));
     } finally {
       setIsLoading(false);
     }
@@ -128,15 +128,15 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
       if (result.success) {
         Alert.alert(
-          t('paywall.alerts.purchasesRestored'),
+          t('paywall.alerts.purchasesRestoredTitle'),
           t('paywall.alerts.purchasesRestoredMessage'),
           [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
         );
       } else {
-        Alert.alert(t('paywall.alerts.restoreFailed'), result.error || t('paywall.alerts.noPurchasesFound'));
+        Alert.alert(t('paywall.alerts.restoreFailedTitle'), result.error || t('paywall.alerts.restoreFailedMessage'));
       }
     } catch (error) {
-      Alert.alert(t('paywall.alerts.restoreFailed'), t('paywall.alerts.somethingWentWrong'));
+      Alert.alert(t('paywall.alerts.restoreFailedTitle'), t('paywall.alerts.restoreFailedGeneric'));
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +158,7 @@ export default function PaywallScreen() {
           fontFamily: 'Helvetica',
           fontWeight: '300',
         }}>
-          {t('paywall.loading.subscriptionOptions')}
+          {t('paywall.loading.loadingSubscriptionOptions')}
         </Text>
       </View>
     );
@@ -213,7 +213,7 @@ export default function PaywallScreen() {
               textAlign: 'center',
               marginBottom: 4,
             }}>
-              {t('paywall.currentPlan.label')}
+              {t('paywall.currentPlan.currentPlan')}
             </Text>
             <Text style={{
               fontSize: 18,
@@ -342,8 +342,8 @@ export default function PaywallScreen() {
                 fontWeight: '600',
               }}>
                 {isSubscribed && currentTier ? 
-                  t('paywall.noPlans.highestTier', { tierName: currentTier.name }) :
-                  t('paywall.noPlans.noPlansAvailable')
+                  t('paywall.subscriptionPlans.highestTierMessage', { tierName: currentTier.name }) :
+                  t('paywall.subscriptionPlans.noPlansAvailable')
                 }
               </Text>
             </View>
@@ -401,7 +401,7 @@ export default function PaywallScreen() {
             marginTop: 12,
             paddingHorizontal: 16,
           }}>
-            {t('paywall.disclaimer.autoRenew')}
+            {t('paywall.disclaimers.autoRenew')}
           </Text>
 
           <Pressable
@@ -440,10 +440,10 @@ export default function PaywallScreen() {
             fontFamily: 'Helvetica',
             fontWeight: '300',
           }}>
-            {t('paywall.legal.byContinuing')}{'\n'}
-            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.legal.termsOfService')}</Text>
-            {t('paywall.legal.and')}
-            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.legal.privacyPolicy')}</Text>
+            {t('paywall.disclaimers.termsAndPrivacy')}{'\n'}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.disclaimers.termsOfService')}</Text>
+            {t('paywall.disclaimers.and')}
+            <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.disclaimers.privacyPolicy')}</Text>
           </Text>
         </View>
       </ScrollView>

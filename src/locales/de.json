@@ -130,7 +130,8 @@
       "step4": "Wähle das Aufgaben-Widget und tippe \"Widget hinzufügen\""
     },
     "settings": {
-      "notifications": "Benachrichtigungen"
+      "notifications": "Benachrichtigungen",
+      "language": "Sprache"
     },
     "menu": {
       "supportFeedback": "Support & Feedback",
@@ -276,7 +277,7 @@
       "minutes": "Minuten",
       "sessionHistory": "Sitzungsverlauf:",
       "startAnotherSession": "Weitere Sitzung starten",
-      "andMoreSessions": "... und {count} weitere Sitzungen"
+      "andMoreSessions": "... und {{count}} weitere Sitzungen"
     },
     "timeFormat": {
       "today": "Heute",
@@ -318,7 +319,7 @@
       "changeVision": "Vision ändern"
     },
     "milestones": {
-      "milestonesCount": "{count} Meilensteine",
+      "milestonesCount": "{{count}} Meilensteine",
       "noMilestonesYet": "Noch keine Meilensteine",
       "emptyTitle": "Noch keine Meilensteine",
       "emptyDescription": "Teile dein Ziel in Meilensteine auf.",
@@ -336,7 +337,7 @@
       "deleteGoalTitle": "Ziel löschen",
       "deleteGoalMessage": "Bist du sicher, dass du dieses Ziel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
       "deleteMilestoneTitle": "Meilenstein löschen",
-      "deleteMilestoneMessage": "Bist du sicher, dass du \"{title}\" löschen möchtest?",
+      "deleteMilestoneMessage": "Bist du sicher, dass du \"{{title}}\" löschen möchtest?",
       "cancel": "Abbrechen",
       "delete": "Löschen",
       "error": "Fehler",
@@ -472,7 +473,7 @@
       "ok": "OK",
       "pleaseEnterTitle": "Bitte gib einen Titel ein",
       "replaceFrogTaskTitle": "Frog-Aufgabe ersetzen?",
-      "replaceFrogTaskMessage": "Du hast bereits \"{title}\" als deine Frog-Aufgabe gesetzt. Nur eine Aufgabe kann gleichzeitig dein Frog sein. Möchtest du sie durch diese neue Aufgabe ersetzen?",
+      "replaceFrogTaskMessage": "Du hast bereits \"{{title}}\" als deine Frog-Aufgabe gesetzt. Nur eine Aufgabe kann gleichzeitig dein Frog sein. Möchtest du sie durch diese neue Aufgabe ersetzen?",
       "replaceFrogCancel": "Abbrechen",
       "replaceFrogConfirm": "Ersetzen",
       "pleaseSelectGoalFirst": "Bitte wähle zuerst ein Ziel um einen Meilenstein zu erstellen.",
@@ -609,7 +610,7 @@
       "alreadySubscribedMessage": "Du hast bereits ein aktives Abonnement. Versuche deine Käufe wiederherzustellen falls du deine Vorteile nicht siehst.",
       "restorePurchases": "Käufe wiederherstellen",
       "purchaseFailedTitle": "Kauf fehlgeschlagen",
-      "purchaseFailedMessage": "Etwas ist schief gelaufen: {error}\n\nBitte versuche es erneut oder kontaktiere den Support falls das Problem bestehen bleibt.",
+      "purchaseFailedMessage": "Etwas ist schief gelaufen: {{error}}\n\nBitte versuche es erneut oder kontaktiere den Support falls das Problem bestehen bleibt.",
       "purchaseFailedGeneric": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
       "purchaseFailedSimple": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
       "purchasesRestoredTitle": "Käufe wiederhergestellt",
@@ -653,7 +654,7 @@
       }
     },
     "vision": {
-      "title": "Willkommen {name}. Jede große Reise beginnt mit einem einzigen Bild.",
+      "title": "Willkommen {{name}}. Jede große Reise beginnt mit einem einzigen Bild.",
       "subtitle": "Was ist der eine Traum den du zum Leben erwecken möchtest? Lass ihn uns visualisieren.",
       "placeholder": "Beschreibe deine Vision...",
       "chooseStyle": "Stil wählen",
@@ -688,7 +689,7 @@
     },
     "milestone": {
       "title": "Eine Vision wird Schritt für Schritt erreicht.",
-      "subtitle": "Was ist der allererste Meilenstein auf deiner Reise zu \"{goalTitle}\"?",
+      "subtitle": "Was ist der allererste Meilenstein auf deiner Reise zu \"{{goalTitle}}\"?",
       "placeholder": "z.B. Recherchieren und einen Businessplan erstellen",
       "createMilestone": "Ersten Meilenstein erstellen"
     },
@@ -728,7 +729,7 @@
       "annual": "Jährlich"
     },
     "subscriptionPlans": {
-      "highestTierMessage": "Du bist bereits auf der höchsten verfügbaren Stufe ({tierName}). Um die Abrechnungshäufigkeit zu ändern, verwalte bitte dein Abonnement in deinen App Store Einstellungen.",
+      "highestTierMessage": "Du bist bereits auf der höchsten verfügbaren Stufe ({{tierName}}). Um die Abrechnungshäufigkeit zu ändern, verwalte bitte dein Abonnement in deinen App Store Einstellungen.",
       "noPlansAvailable": "Keine Abonnement-Pläne verfügbar. Bitte prüfe deine RevenueCat Konfiguration."
     },
     "buttons": {
@@ -758,7 +759,7 @@
       "alreadySubscribedMessage": "Du hast bereits ein aktives Abonnement. Versuche deine Käufe wiederherzustellen falls du deine Vorteile nicht siehst.",
       "restorePurchases": "Käufe wiederherstellen",
       "purchaseFailedTitle": "Kauf fehlgeschlagen",
-      "purchaseFailedMessage": "Etwas ist schief gelaufen: {error}\n\nBitte versuche es erneut oder kontaktiere den Support falls das Problem bestehen bleibt.",
+      "purchaseFailedMessage": "Etwas ist schief gelaufen: {{error}}\n\nBitte versuche es erneut oder kontaktiere den Support falls das Problem bestehen bleibt.",
       "purchaseFailedGeneric": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
       "purchaseFailedSimple": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
       "purchasesRestoredTitle": "Käufe wiederhergestellt",
@@ -794,13 +795,13 @@
       "liveActivitiesDisabledMessage": "Bitte aktiviere Live Activities in den Einstellungen um deinen Timer in der Dynamic Island zu sehen.",
       "ok": "OK",
       "liveActivityErrorTitle": "Live Activity Fehler",
-      "liveActivityErrorMessage": "Live Activity starten fehlgeschlagen: {error}",
+      "liveActivityErrorMessage": "Live Activity starten fehlgeschlagen: {{error}}",
       "skipSessionTitle": "Sitzung überspringen?",
       "skipSessionMessage": "Bist du sicher, dass du diese Sitzung überspringen möchtest?",
       "cancel": "Abbrechen",
       "skip": "überspringen",
       "pomodoroCompleteTitle": "Pomodoro abgeschlossen 🍅",
-      "pomodoroCompleteMessage": "Tolle Arbeit. Du hast heute {count} Pomodoro{plural} abgeschlossen. Zeit für eine {breakType} Pause.",
+      "pomodoroCompleteMessage": "Tolle Arbeit. Du hast heute {{count}} Pomodoro{{plural}} abgeschlossen. Zeit für eine {{breakType}} Pause.",
       "startBreak": "Pause starten",
       "breakCompleteTitle": "Pause abgeschlossen ☕",
       "breakCompleteMessage": "Pausenzeit ist vorbei. Bereit um wieder zu fokussieren?",
@@ -808,7 +809,7 @@
     },
     "notifications": {
       "timerTitle": "🍅 Pomodoro Timer",
-      "workCompleteMessage": "{sessionLabel} abgeschlossen. Zeit für eine Pause. 🎉",
+      "workCompleteMessage": "{{sessionLabel}} abgeschlossen. Zeit für eine Pause. 🎉",
       "breakCompleteMessage": "Pausenzeit vorbei. Bereit für eine weitere Fokus-Sitzung? 💪"
     },
     "breakTypes": {
@@ -825,7 +826,7 @@
       "title": "Spark"
     },
     "recordingStates": {
-      "recording": "Aufnahme... {minutes}:{seconds}",
+      "recording": "Aufnahme... {{minutes}}:{{seconds}}",
       "processing": "Spark verarbeitet...",
       "completed": "Abgeschlossen",
       "noTextRecognized": "Kein Text erkannt",
@@ -891,7 +892,7 @@
       "delete": "Löschen",
       "failedToDeleteTask": "Aufgabe löschen fehlgeschlagen",
       "replaceFrogTaskTitle": "Frog-Aufgabe ersetzen?",
-      "replaceFrogTaskMessage": "Du hast bereits \"{title}\" als deine Frog-Aufgabe gesetzt. Nur eine Aufgabe kann gleichzeitig dein Frog sein. Möchtest du sie durch diese Aufgabe ersetzen?",
+      "replaceFrogTaskMessage": "Du hast bereits \"{{title}}\" als deine Frog-Aufgabe gesetzt. Nur eine Aufgabe kann gleichzeitig dein Frog sein. Möchtest du sie durch diese Aufgabe ersetzen?",
       "replace": "Ersetzen"
     }
   },
@@ -1047,14 +1048,14 @@
       "noDateSet": "Kein Datum gesetzt",
       "goalTitle": "Ziel-Titel",
       "completeMilestone": "Meilenstein abschließen",
-      "completeMilestoneMessage": "Hast du \"{title}\" abgeschlossen?",
+      "completeMilestoneMessage": "Hast du \"{{title}}\" abgeschlossen?",
       "no": "Nein",
       "yes": "Ja",
       "milestoneCompleted": "🎉 Meilenstein abgeschlossen",
       "milestoneCompletedMessage": "Tolle Arbeit. Dein Meilenstein wurde als abgeschlossen markiert.",
       "ok": "OK",
       "deleteGoal": "Ziel löschen",
-      "deleteGoalMessage": "Bist du sicher, dass du \"{title}\" löschen möchtest?",
+      "deleteGoalMessage": "Bist du sicher, dass du \"{{title}}\" löschen möchtest?",
       "cancel": "Abbrechen",
       "delete": "Löschen",
       "emptyStates": {
@@ -1074,7 +1075,7 @@
     "goalCompletionModal": {
       "notification": {
         "title": "Alle Meilensteine abgeschlossen 🎯",
-        "description": "Du hast alle Meilensteine für \"{goalTitle}\" abgeschlossen. Fühlst du dass du dein Ziel erreicht hast?",
+        "description": "Du hast alle Meilensteine für \"{{goalTitle}}\" abgeschlossen. Fühlst du dass du dein Ziel erreicht hast?",
         "notYet": "Noch nicht",
         "yes": "Ja"
       },
@@ -1116,7 +1117,7 @@
       "sparkBadge": "SPARK",
       "alerts": {
         "completeMilestone": "Meilenstein abschließen",
-        "completeMilestoneMessage": "Hast du \"{title}\" abgeschlossen?",
+        "completeMilestoneMessage": "Hast du \"{{title}}\" abgeschlossen?",
         "no": "Nein",
         "yes": "Ja",
         "milestoneCompleted": "🎉 Meilenstein abgeschlossen",
@@ -1126,7 +1127,7 @@
     },
     "overdueTasksModal": {
       "title": "Überfällige Aufgaben",
-      "subtitle": "Du hast {count} überfällige Aufgabe(n). Wähle Aufgaben und eine Aktion.",
+      "subtitle": "Du hast {{count}} überfällige Aufgabe(n). Wähle Aufgaben und eine Aktion.",
       "taskDefaults": {
         "noTitle": "Kein Titel",
         "milestone": "Meilenstein",
@@ -1148,9 +1149,9 @@
         "noTasksSelectedMessage": "Bitte wähle mindestens eine Aufgabe um diese Aktion auszuführen.",
         "noTasksSelectedReschedule": "Bitte wähle mindestens eine Aufgabe zum Verschieben.",
         "markComplete": "Als erledigt markieren",
-        "markCompleteMessage": "Bist du sicher, dass du {count} Aufgabe(n) als erledigt markieren möchtest?",
+        "markCompleteMessage": "Bist du sicher, dass du {{count}} Aufgabe(n) als erledigt markieren möchtest?",
         "deleteTasks": "Aufgaben löschen",
-        "deleteTasksMessage": "Bist du sicher, dass du {count} Aufgabe(n) löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteTasksMessage": "Bist du sicher, dass du {{count}} Aufgabe(n) löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
         "cancel": "Abbrechen",
         "complete": "Erledigen",
         "delete": "Löschen"
@@ -1268,13 +1269,13 @@
       "pricing": {
         "perMonth": "/Monat",
         "perYear": "/Jahr",
-        "save": "Spare {amount}"
+        "save": "Spare {{amount}}"
       },
       "benefits": {
         "activeGoals": " Aktive Ziele",
         "sparkAIInputs": " Spark AI Eingaben pro Monat",
         "sparkAIVisions": " Spark AI Visionen pro Monat",
-        "pomodoroSessions": " Pomodoro-Sitzungen",
+        "pomodoroSessions": " Pomodoro",
         "homeScreenWidget": " Home-Widget",
         "unlimited": "Unbegrenzt",
         "locked": "Gesperrt",
@@ -1287,7 +1288,7 @@
         "message": "Diese Funktion benötigt ein Abonnement."
       },
       "upgradeMessages": {
-        "createGoal": "Du hast dein Ziel-Limit erreicht. Upgrade für {type} Ziele.",
+        "createGoal": "Du hast dein Ziel-Limit erreicht. Upgrade für {{type}} Ziele.",
         "sparkAIVoice": "Du hast alle deine Spark AI Spracheingaben diesen Monat verbraucht. Upgrade für mehr.",
         "sparkAIVision": "Du hast alle deine Spark AI Vision-Bilder diesen Monat verbraucht. Upgrade für mehr.",
         "homeWidgets": "Home-Widgets sind mit Achiever und Visionary Stufen verfügbar.",
@@ -1320,9 +1321,9 @@
       },
       "alerts": {
         "deleteTask": "Aufgabe löschen",
-        "deleteTaskMessage": "Bist du sicher, dass du \"{title}\" löschen möchtest?",
+        "deleteTaskMessage": "Bist du sicher, dass du \"{{title}}\" löschen möchtest?",
         "completeTask": "Aufgabe abschließen",
-        "completeTaskMessage": "Hast du \"{title}\" abgeschlossen?",
+        "completeTaskMessage": "Hast du \"{{title}}\" abgeschlossen?",
         "cancel": "Abbrechen",
         "delete": "Löschen",
         "no": "Nein",
@@ -1349,7 +1350,7 @@
     },
     "weekDayCard": {
       "emptyState": {
-        "noTasksFor": "Keine Aufgaben für {weekday}",
+        "noTasksFor": "Keine Aufgaben für {{weekday}}",
         "dayLooksClear": "Dein Tag sieht frei aus."
       }
     }
@@ -1361,6 +1362,18 @@
       "buttons": {
         "createVision": "Vision erstellen",
         "uploadVision": "Vision hochladen"
+      }
+    },
+    "imageGenerationAnimation": {
+      "states": {
+        "generating": "Spark erstellt deine Vision...",
+        "completed": "Vision erfolgreich erstellt!",
+        "error": "Etwas ist schiefgelaufen"
+      },
+      "messages": {
+        "pleaseWait": "Das kann einen Moment dauern...",
+        "visionComplete": "Deine Vision wurde zum Leben erweckt!",
+        "errorMessage": "Vision konnte nicht erstellt werden. Bitte versuche es erneut."
       }
     }
   }

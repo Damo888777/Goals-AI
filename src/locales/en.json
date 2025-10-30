@@ -130,7 +130,8 @@
       "step4": "Select the Tasks widget and tap \"Add Widget\""
     },
     "settings": {
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "language": "Language"
     },
     "menu": {
       "supportFeedback": "Support & Feedback",
@@ -276,7 +277,7 @@
       "minutes": "Minutes",
       "sessionHistory": "Session history:",
       "startAnotherSession": "Start Another Session",
-      "andMoreSessions": "... and {count} more sessions"
+      "andMoreSessions": "... and {{count}} more sessions"
     },
     "timeFormat": {
       "today": "Today",
@@ -318,7 +319,7 @@
       "changeVision": "Change Vision"
     },
     "milestones": {
-      "milestonesCount": "{count} Milestones",
+      "milestonesCount": "{{count}} Milestones",
       "noMilestonesYet": "No milestones yet",
       "emptyTitle": "No milestones yet",
       "emptyDescription": "Break your goal down into milestones.",
@@ -336,7 +337,7 @@
       "deleteGoalTitle": "Delete Goal",
       "deleteGoalMessage": "Are you sure you want to delete this goal? This action cannot be undone.",
       "deleteMilestoneTitle": "Delete Milestone",
-      "deleteMilestoneMessage": "Are you sure you want to delete \"{title}\"?",
+      "deleteMilestoneMessage": "Are you sure you want to delete \"{{title}}\"?",
       "cancel": "Cancel",
       "delete": "Delete",
       "error": "Error",
@@ -472,7 +473,7 @@
       "ok": "OK",
       "pleaseEnterTitle": "Please enter a title",
       "replaceFrogTaskTitle": "Replace Frog Task?",
-      "replaceFrogTaskMessage": "You already have \"{title}\" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this new task?",
+      "replaceFrogTaskMessage": "You already have \"{{title}}\" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this new task?",
       "replaceFrogCancel": "Cancel",
       "replaceFrogConfirm": "Replace",
       "pleaseSelectGoalFirst": "Please select a goal first to create a milestone.",
@@ -609,7 +610,7 @@
       "alreadySubscribedMessage": "You already have an active subscription. Try restoring your purchases if you don't see your benefits.",
       "restorePurchases": "Restore Purchases",
       "purchaseFailedTitle": "Purchase Failed",
-      "purchaseFailedMessage": "Something went wrong: {error}\n\nPlease try again or contact support if the issue persists.",
+      "purchaseFailedMessage": "Something went wrong: {{error}}\n\nPlease try again or contact support if the issue persists.",
       "purchaseFailedGeneric": "An unexpected error occurred. Please try again.",
       "purchaseFailedSimple": "Something went wrong. Please try again.",
       "purchasesRestoredTitle": "Purchases Restored",
@@ -653,7 +654,7 @@
       }
     },
     "vision": {
-      "title": "Welcome {name}. Every great journey starts with a single image.",
+      "title": "Welcome {{name}}. Every great journey starts with a single image.",
       "subtitle": "What's the one dream you want to bring to life? Let's visualize it.",
       "placeholder": "Describe your vision...",
       "chooseStyle": "Choose your style",
@@ -688,7 +689,7 @@
     },
     "milestone": {
       "title": "A vision is reached one step at a time.",
-      "subtitle": "What is the very first milestone on your journey to \"{goalTitle}\"?",
+      "subtitle": "What is the very first milestone on your journey to \"{{goalTitle}}\"?",
       "placeholder": "e.g., Research and create a business plan",
       "createMilestone": "Create First Milestone"
     },
@@ -728,7 +729,7 @@
       "annual": "Annual"
     },
     "subscriptionPlans": {
-      "highestTierMessage": "You're already on the highest available tier ({tierName}). To change billing frequency, please manage your subscription in your App Store settings.",
+      "highestTierMessage": "You're already on the highest available tier ({{tierName}}). To change billing frequency, please manage your subscription in your App Store settings.",
       "noPlansAvailable": "No subscription plans available. Please check your RevenueCat configuration."
     },
     "buttons": {
@@ -758,7 +759,7 @@
       "alreadySubscribedMessage": "You already have an active subscription. Try restoring your purchases if you don't see your benefits.",
       "restorePurchases": "Restore Purchases",
       "purchaseFailedTitle": "Purchase Failed",
-      "purchaseFailedMessage": "Something went wrong: {error}\n\nPlease try again or contact support if the issue persists.",
+      "purchaseFailedMessage": "Something went wrong: {{error}}\n\nPlease try again or contact support if the issue persists.",
       "purchaseFailedGeneric": "An unexpected error occurred. Please try again.",
       "purchaseFailedSimple": "Something went wrong. Please try again.",
       "purchasesRestoredTitle": "Purchases Restored",
@@ -798,13 +799,13 @@
       "liveActivitiesDisabledMessage": "Please enable Live Activities in Settings to see your timer in the Dynamic Island.",
       "ok": "OK",
       "liveActivityErrorTitle": "Live Activity Error",
-      "liveActivityErrorMessage": "Failed to start Live Activity: {error}",
+      "liveActivityErrorMessage": "Failed to start Live Activity: {{error}}",
       "skipSessionTitle": "Skip Session?",
       "skipSessionMessage": "Are you sure you want to skip this session?",
       "cancel": "Cancel",
       "skip": "Skip",
       "pomodoroCompleteTitle": "Pomodoro Complete! 🍅",
-      "pomodoroCompleteMessage": "Great work! You've completed {count} pomodoro{plural} today. Time for a {breakType} break.",
+      "pomodoroCompleteMessage": "Great work! You've completed {{count}} pomodoro{{plural}} today. Time for a {{breakType}} break.",
       "startBreak": "Start Break",
       "breakCompleteTitle": "Break Complete! ☕",
       "breakCompleteMessage": "Break time is over. Ready to focus again?",
@@ -812,7 +813,7 @@
     },
     "notifications": {
       "timerTitle": "🍅 Pomodoro Timer",
-      "workCompleteMessage": "{sessionLabel} complete! Time for a break! 🎉",
+      "workCompleteMessage": "{{sessionLabel}} complete! Time for a break! 🎉",
       "breakCompleteMessage": "Break time over! Ready for another focus session? 💪"
     },
     "breakTypes": {
@@ -829,7 +830,7 @@
       "title": "Spark"
     },
     "recordingStates": {
-      "recording": "Recording... {minutes}:{seconds}",
+      "recording": "Recording... {{minutes}}:{{seconds}}",
       "processing": "Spark is processing...",
       "completed": "Complete!",
       "noTextRecognized": "No text recognized",
@@ -895,7 +896,7 @@
       "delete": "Delete",
       "failedToDeleteTask": "Failed to delete task",
       "replaceFrogTaskTitle": "Replace Frog Task?",
-      "replaceFrogTaskMessage": "You already have \"{title}\" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this task?",
+      "replaceFrogTaskMessage": "You already have \"{{title}}\" set as your frog task. Only one task can be your frog at a time. Do you want to replace it with this task?",
       "replace": "Replace"
     }
   },
@@ -1046,14 +1047,14 @@
       "noDateSet": "No date set",
       "goalTitle": "Goal Title",
       "completeMilestone": "Complete Milestone",
-      "completeMilestoneMessage": "Did you complete \"{title}\"?",
+      "completeMilestoneMessage": "Did you complete \"{{title}}\"?",
       "no": "No",
       "yes": "Yes",
       "milestoneCompleted": "🎉 Milestone Completed!",
       "milestoneCompletedMessage": "Great job! Your milestone has been marked as complete.",
       "ok": "OK",
       "deleteGoal": "Delete Goal",
-      "deleteGoalMessage": "Are you sure you want to delete \"{title}\"?",
+      "deleteGoalMessage": "Are you sure you want to delete \"{{title}}\"?",
       "cancel": "Cancel",
       "delete": "Delete",
       "emptyStates": {
@@ -1073,7 +1074,7 @@
     "goalCompletionModal": {
       "notification": {
         "title": "All Milestones Complete! 🎯",
-        "description": "You've completed all milestones for \"{goalTitle}\". Do you feel you've achieved your goal?",
+        "description": "You've completed all milestones for \"{{goalTitle}}\". Do you feel you've achieved your goal?",
         "notYet": "Not Yet",
         "yes": "Yes!"
       },
@@ -1115,7 +1116,7 @@
       "sparkBadge": "SPARK",
       "alerts": {
         "completeMilestone": "Complete Milestone",
-        "completeMilestoneMessage": "Did you complete \"{title}\"?",
+        "completeMilestoneMessage": "Did you complete \"{{title}}\"?",
         "no": "No",
         "yes": "Yes",
         "milestoneCompleted": "🎉 Milestone Completed!",
@@ -1125,7 +1126,7 @@
     },
     "overdueTasksModal": {
       "title": "Overdue Tasks",
-      "subtitle": "You have {count} overdue task(s). Select tasks and choose an action.",
+      "subtitle": "You have {{count}} overdue task(s). Select tasks and choose an action.",
       "taskDefaults": {
         "noTitle": "No Title",
         "milestone": "Milestone",
@@ -1147,9 +1148,9 @@
         "noTasksSelectedMessage": "Please select at least one task to perform this action.",
         "noTasksSelectedReschedule": "Please select at least one task to reschedule.",
         "markComplete": "Mark as Complete",
-        "markCompleteMessage": "Are you sure you want to mark {count} task(s) as complete?",
+        "markCompleteMessage": "Are you sure you want to mark {{count}} task(s) as complete?",
         "deleteTasks": "Delete Tasks",
-        "deleteTasksMessage": "Are you sure you want to delete {count} task(s)? This action cannot be undone.",
+        "deleteTasksMessage": "Are you sure you want to delete {{count}} task(s)? This action cannot be undone.",
         "cancel": "Cancel",
         "complete": "Complete",
         "delete": "Delete"
@@ -1267,7 +1268,7 @@
       "pricing": {
         "perMonth": "/month",
         "perYear": "/year",
-        "save": "Save {amount}"
+        "save": "Save {{amount}}"
       },
       "benefits": {
         "activeGoals": " Active Goals",
@@ -1286,7 +1287,7 @@
         "message": "This feature requires a subscription."
       },
       "upgradeMessages": {
-        "createGoal": "You've reached your goal limit. Upgrade to create {type} goals.",
+        "createGoal": "You've reached your goal limit. Upgrade to create {{type}} goals.",
         "sparkAIVoice": "You've used all your Spark AI voice inputs this month. Upgrade for more.",
         "sparkAIVision": "You've used all your Spark AI vision images this month. Upgrade for more.",
         "homeWidgets": "Home Screen Widgets are available with Achiever and Visionary tiers.",
@@ -1319,9 +1320,9 @@
       },
       "alerts": {
         "deleteTask": "Delete Task",
-        "deleteTaskMessage": "Are you sure you want to delete \"{title}\"?",
+        "deleteTaskMessage": "Are you sure you want to delete \"{{title}}\"?",
         "completeTask": "Complete Task",
-        "completeTaskMessage": "Did you complete \"{title}\"?",
+        "completeTaskMessage": "Did you complete \"{{title}}\"?",
         "cancel": "Cancel",
         "delete": "Delete",
         "no": "No",
@@ -1348,7 +1349,7 @@
     },
     "weekDayCard": {
       "emptyState": {
-        "noTasksFor": "No tasks for {weekday}",
+        "noTasksFor": "No tasks for {{weekday}}",
         "dayLooksClear": "Your day looks clear."
       }
     }

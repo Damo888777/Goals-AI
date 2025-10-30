@@ -111,7 +111,7 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
         <View style={styles.visionButton}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={{ uri: selectedVisionImage?.imageUri || images.visionPlaceholder }}
+              source={selectedVisionImage?.imageUri ? { uri: selectedVisionImage.imageUri } : images.icons.createVision}
               style={styles.visionImage}
               contentFit="cover"
             />

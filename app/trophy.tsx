@@ -15,6 +15,7 @@ import { CompletedTaskCard } from '../src/components/CompletedTaskCard';
 import { CompletedMilestoneCard } from '../src/components/CompletedMilestoneCard';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { typography } from '../src/constants/typography';
+import { spacing } from '../src/constants/spacing';
 import { useGoals, useMilestones, useTasks } from '../src/hooks/useDatabase';
 import type { Goal, Milestone, Task } from '../src/types';
 
@@ -291,13 +292,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyStateTitle: {
-    ...typography.body,
-    fontWeight: '700',
+    ...typography.emptyTitle,
     textAlign: 'center',
+    marginBottom: spacing.xs,
   },
   emptyStateDescription: {
-    ...typography.small,
+    ...typography.emptyDescription,
     textAlign: 'center',
-    marginTop: 8,
   },
 });

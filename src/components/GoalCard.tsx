@@ -441,7 +441,41 @@ export function GoalCard({
       'fulfilled': { backgroundColor: '#f8ad9d', borderColor: '#e07a5f', textColor: '#e07a5f' },
     };
     
-    const emotionKey = emotion.toLowerCase();
+    // Map translated emotion names back to English keys
+    const emotionTranslationMap: { [key: string]: string } = {
+      // English
+      'confident': 'confident',
+      'grateful': 'grateful', 
+      'proud': 'proud',
+      'calm': 'calm',
+      'energized': 'energized',
+      'happy': 'happy',
+      'empowered': 'empowered',
+      'excited': 'excited',
+      'fulfilled': 'fulfilled',
+      // German
+      'sicher': 'confident',
+      'dankbar': 'grateful',
+      'stolz': 'proud',
+      'ruhig': 'calm',
+      'vital': 'energized',
+      'glücklich': 'happy',
+      'gestärkt': 'empowered',
+      'aufgeregt': 'excited',
+      'erfüllt': 'fulfilled',
+      // French
+      'confiant': 'confident',
+      'reconnaissant': 'grateful',
+      'fier': 'proud',
+      'calme': 'calm',
+      'énergisé': 'energized',
+      'heureux': 'happy',
+      'autonomisé': 'empowered',
+      'excité': 'excited',
+      'accompli': 'fulfilled',
+    };
+    
+    const emotionKey = emotionTranslationMap[emotion.toLowerCase()] || emotion.toLowerCase();
     return emotionStyles[emotionKey] || {
       backgroundColor: index === 0 ? '#BDE0FE' : '#CDB4DB',
       borderColor: index === 0 ? '#023047' : '#3D405B',

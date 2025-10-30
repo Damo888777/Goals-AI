@@ -2,7 +2,7 @@ import { serverApiKeyService } from '../../src/services/apiKeyService-server';
 
 export async function POST(request: Request) {
   try {
-    const { transcription, existingGoals = [], existingMilestones = [], language = 'en' } = await request.json();
+    const { transcription, existingGoals = [], existingMilestones = [], language = 'en', mode = 'classify' } = await request.json();
     
     if (!transcription) {
       return Response.json({ error: 'No transcription provided' }, { status: 400 });
@@ -19,6 +19,78 @@ export async function POST(request: Request) {
     }
 
     const currentDate = new Date().toISOString();
+    
+    // Handle goal title optimization mode
+    if (mode === 'optimize_goal_title') {
+      const getGoalTitlePrompt = (lang: string) => {
+        return lang === 'de' ? 
+          `Du bist ein Experte für Zielsetzung. Wandle die folgende Vision-Beschreibung in einen prägnanten, klaren Ziel-Titel um. Der Titel sollte maximal 5 Wörter lang sein, inspirierend und handlungsorientiert. Konzentriere dich auf das Hauptziel, nicht auf Details.` :
+          lang === 'fr' ?
+          `Tu es un expert en définition d'objectifs. Transforme la description de vision suivante en un titre d'objectif concis et clair. Le titre doit contenir au maximum 5 mots, être inspirant et orienté action. Concentre-toi sur l'objectif principal, pas sur les détails.` :
+          `You are a goal-setting expert. Transform the following vision description into a concise, clear goal title. The title should be maximum 5 words, inspiring and action-oriented. Focus on the main objective, not details.`;
+      };
+
+      const systemPrompt = `${getGoalTitlePrompt(language)}
+
+## Response Format:
+Always respond with valid JSON in this exact format:
+{
+  "type": "goal",
+  "title": "Concise goal title (max 5 words)"
+}
+
+Examples:
+- Vision: "I want to lose 20 pounds by summer and feel confident in my body" → Title: "Lose Weight Feel Confident"
+- Vision: "Learn to play guitar and perform at local venues" → Title: "Learn Guitar Perform Publicly"
+- Vision: "Start my own business selling handmade jewelry online" → Title: "Start Jewelry Business Online"`;
+
+      const requestBody = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `${systemPrompt}\n\nPlease optimize this vision into a goal title: "${transcription}"`
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 200,
+          responseMimeType: "application/json"
+        }
+      };
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🤖 [Gemini API] Error response:', errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!responseText) {
+        throw new Error('No response text found in Gemini API response');
+      }
+
+      const parsedResponse = JSON.parse(responseText);
+
+      return Response.json({
+        type: 'goal',
+        title: parsedResponse.title || transcription, // Fallback to original
+      });
+    }
     
     // Prepare goal/milestone context for AI
     const goalsContext = existingGoals.length > 0 

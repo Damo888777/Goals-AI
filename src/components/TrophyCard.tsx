@@ -31,9 +31,11 @@ export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProp
   // Empty state rendering
   if (emptyState) {
     return (
-      <View style={styles.emptyState}>
-        <Text style={styles.emptyStateTitle}>{emptyState.title}</Text>
-        <Text style={styles.emptyStateDescription}>{emptyState.description}</Text>
+      <View style={styles.emptyStateOuter}>
+        <View style={styles.emptyStateInner}>
+          <Text style={styles.emptyStateTitle}>{emptyState.title}</Text>
+          <Text style={styles.emptyStateDescription}>{emptyState.description}</Text>
+        </View>
       </View>
     );
   }
@@ -143,15 +145,27 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.text.primary,
   },
-  emptyState: {
+  emptyStateOuter: {
+    backgroundColor: '#F5EBE0',
+    borderWidth: 0.5,
+    borderColor: '#A3B18A',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  emptyStateInner: {
     backgroundColor: '#EAE2B7',
     borderWidth: 0.5,
-    borderColor: '#926C15',
+    borderColor: '#B69121',
     borderRadius: 20,
-    padding: spacing.xl,
+    padding: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#7C7C7C',
+    shadowColor: '#B69121',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.75,
     shadowRadius: 0,
