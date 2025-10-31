@@ -36,6 +36,19 @@ class NotificationService {
   }
 
   /**
+   * Get user's current language preference
+   */
+  private async getUserLanguage(): Promise<string> {
+    try {
+      const savedLanguage = await AsyncStorage.getItem('user-language');
+      return savedLanguage || 'en';
+    } catch (error) {
+      console.error('Failed to get user language:', error);
+      return 'en';
+    }
+  }
+
+  /**
    * Initialize OneSignal with proper configuration
    */
   async initialize(): Promise<void> {
@@ -138,7 +151,7 @@ class NotificationService {
   }
 
   /**
-   * Update user tags for personalized notifications including timezone
+   * Update user tags for personalized notifications including timezone and language
    */
   async updateUserTags(tags: Record<string, string | number | boolean>): Promise<void> {
     try {
@@ -146,20 +159,24 @@ class NotificationService {
       const timezone = this.getUserTimezone();
       const timezoneOffset = this.getTimezoneOffset();
       
+      // Get current user language
+      const userLanguage = await this.getUserLanguage();
+      
       // Convert all values to strings as required by OneSignal v5
       const stringTags: Record<string, string> = {};
       for (const [key, value] of Object.entries(tags)) {
         stringTags[key] = String(value);
       }
       
-      const tagsWithTimezone = {
+      const tagsWithTimezoneAndLanguage = {
         ...stringTags,
         timezone,
-        timezone_offset: String(timezoneOffset)
+        timezone_offset: String(timezoneOffset),
+        user_language: userLanguage
       };
       
-      OneSignal.User.addTags(tagsWithTimezone);
-      console.log('OneSignal tags updated with timezone:', tagsWithTimezone);
+      OneSignal.User.addTags(tagsWithTimezoneAndLanguage);
+      console.log('OneSignal tags updated with timezone and language:', tagsWithTimezoneAndLanguage);
       
       // Store timezone locally for reference
       await AsyncStorage.setItem('user_timezone', timezone);
@@ -170,21 +187,23 @@ class NotificationService {
   }
 
   /**
-   * Initialize user timezone tags
+   * Initialize user timezone and language tags
    */
   async initializeTimezone(): Promise<void> {
     try {
       const timezone = this.getUserTimezone();
       const timezoneOffset = this.getTimezoneOffset();
+      const userLanguage = await this.getUserLanguage();
       
       await this.updateUserTags({
         timezone,
-        timezone_offset: String(timezoneOffset)
+        timezone_offset: String(timezoneOffset),
+        user_language: userLanguage
       });
       
-      console.log(`User timezone initialized: ${timezone} (UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset})`);
+      console.log(`User timezone initialized: ${timezone} (UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}), Language: ${userLanguage}`);
     } catch (error) {
-      console.error('Failed to initialize timezone:', error);
+      console.error('Failed to initialize timezone and language:', error);
     }
   }
 
@@ -428,6 +447,20 @@ class NotificationService {
       });
     } catch (error) {
       console.error('Failed to update main goal:', error);
+    }
+  }
+
+  /**
+   * Update user language preference in OneSignal tags
+   */
+  async updateUserLanguage(language: string): Promise<void> {
+    try {
+      await this.updateUserTags({
+        user_language: language
+      });
+      console.log('User language updated in OneSignal:', language);
+    } catch (error) {
+      console.error('Failed to update user language in OneSignal:', error);
     }
   }
 

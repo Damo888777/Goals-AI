@@ -277,6 +277,110 @@ class SubscriptionService {
     }
   }
 
+  async redeemPromoCode(promoCode: string): Promise<{ success: boolean; error?: string; discount?: string }> {
+    try {
+      console.log('Attempting to redeem promo code:', promoCode);
+      
+      // RevenueCat promotional codes (iOS only)
+      if (Platform.OS === 'ios') {
+        // Use RevenueCat's presentCodeRedemptionSheet for iOS promotional codes
+        await Purchases.presentCodeRedemptionSheet();
+        
+        // After the sheet is presented, refresh customer info to check for new entitlements
+        const updatedCustomerInfo = await this.refreshCustomerInfo();
+        
+        return {
+          success: true,
+          discount: 'Applied through App Store'
+        };
+      }
+      
+      // For Android or custom promo codes, implement custom logic here
+      // This would typically involve calling your backend to validate the code
+      
+      return {
+        success: false,
+        error: 'Promotional codes are currently only supported on iOS through the App Store.'
+      };
+      
+    } catch (error: any) {
+      console.error('Failed to redeem promo code:', error);
+      
+      // Parse different types of errors
+      if (error.code === 'PROMO_CODE_INVALID') {
+        return { success: false, error: 'Invalid promo code. Please check and try again.' };
+      } else if (error.code === 'PROMO_CODE_EXPIRED') {
+        return { success: false, error: 'This promo code has expired.' };
+      } else if (error.code === 'PROMO_CODE_ALREADY_REDEEMED') {
+        return { success: false, error: 'This promo code has already been used.' };
+      } else if (error.userCancelled) {
+        return { success: false, error: 'Promo code redemption was cancelled.' };
+      }
+      
+      return {
+        success: false,
+        error: 'Unable to apply promo code. Please try again.'
+      };
+    }
+  }
+
+  async validateCustomPromoCode(promoCode: string): Promise<{ success: boolean; error?: string; discount?: string }> {
+    try {
+      // This is where you'd implement custom promo code logic
+      // For now, we'll simulate some common promo codes for testing
+      
+      const mockPromoCodes: Record<string, { discount: string; valid: boolean; expired?: boolean }> = {
+        'WELCOME10': { discount: '10%', valid: true },
+        'SAVE20': { discount: '20%', valid: true },
+        'STUDENT': { discount: '50%', valid: true },
+        'EXPIRED': { discount: '15%', valid: false, expired: true },
+        'USED': { discount: '25%', valid: false },
+      };
+      
+      const promo = mockPromoCodes[promoCode.toUpperCase()];
+      
+      if (!promo) {
+        return {
+          success: false,
+          error: 'Invalid promo code. Please check and try again.'
+        };
+      }
+      
+      if (promo.expired) {
+        return {
+          success: false,
+          error: 'This promo code has expired.'
+        };
+      }
+      
+      if (!promo.valid) {
+        return {
+          success: false,
+          error: 'This promo code has already been used.'
+        };
+      }
+      
+      // In a real implementation, you'd:
+      // 1. Call your backend API to validate the code
+      // 2. Apply the discount to the subscription
+      // 3. Store the applied promo code to prevent reuse
+      
+      console.log(`✅ Applied promo code ${promoCode} with ${promo.discount} discount`);
+      
+      return {
+        success: true,
+        discount: promo.discount
+      };
+      
+    } catch (error) {
+      console.error('Failed to validate custom promo code:', error);
+      return {
+        success: false,
+        error: 'Unable to validate promo code. Please try again.'
+      };
+    }
+  }
+
 
   // Persist subscription data to WatermelonDB for sync to Supabase
   private async persistSubscriptionData(customerInfo: CustomerInfo): Promise<void> {

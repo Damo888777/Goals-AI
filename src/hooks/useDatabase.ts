@@ -570,6 +570,39 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
         if (updates.updatedAt !== undefined) task.updatedAt = updates.updatedAt
       })
     })
+    
+    // If we updated the frog status, ensure widget data is refreshed
+    if (updates.isFrog !== undefined) {
+      try {
+        const { widgetDataService } = await import('../services/widgetDataService')
+        
+        // Get the updated frog task and today's tasks
+        const tasksCollection = database!.get<Task>('tasks')
+        const [newFrogTask, todaysTasks] = await Promise.all([
+          tasksCollection
+            .query(
+              Q.where('user_id', userId),
+              Q.where('is_frog', true),
+              Q.where('is_complete', false)
+            )
+            .fetch()
+            .then(tasks => tasks[0] || null),
+          tasksCollection
+            .query(
+              Q.where('user_id', userId),
+              Q.where('is_complete', false),
+              Q.where('scheduled_date', Q.gte(new Date().toISOString().split('T')[0])),
+              Q.where('scheduled_date', Q.lte(new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0]))
+            )
+            .fetch()
+        ])
+        
+        await widgetDataService.updateWidgetData(newFrogTask, todaysTasks)
+        console.log('✅ Widget data updated after frog task change')
+      } catch (error) {
+        console.error('❌ Failed to update widget data after task update:', error)
+      }
+    }
   }
 
   const deleteTask = async (taskId: string) => {

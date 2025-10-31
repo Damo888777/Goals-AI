@@ -1261,6 +1261,24 @@
       "subNote": "Halte gedrückt um Elemente manuell hinzuzufügen.",
       "button": "Verstanden"
     },
+    "promoCodeInput": {
+      "title": "Hast du einen Promo-Code?",
+      "placeholder": "Code eingeben",
+      "expandButton": "Hast du einen Promo-Code?",
+      "applyButton": "Anwenden",
+      "description": "Gib deinen Aktionscode ein, um spezielle Rabatte zu erhalten.",
+      "applied": {
+        "title": "Promo-Code angewendet",
+        "codeLabel": "Code",
+        "discount": "{{amount}} Rabatt angewendet"
+      },
+      "errors": {
+        "invalidCode": "Ungültiger Promo-Code. Bitte überprüfen und erneut versuchen.",
+        "expiredCode": "Dieser Promo-Code ist abgelaufen.",
+        "alreadyUsed": "Dieser Promo-Code wurde bereits verwendet.",
+        "genericError": "Promo-Code konnte nicht angewendet werden. Bitte erneut versuchen."
+      }
+    },
     "subscriptionCard": {
       "badges": {
         "popular": "BELIEBT",
@@ -1375,6 +1393,72 @@
         "visionComplete": "Deine Vision wurde zum Leben erweckt!",
         "errorMessage": "Vision konnte nicht erstellt werden. Bitte versuche es erneut."
       }
+    }
+  },
+  "notifications": {
+    "morningKickstart": {
+      "noFrogTask": {
+        "title": "Guten Morgen! 🌅",
+        "body": "Was ist die eine Aufgabe, die den heutigen Tag erfolgreich macht? Zeit, deinen Frosch zu setzen."
+      },
+      "frogTaskSet": {
+        "title": "Bereit den Tag zu gewinnen? 🏆",
+        "body": "Deine Priorität ist '{{taskTitle}}'. Lass es uns früh erledigen."
+      },
+      "fallback": {
+        "title": "Guten Morgen! 🌅",
+        "body": "Bereit, heute großartig zu machen? Lass uns mit deiner wichtigsten Aufgabe beginnen."
+      }
+    },
+    "visionBoardReminder": {
+      "withMainGoal": {
+        "title": "Erinnere dich, warum du angefangen hast",
+        "body": "Betrachte deine Vision-Bilder für \"{{mainGoalTitle}}\" und verbringe 5 Minuten damit, deinen Erfolg zu visualisieren. Sieh dich selbst dabei, wie du dieses Ziel erreichst."
+      },
+      "noMainGoal": {
+        "title": "Erstelle deine Vision",
+        "body": "Nimm dir 5 Minuten Zeit, um dein Vision Board zu erstellen oder zu betrachten. Visualisiere deine ideale Zukunft und die Ziele, die du erreichen möchtest."
+      },
+      "fallback": {
+        "title": "Vision Board Check-in",
+        "body": "Öffne dein Vision Board und verbringe 5 Minuten damit, dich mit deinen Zielen zu verbinden. Visualisiere deinen Erfolg und fühle die Errungenschaft."
+      }
+    },
+    "eveningCheckin": {
+      "frogCompleted": {
+        "title": "Ein weiterer Tag, ein weiterer Sieg! 🏆",
+        "body": "Deine 'Frosch essen' Serie ist jetzt bei {{streakCount}} Tagen. 🔥 Mach weiter so mit der unglaublichen Arbeit."
+      },
+      "frogNotCompleted": {
+        "title": "Noch Zeit zu gewinnen",
+        "body": "Es ist noch Zeit, '{{taskTitle}}' anzugehen und deine {{streakCount}}-Tage-Serie am Leben zu erhalten!"
+      },
+      "noFrogTask": {
+        "title": "Wie war dein Tag?",
+        "body": "Reflektiere über den heutigen Fortschritt und setze die Prioritätsaufgabe für morgen."
+      },
+      "fallback": {
+        "title": "Wie war dein Tag?",
+        "body": "Nimm dir einen Moment Zeit, um über die heutigen Errungenschaften zu reflektieren."
+      }
+    },
+    "reEngagement": {
+      "threeDayInactivity": {
+        "title": "Bereit für deinen nächsten Schritt?",
+        "body": "Jede große Reise hat Momente der Ruhe. Wenn du bereit bist, wartet deine Vision. Ein kleiner Schritt reicht, um wieder auf Kurs zu kommen."
+      },
+      "sevenDayInactivity": {
+        "title": "Deine Reise wartet",
+        "body": "Erinnerst du dich an dein Ziel '{{goalTitle}}'? Deine Siege im Trophäen-Raum beweisen, dass du es schaffen kannst. Lass uns das nächste Kapitel beginnen."
+      },
+      "fallback": {
+        "title": "Wir vermissen dich!",
+        "body": "Deine Ziele warten auf dich. Bereit, deine Reise fortzusetzen?"
+      }
+    },
+    "test": {
+      "title": "Test Benachrichtigung 🧪",
+      "body": "Dies ist eine Test-Benachrichtigung, um zu überprüfen, ob die OneSignal-Integration korrekt funktioniert."
     }
   }
 }

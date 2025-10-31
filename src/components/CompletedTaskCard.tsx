@@ -61,9 +61,9 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
       return goalName;
     }
     if (task?.goalId || task?.milestoneId) {
-      return t('components.completedTaskCard.linkedToProject');
+      return t('completedTask.project.linkedToProject');
     }
-    return t('components.completedTaskCard.noProjectLinked');
+    return t('completedTask.project.noProjectLinked');
   };
 
   // Empty state rendering
@@ -115,7 +115,7 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
           <View style={styles.dateRow}>
             <Ionicons name="calendar-outline" size={12} color="#364958" />
             <Text style={styles.completionDate}>
-              {t('components.completedTaskCard.completed')}: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
+              {t('completedTask.completion.completed')}: {formatDate(task.updatedAt?.toISOString() || new Date().toISOString())}
             </Text>
           </View>
         </View>

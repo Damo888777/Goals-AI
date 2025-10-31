@@ -1281,6 +1281,24 @@
         "unlocked": "Unlocked"
       }
     },
+    "promoCodeInput": {
+      "title": "Have a promo code?",
+      "placeholder": "Enter code",
+      "expandButton": "Have a promo code?",
+      "applyButton": "Apply",
+      "description": "Enter your promotional code to unlock special discounts.",
+      "applied": {
+        "title": "Promo Code Applied",
+        "codeLabel": "Code",
+        "discount": "{{amount}} discount applied"
+      },
+      "errors": {
+        "invalidCode": "Invalid promo code. Please check and try again.",
+        "expiredCode": "This promo code has expired.",
+        "alreadyUsed": "This promo code has already been used.",
+        "genericError": "Unable to apply promo code. Please try again."
+      }
+    },
     "subscriptionGate": {
       "defaultPrompt": {
         "title": "Upgrade Required",
@@ -1374,6 +1392,72 @@
       "pleaseWait": "This may take a moment...",
       "visionComplete": "Your vision has been brought to life!",
       "errorMessage": "Unable to create your vision. Please try again."
+    }
+  },
+  "notifications": {
+    "morningKickstart": {
+      "noFrogTask": {
+        "title": "Good Morning! 🌅",
+        "body": "What's the one task that will make today a victory? It's time to set your Frog."
+      },
+      "frogTaskSet": {
+        "title": "Ready to Win the Day? 🏆",
+        "body": "Your priority is '{{taskTitle}}'. Let's get it done early."
+      },
+      "fallback": {
+        "title": "Good Morning! 🌅",
+        "body": "Ready to make today amazing? Let's start with your most important task."
+      }
+    },
+    "visionBoardReminder": {
+      "withMainGoal": {
+        "title": "Remember why you started",
+        "body": "Review your vision images from your vision board for \"{{mainGoalTitle}}\" and spend 5 minutes visualizing your success. See yourself achieving this goal."
+      },
+      "noMainGoal": {
+        "title": "Create Your Vision",
+        "body": "Take 5 minutes to create or review your vision board. Visualize your ideal future and the goals you want to achieve."
+      },
+      "fallback": {
+        "title": "Vision Board Check-in",
+        "body": "Open your vision board and spend 5 minutes connecting with your goals. Visualize your success and feel the achievement."
+      }
+    },
+    "eveningCheckin": {
+      "frogCompleted": {
+        "title": "Another Day, Another Victory! 🏆",
+        "body": "Your 'Eat the Frog' streak is now at {{streakCount}} days. 🔥 Keep up the incredible work."
+      },
+      "frogNotCompleted": {
+        "title": "Still Time to Win",
+        "body": "There's still time to tackle '{{taskTitle}}' and keep your {{streakCount}}-day streak alive!"
+      },
+      "noFrogTask": {
+        "title": "How Was Your Day?",
+        "body": "Reflect on today's progress and set tomorrow's priority task."
+      },
+      "fallback": {
+        "title": "How Was Your Day?",
+        "body": "Take a moment to reflect on today's achievements."
+      }
+    },
+    "reEngagement": {
+      "threeDayInactivity": {
+        "title": "Ready for Your Next Step?",
+        "body": "Every great journey has moments of rest. When you're ready, your vision is waiting. One small step is all it takes to get back on track."
+      },
+      "sevenDayInactivity": {
+        "title": "Your Journey Awaits",
+        "body": "Remember your goal to '{{goalTitle}}'? Your victories in the Trophy Room prove you can do it. Let's start the next chapter."
+      },
+      "fallback": {
+        "title": "We Miss You!",
+        "body": "Your goals are waiting for you. Ready to continue your journey?"
+      }
+    },
+    "test": {
+      "title": "Test Notification 🧪",
+      "body": "This is a test notification to verify OneSignal integration is working correctly."
     }
   },
   "infoContent": {

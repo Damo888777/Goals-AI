@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useSubscription } from '../src/hooks/useSubscription';
 import { SubscriptionCard } from '../src/components/SubscriptionCard';
+import { PromoCodeInput } from '../src/components/PromoCodeInput';
 
 export default function OnboardingPaywallScreen() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export default function OnboardingPaywallScreen() {
     subscriptionPlans,
     purchasePackage,
     restorePurchases,
+    validateCustomPromoCode,
     isLoading: subscriptionLoading
   } = useSubscription();
 
@@ -241,6 +243,13 @@ export default function OnboardingPaywallScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {/* Promotional Code Input */}
+        <PromoCodeInput
+          onPromoCodeApplied={validateCustomPromoCode}
+          isLoading={isLoading}
+          style={{ marginBottom: 24 }}
+        />
 
         {/* Subscription Cards */}
         <View style={{ gap: 24, marginBottom: 40, paddingTop: 16 }}>

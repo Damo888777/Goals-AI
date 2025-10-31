@@ -255,10 +255,10 @@ export function OverdueTasksModal({
 
                     {/* Frog Badge */}
                     {(task._raw?.is_frog || task.isFrog) && (
-                      <View style={styles.frogBadge}>
+                      <View style={styles.frogBadgeSmall}>
                         <Image 
                           source={require('../../assets/frog.png')}
-                          style={styles.frogIcon}
+                          style={styles.frogIconSmall}
                           contentFit="contain"
                         />
                       </View>
@@ -474,22 +474,29 @@ const styles = StyleSheet.create({
     color: '#BC4B51',
     fontWeight: '500',
   },
-  frogBadge: {
+  frogBadgeSmall: {
     position: 'absolute',
     top: 0,
     right: 0,
-    width: 20,
-    height: 20,
-    backgroundColor: '#90EE90',
+    width: 24,
+    height: 24,
+    backgroundColor: '#A3B18A',
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 0.5,
-    borderColor: '#228B22',
+    borderWidth: 1,
+    borderColor: '#9B9B9B',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 2,
+    padding: 3,
   },
-  frogIcon: {
-    width: 12,
-    height: 12,
+  frogIconSmall: {
+    width: 16,
+    height: 16,
+    opacity: 1,
   },
   actionButtonsContainer: {
     padding: 20,

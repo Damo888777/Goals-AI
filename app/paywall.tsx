@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useSubscription } from '../src/hooks/useSubscription';
 import { SubscriptionCard } from '../src/components/SubscriptionCard';
+import { PromoCodeInput } from '../src/components/PromoCodeInput';
 
 export default function PaywallScreen() {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ export default function PaywallScreen() {
     subscriptionPlans,
     purchasePackage,
     restorePurchases,
+    validateCustomPromoCode,
     isLoading: subscriptionLoading,
     currentTier,
     isSubscribed
@@ -318,6 +320,13 @@ export default function PaywallScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {/* Promotional Code Input */}
+        <PromoCodeInput
+          onPromoCodeApplied={validateCustomPromoCode}
+          isLoading={isLoading}
+          style={{ marginBottom: 24 }}
+        />
 
         {/* Subscription Cards */}
         <View style={{ gap: 24, marginBottom: 40, paddingTop: 16 }}>

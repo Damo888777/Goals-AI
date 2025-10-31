@@ -34,25 +34,6 @@ export default function TodayTab() {
     console.log('FAB long pressed - Show context menu');
   };
 
-  const handleAddFrogTask = async (taskData: {
-    title: string;
-    scheduledDate: Date;
-    isFrog: boolean;
-    creationSource: 'spark' | 'manual';
-  }) => {
-    try {
-      await createTask({
-        title: taskData.title,
-        scheduledDate: taskData.scheduledDate,
-        isFrog: taskData.isFrog,
-        creationSource: taskData.creationSource
-      });
-      console.log('Frog task created successfully');
-    } catch (error) {
-      console.error('Error creating frog task:', error);
-    }
-  };
-
   const handleSelectFrog = () => {
     console.log('Select frog task');
   };
@@ -142,7 +123,6 @@ export default function TodayTab() {
 
   // Use real database data only
   const displayTasks = todaysTasks || [];
-  const displayFrogTask = frogTask;
 
   return (
     <View style={styles.container}>
@@ -162,7 +142,6 @@ export default function TodayTab() {
         {/* Eat the Frog Section */}
         <EatTheFrogSection
           frogTask={frogTask}
-          onAddFrogTask={handleAddFrogTask}
           onSelectFrog={handleSelectFrog}
           onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}

@@ -4,6 +4,7 @@ import database from '../db';
 import { Q } from '@nozbe/watermelondb';
 import Goal from '../db/models/Goal';
 import Task from '../db/models/Task';
+import i18n from './i18next';
 
 export interface NotificationData {
   type: 'morning_kickstart' | 'vision_board_reminder' | 'evening_checkin' | 're_engagement';
@@ -95,8 +96,8 @@ class NotificationScheduler {
         // Scenario A: "Eat the Frog" for the current day is NOT set
         return {
           type: 'morning_kickstart',
-          title: 'Good Morning! 🌅',
-          body: "What's the one task that will make today a victory? It's time to set your Frog.",
+          title: i18n.t('notifications.morningKickstart.noFrogTask.title'),
+          body: i18n.t('notifications.morningKickstart.noFrogTask.body'),
           data: {
             type: 'morning_kickstart',
             scenario: 'no_frog_task',
@@ -107,8 +108,8 @@ class NotificationScheduler {
         // Scenario B: "Eat the Frog" for the current day IS set
         return {
           type: 'morning_kickstart',
-          title: 'Ready to Win the Day? 🏆',
-          body: `Your priority is '${todaysFrogTask.title}'. Let's get it done early.`,
+          title: i18n.t('notifications.morningKickstart.frogTaskSet.title'),
+          body: i18n.t('notifications.morningKickstart.frogTaskSet.body', { taskTitle: todaysFrogTask.title }),
           data: {
             type: 'morning_kickstart',
             scenario: 'frog_task_set',
@@ -123,8 +124,8 @@ class NotificationScheduler {
       // Fallback notification
       return {
         type: 'morning_kickstart',
-        title: 'Good Morning! 🌅',
-        body: "Ready to make today amazing? Let's start with your most important task.",
+        title: i18n.t('notifications.morningKickstart.fallback.title'),
+        body: i18n.t('notifications.morningKickstart.fallback.body'),
         data: { type: 'morning_kickstart', scenario: 'fallback' }
       };
     }
@@ -140,8 +141,8 @@ class NotificationScheduler {
       if (mainGoal) {
         return {
           type: 'vision_board_reminder',
-          title: 'Remember why you started',
-          body: `Review your vision images from your vision board for "${mainGoal.title}" and spend 5 minutes visualizing your success. See yourself achieving this goal.`,
+          title: i18n.t('notifications.visionBoardReminder.withMainGoal.title'),
+          body: i18n.t('notifications.visionBoardReminder.withMainGoal.body', { mainGoalTitle: mainGoal.title }),
           data: {
             type: 'vision_board_reminder',
             scenario: 'with_main_goal',
@@ -153,8 +154,8 @@ class NotificationScheduler {
       } else {
         return {
           type: 'vision_board_reminder',
-          title: 'Create Your Vision',
-          body: 'Take 5 minutes to create or review your vision board. Visualize your ideal future and the goals you want to achieve.',
+          title: i18n.t('notifications.visionBoardReminder.noMainGoal.title'),
+          body: i18n.t('notifications.visionBoardReminder.noMainGoal.body'),
           data: {
             type: 'vision_board_reminder',
             scenario: 'no_main_goal',
@@ -167,8 +168,8 @@ class NotificationScheduler {
       // Fallback notification
       return {
         type: 'vision_board_reminder',
-        title: 'Vision Board Check-in',
-        body: 'Open your vision board and spend 5 minutes connecting with your goals. Visualize your success and feel the achievement.',
+        title: i18n.t('notifications.visionBoardReminder.fallback.title'),
+        body: i18n.t('notifications.visionBoardReminder.fallback.body'),
         data: { type: 'vision_board_reminder', scenario: 'fallback' }
       };
     }
@@ -187,8 +188,8 @@ class NotificationScheduler {
         // Scenario A: The "Eat the Frog" task for the day HAS been completed
         return {
           type: 'evening_checkin',
-          title: 'Another Day, Another Victory! 🏆',
-          body: `Your 'Eat the Frog' streak is now at ${streakCount} days. 🔥 Keep up the incredible work.`,
+          title: i18n.t('notifications.eveningCheckin.frogCompleted.title'),
+          body: i18n.t('notifications.eveningCheckin.frogCompleted.body', { streakCount }),
           data: {
             type: 'evening_checkin',
             scenario: 'frog_completed',
@@ -201,8 +202,11 @@ class NotificationScheduler {
         // Scenario B: The "Eat the Frog" task for the day HAS NOT been completed
         return {
           type: 'evening_checkin',
-          title: 'Still Time to Win',
-          body: `There's still time to tackle '${todaysFrogTask.title}' and keep your ${streakCount}-day streak alive!`,
+          title: i18n.t('notifications.eveningCheckin.frogNotCompleted.title'),
+          body: i18n.t('notifications.eveningCheckin.frogNotCompleted.body', { 
+            taskTitle: todaysFrogTask.title, 
+            streakCount 
+          }),
           data: {
             type: 'evening_checkin',
             scenario: 'frog_not_completed',
@@ -216,8 +220,8 @@ class NotificationScheduler {
         // No frog task set for today
         return {
           type: 'evening_checkin',
-          title: 'How Was Your Day?',
-          body: "Reflect on today's progress and set tomorrow's priority task.",
+          title: i18n.t('notifications.eveningCheckin.noFrogTask.title'),
+          body: i18n.t('notifications.eveningCheckin.noFrogTask.body'),
           data: {
             type: 'evening_checkin',
             scenario: 'no_frog_task',
@@ -230,8 +234,8 @@ class NotificationScheduler {
       // Fallback notification
       return {
         type: 'evening_checkin',
-        title: 'How Was Your Day?',
-        body: "Take a moment to reflect on today's achievements.",
+        title: i18n.t('notifications.eveningCheckin.fallback.title'),
+        body: i18n.t('notifications.eveningCheckin.fallback.body'),
         data: { type: 'evening_checkin', scenario: 'fallback' }
       };
     }
@@ -250,8 +254,8 @@ class NotificationScheduler {
         const goalTitle = mainGoal?.title || 'your goals';
         return {
           type: 're_engagement',
-          title: 'Your Journey Awaits',
-          body: `Remember your goal to '${goalTitle}'? Your victories in the Trophy Room prove you can do it. Let's start the next chapter.`,
+          title: i18n.t('notifications.reEngagement.sevenDayInactivity.title'),
+          body: i18n.t('notifications.reEngagement.sevenDayInactivity.body', { goalTitle }),
           data: {
             type: 're_engagement',
             scenario: '7_day_inactivity',
@@ -264,8 +268,8 @@ class NotificationScheduler {
         // Scenario A: 3 days of app inactivity
         return {
           type: 're_engagement',
-          title: 'Ready for Your Next Step?',
-          body: "Every great journey has moments of rest. When you're ready, your vision is waiting. One small step is all it takes to get back on track.",
+          title: i18n.t('notifications.reEngagement.threeDayInactivity.title'),
+          body: i18n.t('notifications.reEngagement.threeDayInactivity.body'),
           data: {
             type: 're_engagement',
             scenario: '3_day_inactivity',
@@ -278,8 +282,8 @@ class NotificationScheduler {
       // Fallback notification
       return {
         type: 're_engagement',
-        title: 'We Miss You!',
-        body: "Your goals are waiting for you. Ready to continue your journey?",
+        title: i18n.t('notifications.reEngagement.fallback.title'),
+        body: i18n.t('notifications.reEngagement.fallback.body'),
         data: { type: 're_engagement', scenario: 'fallback' }
       };
     }
@@ -503,8 +507,8 @@ class NotificationScheduler {
     try {
       const testNotification: NotificationData = {
         type: 'morning_kickstart',
-        title: 'Test Notification 🧪',
-        body: 'This is a test notification to verify OneSignal integration is working correctly.',
+        title: i18n.t('notifications.test.title'),
+        body: i18n.t('notifications.test.body'),
         data: {
           type: 'test',
           scenario: 'test_notification',

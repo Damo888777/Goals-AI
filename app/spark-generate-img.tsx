@@ -496,7 +496,11 @@ export default function SparkGenerateIMGScreen() {
                       {
                         text: t('sparkGenerateImg.alerts.viewVisionBoard'),
                         onPress: () => {
-                          router.push('/vision-board');
+                          // Navigate to main tabs then to vision board to reset navigation stack
+                          router.replace('/(tabs)');
+                          setTimeout(() => {
+                            router.push('/vision-board');
+                          }, 100);
                         }
                       }
                     ]);
@@ -571,13 +575,17 @@ export default function SparkGenerateIMGScreen() {
                   borderWidth: 1,
                   borderColor: '#BC4B51',
                   borderRadius: 10,
-                  paddingVertical: 15,
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 10,
                 }}
               >
                 <Text style={{
                   color: '#BC4B51',
-                  fontSize: 16,
+                  fontSize: 15,
                   fontFamily: 'Helvetica-Bold',
                 }}>
                   {t('sparkGenerateImg.buttons.delete')}

@@ -76,57 +76,66 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
               
               // Clear all database tables first (including profiles)
               if (database) {
-                await database.write(async () => {
-                  // Delete all records from all tables including profiles
-                  const collections = [
-                    'profiles',
-                    'goals',
-                    'milestones', 
-                    'tasks',
-                    'vision_images',
-                    'focus_sessions',
-                    'subscriptions',
-                    'subscription_usage'
-                  ];
-                  
-                  for (const collectionName of collections) {
-                    try {
-                      if (!database) {
-                        console.warn(`⚠️ Database not available, skipping ${collectionName}`);
-                        return;
+                try {
+                  await database.write(async () => {
+                    // Delete all records from all tables including profiles
+                    const collections = [
+                      'focus_sessions',
+                      'tasks',
+                      'milestones', 
+                      'goals',
+                      'vision_images',
+                      'subscription_usage',
+                      'subscriptions',
+                      'profiles'  // Delete profiles last to avoid constraint issues
+                    ];
+                    
+                    for (const collectionName of collections) {
+                      try {
+                        const collection = database.get(collectionName);
+                        const allRecords = await collection.query().fetch();
+                        
+                        if (allRecords.length > 0) {
+                          await Promise.all(allRecords.map(record => record.destroyPermanently()));
+                        }
+                        
+                        console.log(`✅ Cleared ${collectionName}: ${allRecords.length} records deleted`);
+                      } catch (error) {
+                        console.error(`❌ Error clearing ${collectionName}:`, error);
                       }
-                      const collection = database.get(collectionName);
-                      const allRecords = await collection.query().fetch();
-                      
-                      for (const record of allRecords) {
-                        await record.destroyPermanently();
-                      }
-                      
-                      console.log(`✅ Cleared ${collectionName}: ${allRecords.length} records deleted`);
-                    } catch (error) {
-                      console.error(`❌ Error clearing ${collectionName}:`, error);
                     }
-                  }
-                });
+                  });
+                  console.log('✅ All database tables cleared successfully');
+                } catch (error) {
+                  console.error('❌ Error during database write transaction:', error);
+                }
               }
               
-              // Clear all AsyncStorage (including persistent anonymous ID)
+              // First reset onboarding data (before clearing AsyncStorage completely)
+              await resetOnboarding();
+              
+              // Then clear all remaining AsyncStorage (including persistent anonymous ID)
               await AsyncStorage.clear();
               console.log('✅ AsyncStorage cleared (including persistent anonymous ID)');
               
-              // Reset onboarding data
-              await resetOnboarding();
-              
-              // Force auth service to create a completely new anonymous user
-              // This will generate a new persistent anonymous ID
+              // Force auth service to initialize with a completely new anonymous user
+              // This will generate a new persistent anonymous ID since AsyncStorage was cleared
               await authService.initialize();
               
               console.log('🚀 Complete data wipe finished, restarting app...');
               
               onClose(); // Close modal
-              router.replace('/onboarding'); // Force restart onboarding
               
-              Alert.alert('Success', 'All data has been wiped. The app has been reset to first-time use state.');
+              // Small delay to ensure all cleanup is complete before navigation
+              setTimeout(() => {
+                console.log('🚀 Navigating to onboarding...');
+                router.replace('/onboarding'); // Force restart onboarding
+                
+                // Show success after navigation
+                setTimeout(() => {
+                  Alert.alert('Success', 'All data has been wiped. The app has been reset to first-time use state.');
+                }, 500);
+              }, 200);
               
             } catch (error) {
               console.error('❌ Error during complete reset:', error);

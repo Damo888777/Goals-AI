@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -139,6 +139,11 @@ export default function OnboardingScreen() {
     taskTitle: currentSession?.firstTaskTitle || '',
   });
 
+  // Refs to track the last persisted values to prevent loops
+  const lastPersistedName = useRef<string>('');
+  const lastPersistedPersonalization = useRef<string>('');
+  const isRestoringSession = useRef<boolean>(false);
+
   // Initialize onboarding session on component mount
   useEffect(() => {
     const initializeSession = async () => {
@@ -153,6 +158,9 @@ export default function OnboardingScreen() {
   useEffect(() => {
     if (currentSession) {
       console.log('🔄 Processing current session:', currentSession);
+      
+      // Set restoration flag to prevent update loops
+      isRestoringSession.current = true;
       
       // Restore current step from session
       const stepMap: { [key: number]: OnboardingStep } = {
@@ -169,6 +177,10 @@ export default function OnboardingScreen() {
       const restoredStep = stepMap[currentSession.currentStep] || 'language';
       setCurrentStep(restoredStep);
       console.log('🔄 Restored to step:', restoredStep, 'from currentStep:', currentSession.currentStep);
+      
+      // Update the refs with current session values to prevent immediate updates
+      lastPersistedName.current = currentSession.userName || '';
+      lastPersistedPersonalization.current = currentSession.genderPreference || '';
       
       // Restore all session data to local state
       setData({
@@ -191,27 +203,50 @@ export default function OnboardingScreen() {
         hasGoalTitle: !!currentSession.goalTitle,
         emotionsCount: currentSession.goalEmotions?.length || 0
       });
+      
+      // Clear restoration flag after a tick
+      setTimeout(() => {
+        isRestoringSession.current = false;
+      }, 0);
     }
   }, [currentSession]);
 
-  // Update session data when local data changes
+  // Update session data when local data changes (with loop prevention)
   useEffect(() => {
-    if (currentSession && currentSession.id && data.name !== currentSession.userName && data.name) {
+    if (
+      currentSession && 
+      currentSession.id && 
+      data.name && 
+      data.name !== lastPersistedName.current &&
+      !isRestoringSession.current
+    ) {
+      lastPersistedName.current = data.name; // Update ref immediately to prevent loops
       const stepNumber = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
       updateOnboardingStep(stepNumber, { userName: data.name }).catch(error => {
-        console.log('Session update failed (non-critical):', error.message);
+        console.log('Name update failed (non-critical):', error.message);
+        // Reset ref on failure so user can retry
+        lastPersistedName.current = currentSession.userName || '';
       });
     }
-  }, [data.name, currentSession?.userName, currentStep]);
+  }, [data.name, currentStep]);
 
   useEffect(() => {
-    if (currentSession && currentSession.id && data.personalization !== currentSession.genderPreference && data.personalization) {
+    if (
+      currentSession && 
+      currentSession.id && 
+      data.personalization && 
+      data.personalization !== lastPersistedPersonalization.current &&
+      !isRestoringSession.current
+    ) {
+      lastPersistedPersonalization.current = data.personalization; // Update ref immediately to prevent loops
       const stepNumber = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
       updateOnboardingStep(stepNumber, { genderPreference: data.personalization }).catch(error => {
-        console.log('Session update failed (non-critical):', error.message);
+        console.log('Personalization update failed (non-critical):', error.message);
+        // Reset ref on failure so user can retry
+        lastPersistedPersonalization.current = currentSession.genderPreference || '';
       });
     }
-  }, [data.personalization, currentSession?.genderPreference, currentStep]);
+  }, [data.personalization, currentStep]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationState, setGenerationState] = useState<ImageGenerationState>('idle');

@@ -182,7 +182,7 @@ class OnboardingService {
     const sessionData: OnboardingSessionData = {
       userId: currentUser.id,
       startedAt: new Date(),
-      currentStep: 1,
+      currentStep: 0,
       isCompleted: false
     };
 
@@ -386,6 +386,18 @@ class OnboardingService {
       // Mark as completed locally
       await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
       
+      // Clear current session since onboarding is now complete
+      this.currentSession = null;
+      
+      // Trigger a sync after onboarding completion to sync any skipped profile data
+      try {
+        const { syncService } = await import('./syncService');
+        syncService.scheduleSync(2000); // Sync after 2 seconds to allow for proper completion
+        console.log('📤 Scheduled post-onboarding sync to sync profile data');
+      } catch (error) {
+        console.error('Failed to schedule post-onboarding sync:', error);
+      }
+      
       console.log('✅ Onboarding completed successfully with entities created');
     } catch (error) {
       console.error('Error completing onboarding:', error);
@@ -445,8 +457,8 @@ class OnboardingService {
    */
   async resetOnboarding(): Promise<void> {
     try {
-      // Clear local storage
-      await AsyncStorage.multiRemove([ONBOARDING_COMPLETED_KEY, ONBOARDING_DATA_KEY, SPARK_TUTORIAL_KEY]);
+      // Clear local storage including language preference to default to English
+      await AsyncStorage.multiRemove([ONBOARDING_COMPLETED_KEY, ONBOARDING_DATA_KEY, SPARK_TUTORIAL_KEY, 'user-language']);
       
       // Clear current session
       this.currentSession = null;
@@ -464,6 +476,15 @@ class OnboardingService {
       
       // Re-initialize auth to ensure user is properly authenticated after reset
       await authService.initialize();
+      
+      // Reset language to English by default
+      try {
+        const i18n = (await import('./i18next')).default;
+        await i18n.changeLanguage('en');
+        console.log('✅ Language reset to English');
+      } catch (error) {
+        console.warn('Failed to reset language to English:', error);
+      }
       
       console.log('✅ Onboarding reset completed');
     } catch (error) {

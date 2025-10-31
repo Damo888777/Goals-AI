@@ -16,6 +16,8 @@ interface SubscriptionContextType {
   refreshSubscription: () => Promise<void>;
   purchasePackage: (plan: SubscriptionPlan) => Promise<{ success: boolean; error?: string }>;
   restorePurchases: () => Promise<{ success: boolean; error?: string }>;
+  redeemPromoCode: (promoCode: string) => Promise<{ success: boolean; error?: string; discount?: string }>;
+  validateCustomPromoCode: (promoCode: string) => Promise<{ success: boolean; error?: string; discount?: string }>;
   
   // Access Control
   canCreateGoal: (currentGoalCount: number) => boolean;
@@ -115,6 +117,39 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     }
   };
 
+  // Redeem promotional code
+  const redeemPromoCode = async (promoCode: string): Promise<{ success: boolean; error?: string; discount?: string }> => {
+    try {
+      const result = await subscriptionService.redeemPromoCode(promoCode);
+      
+      if (result.success) {
+        // Refresh subscription state after successful redemption
+        await refreshSubscription();
+      }
+      
+      return result;
+    } catch (error: any) {
+      console.error('Redeem promo code failed:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Failed to redeem promo code. Please try again.' 
+      };
+    }
+  };
+
+  // Validate custom promotional code
+  const validateCustomPromoCode = async (promoCode: string): Promise<{ success: boolean; error?: string; discount?: string }> => {
+    try {
+      return await subscriptionService.validateCustomPromoCode(promoCode);
+    } catch (error: any) {
+      console.error('Validate custom promo code failed:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Failed to validate promo code. Please try again.' 
+      };
+    }
+  };
+
   // Access control methods
   const canCreateGoal = (currentGoalCount: number): boolean => {
     return subscriptionService.canCreateGoal(currentGoalCount);
@@ -183,6 +218,8 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     refreshSubscription,
     purchasePackage,
     restorePurchases,
+    redeemPromoCode,
+    validateCustomPromoCode,
     
     // Access Control
     canCreateGoal,

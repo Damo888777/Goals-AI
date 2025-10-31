@@ -127,13 +127,13 @@ const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
 
   if (isActive) {
     return (
-      <View style={{ width: 30, height: 30 }}>
+      <View style={{ width: 40, height: 40 }}>
         <LottieView
           ref={animationRef}
           source={require('../../assets/animations/Fire animation.json')}
           style={{
-            width: 24,
-            height: 24,
+            width: 36,
+            height: 36,
           }}
           autoPlay={true}
           loop={true}
@@ -147,7 +147,7 @@ const AnimatedFlame: React.FC<{ isActive: boolean }> = ({ isActive }) => {
   return (
     <Ionicons 
       name="flame" 
-      size={24} 
+      size={36} 
       color="#7C7C7C" 
     />
   );

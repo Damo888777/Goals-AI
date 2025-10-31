@@ -280,22 +280,33 @@ class SyncService {
     })
 
     try {
-      // Push profiles
-      if (safeChanges.profiles.created.length > 0) {
-        const { error } = await supabase
-          .from('profiles')
-          .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase.bind(this)))
-        if (error) throw error
-      }
-
-      if (safeChanges.profiles.updated.length > 0) {
-        for (const profile of safeChanges.profiles.updated) {
+      // Check if onboarding is in progress to skip profile operations
+      const { onboardingService } = await import('./onboardingService');
+      const isOnboardingInProgress = onboardingService.getCurrentSession()?.isCompleted === false;
+      
+      // Push profiles (skip during onboarding to avoid RLS policy issues)
+      if (!isOnboardingInProgress) {
+        if (safeChanges.profiles.created.length > 0) {
           const { error } = await supabase
             .from('profiles')
-            .update(this.transformLocalToSupabase.bind(this)(profile))
-            .eq('id', profile.id)
+            .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase.bind(this)))
           if (error) throw error
         }
+
+        if (safeChanges.profiles.updated.length > 0) {
+          for (const profile of safeChanges.profiles.updated) {
+            const { error } = await supabase
+              .from('profiles')
+              .update(this.transformLocalToSupabase.bind(this)(profile))
+              .eq('id', profile.id)
+            if (error) throw error
+          }
+        }
+      } else {
+        console.log('⏸️ Skipping profile sync during onboarding');
+        // Clear profile changes to prevent them from being retried
+        safeChanges.profiles.created = [];
+        safeChanges.profiles.updated = [];
       }
 
       // Push goals

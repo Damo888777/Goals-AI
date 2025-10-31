@@ -1261,6 +1261,24 @@
       "subNote": "Maintenez appuyé pour ajouter des éléments manuellement.",
       "button": "Compris"
     },
+    "promoCodeInput": {
+      "title": "Avez-vous un code promo ?",
+      "placeholder": "Entrer le code",
+      "expandButton": "Avez-vous un code promo ?",
+      "applyButton": "Appliquer",
+      "description": "Entrez votre code promotionnel pour débloquer des remises spéciales.",
+      "applied": {
+        "title": "Code promo appliqué",
+        "codeLabel": "Code",
+        "discount": "Remise de {{amount}} appliquée"
+      },
+      "errors": {
+        "invalidCode": "Code promo invalide. Veuillez vérifier et réessayer.",
+        "expiredCode": "Ce code promo a expiré.",
+        "alreadyUsed": "Ce code promo a déjà été utilisé.",
+        "genericError": "Impossible d'appliquer le code promo. Veuillez réessayer."
+      }
+    },
     "subscriptionCard": {
       "badges": {
         "popular": "POPULAIRE",
@@ -1375,6 +1393,72 @@
         "visionComplete": "Votre vision a pris vie !",
         "errorMessage": "Impossible de créer votre vision. Veuillez réessayer."
       }
+    }
+  },
+  "notifications": {
+    "morningKickstart": {
+      "noFrogTask": {
+        "title": "Bonjour ! 🌅",
+        "body": "Quelle est la tâche qui fera de cette journée une victoire ? Il est temps de définir votre Grenouille."
+      },
+      "frogTaskSet": {
+        "title": "Prêt à Gagner la Journée ? 🏆",
+        "body": "Votre priorité est '{{taskTitle}}'. Accomplissons-la tôt."
+      },
+      "fallback": {
+        "title": "Bonjour ! 🌅",
+        "body": "Prêt à rendre cette journée incroyable ? Commençons par votre tâche la plus importante."
+      }
+    },
+    "visionBoardReminder": {
+      "withMainGoal": {
+        "title": "Rappelez-vous pourquoi vous avez commencé",
+        "body": "Examinez vos images de vision pour \"{{mainGoalTitle}}\" et passez 5 minutes à visualiser votre succès. Voyez-vous atteindre cet objectif."
+      },
+      "noMainGoal": {
+        "title": "Créez Votre Vision",
+        "body": "Prenez 5 minutes pour créer ou examiner votre tableau de vision. Visualisez votre futur idéal et les objectifs que vous voulez atteindre."
+      },
+      "fallback": {
+        "title": "Check-in Tableau de Vision",
+        "body": "Ouvrez votre tableau de vision et passez 5 minutes à vous connecter avec vos objectifs. Visualisez votre succès et ressentez l'accomplissement."
+      }
+    },
+    "eveningCheckin": {
+      "frogCompleted": {
+        "title": "Un Autre Jour, Une Autre Victoire ! 🏆",
+        "body": "Votre série 'Manger la Grenouille' est maintenant à {{streakCount}} jours. 🔥 Continuez ce travail incroyable."
+      },
+      "frogNotCompleted": {
+        "title": "Il est Encore Temps de Gagner",
+        "body": "Il est encore temps de s'attaquer à '{{taskTitle}}' et de maintenir votre série de {{streakCount}} jours !"
+      },
+      "noFrogTask": {
+        "title": "Comment s'est Passée Votre Journée ?",
+        "body": "Réfléchissez aux progrès d'aujourd'hui et définissez la tâche prioritaire de demain."
+      },
+      "fallback": {
+        "title": "Comment s'est Passée Votre Journée ?",
+        "body": "Prenez un moment pour réfléchir aux accomplissements d'aujourd'hui."
+      }
+    },
+    "reEngagement": {
+      "threeDayInactivity": {
+        "title": "Prêt pour Votre Prochaine Étape ?",
+        "body": "Chaque grand voyage a des moments de repos. Quand vous êtes prêt, votre vision vous attend. Un petit pas suffit pour revenir sur la bonne voie."
+      },
+      "sevenDayInactivity": {
+        "title": "Votre Voyage Vous Attend",
+        "body": "Vous rappelez-vous votre objectif de '{{goalTitle}}' ? Vos victoires dans la Salle des Trophées prouvent que vous pouvez le faire. Commençons le prochain chapitre."
+      },
+      "fallback": {
+        "title": "Vous Nous Manquez !",
+        "body": "Vos objectifs vous attendent. Prêt à continuer votre voyage ?"
+      }
+    },
+    "test": {
+      "title": "Notification de Test 🧪",
+      "body": "Ceci est une notification de test pour vérifier que l'intégration OneSignal fonctionne correctement."
     }
   }
 }
