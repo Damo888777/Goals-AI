@@ -16,16 +16,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colors } from '../src/constants/colors';
-import { typography } from '../src/constants/typography';
-import { spacing, borderRadius } from '../src/constants/spacing';
-import { images } from '../src/constants/images';
-import { useOnboarding } from '../src/hooks/useOnboarding';
-import { useLanguage } from '../src/contexts/LanguageContext';
+import { colors } from '../../src/constants/colors';
 import { useTranslation } from 'react-i18next';
-import i18n from '../src/services/i18next';
-import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
-import { ImageGenerationAnimation, ImageGenerationState } from '../src/components/ImageGenerationAnimation';
+import i18n from '../../src/services/i18next';
+import { imageGenerationService, StyleOption } from '../../src/services/imageGenerationService';
+import { ImageGenerationAnimation, ImageGenerationState } from '../../src/components/ImageGenerationAnimation';
+import { useLanguage } from '../../src/contexts/LanguageContext';
+import { useOnboarding } from '../../src/hooks/useOnboarding';
+import { typography } from '../../src/constants/typography';
+import { spacing } from '../../src/constants/spacing';
+import { images } from '../../src/constants/images';
 import * as FileSystem from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 
@@ -112,6 +112,7 @@ interface OnboardingData {
 }
 
 export default function OnboardingScreen() {
+  console.log('🎉 [OnboardingScreen] ONBOARDING SCREEN COMPONENT LOADED!');
   const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('language');
   const [isPressed, setIsPressed] = useState<string | null>(null);
@@ -255,22 +256,22 @@ export default function OnboardingScreen() {
     {
       id: 'photorealistic' as StyleOption,
       label: t('onboarding.vision.styles.photorealistic'),
-      imageUri: require('../assets/styles/style_photorealistic.png')
+      imageUri: require('../../assets/styles/style_photorealistic.png')
     },
     {
       id: 'anime' as StyleOption,
       label: t('onboarding.vision.styles.anime'),
-      imageUri: require('../assets/styles/style_anime.png')
+      imageUri: require('../../assets/styles/style_anime.png')
     },
     {
       id: 'watercolour' as StyleOption,
       label: t('onboarding.vision.styles.watercolour'),
-      imageUri: require('../assets/styles/style_watercolour.png')
+      imageUri: require('../../assets/styles/style_watercolour.png')
     },
     {
       id: 'cyberpunk' as StyleOption,
       label: t('onboarding.vision.styles.cyberpunk'),
-      imageUri: require('../assets/styles/style_cyberpunk.png')
+      imageUri: require('../../assets/styles/style_cyberpunk.png')
     }
   ];
 
@@ -526,7 +527,7 @@ export default function OnboardingScreen() {
       <View style={styles.welcomeContent}>
         <View style={styles.sparkImageContainer}>
           <Image
-            source={require('../assets/SparkAI_Dark.png')}
+            source={require('../../assets/SparkAI_Dark.png')}
             style={styles.sparkImage}
             contentFit="contain"
           />
@@ -748,7 +749,7 @@ export default function OnboardingScreen() {
             disabled={!data.visionPrompt.trim() || isGenerating}
           >
             <Image 
-              source={require('../assets/sparkle.png')} 
+              source={require('../../assets/sparkle.png')} 
               style={styles.sparkIcon}
               contentFit="contain"
             />
@@ -1124,7 +1125,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: colors.text.primary,
-    borderRadius: borderRadius.xl,
+    borderRadius: 20,
     padding: spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1165,7 +1166,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary, // Cream background
     borderWidth: 0.5,
     borderColor: colors.border.primary,
-    borderRadius: borderRadius.xl,
+    borderRadius: 20,
     padding: spacing.xl,
     alignItems: 'center',
     shadowColor: '#7C7C7C',
@@ -1187,7 +1188,7 @@ const styles = StyleSheet.create({
   },
   visionPreview: {
     backgroundColor: colors.secondary, // Cream background
-    borderRadius: borderRadius.xl,
+    borderRadius: 20,
     padding: spacing.lg,
     shadowColor: '#7C7C7C',
     shadowOffset: { width: 0, height: 4 },
@@ -1198,7 +1199,7 @@ const styles = StyleSheet.create({
   visionImage: {
     width: '100%',
     height: 200,
-    borderRadius: borderRadius.lg,
+    borderRadius: 16,
   },
   emotionQuestion: {
     textAlign: 'center',
@@ -1215,7 +1216,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary, // Cream background
     borderWidth: 0.5,
     borderColor: colors.border.primary,
-    borderRadius: borderRadius.lg,
+    borderRadius: 16,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     shadowColor: '#7C7C7C',
@@ -1336,7 +1337,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     borderWidth: 1,
     borderColor: colors.border.primary,
-    borderRadius: borderRadius.lg,
+    borderRadius: 16,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     gap: spacing.md,

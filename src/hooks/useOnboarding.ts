@@ -14,12 +14,21 @@ export const useOnboarding = () => {
 
   const loadOnboardingState = async () => {
     try {
+      console.log('🔍 [useOnboarding] Loading onboarding state...');
+      
       const [completed, data, showTutorial, incompleteSession] = await Promise.all([
         onboardingService.isOnboardingCompleted(),
         onboardingService.getOnboardingData(),
         onboardingService.shouldShowSparkTutorial(),
         onboardingService.loadIncompleteSession(),
       ]);
+
+      console.log('🔍 [useOnboarding] Onboarding state loaded:', {
+        completed,
+        hasData: !!data,
+        showTutorial,
+        hasIncompleteSession: !!incompleteSession
+      });
 
       setIsOnboardingCompleted(completed);
       setOnboardingData(data);
@@ -30,11 +39,15 @@ export const useOnboarding = () => {
         setCurrentSession(incompleteSession);
         console.log('🔄 Restored incomplete onboarding session from database');
       }
+      
+      console.log('✅ [useOnboarding] Final state set - isOnboardingCompleted:', completed);
     } catch (error) {
       console.error('Error loading onboarding state:', error);
+      console.log('❌ [useOnboarding] Error occurred, setting onboarding as NOT completed');
       setIsOnboardingCompleted(false);
     } finally {
       setIsLoading(false);
+      console.log('✅ [useOnboarding] Loading finished, isLoading set to false');
     }
   };
 

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
-import { useSubscription } from '../src/hooks/useSubscription';
-import { SubscriptionCard } from '../src/components/SubscriptionCard';
-import { PromoCodeInput } from '../src/components/PromoCodeInput';
+import { useSubscription } from '../../src/hooks/useSubscription';
+import { SubscriptionCard } from '../../src/components/SubscriptionCard';
+import { PromoCodeInput } from '../../src/components/PromoCodeInput';
 
 export default function OnboardingPaywallScreen() {
   const { t } = useTranslation();
@@ -143,21 +143,27 @@ export default function OnboardingPaywallScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#364958' }}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top + 40,
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 40,
-        }}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: insets.top + 40,
+            paddingHorizontal: 24,
+            paddingBottom: insets.bottom + 40,
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
+        >
         {/* Hero Section */}
         <View style={{ marginBottom: 48, alignItems: 'center' }}>
           <View style={{
             marginBottom: 24,
           }}>
             <Image
-              source={require('../assets/SparkAI_Light.png')}
+              source={require('../../assets/SparkAI_Light.png')}
               style={{ width: 80, height: 80 }}
               contentFit="contain"
             />
@@ -314,7 +320,7 @@ export default function OnboardingPaywallScreen() {
               color: selectedPlan ? '#364958' : 'rgba(54, 73, 88, 0.5)',
               fontFamily: 'Helvetica',
             }}>
-              {isLoading ? t('onboardingPaywall.buttons.processing') : t('onboardingPaywall.buttons.startFreeTrial')}
+              {isLoading ? t('onboardingPaywall.buttons.processing') : t('onboardingPaywall.buttons.subscribe')}
             </Text>
           </Pressable>
 
@@ -375,7 +381,8 @@ export default function OnboardingPaywallScreen() {
             <Text style={{ textDecorationLine: 'underline' }}>{t('onboardingPaywall.disclaimers.privacyPolicy')}</Text>
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

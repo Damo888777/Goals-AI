@@ -47,6 +47,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
     try {
       console.log('Starting subscription refresh...');
       
+      // Store previous tier to detect expiration
+      const previousTier = currentTier;
+      
       // Initialize RevenueCat if not already done
       await subscriptionService.initialize();
       console.log('RevenueCat initialized');
@@ -60,12 +63,24 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       
       // Update state
       setCustomerInfo(newCustomerInfo);
-      setCurrentTier(subscriptionService.getCurrentTier());
+      const newTier = subscriptionService.getCurrentTier();
+      setCurrentTier(newTier);
       setIsCurrentSubscriptionAnnual(subscriptionService.isCurrentSubscriptionAnnual());
       
       const plans = subscriptionService.getSubscriptionPlans();
       console.log('Generated subscription plans:', plans);
       setSubscriptionPlans(plans);
+      
+      // Check if we need to force onboarding paywall
+      const shouldForcePaywall = 
+        plans.length === 0 || // No subscription tiers available
+        (previousTier && !newTier); // Had subscription but now expired
+        
+      if (shouldForcePaywall) {
+        console.log('🚨 Forcing onboarding paywall - no tiers available or subscription expired');
+        const { router } = await import('expo-router');
+        router.replace('/onboarding-paywall');
+      }
       
     } catch (error) {
       console.error('Failed to refresh subscription:', error);

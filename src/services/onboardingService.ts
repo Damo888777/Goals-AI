@@ -63,10 +63,14 @@ class OnboardingService {
    */
   async loadIncompleteSession(): Promise<OnboardingSessionData | null> {
     try {
-      // Check Supabase for incomplete sessions
+      // Check Supabase for incomplete sessions ONLY for authenticated users
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
-        if (currentUser) {
+        
+        // CRITICAL: Only load sessions from Supabase for authenticated users
+        if (currentUser && !currentUser.isAnonymous) {
+          console.log('🔍 [OnboardingService] Loading incomplete session from Supabase for authenticated user');
+          
           const { data, error } = await supabase
             .from('onboarding_sessions')
             .select('*')
@@ -104,6 +108,8 @@ class OnboardingService {
             console.log('✅ Recovered incomplete onboarding session:', sessionData.id);
             return sessionData;
           }
+        } else if (currentUser?.isAnonymous) {
+          console.log('✅ [OnboardingService] User is anonymous, skipping incomplete session check (local-only mode)');
         }
       }
       
@@ -121,14 +127,37 @@ class OnboardingService {
     try {
       // First check local storage for quick response
       const localCompleted = await AsyncStorage.getItem(ONBOARDING_COMPLETED_KEY);
+      console.log('🔍 [OnboardingService] Local AsyncStorage onboarding_completed:', localCompleted);
+      
+      // DEBUG: Check all AsyncStorage keys to see if onboarding data exists elsewhere
+      try {
+        const allKeys = await AsyncStorage.getAllKeys();
+        const onboardingKeys = allKeys.filter(key => key.includes('onboarding') || key.includes('completed'));
+        if (onboardingKeys.length > 0) {
+          console.log('🔍 [OnboardingService] Found onboarding-related keys:', onboardingKeys);
+          for (const key of onboardingKeys) {
+            const value = await AsyncStorage.getItem(key);
+            console.log(`🔍 [OnboardingService] ${key} = ${value}`);
+          }
+        }
+      } catch (debugError) {
+        console.log('Debug error:', debugError);
+      }
+      
       if (localCompleted === 'true') {
+        console.log('✅ [OnboardingService] Onboarding marked complete in AsyncStorage');
         return true;
       }
 
-      // Check Supabase for all users (including anonymous)
+      // Check Supabase ONLY for authenticated (non-anonymous) users
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
-        if (currentUser) {
+        console.log('🔍 [OnboardingService] Current user for Supabase check:', currentUser?.id, 'isAnonymous:', currentUser?.isAnonymous);
+        
+        // CRITICAL: Only check Supabase for authenticated users, never for anonymous users
+        if (currentUser && !currentUser.isAnonymous) {
+          console.log('🔍 [OnboardingService] User is authenticated, checking Supabase for completed onboarding');
+          
           const { data, error } = await supabase
             .from('onboarding_sessions')
             .select('is_completed')
@@ -136,14 +165,20 @@ class OnboardingService {
             .eq('is_completed', true)
             .single();
           
+          console.log('🔍 [OnboardingService] Supabase onboarding check result:', { data, error: error?.message });
+          
           if (!error && data) {
             // Update local storage to match
+            console.log('⚠️ [OnboardingService] Found completed onboarding in Supabase, updating AsyncStorage');
             await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
             return true;
           }
+        } else if (currentUser?.isAnonymous) {
+          console.log('✅ [OnboardingService] User is anonymous, skipping Supabase check (push-only mode)');
         }
       }
       
+      console.log('❌ [OnboardingService] No completed onboarding found - SHOULD SHOW ONBOARDING');
       return false;
     } catch (error) {
       console.error('Error checking onboarding status:', error);
@@ -384,6 +419,8 @@ class OnboardingService {
       });
 
       // Mark as completed locally
+      console.log('✅ [OnboardingService] MARKING ONBOARDING AS COMPLETED - completeOnboarding() called');
+      console.trace('✅ [OnboardingService] Call stack for completion:');
       await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
       
       // Clear current session since onboarding is now complete
@@ -410,7 +447,10 @@ class OnboardingService {
    */
   async markOnboardingCompleted(): Promise<void> {
     try {
+      console.log('⚠️ [OnboardingService] LEGACY markOnboardingCompleted() called!');
+      console.trace('⚠️ [OnboardingService] Call stack for markOnboardingCompleted:');
       await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      console.log('✅ [OnboardingService] AsyncStorage onboarding_completed set to true via legacy method');
     } catch (error) {
       console.error('Error marking onboarding as completed:', error);
     }
@@ -423,7 +463,11 @@ class OnboardingService {
     try {
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
-        if (currentUser) {
+        
+        // CRITICAL: Only cleanup Supabase sessions for authenticated users
+        if (currentUser && !currentUser.isAnonymous) {
+          console.log('🧹 [OnboardingService] Cleaning up old Supabase sessions for authenticated user');
+          
           // Get all incomplete sessions for this user
           const { data: sessions, error } = await supabase
             .from('onboarding_sessions')
@@ -445,6 +489,8 @@ class OnboardingService {
               console.log('🧹 Cleaned up', sessionsToDelete.length, 'old incomplete sessions');
             }
           }
+        } else if (currentUser?.isAnonymous) {
+          console.log('✅ [OnboardingService] User is anonymous, skipping Supabase session cleanup (local-only mode)');
         }
       }
     } catch (error) {
@@ -457,16 +503,21 @@ class OnboardingService {
    */
   async resetOnboarding(): Promise<void> {
     try {
+      console.log('🔄 [OnboardingService] RESETTING ONBOARDING - clearing AsyncStorage keys');
+      console.trace('🔄 [OnboardingService] Reset call stack:');
+      
       // Clear local storage including language preference to default to English
       await AsyncStorage.multiRemove([ONBOARDING_COMPLETED_KEY, ONBOARDING_DATA_KEY, SPARK_TUTORIAL_KEY, 'user-language']);
+      console.log('✅ [OnboardingService] AsyncStorage keys cleared');
       
       // Clear current session
       this.currentSession = null;
       
-      // Clear Supabase data for all users (including anonymous)
+      // Clear Supabase data (for reset purposes, we allow this for all users)
       if (isSupabaseConfigured && supabase) {
         const currentUser = authService.getCurrentUser();
         if (currentUser) {
+          console.log('🧹 [OnboardingService] Clearing Supabase onboarding data for user:', currentUser.id, 'isAnonymous:', currentUser.isAnonymous);
           await supabase
             .from('onboarding_sessions')
             .delete()

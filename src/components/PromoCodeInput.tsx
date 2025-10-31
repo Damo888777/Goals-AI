@@ -143,19 +143,28 @@ export function PromoCodeInput({ onPromoCodeApplied, isLoading = false, style }:
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
         }}>
-          <Ionicons name="pricetag-outline" size={20} color="#364958" />
-          <Text style={{
-            fontSize: 16,
-            color: '#364958',
-            marginLeft: 8,
-            fontWeight: '500',
-            fontFamily: 'Helvetica',
-          }}>
-            {t('components.promoCodeInput.expandButton')}
-          </Text>
-          <Ionicons name="chevron-down" size={16} color="#364958" style={{ marginLeft: 4 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
+            <Ionicons name="pricetag-outline" size={20} color="#364958" />
+            <Text style={{
+              fontSize: 16,
+              color: '#364958',
+              fontWeight: '500',
+              fontFamily: 'Helvetica',
+              textAlign: 'left',
+            }}>
+              {t('components.promoCodeInput.expandButton')}
+            </Text>
+          </View>
+          <Pressable
+            style={{
+              padding: 4,
+            }}
+          >
+            <Ionicons name="chevron-down" size={20} color="#364958" />
+          </Pressable>
         </View>
       </Pressable>
     );
@@ -199,7 +208,7 @@ export function PromoCodeInput({ onPromoCodeApplied, isLoading = false, style }:
             padding: 4,
           }}
         >
-          <Ionicons name="close" size={20} color="#364958" />
+          <Ionicons name="chevron-up" size={20} color="#364958" />
         </Pressable>
       </View>
 

@@ -92,7 +92,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                     
                     for (const collectionName of collections) {
                       try {
-                        const collection = database.get(collectionName);
+                        const collection = database!.get(collectionName);
                         const allRecords = await collection.query().fetch();
                         
                         if (allRecords.length > 0) {
@@ -175,6 +175,69 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
             <Text style={[typography.caption, styles.statusText]}>
               Status: {isOnboardingCompleted ? 'Completed' : 'Not Completed'}
             </Text>
+            
+            <Pressable
+              style={[
+                styles.upgradeButton,
+                isPressed === 'log-storage' && styles.buttonPressed
+              ]}
+              onPress={async () => {
+                try {
+                  console.log('🔍 === ASYNCSTORAGE DEBUG LOG ===');
+                  
+                  // Check all onboarding-related keys
+                  const keys = [
+                    'onboarding_completed',
+                    'onboarding_data', 
+                    'spark_tutorial_shown',
+                    'persistent_anonymous_id',
+                    'user-language',
+                    'notification_permission_requested'
+                  ];
+                  
+                  for (const key of keys) {
+                    try {
+                      const value = await AsyncStorage.getItem(key);
+                      console.log(`📱 AsyncStorage['${key}'] = ${value}`);
+                    } catch (error) {
+                      console.log(`❌ Error reading AsyncStorage['${key}']:`, error);
+                    }
+                  }
+                  
+                  // Get all AsyncStorage keys
+                  try {
+                    const allKeys = await AsyncStorage.getAllKeys();
+                    console.log('📱 All AsyncStorage keys:', allKeys);
+                  } catch (error) {
+                    console.log('❌ Error getting all keys:', error);
+                  }
+                  
+                  // Check auth service state
+                  const { authService } = await import('../services/authService');
+                  const currentUser = authService.getCurrentUser();
+                  console.log('👤 Current User:', currentUser);
+                  
+                  // Check onboarding service state
+                  const { onboardingService } = await import('../services/onboardingService');
+                  const userData = await onboardingService.getOnboardingData();
+                  console.log('📝 Onboarding Data:', userData);
+                  
+                  console.log('🔍 === END ASYNCSTORAGE DEBUG LOG ===');
+                  
+                  Alert.alert('Debug Complete', 'Check console for AsyncStorage contents');
+                } catch (error) {
+                  console.error('❌ Debug error:', error);
+                  Alert.alert('Error', 'Failed to debug AsyncStorage');
+                }
+              }}
+              onPressIn={() => setIsPressed('log-storage')}
+              onPressOut={() => setIsPressed(null)}
+            >
+              <Ionicons name="bug" size={20} color="#FFFFFF" />
+              <Text style={[typography.button, styles.upgradeButtonText]}>
+                LOG ASYNCSTORAGE STATE
+              </Text>
+            </Pressable>
             
             <Pressable
               style={[

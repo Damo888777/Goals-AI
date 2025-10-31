@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -168,14 +168,20 @@ export default function PaywallScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#364958' }}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: 20,
-          paddingHorizontal: 24,
-          paddingBottom: insets.bottom + 40,
-        }}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: 20,
+            paddingHorizontal: 24,
+            paddingBottom: insets.bottom + 40,
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
+        >
         {/* Close Button */}
         <View style={{
           position: 'absolute',
@@ -455,7 +461,8 @@ export default function PaywallScreen() {
             <Text style={{ textDecorationLine: 'underline' }}>{t('paywall.disclaimers.privacyPolicy')}</Text>
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
