@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import i18n from '../src/services/i18next';
 import { imageGenerationService, StyleOption } from '../src/services/imageGenerationService';
 import { useOnboarding } from '../src/hooks/useOnboarding';
 import { useSubscription } from '../src/hooks/useSubscription';
@@ -420,6 +421,7 @@ export default function SparkGenerateIMGScreen() {
     {/* Image Generation Animation Overlay */}
     {generationState !== 'preview' && (
       <ImageGenerationAnimation 
+        key={`${i18n.language}-${generationState}`} // Force re-render when language or state changes
         state={generationState}
         progress={0.5} // You can implement actual progress tracking if needed
       />

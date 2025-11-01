@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { SubscriptionPlan } from '../services/subscriptionService';
+import * as Haptics from 'expo-haptics';
 
 interface SubscriptionCardProps {
   plan: SubscriptionPlan;
@@ -57,7 +58,10 @@ export function SubscriptionCard({ plan, isSelected, onSelect, billingPeriod = '
 
   return (
     <Pressable
-      onPress={onSelect}
+      onPress={async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onSelect();
+      }}
       style={{
         backgroundColor: '#F5EBE0',
         borderRadius: 15,

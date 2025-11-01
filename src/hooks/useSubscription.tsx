@@ -79,7 +79,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       if (shouldForcePaywall) {
         console.log('🚨 Forcing onboarding paywall - no tiers available or subscription expired');
         const { router } = await import('expo-router');
-        router.replace('/onboarding-paywall');
+        router.replace('/paywall');
       }
       
     } catch (error) {

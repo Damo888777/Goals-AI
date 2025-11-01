@@ -697,13 +697,13 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
             <Pressable
               style={[
                 styles.actionButton,
-                isPressed === 'onboarding-paywall' && styles.buttonPressed
+                isPressed === 'paywall' && styles.buttonPressed
               ]}
               onPress={() => {
                 onClose();
-                router.push('/onboarding-paywall');
+                router.push('/paywall');
               }}
-              onPressIn={() => setIsPressed('onboarding-paywall')}
+              onPressIn={() => setIsPressed('paywall')}
               onPressOut={() => setIsPressed(null)}
             >
               <Ionicons name="card" size={20} color={colors.secondary} />
@@ -737,7 +737,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
               ]}
               onPress={() => {
                 onClose();
-                router.push('/onboarding-paywall');
+                router.push('/paywall');
               }}
               onPressIn={() => setIsPressed('force-paywall')}
               onPressOut={() => setIsPressed(null)}

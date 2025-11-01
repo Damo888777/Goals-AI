@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+// router import removed - navigation handled by Root Layout
 import { Image } from 'expo-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../src/constants/colors';
@@ -26,8 +26,10 @@ import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { typography } from '../../src/constants/typography';
 import { spacing } from '../../src/constants/spacing';
 import { images } from '../../src/constants/images';
+import { getApiUrl } from '../../src/constants/config';
 import * as FileSystem from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
+
 
 interface StyleButtonProps {
   style: StyleOption;
@@ -112,7 +114,8 @@ interface OnboardingData {
 }
 
 export default function OnboardingScreen() {
-  console.log('🎉 [OnboardingScreen] ONBOARDING SCREEN COMPONENT LOADED!');
+  // Only log once to detect re-render loops
+  console.log('🎉 [OnboardingScreen] Loaded at:', new Date().toISOString());
   const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('language');
   const [isPressed, setIsPressed] = useState<string | null>(null);
@@ -144,6 +147,8 @@ export default function OnboardingScreen() {
   const lastPersistedName = useRef<string>('');
   const lastPersistedPersonalization = useRef<string>('');
   const isRestoringSession = useRef<boolean>(false);
+  const restoredSessionId = useRef<string>('');
+
 
   // Initialize onboarding session on component mount
   useEffect(() => {
@@ -157,8 +162,11 @@ export default function OnboardingScreen() {
 
   // Handle session recovery and step restoration
   useEffect(() => {
-    if (currentSession) {
+    if (currentSession && currentSession.id && currentSession.id !== restoredSessionId.current) {
       console.log('🔄 Processing current session:', currentSession);
+      
+      // Mark this session as restored to prevent re-processing
+      restoredSessionId.current = currentSession.id;
       
       // Set restoration flag to prevent update loops
       isRestoringSession.current = true;
@@ -212,24 +220,8 @@ export default function OnboardingScreen() {
     }
   }, [currentSession]);
 
-  // Update session data when local data changes (with loop prevention)
-  useEffect(() => {
-    if (
-      currentSession && 
-      currentSession.id && 
-      data.name && 
-      data.name !== lastPersistedName.current &&
-      !isRestoringSession.current
-    ) {
-      lastPersistedName.current = data.name; // Update ref immediately to prevent loops
-      const stepNumber = ['language', 'welcome', 'name', 'personalization', 'vision', 'goal', 'milestone', 'task'].indexOf(currentStep);
-      updateOnboardingStep(stepNumber, { userName: data.name }).catch(error => {
-        console.log('Name update failed (non-critical):', error.message);
-        // Reset ref on failure so user can retry
-        lastPersistedName.current = currentSession.userName || '';
-      });
-    }
-  }, [data.name, currentStep]);
+  // Only save session data when user progresses to next step (not while typing)
+  // This prevents re-renders during typing - session is updated in handleNext instead
 
   useEffect(() => {
     if (
@@ -277,7 +269,7 @@ export default function OnboardingScreen() {
 
   const optimizeGoalTitle = async (visionPrompt: string): Promise<string> => {
     try {
-      const response = await fetch('/api/gemini', {
+      const response = await fetch(getApiUrl('/api/gemini'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,7 +319,8 @@ export default function OnboardingScreen() {
       const result = await imageGenerationService.generateImage({
         userText: data.visionPrompt,
         style: data.selectedStyle,
-        genderPreference: data.personalization || undefined
+        genderPreference: data.personalization || undefined,
+        isOnboardingPreview: true // Skip usage tracking for onboarding preview
       });
 
       if (result.success && result.imageBase64) {
@@ -459,11 +452,25 @@ export default function OnboardingScreen() {
         firstTaskTitle: data.taskTitle,
       });
       
-      // Navigate to onboarding paywall
-      router.replace('/onboarding-paywall');
+      // Don't navigate here - let the Root Layout handle routing after onboarding completion
+      // The root layout will automatically switch to main app when isOnboardingCompleted becomes true
     } catch (error) {
-      Alert.alert(t('onboarding.alerts.error'), t('onboarding.alerts.onboardingFailed'));
       console.error('Onboarding completion error:', error);
+      
+      // Check if it's a foreign key constraint error
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as any).message;
+        if (errorMessage.includes('foreign key constraint') || errorMessage.includes('Key is not present')) {
+          Alert.alert(
+            t('onboarding.alerts.error'), 
+            'There was a sync issue. Your data has been saved locally and will sync when connection improves.'
+          );
+          // Don't navigate here - let the Root Layout handle routing after onboarding completion
+          return;
+        }
+      }
+      
+      Alert.alert(t('onboarding.alerts.error'), t('onboarding.alerts.onboardingFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -512,7 +519,10 @@ export default function OnboardingScreen() {
       <View style={styles.buttonContainer}>
         <Pressable
           style={[styles.primaryButton]}
-          onPress={handleNext}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleNext();
+          }}
         >
           <Text style={styles.primaryButtonText}>
             {t('onboarding.buttons.continue')}
@@ -549,8 +559,9 @@ export default function OnboardingScreen() {
             styles.primaryButton,
             isPressed === 'start' && styles.buttonPressed
           ]}
-          onPress={() => {
+          onPress={async () => {
             console.log('🔄 Button pressed!');
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             handleNext();
           }}
           onPressIn={() => {
@@ -600,7 +611,10 @@ export default function OnboardingScreen() {
             (!data.name.trim() ? styles.buttonDisabled : null),
             isPressed === 'continue' && styles.buttonPressed
           ]}
-          onPress={data.name.trim() ? handleNext : undefined}
+          onPress={data.name.trim() ? async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleNext();
+          } : undefined}
           onPressIn={() => setIsPressed('continue')}
           onPressOut={() => setIsPressed(null)}
           disabled={!data.name.trim()}
@@ -637,7 +651,10 @@ export default function OnboardingScreen() {
                 data.personalization === option.key && styles.optionButtonSelected,
                 isPressed === option.key && styles.buttonPressed
               ]}
-              onPress={() => setData(prev => ({ ...prev, personalization: option.key as any }))}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setData(prev => ({ ...prev, personalization: option.key as any }));
+              }}
               onPressIn={() => setIsPressed(option.key)}
               onPressOut={() => setIsPressed(null)}
             >
@@ -659,7 +676,10 @@ export default function OnboardingScreen() {
             (!data.personalization ? styles.buttonDisabled : null),
             isPressed === 'continue' && styles.buttonPressed
           ]}
-          onPress={data.personalization ? handleNext : undefined}
+          onPress={data.personalization ? async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleNext();
+          } : undefined}
           onPressIn={() => setIsPressed('continue')}
           onPressOut={() => setIsPressed(null)}
           disabled={!data.personalization}
@@ -713,7 +733,10 @@ export default function OnboardingScreen() {
                     key={option.id}
                     style={option.id}
                     selected={data.selectedStyle === option.id}
-                    onPress={() => setData(prev => ({ ...prev, selectedStyle: option.id }))}
+                    onPress={async () => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setData(prev => ({ ...prev, selectedStyle: option.id }));
+                    }}
                     imageUri={option.imageUri}
                     label={option.label}
                   />
@@ -743,7 +766,10 @@ export default function OnboardingScreen() {
               (!data.visionPrompt.trim() || isGenerating ? styles.buttonDisabled : null),
               isPressed === 'generate' && styles.buttonPressed
             ]}
-            onPress={handleGenerateVision}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              handleGenerateVision();
+            }}
             onPressIn={() => setIsPressed('generate')}
             onPressOut={() => setIsPressed(null)}
             disabled={!data.visionPrompt.trim() || isGenerating}
@@ -765,7 +791,10 @@ export default function OnboardingScreen() {
               styles.primaryButton,
               isPressed === 'continue' && styles.buttonPressed
             ]}
-            onPress={handleNext}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              handleNext();
+            }}
             onPressIn={() => setIsPressed('continue')}
             onPressOut={() => setIsPressed(null)}
           >
@@ -827,7 +856,8 @@ export default function OnboardingScreen() {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => {
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setData(prev => ({
                       ...prev,
                       emotions: prev.emotions.includes(emotion.label)
@@ -865,7 +895,10 @@ export default function OnboardingScreen() {
             (!data.goalTitle.trim() ? styles.buttonDisabled : null),
             isPressed === 'setgoal' && styles.buttonPressed
           ]}
-          onPress={data.goalTitle.trim() ? handleNext : undefined}
+          onPress={data.goalTitle.trim() ? async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleNext();
+          } : undefined}
           onPressIn={() => setIsPressed('setgoal')}
           onPressOut={() => setIsPressed(null)}
           disabled={!data.goalTitle.trim()}
@@ -911,7 +944,10 @@ export default function OnboardingScreen() {
             (!data.milestoneTitle.trim() ? styles.buttonDisabled : null),
             isPressed === 'createmilestone' && styles.buttonPressed
           ]}
-          onPress={data.milestoneTitle.trim() ? handleNext : undefined}
+          onPress={data.milestoneTitle.trim() ? async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleNext();
+          } : undefined}
           onPressIn={() => setIsPressed('createmilestone')}
           onPressOut={() => setIsPressed(null)}
           disabled={!data.milestoneTitle.trim()}
@@ -962,7 +998,10 @@ export default function OnboardingScreen() {
             (!data.taskTitle.trim() ? styles.buttonDisabled : null),
             isPressed === 'makefrog' && styles.buttonPressed
           ]}
-          onPress={data.taskTitle.trim() ? handleComplete : undefined}
+          onPress={data.taskTitle.trim() ? async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            handleComplete();
+          } : undefined}
           onPressIn={() => setIsPressed('makefrog')}
           onPressOut={() => setIsPressed(null)}
           disabled={!data.taskTitle.trim() || isLoading || onboardingLoading}
@@ -1022,6 +1061,7 @@ export default function OnboardingScreen() {
         {/* Image Generation Animation Overlay */}
         {currentStep === 'vision' && generationState !== 'idle' && generationState !== 'preview' && (
           <ImageGenerationAnimation 
+            key={`${currentLanguage}-${generationState}`} // Force re-render when language or state changes
             state={generationState}
             progress={0.5} // You can implement actual progress tracking if needed
           />

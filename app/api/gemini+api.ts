@@ -24,10 +24,10 @@ export async function POST(request: Request) {
     if (mode === 'optimize_goal_title') {
       const getGoalTitlePrompt = (lang: string) => {
         return lang === 'de' ? 
-          `Du bist ein Experte für Zielsetzung. Wandle die folgende Vision-Beschreibung in einen prägnanten, klaren Ziel-Titel um. Der Titel sollte maximal 5 Wörter lang sein, inspirierend und handlungsorientiert. Konzentriere dich auf das Hauptziel, nicht auf Details.` :
+          `Du bist ein Experte für HARD-Zielsetzung (Heartfelt, Animated, Required, Difficult). Wandle die folgende Vision in einen kraftvollen Ziel-Titel um, der emotional ansprechend, lebendig, dringend notwendig und herausfordernd ist. Der Titel sollte maximal 5 Wörter haben und eine starke emotionale Verbindung schaffen. Verwende kraftvolle Verben und konkrete Ergebnisse. WICHTIG: Antworte IMMER auf Deutsch, egal in welcher Sprache die Vision geschrieben ist.` :
           lang === 'fr' ?
-          `Tu es un expert en définition d'objectifs. Transforme la description de vision suivante en un titre d'objectif concis et clair. Le titre doit contenir au maximum 5 mots, être inspirant et orienté action. Concentre-toi sur l'objectif principal, pas sur les détails.` :
-          `You are a goal-setting expert. Transform the following vision description into a concise, clear goal title. The title should be maximum 5 words, inspiring and action-oriented. Focus on the main objective, not details.`;
+          `Tu es un expert en objectifs HARD (Heartfelt, Animated, Required, Difficult). Transforme cette vision en un titre d'objectif puissant qui soit émotionnellement engageant, vivant, urgent et difficile. Le titre doit contenir maximum 5 mots et créer une forte connexion émotionnelle. Utilise des verbes puissants et des résultats concrets. IMPORTANT: Réponds TOUJOURS en français, peu importe la langue dans laquelle la vision est écrite.` :
+          `You are a HARD goals expert (Heartfelt, Animated, Required, Difficult). Transform this vision into a powerful goal title that is emotionally engaging, vivid, urgently necessary, and challenging. The title should be maximum 5 words and create strong emotional connection. Use powerful verbs and concrete outcomes. IMPORTANT: Always respond in English, regardless of what language the vision is written in.`;
       };
 
       const systemPrompt = `${getGoalTitlePrompt(language)}
@@ -39,25 +39,70 @@ Always respond with valid JSON in this exact format:
   "title": "Concise goal title (max 5 words)"
 }
 
-Examples:
-- Vision: "I want to lose 20 pounds by summer and feel confident in my body" → Title: "Lose Weight Feel Confident"
-- Vision: "Learn to play guitar and perform at local venues" → Title: "Learn Guitar Perform Publicly"
-- Vision: "Start my own business selling handmade jewelry online" → Title: "Start Jewelry Business Online"`;
+## HARD Goals Framework:
+- **Heartfelt**: Emotionally meaningful and personally significant
+- **Animated**: Vivid, specific, and energizing
+- **Required**: Urgent necessity, not just a nice-to-have
+- **Difficult**: Challenging enough to push boundaries
+
+${language === 'de' ? `## Beispiele:
+- Vision: "Ich möchte 20 Pfund abnehmen und mich selbstbewusst fühlen" → Titel: "Körper Transformieren Selbstvertrauen Gewinnen"
+- Vision: "Gitarre lernen und in lokalen Venues auftreten" → Titel: "Gitarre Meistern Publikum Begeistern"
+- Vision: "Eigenes Schmuckgeschäft online starten" → Titel: "Schmuck-Imperium Online Aufbauen"
+- Vision: "Geld sparen für mein erstes Haus" → Titel: "Traumhaus Sichern Eigenheim Erreichen"
+- Vision: "Spanisch lernen um meine Herkunft zu verstehen" → Titel: "Spanisch Meistern Herkunft Umarmen"
+- Vision: "Marathon laufen um zu beweisen dass ich alles schaffe" → Titel: "Marathon Erobern Unaufhaltsamkeit Beweisen"` :
+language === 'fr' ? `## Exemples:
+- Vision: "Je veux perdre 20 kilos et me sentir confiant" → Titre: "Transformer Corps Retrouver Confiance"
+- Vision: "Apprendre la guitare et jouer dans des lieux locaux" → Titre: "Maîtriser Guitare Captiver Audiences"
+- Vision: "Créer mon entreprise de bijoux faits main en ligne" → Titre: "Lancer Empire Bijoux Ligne"
+- Vision: "Économiser pour acheter ma première maison" → Titre: "Sécuriser Maison Rêve Propriété"
+- Vision: "Apprendre l'espagnol pour me connecter à mon héritage" → Titre: "Maîtriser Espagnol Embrasser Héritage"
+- Vision: "Courir un marathon pour prouver que je peux tout faire" → Titre: "Conquérir Marathon Prouver Invincibilité"` :
+`## Examples:
+- Vision: "I want to lose 20 pounds by summer and feel confident in my body" → Title: "Transform Body Reclaim Confidence"
+- Vision: "Learn to play guitar and perform at local venues" → Title: "Master Guitar Captivate Audiences"
+- Vision: "Start my own business selling handmade jewelry online" → Title: "Launch Jewelry Empire Online"
+- Vision: "Save money to buy my first house" → Title: "Secure Dream Home Ownership"
+- Vision: "Learn Spanish to connect with my heritage" → Title: "Master Spanish Embrace Heritage"
+- Vision: "Run a marathon to prove I can do anything" → Title: "Conquer Marathon Prove Unstoppable"`}
+
+${language === 'de' ? `## Richtlinien:
+- Verwende kraftvolle Aktionsverben (Transformieren, Meistern, Starten, Erobern, Erreichen, Aufbauen, Erschaffen)
+- Fokussiere auf emotionale Ergebnisse oder Transformation
+- Mache es dringend und notwendig
+- Stelle sicher, dass es herausfordernd aber erreichbar ist
+- Vermeide schwache Wörter wie "versuchen", "vielleicht", "hoffen"
+- Erstelle Titel die zu sofortigem Handeln inspirieren` :
+language === 'fr' ? `## Directives:
+- Utilise des verbes d'action puissants (Transformer, Maîtriser, Lancer, Conquérir, Atteindre, Construire, Créer)
+- Concentre-toi sur le résultat émotionnel ou la transformation
+- Rends-le urgent et nécessaire
+- Assure-toi que c'est difficile mais réalisable
+- Évite les mots faibles comme "essayer", "peut-être", "espérer"
+- Crée des titres qui inspirent une action immédiate` :
+`## Guidelines:
+- Use powerful action verbs (Transform, Master, Launch, Conquer, Achieve, Build, Create)
+- Focus on the emotional outcome or transformation
+- Make it feel urgent and necessary
+- Ensure it's challenging but achievable
+- Avoid weak words like "try", "maybe", "hope"
+- Create titles that inspire immediate action`}`;
 
       const requestBody = {
         contents: [
           {
             parts: [
               {
-                text: `${systemPrompt}\n\nPlease optimize this vision into a goal title: "${transcription}"`
+                text: `${systemPrompt}\n\nPlease optimize this vision into a goal title: "${transcription}"\n\n${language === 'de' ? 'WICHTIG: Der Titel MUSS auf Deutsch sein!' : language === 'fr' ? 'IMPORTANT: Le titre DOIT être en français!' : 'IMPORTANT: The title MUST be in English!'}`
               }
             ]
           }
         ],
         generationConfig: {
-          temperature: 0.2,
-          topP: 0.8,
-          topK: 40,
+          temperature: 0.4, // Increased for more creative and emotionally engaging titles
+          topP: 0.9,
+          topK: 50,
           maxOutputTokens: 200,
           responseMimeType: "application/json"
         }

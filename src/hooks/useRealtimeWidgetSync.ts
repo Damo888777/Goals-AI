@@ -4,13 +4,22 @@ import Task from '../db/models/Task'
 import { Q } from '@nozbe/watermelondb'
 import { widgetDataService } from '../services/widgetDataService'
 import { widgetSyncService } from '../services/widgetSyncService'
+import { useOnboarding } from './useOnboarding'
 
 /**
  * Real-time database observer hook for instant widget updates
  * Uses WatermelonDB observers to detect changes and immediately sync to widget
  */
 export const useRealtimeWidgetSync = () => {
+  const { isOnboardingCompleted } = useOnboarding()
+  
   useEffect(() => {
+    // Only run widget sync when onboarding is completed
+    if (isOnboardingCompleted !== true) {
+      console.log('🔴 Skipping widget sync - onboarding not completed')
+      return
+    }
+    
     let taskSubscription: (() => void) | undefined
 
     const setupRealtimeSync = async () => {
@@ -91,7 +100,7 @@ export const useRealtimeWidgetSync = () => {
       }
       widgetSyncService.stopCompletionSync()
     }
-  }, [])
+  }, [isOnboardingCompleted])
 
   // Return manual force sync function
   const forceSync = async () => {

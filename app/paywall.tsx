@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -12,9 +12,13 @@ import { PromoCodeInput } from '../src/components/PromoCodeInput';
 export default function PaywallScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { source } = useLocalSearchParams<{ source?: string }>();
   const [selectedPlan, setSelectedPlan] = useState<string | null>('tier_achiever');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Check if this is coming from onboarding completion
+  const isFromOnboarding = source === 'onboarding';
   
   const {
     subscriptionPlans,
@@ -40,8 +44,15 @@ export default function PaywallScreen() {
     return planTierIndex >= currentTierIndex;
   });
 
-  // Get paywall content - this is now feature upgrade only
+  // Get paywall content - show onboarding content if coming from onboarding
   const getPaywallContent = () => {
+    if (isFromOnboarding) {
+      return {
+        title: t('onboardingPaywall.hero.title'), // "Invest in Yourself"
+        description: t('onboardingPaywall.hero.subtitle'),
+        canDismiss: false, // Don't allow dismissing after onboarding
+      };
+    }
     return {
       title: t('paywall.hero.title'),
       description: t('paywall.hero.description'),
@@ -68,10 +79,14 @@ export default function PaywallScreen() {
       
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
+        const alertTitle = isFromOnboarding ? t('onboardingPaywall.alerts.welcomeTitle') : t('paywall.alerts.successTitle');
+        const alertMessage = isFromOnboarding ? t('onboardingPaywall.alerts.welcomeMessage') : t('paywall.alerts.successMessage');
+        const onContinue = isFromOnboarding ? () => router.replace('/(tabs)') : () => router.back();
+        
         Alert.alert(
-          t('paywall.alerts.successTitle'),
-          t('paywall.alerts.successMessage'),
-          [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
+          alertTitle,
+          alertMessage,
+          [{ text: t('paywall.alerts.continue'), onPress: onContinue }]
         );
       } else {
         // Handle different types of purchase errors
@@ -129,10 +144,14 @@ export default function PaywallScreen() {
     try {
       const result = await restorePurchases();
       if (result.success) {
+        const alertTitle = isFromOnboarding ? t('onboardingPaywall.alerts.purchasesRestoredTitle') : t('paywall.alerts.purchasesRestoredTitle');
+        const alertMessage = isFromOnboarding ? t('onboardingPaywall.alerts.purchasesRestoredMessage') : t('paywall.alerts.purchasesRestoredMessage');
+        const onContinue = isFromOnboarding ? () => router.replace('/(tabs)') : () => router.back();
+        
         Alert.alert(
-          t('paywall.alerts.purchasesRestoredTitle'),
-          t('paywall.alerts.purchasesRestoredMessage'),
-          [{ text: t('paywall.alerts.continue'), onPress: () => router.back() }]
+          alertTitle,
+          alertMessage,
+          [{ text: t('paywall.alerts.continue'), onPress: onContinue }]
         );
       } else {
         Alert.alert(t('paywall.alerts.restoreFailedTitle'), result.error || t('paywall.alerts.restoreFailedMessage'));
@@ -182,25 +201,27 @@ export default function PaywallScreen() {
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets={true}
         >
-        {/* Close Button */}
-        <View style={{
-          position: 'absolute',
-          top: 10,
-          right: 10,
-          zIndex: 20,
-        }}>
-          <Pressable
-            onPress={() => router.back()}
-            style={{
-              width: 44,
-              height: 44,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Ionicons name="close" size={24} color="#F5EBE0" />
-          </Pressable>
-        </View>
+        {/* Close Button - only show if dismissible */}
+        {getPaywallContent().canDismiss && (
+          <View style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            zIndex: 20,
+          }}>
+            <Pressable
+              onPress={() => router.back()}
+              style={{
+                width: 44,
+                height: 44,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Ionicons name="close" size={24} color="#F5EBE0" />
+            </Pressable>
+          </View>
+        )}
 
         {/* Current Subscription State */}
         {isSubscribed && currentTier && (

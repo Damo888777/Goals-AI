@@ -309,49 +309,93 @@ class SyncService {
         safeChanges.profiles.updated = [];
       }
 
-      // Push goals
+      // Push goals first and wait for completion
       if (safeChanges.goals.created.length > 0) {
-        const transformedGoals = safeChanges.goals.created.map(this.transformLocalToSupabase.bind(this))
-        console.log('Pushing goals:', transformedGoals.length)
+        // Filter out already synced goal records
+        const syncedIds = await this.getSyncedRecordIds()
+        const unsyncedGoals = safeChanges.goals.created.filter(g => 
+          !syncedIds.has(`goals:${g.id}`)
+        )
         
-        const { error } = await supabase
-          .from('goals')
-          .upsert(transformedGoals, { onConflict: 'id' })
-        if (error) {
-          console.error('Error pushing goals:', error)
-          throw error
-        }
-      }
-
-      if (safeChanges.goals.updated.length > 0) {
-        for (const goal of safeChanges.goals.updated) {
+        if (unsyncedGoals.length > 0) {
+          const transformedGoals = unsyncedGoals.map(this.transformLocalToSupabase.bind(this))
+          console.log('Pushing goals:', transformedGoals.length)
+          
           const { error } = await supabase
             .from('goals')
-            .update(this.transformLocalToSupabase.bind(this)(goal))
-            .eq('id', goal.id)
-          if (error) throw error
+            .upsert(transformedGoals, { onConflict: 'id' })
+          
+          if (error) {
+            console.error('Error pushing goals:', error)
+            throw error
+          }
+          
+          // Mark goal records as synced to prevent duplicates
+          const goalIds = unsyncedGoals.map(g => `goals:${g.id}`)
+          await this.markRecordsAsSynced(goalIds)
+          
+          // Wait a moment to ensure goals are committed before pushing dependent records
+          await new Promise(resolve => setTimeout(resolve, 100))
+        } else {
+          console.log('🔄 All goal records already synced, skipping')
         }
       }
 
-      if (safeChanges.goals.deleted.length > 0) {
-        const { error } = await supabase
-          .from('goals')
-          .delete()
-          .in('id', safeChanges.goals.deleted)
-        if (error) throw error
+      // Push updated goals
+      if (safeChanges.goals.updated.length > 0) {
+        for (const goal of safeChanges.goals.updated) {
+          const transformed = this.transformLocalToSupabase(goal)
+          const { error } = await supabase
+            .from('goals')
+            .update(transformed)
+            .eq('id', goal.id)
+          
+          if (error) {
+            console.error('Error updating goal:', error)
+            throw error
+          }
+        }
       }
 
-      // Push milestones
+      // Push milestones (after goals are committed)
       if (safeChanges.milestones.created.length > 0) {
-        const transformedMilestones = safeChanges.milestones.created.map(this.transformLocalToSupabase.bind(this))
-        console.log('Pushing milestones:', transformedMilestones.length)
+        // Filter out already synced milestone records
+        const syncedIds = await this.getSyncedRecordIds()
+        const unsyncedMilestones = safeChanges.milestones.created.filter(m => 
+          !syncedIds.has(`milestones:${m.id}`)
+        )
         
-        const { error } = await supabase
-          .from('milestones')
-          .upsert(transformedMilestones, { onConflict: 'id' })
-        if (error) {
-          console.error('Error pushing milestones:', error)
-          throw error
+        if (unsyncedMilestones.length > 0) {
+          const transformedMilestones = unsyncedMilestones.map(this.transformLocalToSupabase.bind(this))
+          console.log('Pushing milestones:', transformedMilestones.length)
+          
+          const { error } = await supabase
+            .from('milestones')
+            .upsert(transformedMilestones, { onConflict: 'id' })
+          if (error) {
+            console.error('Error pushing milestones:', error)
+            // If it's a foreign key constraint error, it might be a timing issue
+            if (error.code === '23503' && error.message.includes('milestones_goal_id_fkey')) {
+              console.warn('⚠️ Foreign key constraint error - goal may not be committed yet. Retrying...')
+              // Wait a bit longer and retry once
+              await new Promise(resolve => setTimeout(resolve, 500))
+              const { error: retryError } = await supabase
+                .from('milestones')
+                .upsert(transformedMilestones, { onConflict: 'id' })
+              if (retryError) {
+                console.error('Error pushing milestones after retry:', retryError)
+                throw retryError
+              }
+            } else {
+              throw error
+            }
+          }
+          
+          // Mark milestone records as synced to prevent duplicates
+          const milestoneIds = unsyncedMilestones.map(m => `milestones:${m.id}`)
+          await this.markRecordsAsSynced(milestoneIds)
+        } else {
+          console.log('🔄 All milestone records already synced, skipping')
         }
       }
 
@@ -375,15 +419,43 @@ class SyncService {
 
       // Push tasks
       if (safeChanges.tasks.created.length > 0) {
-        const transformedTasks = safeChanges.tasks.created.map(this.transformLocalToSupabase.bind(this))
-        console.log('Pushing tasks:', transformedTasks.length)
+        // Filter out already synced task records
+        const syncedIds = await this.getSyncedRecordIds()
+        const unsyncedTasks = safeChanges.tasks.created.filter(t => 
+          !syncedIds.has(`tasks:${t.id}`)
+        )
         
-        const { error } = await supabase
-          .from('tasks')
-          .upsert(transformedTasks, { onConflict: 'id' })
-        if (error) {
-          console.error('Error pushing tasks:', error)
-          throw error
+        if (unsyncedTasks.length > 0) {
+          const transformedTasks = unsyncedTasks.map(this.transformLocalToSupabase.bind(this))
+          console.log('Pushing tasks:', transformedTasks.length)
+          
+          const { error } = await supabase
+            .from('tasks')
+            .upsert(transformedTasks, { onConflict: 'id' })
+          if (error) {
+            console.error('Error pushing tasks:', error)
+            // If it's a foreign key constraint error, it might be a timing issue
+            if (error.code === '23503' && (error.message.includes('tasks_goal_id_fkey') || error.message.includes('tasks_milestone_id_fkey'))) {
+              console.warn('⚠️ Foreign key constraint error - goal/milestone may not be committed yet. Retrying...')
+              // Wait a bit longer and retry once
+              await new Promise(resolve => setTimeout(resolve, 500))
+              const { error: retryError } = await supabase
+                .from('tasks')
+                .upsert(transformedTasks, { onConflict: 'id' })
+              if (retryError) {
+                console.error('Error pushing tasks after retry:', retryError)
+                throw retryError
+              }
+            } else {
+              throw error
+            }
+          }
+          
+          // Mark task records as synced to prevent duplicates
+          const taskIds = unsyncedTasks.map(t => `tasks:${t.id}`)
+          await this.markRecordsAsSynced(taskIds)
+        } else {
+          console.log('🔄 All task records already synced, skipping')
         }
       }
 
@@ -530,10 +602,9 @@ class SyncService {
 
   // Transform WatermelonDB data to Supabase format
   private transformLocalToSupabase(record: any): any {
-    // Generate proper UUID for record ID if it's not already a UUID
-    // WatermelonDB uses string IDs like "fN3btwDWg6iY7r78" but Supabase expects UUID format
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(record.id);
-    const recordId = isUUID ? record.id : this.generateUUID();
+    // KEEP ORIGINAL IDs - Don't generate new UUIDs, use WatermelonDB IDs as-is
+    // This preserves foreign key relationships between goals, milestones, and tasks
+    const recordId = record.id;
     
     const base = {
       id: recordId,

@@ -117,7 +117,7 @@ export const useOnboarding = () => {
       // If onboarding is already completed, this is just a tutorial completion
       if (!isOnboardingCompleted) {
         const { router } = await import('expo-router');
-        router.push('/onboarding-paywall');
+        router.push('/paywall');
       }
     } catch (error) {
       console.error('Error completing Spark tutorial:', error);

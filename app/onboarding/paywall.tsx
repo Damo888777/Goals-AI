@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, KeyboardAv
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useSubscription } from '../../src/hooks/useSubscription';
 import { SubscriptionCard } from '../../src/components/SubscriptionCard';
@@ -207,7 +208,10 @@ export default function OnboardingPaywallScreen() {
           elevation: 4,
         }}>
           <Pressable
-            onPress={() => setBillingPeriod('monthly')}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setBillingPeriod('monthly');
+            }}
             style={{
               flex: 1,
               paddingVertical: 8,
@@ -228,7 +232,10 @@ export default function OnboardingPaywallScreen() {
             </Text>
           </Pressable>
           <Pressable
-            onPress={() => setBillingPeriod('annual')}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setBillingPeriod('annual');
+            }}
             style={{
               flex: 1,
               paddingVertical: 8,
@@ -298,7 +305,10 @@ export default function OnboardingPaywallScreen() {
         {/* Action Buttons */}
         <View style={{ gap: 20 }}>
           <Pressable
-            onPress={handlePurchase}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              handlePurchase();
+            }}
             disabled={!selectedPlan || isLoading}
             style={{
               backgroundColor: selectedPlan ? '#F5EBE0' : 'rgba(245, 235, 224, 0.3)',
@@ -340,7 +350,10 @@ export default function OnboardingPaywallScreen() {
           </Text>
 
           <Pressable
-            onPress={handleRestore}
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              handleRestore();
+            }}
             disabled={isLoading}
             style={{
               paddingVertical: 16,

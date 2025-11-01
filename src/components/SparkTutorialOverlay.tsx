@@ -127,18 +127,18 @@ export function SparkTutorialOverlay({
               />
             </View>
             <Text style={[typography.cardTitle, styles.tooltipTitle]}>
-              {t('sparkTutorialOverlay.title')}
+              {t('components.sparkTutorialOverlay.title')}
             </Text>
           </View>
           
           {/* Main content */}
           <Text style={[typography.body, styles.tooltipBody]}>
-            {t('sparkTutorialOverlay.body')}
+            {t('components.sparkTutorialOverlay.body')}
           </Text>
           
           {/* Sub-note */}
           <Text style={[typography.caption, styles.tooltipSubNote]}>
-            {t('sparkTutorialOverlay.subNote')}
+            {t('components.sparkTutorialOverlay.subNote')}
           </Text>
           
           {/* Action button */}
@@ -147,7 +147,7 @@ export function SparkTutorialOverlay({
             onPress={onComplete}
           >
             <Text style={[typography.button, styles.tooltipButtonText]}>
-              {t('sparkTutorialOverlay.button')}
+              {t('components.sparkTutorialOverlay.button')}
             </Text>
           </Pressable>
         </View>

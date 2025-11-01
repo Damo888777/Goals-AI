@@ -418,6 +418,9 @@ class OnboardingService {
         personalization: data.genderPreference
       });
 
+      // Wait a moment for any immediate sync operations to complete
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       // Mark as completed locally
       console.log('✅ [OnboardingService] MARKING ONBOARDING AS COMPLETED - completeOnboarding() called');
       console.trace('✅ [OnboardingService] Call stack for completion:');

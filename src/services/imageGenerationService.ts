@@ -6,6 +6,7 @@ export interface ImageGenerationRequest {
   userText: string;
   style: StyleOption;
   genderPreference?: 'man' | 'woman' | 'specify';
+  isOnboardingPreview?: boolean; // Skip usage tracking for onboarding preview
 }
 
 export interface ImageGenerationResult {
@@ -61,6 +62,15 @@ class ImageGenerationService {
       const data = await response.json();
 
       if (data?.success && data?.imageBase64) {
+        // Skip usage tracking for onboarding preview
+        if (request.isOnboardingPreview) {
+          console.log('🎯 Onboarding preview - skipping usage tracking');
+          return {
+            success: true,
+            imageBase64: data.imageBase64
+          };
+        }
+
         // Track vision image usage after successful generation
         try {
           const { usageTrackingService } = await import('./usageTrackingService');

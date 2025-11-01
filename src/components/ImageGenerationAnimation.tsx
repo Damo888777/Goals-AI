@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { images } from '../constants/images';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export type ImageGenerationState = 'idle' | 'generating' | 'completed' | 'error' | 'preview';
 
@@ -12,7 +13,24 @@ interface ImageGenerationAnimationProps {
 }
 
 export function ImageGenerationAnimation({ state, progress = 0 }: ImageGenerationAnimationProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { currentLanguage } = useLanguage();
+  
+  // Debug: Log translation values to see what's actually being returned
+  useEffect(() => {
+    console.log('🌐 [ImageGenerationAnimation] i18n language:', i18n.language);
+    console.log('🌐 [ImageGenerationAnimation] Context language:', currentLanguage);
+    console.log('🌐 [ImageGenerationAnimation] Translation test:', t('imageGenerationAnimation.states.generating'));
+    console.log('🌐 [ImageGenerationAnimation] i18n ready:', i18n.isInitialized);
+    console.log('🌐 [ImageGenerationAnimation] State:', state);
+  }, [i18n.language, currentLanguage, t, state]);
+  
+  // Force re-render when language changes from either source
+  const [, forceUpdate] = useState({});
+  useEffect(() => {
+    forceUpdate({});
+  }, [i18n.language, currentLanguage]);
+
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -135,13 +153,48 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
   });
 
   const getStatusText = (): string => {
+    // Get the translation with language-specific fallbacks
+    const getTranslationWithFallback = (key: string, fallback: string) => {
+      const translation = t(key, fallback);
+      console.log(`🌐 [ImageGenerationAnimation] Translation for ${key}:`, translation);
+      
+      // If translation failed and we're not in English, provide language-specific fallbacks
+      if (translation === key || translation === fallback) {
+        if (currentLanguage === 'de') {
+          switch (key) {
+            case 'imageGenerationAnimation.states.generating':
+              return 'Spark erstellt deine Vision...';
+            case 'imageGenerationAnimation.states.completed':
+              return 'Vision erfolgreich erstellt!';
+            case 'imageGenerationAnimation.states.error':
+              return 'Etwas ist schiefgelaufen';
+            default:
+              return fallback;
+          }
+        } else if (currentLanguage === 'fr') {
+          switch (key) {
+            case 'imageGenerationAnimation.states.generating':
+              return 'Spark crée votre vision...';
+            case 'imageGenerationAnimation.states.completed':
+              return 'Vision créée avec succès !';
+            case 'imageGenerationAnimation.states.error':
+              return 'Quelque chose a mal tourné';
+            default:
+              return fallback;
+          }
+        }
+      }
+      
+      return translation;
+    };
+
     switch (state) {
       case 'generating':
-        return t('imageGenerationAnimation.states.generating');
+        return getTranslationWithFallback('imageGenerationAnimation.states.generating', 'Spark is creating your vision...');
       case 'completed':
-        return t('imageGenerationAnimation.states.completed');
+        return getTranslationWithFallback('imageGenerationAnimation.states.completed', 'Vision created successfully!');
       case 'error':
-        return t('imageGenerationAnimation.states.error');
+        return getTranslationWithFallback('imageGenerationAnimation.states.error', 'Something went wrong');
       default:
         return '';
     }
@@ -162,6 +215,52 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
 
   if (state === 'idle') {
     return null;
+  }
+
+  // Don't render if translations aren't ready
+  if (!i18n.isInitialized) {
+    console.log('🌐 [ImageGenerationAnimation] Translations not ready, showing fallback');
+    return (
+      <Animated.View 
+        style={{ 
+          opacity: fadeAnim,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(74, 78, 105, 0.95)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 3000,
+        }}
+      >
+        <View style={{
+          backgroundColor: '#F5EBE0',
+          borderWidth: 1,
+          borderColor: '#A3B18A',
+          borderRadius: 20,
+          padding: 32,
+          marginHorizontal: 36,
+          alignItems: 'center',
+          shadowColor: '#F5EBE0',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.75,
+          shadowRadius: 0,
+          elevation: 8,
+        }}>
+          <Text style={{
+            color: '#364958',
+            fontSize: 20,
+            fontFamily: 'Helvetica-Bold',
+            marginBottom: 8,
+            textAlign: 'center',
+          }}>
+            Spark is creating your vision...
+          </Text>
+        </View>
+      </Animated.View>
+    );
   }
 
   return (
@@ -327,7 +426,19 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               textAlign: 'center',
               opacity: 0.8,
             }}>
-              {t('imageGenerationAnimation.messages.pleaseWait')}
+              {(() => {
+                const key = 'imageGenerationAnimation.messages.pleaseWait';
+                const fallback = 'This may take a moment...';
+                const translation = t(key, fallback);
+                
+                if ((translation === key || translation === fallback) && currentLanguage === 'de') {
+                  return 'Das kann einen Moment dauern...';
+                } else if ((translation === key || translation === fallback) && currentLanguage === 'fr') {
+                  return 'Cela peut prendre un moment...';
+                }
+                
+                return translation;
+              })()}
             </Text>
           </View>
         )}
@@ -348,7 +459,19 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               fontFamily: 'Helvetica-Light',
               textAlign: 'center',
             }}>
-              {t('imageGenerationAnimation.messages.visionComplete')}
+              {(() => {
+                const key = 'imageGenerationAnimation.messages.visionComplete';
+                const fallback = 'Your vision has been brought to life!';
+                const translation = t(key, fallback);
+                
+                if ((translation === key || translation === fallback) && currentLanguage === 'de') {
+                  return 'Deine Vision wurde zum Leben erweckt!';
+                } else if ((translation === key || translation === fallback) && currentLanguage === 'fr') {
+                  return 'Votre vision a pris vie !';
+                }
+                
+                return translation;
+              })()}
             </Text>
           </View>
         )}
@@ -369,7 +492,19 @@ export function ImageGenerationAnimation({ state, progress = 0 }: ImageGeneratio
               fontFamily: 'Helvetica-Light',
               textAlign: 'center',
             }}>
-              {t('imageGenerationAnimation.messages.errorMessage')}
+              {(() => {
+                const key = 'imageGenerationAnimation.messages.errorMessage';
+                const fallback = 'Unable to create your vision. Please try again.';
+                const translation = t(key, fallback);
+                
+                if ((translation === key || translation === fallback) && currentLanguage === 'de') {
+                  return 'Deine Vision konnte nicht erstellt werden. Bitte versuche es erneut.';
+                } else if ((translation === key || translation === fallback) && currentLanguage === 'fr') {
+                  return 'Impossible de créer votre vision. Veuillez réessayer.';
+                }
+                
+                return translation;
+              })()}
             </Text>
           </View>
         )}
