@@ -585,6 +585,7 @@
     },
     "buttons": {
       "startFreeTrial": "Start 7-day free trial",
+      "subscribe": "Subscribe Now",
       "processing": "Processing...",
       "restorePurchases": "Restore Purchases"
     },

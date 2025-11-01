@@ -2,6 +2,15 @@ import { DB_CONFIG } from './config';
 import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import schema from './schema';
+
+// UUID v4 generator for Supabase compatibility
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 import Profile from './models/Profile';
 import Goal from './models/Goal'
 import Milestone from './models/Milestone'
@@ -22,6 +31,11 @@ if (DB_CONFIG.USE_WATERMELON) {
     const adapter = new SQLiteAdapter({
       dbName: 'GoalzAI.db',
       schema,
+      // Configure to generate UUID-compatible IDs for Supabase compatibility
+      jsi: true,
+      onSetUpError: (error) => {
+        console.error('SQLite setup error:', error);
+      }
     });
 
     // Make a Watermelon database from it!

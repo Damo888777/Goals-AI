@@ -87,11 +87,15 @@ class SyncService {
     return !!user && !user.is_anonymous
   }
 
-  // Get current user ID
+  // Get current user ID (consistent with authService)
   private async getCurrentUserId(): Promise<string | null> {
-    if (!isSupabaseConfigured || !supabase) return null
-    const { data: { user } } = await supabase.auth.getUser()
-    return user?.id || null
+    try {
+      const { authService } = await import('./authService')
+      return authService.getEffectiveUserId()
+    } catch (error) {
+      console.error('Error getting effective user ID:', error)
+      return null
+    }
   }
 
   // Pull changes from Supabase
@@ -280,12 +284,13 @@ class SyncService {
     })
 
     try {
-      // Check if onboarding is in progress to skip profile operations
-      const { onboardingService } = await import('./onboardingService');
-      const isOnboardingInProgress = onboardingService.getCurrentSession()?.isCompleted === false;
+      // Check if user is authenticated (not anonymous) for profile operations
+      const { authService } = await import('./authService');
+      const currentUser = authService.getCurrentUser();
+      const isAuthenticated = currentUser && !currentUser.isAnonymous;
       
-      // Push profiles (skip during onboarding to avoid RLS policy issues)
-      if (!isOnboardingInProgress) {
+      // Push profiles (ONLY for authenticated users to avoid RLS policy issues)
+      if (isAuthenticated) {
         if (safeChanges.profiles.created.length > 0) {
           const { error } = await supabase
             .from('profiles')
@@ -303,7 +308,7 @@ class SyncService {
           }
         }
       } else {
-        console.log('⏸️ Skipping profile sync during onboarding');
+        console.log('⏸️ Skipping profile sync for anonymous user (RLS policy restriction)');
         // Clear profile changes to prevent them from being retried
         safeChanges.profiles.created = [];
         safeChanges.profiles.updated = [];
@@ -590,7 +595,7 @@ class SyncService {
   }
 
   // Mark records as synced to prevent future duplicates
-  private async markRecordsAsSynced(recordIds: string[]): Promise<void> {
+  async markRecordsAsSynced(recordIds: string[]): Promise<void> {
     try {
       const existingSyncedIds = await this.getSyncedRecordIds()
       recordIds.forEach(id => existingSyncedIds.add(id))
@@ -600,11 +605,66 @@ class SyncService {
     }
   }
 
+  // Clear all sync tracking (for reset/cleanup purposes)
+  async clearSyncTracking(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem('synced_record_ids')
+      console.log('✅ Cleared sync tracking records')
+    } catch (error) {
+      console.error('Error clearing sync tracking:', error)
+    }
+  }
+
+  // Convert WatermelonDB ID to UUID format for Supabase compatibility
+  private convertToUUID(watermelonId: string): string {
+    // Check if it's already a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(watermelonId)) {
+      return watermelonId; // Already a UUID
+    }
+    
+    // Create a deterministic UUID from the WatermelonDB ID
+    // This ensures the same WatermelonDB ID always maps to the same UUID
+    const hash1 = this.simpleHash(watermelonId);
+    const hash2 = this.simpleHash(watermelonId + 'salt');
+    const hash3 = this.simpleHash(watermelonId + 'more');
+    const hash4 = this.simpleHash(watermelonId + 'data');
+    const hash5 = this.simpleHash(watermelonId + 'extra');
+    
+    // Create proper 32-character hex string for UUID
+    const hex1 = Math.abs(hash1).toString(16).padStart(8, '0');
+    const hex2 = Math.abs(hash2).toString(16).padStart(8, '0');
+    const hex3 = Math.abs(hash3).toString(16).padStart(8, '0');
+    const hex4 = Math.abs(hash4).toString(16).padStart(8, '0');
+    const hex5 = Math.abs(hash5).toString(16).padStart(8, '0');
+    
+    // Combine to create 32 hex characters, then format as UUID
+    const fullHex = (hex1 + hex2 + hex3 + hex4).substring(0, 32);
+    
+    return [
+      fullHex.substring(0, 8),   // 8 chars: positions 0-7
+      fullHex.substring(8, 12),  // 4 chars: positions 8-11
+      '4' + fullHex.substring(12, 15), // Version 4: 4 + 3 chars (positions 12-14)
+      ((parseInt(fullHex.substring(15, 16), 16) & 0x3) | 0x8).toString(16) + fullHex.substring(16, 19), // Variant: 1 + 3 chars (positions 15-18)
+      fullHex.substring(20, 32)  // 12 chars: positions 20-31
+    ].join('-');
+  }
+
+  // Simple hash function for deterministic UUID generation
+  private simpleHash(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash;
+  }
+
   // Transform WatermelonDB data to Supabase format
   private transformLocalToSupabase(record: any): any {
-    // KEEP ORIGINAL IDs - Don't generate new UUIDs, use WatermelonDB IDs as-is
-    // This preserves foreign key relationships between goals, milestones, and tasks
-    const recordId = record.id;
+    // Convert WatermelonDB ID to UUID format for Supabase compatibility
+    const recordId = this.convertToUUID(record.id);
     
     const base = {
       id: recordId,
@@ -612,10 +672,11 @@ class SyncService {
       updated_at: record.updatedAt,
     }
 
-    // Handle profile records
+    // Handle profile records - NOTE: Profiles should not be synced for anonymous users
     if (record.email !== undefined) {
       return {
         ...base,
+        user_id: recordId, // For profiles, user_id matches the profile id
         email: record.email
       }
     }
@@ -624,7 +685,7 @@ class SyncService {
     if (record.table === 'goals' || (record.title !== undefined && (record.feelingsArray !== undefined || record.feelings !== undefined || record.visionImageUrl !== undefined))) {
       return {
         ...base,
-        user_id: record.userId,
+        user_id: this.convertToUUID(record.userId),
         title: record.title,
         feelings: JSON.stringify(record.feelingsArray || record.feelings || []),
         vision_image_url: record.visionImageUrl || null,
@@ -639,9 +700,9 @@ class SyncService {
     if (record.table === 'tasks' || (record.title !== undefined && record.isComplete !== undefined && (record.isFrog !== undefined || record.scheduledDate !== undefined || record.milestoneId !== undefined))) {
       return {
         ...base,
-        user_id: record.userId,
-        goal_id: record.goalId || null,
-        milestone_id: record.milestoneId || null,
+        user_id: this.convertToUUID(record.userId),
+        goal_id: record.goalId ? this.convertToUUID(record.goalId) : null,
+        milestone_id: record.milestoneId ? this.convertToUUID(record.milestoneId) : null,
         title: record.title,
         notes: record.notes || null,
         scheduled_date: record.scheduledDate || null,
@@ -656,8 +717,8 @@ class SyncService {
     if (record.table === 'milestones' || (record.title !== undefined && record.goalId !== undefined && record.isComplete !== undefined)) {
       return {
         ...base,
-        user_id: record.userId,
-        goal_id: record.goalId,
+        user_id: this.convertToUUID(record.userId),
+        goal_id: this.convertToUUID(record.goalId),
         title: record.title,
         target_date: record.targetDate || null,
         is_complete: record.isComplete || false,
@@ -677,7 +738,7 @@ class SyncService {
       
       return {
         ...base,
-        user_id: record.userId,
+        user_id: this.convertToUUID(record.userId),
         subscription_tier: subscriptionTier, // Must be 'starter', 'achiever', or 'visionary'
         product_id: record.revenuecatCustomerId || 'unknown',
         transaction_id: record.revenuecatCustomerId || 'unknown',
@@ -698,7 +759,7 @@ class SyncService {
     if (record.table === 'subscription_usage' || record.sparkAiVoiceInputsUsed !== undefined || record.sparkAiVisionImagesUsed !== undefined) {
       return {
         ...base,
-        user_id: record.userId,
+        user_id: this.convertToUUID(record.userId),
         subscription_tier: record.subscriptionTier,
         spark_ai_voice_inputs_used: record.sparkAiVoiceInputsUsed || 0,
         spark_ai_vision_images_used: record.sparkAiVisionImagesUsed || 0,
@@ -711,7 +772,7 @@ class SyncService {
     // Fallback for unknown record types (basic fields only)
     return {
       ...base,
-      user_id: record.userId,
+      user_id: this.convertToUUID(record.userId),
       title: record.title || null,
       notes: record.notes || null,
       creation_source: record.creationSource || 'manual'

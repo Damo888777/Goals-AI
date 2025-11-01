@@ -301,12 +301,18 @@ class OnboardingService {
   }
 
   /**
-   * Complete onboarding and create all entities
+   * Save onboarding data and create entities (but don't mark as completed until subscription)
    */
-  async completeOnboarding(data: CompleteOnboardingData): Promise<void> {
-    const currentUser = authService.getCurrentUser();
+  async saveOnboardingDataAndEntities(data: CompleteOnboardingData): Promise<void> {
+    // Get current user (anonymous or authenticated)
+    let currentUser = authService.getCurrentUser();
+    
+    // If no current user, initialize anonymous user
     if (!currentUser) {
-      throw new Error('No authenticated user found');
+      currentUser = await authService.initialize();
+      if (!currentUser) {
+        throw new Error('Failed to initialize user for onboarding completion');
+      }
     }
 
     try {
@@ -421,42 +427,70 @@ class OnboardingService {
       // Wait a moment for any immediate sync operations to complete
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Mark as completed locally
-      console.log('✅ [OnboardingService] MARKING ONBOARDING AS COMPLETED - completeOnboarding() called');
-      console.trace('✅ [OnboardingService] Call stack for completion:');
-      await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      // DON'T mark as completed yet - this happens after successful subscription
+      console.log('✅ [OnboardingService] Onboarding data saved - waiting for subscription to complete onboarding');
       
-      // Clear current session since onboarding is now complete
-      this.currentSession = null;
+      // Keep session active until subscription is complete
+      // this.currentSession = null; // Don't clear yet
       
-      // Trigger a sync after onboarding completion to sync any skipped profile data
+      // Mark all created records as synced to prevent duplicate sync attempts
       try {
         const { syncService } = await import('./syncService');
-        syncService.scheduleSync(2000); // Sync after 2 seconds to allow for proper completion
+        
+        // Mark records as already synced to prevent duplicate key violations
+        const recordIds = [
+          `goals:${goalId}`,
+          `milestones:${milestoneId}`,
+          `tasks:${taskId}`
+        ];
+        if (visionImageId) {
+          recordIds.push(`vision_images:${visionImageId}`);
+        }
+        
+        // Mark records as synced using the public method
+        await syncService.markRecordsAsSynced(recordIds);
+        console.log('✅ Marked onboarding records as synced to prevent duplicates');
+        
+        // Schedule sync after marking records to avoid conflicts
+        syncService.scheduleSync(3000); // Sync after 3 seconds to allow for proper completion
         console.log('📤 Scheduled post-onboarding sync to sync profile data');
       } catch (error) {
         console.error('Failed to schedule post-onboarding sync:', error);
       }
       
-      console.log('✅ Onboarding completed successfully with entities created');
+      console.log('✅ Onboarding data saved successfully with entities created');
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error('Error saving onboarding data:', error);
       throw error;
     }
   }
 
   /**
-   * Mark onboarding as completed (legacy method)
+   * Mark onboarding as completed after successful subscription
    */
-  async markOnboardingCompleted(): Promise<void> {
+  async finalizeOnboardingAfterSubscription(): Promise<void> {
     try {
-      console.log('⚠️ [OnboardingService] LEGACY markOnboardingCompleted() called!');
-      console.trace('⚠️ [OnboardingService] Call stack for markOnboardingCompleted:');
+      console.log('✅ [OnboardingService] FINALIZING ONBOARDING AFTER SUBSCRIPTION');
+      console.trace('✅ [OnboardingService] Call stack for finalization:');
+      
+      // Mark as completed locally
       await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
-      console.log('✅ [OnboardingService] AsyncStorage onboarding_completed set to true via legacy method');
+      
+      // Clear current session since onboarding is now complete
+      this.currentSession = null;
+      
+      console.log('✅ [OnboardingService] Onboarding finalized - user can access main app');
     } catch (error) {
-      console.error('Error marking onboarding as completed:', error);
+      console.error('Error finalizing onboarding:', error);
+      throw error;
     }
+  }
+
+  /**
+   * Complete onboarding (wrapper for backward compatibility)
+   */
+  async completeOnboarding(data: CompleteOnboardingData): Promise<void> {
+    return this.saveOnboardingDataAndEntities(data);
   }
 
   /**
@@ -512,6 +546,14 @@ class OnboardingService {
       // Clear local storage including language preference to default to English
       await AsyncStorage.multiRemove([ONBOARDING_COMPLETED_KEY, ONBOARDING_DATA_KEY, SPARK_TUTORIAL_KEY, 'user-language']);
       console.log('✅ [OnboardingService] AsyncStorage keys cleared');
+      
+      // Clear sync tracking to allow fresh sync attempts
+      try {
+        const { syncService } = await import('./syncService');
+        await syncService.clearSyncTracking();
+      } catch (error) {
+        console.error('Failed to clear sync tracking:', error);
+      }
       
       // Clear current session
       this.currentSession = null;

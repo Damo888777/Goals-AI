@@ -130,24 +130,8 @@ function MainLayout() {
     }
   }, [isAppReady, fadeAnim]);
 
-  // Navigate to paywall when onboarding is completed BUT only if no active subscription
-  const hasNavigatedToPaywall = useRef(false);
-  useEffect(() => {
-    if (isOnboardingCompleted === true && isAppReady && !isSubscriptionLoading && !hasNavigatedToPaywall.current) {
-      hasNavigatedToPaywall.current = true;
-      
-      if (!isSubscribed) {
-        console.log('🎯 [_layout] Onboarding completed and no subscription, navigating to paywall');
-        // Use setTimeout to ensure the Stack is fully mounted
-        setTimeout(() => {
-          router.replace('/paywall?source=onboarding');
-        }, 100);
-      } else {
-        console.log('✅ [_layout] Onboarding completed but user already subscribed, going to main app');
-        // No paywall needed, user already has subscription
-      }
-    }
-  }, [isOnboardingCompleted, isAppReady, isSubscribed, isSubscriptionLoading]);
+  // Note: Paywall navigation is now handled directly in onboarding flow
+  // This ensures smooth transition from onboarding -> paywall -> main app
 
   // Show splash while loading or checking onboarding
   if (isLoading || !isAppReady) {

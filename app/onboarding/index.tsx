@@ -439,7 +439,8 @@ export default function OnboardingScreen() {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      // Complete onboarding with all collected data
+      // Save onboarding data but DON'T mark onboarding as completed yet
+      // Onboarding completion should only happen after successful subscription
       await completeOnboarding({
         userName: data.name,
         genderPreference: data.personalization || 'specify',
@@ -452,8 +453,9 @@ export default function OnboardingScreen() {
         firstTaskTitle: data.taskTitle,
       });
       
-      // Don't navigate here - let the Root Layout handle routing after onboarding completion
-      // The root layout will automatically switch to main app when isOnboardingCompleted becomes true
+      // Navigate to paywall - onboarding completion happens after subscription
+      const { router } = await import('expo-router');
+      router.replace('/onboarding/paywall');
     } catch (error) {
       console.error('Onboarding completion error:', error);
       
@@ -1007,7 +1009,7 @@ export default function OnboardingScreen() {
           disabled={!data.taskTitle.trim() || isLoading || onboardingLoading}
         >
           <Image 
-            source={{ uri: images.icons.frog }}
+            source={images.icons.frog}
             style={styles.frogIcon}
             contentFit="contain"
           />
@@ -1184,8 +1186,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent.frog,
   },
   frogIcon: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
+    marginRight: 8,
   },
   buttonPressed: {
     transform: [{ scale: 0.98 }],

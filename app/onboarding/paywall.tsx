@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useSubscription } from '../../src/hooks/useSubscription';
+import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { SubscriptionCard } from '../../src/components/SubscriptionCard';
 import { PromoCodeInput } from '../../src/components/PromoCodeInput';
 
@@ -23,6 +24,8 @@ export default function OnboardingPaywallScreen() {
     validateCustomPromoCode,
     isLoading: subscriptionLoading
   } = useSubscription();
+
+  const { finalizeOnboardingAfterSubscription } = useOnboarding();
 
   const availablePlans = subscriptionPlans;
 
@@ -44,6 +47,9 @@ export default function OnboardingPaywallScreen() {
       
       const result = await purchasePackage(planToPurchase);
       if (result.success) {
+        // Finalize onboarding after successful subscription
+        await finalizeOnboardingAfterSubscription();
+        
         Alert.alert(
           t('onboardingPaywall.alerts.welcomeTitle'),
           t('onboardingPaywall.alerts.welcomeMessage'),
@@ -105,6 +111,9 @@ export default function OnboardingPaywallScreen() {
     try {
       const result = await restorePurchases();
       if (result.success) {
+        // Finalize onboarding after successful restore
+        await finalizeOnboardingAfterSubscription();
+        
         Alert.alert(
           t('onboardingPaywall.alerts.purchasesRestoredTitle'),
           t('onboardingPaywall.alerts.purchasesRestoredMessage'),

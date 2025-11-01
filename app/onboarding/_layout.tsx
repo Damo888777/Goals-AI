@@ -24,9 +24,6 @@ export default function OnboardingLayout() {
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#E9EDC9' } }}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="paywall" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
           </Stack>
         </LanguageProvider>
       </GestureHandlerRootView>

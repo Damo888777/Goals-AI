@@ -97,7 +97,7 @@ export const useOnboarding = () => {
         await onboardingService.saveOnboardingData(data);
         setOnboardingData(data);
       }
-      await onboardingService.markOnboardingCompleted();
+      await onboardingService.finalizeOnboardingAfterSubscription();
       setIsOnboardingCompleted(true);
       
       // Check if we should show Spark tutorial after onboarding
@@ -168,6 +168,16 @@ export const useOnboarding = () => {
     }
   };
 
+  const finalizeOnboardingAfterSubscription = async () => {
+    try {
+      await onboardingService.finalizeOnboardingAfterSubscription();
+      setIsOnboardingCompleted(true);
+    } catch (error) {
+      console.error('Error finalizing onboarding:', error);
+      throw error;
+    }
+  };
+
   return {
     isOnboardingCompleted,
     onboardingData,
@@ -186,5 +196,6 @@ export const useOnboarding = () => {
     updateUserPreferences,
     refreshOnboardingState: loadOnboardingState,
     loadIncompleteSession,
+    finalizeOnboardingAfterSubscription,
   };
 };

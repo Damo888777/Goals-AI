@@ -4,6 +4,10 @@ import database from '../db'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Q } from '@nozbe/watermelondb'
 
+// Shared constants for data migration
+const MIGRATION_COLLECTIONS = ['profiles', 'goals', 'milestones', 'tasks', 'vision_images', 'subscriptions', 'subscription_usage'] as const
+const USER_DATA_COLLECTIONS = ['goals', 'milestones', 'tasks', 'vision_images'] as const
+
 export interface AuthUser {
   id: string
   email?: string
@@ -153,6 +157,51 @@ class AuthService {
     });
   }
 
+  // Validate UUID format
+  private isValidUUID(uuid: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  }
+
+  // Migrate existing local data from old user ID to new UUID
+  private async migrateUserData(oldUserId: string, newUserId: string): Promise<void> {
+    try {
+      if (!database) {
+        console.log('⚠️ Database not available for user data migration');
+        return;
+      }
+
+      console.log('🔄 Migrating user data from', oldUserId, 'to', newUserId);
+
+      await database.write(async () => {
+        // Update all tables that have userId field
+        for (const collectionName of MIGRATION_COLLECTIONS) {
+          try {
+            const collection = database!.get(collectionName);
+            // Fix: Query using the correct WatermelonDB field name 'userId' not 'user_id'
+            const records = await collection.query(Q.where('userId', oldUserId)).fetch();
+            
+            if (records.length > 0) {
+              await Promise.all(records.map((record: any) => 
+                record.update((r: any) => {
+                  r.userId = newUserId;
+                })
+              ));
+              
+              console.log(`✅ Migrated ${records.length} records in ${collectionName}`);
+            }
+          } catch (error) {
+            console.error(`❌ Error migrating ${collectionName}:`, error);
+          }
+        }
+      });
+
+      console.log('✅ User data migration completed');
+    } catch (error) {
+      console.error('❌ User data migration failed:', error);
+    }
+  }
+
   // Sign out from authenticated session but maintain anonymous user
   async signOut(): Promise<void> {
     try {
@@ -256,7 +305,8 @@ class AuthService {
           this.currentUser = {
             id: session.user.id,
             email: session.user.email || undefined,
-            isAnonymous: session.user.is_anonymous || false
+            isAnonymous: session.user.is_anonymous || false,
+            persistentAnonymousId: this.persistentAnonymousId || undefined
           }
           
           await this.ensureLocalProfile(this.currentUser)
@@ -280,7 +330,24 @@ class AuthService {
   // Load persistent anonymous ID from storage
   private async loadPersistentAnonymousId(): Promise<void> {
     try {
-      this.persistentAnonymousId = await AsyncStorage.getItem(AuthService.ANONYMOUS_ID_KEY)
+      const storedId = await AsyncStorage.getItem(AuthService.ANONYMOUS_ID_KEY)
+      
+      // Validate that the stored ID is a proper UUID format
+      if (storedId && this.isValidUUID(storedId)) {
+        this.persistentAnonymousId = storedId
+        console.log('✅ Loaded valid UUID from storage:', storedId)
+      } else if (storedId) {
+        // Invalid format (likely old nanoid), generate new UUID and replace it
+        console.warn('⚠️ Found invalid UUID format in storage:', storedId, 'generating new UUID')
+        const oldUserId = storedId
+        this.persistentAnonymousId = this.generateOfflineUUID()
+        await this.savePersistentAnonymousId()
+        console.log('✅ Generated new UUID to replace invalid one:', this.persistentAnonymousId)
+        
+        // Migrate any existing local data from old user ID to new UUID
+        await this.migrateUserData(oldUserId, this.persistentAnonymousId)
+      }
+      // If no stored ID, persistentAnonymousId remains null and will be generated when needed
     } catch (error) {
       console.error('Error loading persistent anonymous ID:', error)
     }
@@ -308,12 +375,11 @@ class AuthService {
     try {
       // Migrate all local data from anonymous user to authenticated user
       await database.write(async () => {
-        const collections = ['goals', 'milestones', 'tasks', 'vision_images']
-        
-        for (const collectionName of collections) {
+        for (const collectionName of USER_DATA_COLLECTIONS) {
           const collection = database!.get(collectionName)
+          // Fix: Query using correct WatermelonDB field name 'userId' not 'user_id'
           const anonymousRecords = await collection
-            .query(Q.where('user_id', previousAnonymousId || ''))
+            .query(Q.where('userId', previousAnonymousId || ''))
             .fetch()
           
           // Update each record to use the new authenticated user ID
@@ -326,16 +392,26 @@ class AuthService {
           console.log(`✅ Migrated ${anonymousRecords.length} ${collectionName} records to authenticated user`)
         }
       })
+      
+      // Only update user state after successful migration
+      this.currentUser = {
+        id: appleUser.id,
+        email: appleUser.email || undefined,
+        isAnonymous: false,
+        persistentAnonymousId: previousAnonymousId || undefined
+      }
+      
+      console.log('✅ Data migration completed successfully')
     } catch (error) {
       console.error('Error migrating data to authenticated user:', error)
-      // Don't throw - allow sign-in to continue even if migration fails
-    }
-
-    this.currentUser = {
-      id: appleUser.id,
-      email: appleUser.email || undefined,
-      isAnonymous: false,
-      persistentAnonymousId: previousAnonymousId || undefined
+      // Still set user state but log the migration failure
+      this.currentUser = {
+        id: appleUser.id,
+        email: appleUser.email || undefined,
+        isAnonymous: false,
+        persistentAnonymousId: previousAnonymousId || undefined
+      }
+      console.warn('⚠️ User authenticated but data migration failed - data may be inconsistent')
     }
 
     // Ensure profile exists in local database
