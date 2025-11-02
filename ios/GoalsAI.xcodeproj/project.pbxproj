@@ -18,6 +18,7 @@
 		26B3C13415D449299714693B /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 70B4F62259CE41F5A320A627 /* widget.appex */; };
 		28AB80F8C81744C9B21253F1 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
 		2B78C002DF124E6A8D9EF997 /* LiveActivityModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E19A5FD8E224D52A7998040 /* LiveActivityModule.m */; };
+		2DDF5CA37FDA4B48A5465997 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
 		36F28056E6AE46E5966C4471 /* widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C24C59B1E44427A1325A4A /* widget.swift */; };
 		39203B8CE6DC4290841AD927 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10125887241249FFACEBF97D /* TaskIntents.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
@@ -27,6 +28,7 @@
 		5190F9A46178435C98D82752 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AC203123B2E43A6AECE1E80 /* ActivityKit.framework */; };
 		53EEA52002FE4280B313EA39 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFD2384856F247F0A1F22301 /* WidgetKit.framework */; };
 		55378EBB946A42E1A32829B4 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
+		5E414A6603C64A868A980801 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = E134917A0B6F4950A427FAE3 /* PomodoroLiveActivity.swift */; };
 		6C63B4175A71481793F4F697 /* WidgetBuildValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A14F31FB514048B85CBB87 /* WidgetBuildValidator.swift */; };
 		814E8B76AAA942FAAE08B785 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
 		8577B623DE774EB88C4110CF /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F533C41A76C46FDA9455843 /* TaskCompletionIntent.swift */; };
@@ -43,6 +45,7 @@
 		C3C1174F917C4FB293BEF3D7 /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B68A4412132458C9EE2AF2A /* LocalizationHelper.swift */; };
 		C4A87354B4CFEADC4CF276AC /* Pods_PomodoroLiveActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA10C051E99893C0A3A6427F /* Pods_PomodoroLiveActivity.framework */; };
 		CB0830E34105414AA8186C6A /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = E134917A0B6F4950A427FAE3 /* PomodoroLiveActivity.swift */; };
+		E74501480DC34BD19AA4D4BA /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB514D5F6041619CE0ACED /* LiveActivityModule.swift */; };
 		F0FF4DBFA99B47EF85198103 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BF4F489DF84332A6C34EE0 /* SharedDataManager.swift */; };
 		F491430F3BC6442D96B2FCEF /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = E54E970686AB4375B6CADD02 /* NotificationService.m */; };
 		FD6AA4C7E025BFB040C05A44 /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A395EFF321E7130992954F1 /* Pods_GoalsAI.framework */; };
@@ -225,6 +228,7 @@
 				E9BCE6880CBD4CE482831A63 /* OneSignalNotificationServiceExtension.entitlements */,
 				9AAA9964CC464BEBB3C93C46 /* OneSignalNotificationServiceExtension-Info.plist */,
 				E54E970686AB4375B6CADD02 /* NotificationService.m */,
+				2E18F823CE9D40268916BF51 /* widget */,
 			);
 			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
@@ -239,6 +243,23 @@
 				72A1B89F732FF0E313C92A9B /* Pods_widget.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2E18F823CE9D40268916BF51 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+				C8C24C59B1E44427A1325A4A /* widget.swift */,
+				F4BF4F489DF84332A6C34EE0 /* SharedDataManager.swift */,
+				10125887241249FFACEBF97D /* TaskIntents.swift */,
+				0F533C41A76C46FDA9455843 /* TaskCompletionIntent.swift */,
+				0B68A4412132458C9EE2AF2A /* LocalizationHelper.swift */,
+				87A14F31FB514048B85CBB87 /* WidgetBuildValidator.swift */,
+				F40E2877B33B48BE886A03F0 /* Assets.xcassets */,
+				8C4C3E203BE7426EAF4EDD2E /* Info.plist */,
+				F854624E5897446FAC1E1F3D /* widget.entitlements */,
+			);
+			name = widget;
+			path = widget;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -261,6 +282,7 @@
 				CD48E70715B243F49CFEC22C /* widget */,
 				A462D8792EB15932001CE5C6 /* Recovered References */,
 				B461902291A64B368566BF02 /* widget */,
+				2E18F823CE9D40268916BF51 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -309,6 +331,7 @@
 		B461902291A64B368566BF02 /* widget */ = {
 			isa = PBXGroup;
 			children = (
+				2E18F823CE9D40268916BF51 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -334,6 +357,7 @@
 				F40E2877B33B48BE886A03F0 /* Assets.xcassets */,
 				8C4C3E203BE7426EAF4EDD2E /* Info.plist */,
 				F854624E5897446FAC1E1F3D /* widget.entitlements */,
+				2E18F823CE9D40268916BF51 /* widget */,
 			);
 			path = widget;
 			sourceTree = "<group>";
@@ -349,6 +373,7 @@
 				1E9ACDAC8524A07F4AD75044 /* Pods-PomodoroLiveActivity.release.xcconfig */,
 				BD4522A520395B407B7C0BF3 /* Pods-widget.debug.xcconfig */,
 				A20FF7D804C26F180DF91850 /* Pods-widget.release.xcconfig */,
+				2E18F823CE9D40268916BF51 /* widget */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -457,6 +482,14 @@
 					};
 					BF8ABC5D642044138E276E7D = {
 						DevelopmentTeam = 5PT3BWY2A5;
+					};
+					undefined = {
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -802,6 +835,9 @@
 				AB4BB3A7366D4E169F53E43D /* PomodoroLiveActivity.swift in Sources */,
 				814E8B76AAA942FAAE08B785 /* PomodoroActivityAttributes.swift in Sources */,
 				0082EB7A2EFE43E1A57EB716 /* LiveActivityModule.swift in Sources */,
+				5E414A6603C64A868A980801 /* PomodoroLiveActivity.swift in Sources */,
+				2DDF5CA37FDA4B48A5465997 /* PomodoroActivityAttributes.swift in Sources */,
+				E74501480DC34BD19AA4D4BA /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -862,7 +898,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -897,7 +933,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "GoalsAI/GoalsAI-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -944,7 +980,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -974,7 +1010,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1000,7 +1036,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1045,7 +1081,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1118,7 +1154,10 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1186,7 +1225,10 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1239,7 +1281,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1289,7 +1331,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
