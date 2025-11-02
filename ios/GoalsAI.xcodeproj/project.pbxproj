@@ -13,11 +13,13 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1E03227DF2B64E8891F270F9 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C108E0BC6586407C80BC6B7D /* LiveActivityModule.swift */; };
+		24DC137DB76A4693B103D394 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C108E0BC6586407C80BC6B7D /* LiveActivityModule.swift */; };
 		2BBD813F425F48F1B25360D5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6249C049F35C40ECBFC67C02 /* WidgetKit.framework */; };
 		363E645FF5C53A2C8A7AFD90 /* Pods_GoalsAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62C0B9DB0BC9D1187155EE1C /* Pods_GoalsAI.framework */; };
 		38951AA87ECA4C18A0E5F9C5 /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3394FCB93D741C6BD3C3F3A /* LocalizationHelper.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		3EAD74A0B37949E68A0F8B7B /* WidgetLanguageSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C936F39583541419F095F61 /* WidgetLanguageSync.m */; };
+		441E7549525E4FD2B8EC03C9 /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3758E2D6BF9E4F0791122563 /* PomodoroLiveActivity.swift */; };
 		4A5BE9D87E344737B26FB23E /* WidgetBuildValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289D4A12A144DF0BA96EEEE /* WidgetBuildValidator.swift */; };
 		595C4F9BDF7C462898D2F289 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E063711C40664DDE975D9A34 /* PomodoroActivityAttributes.swift */; };
 		6A24E95D0FEC45E7961FCE14 /* widget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = A419E646C9E1475F96C9F644 /* widget.appex */; };
@@ -37,6 +39,7 @@
 		BB71E15660D24AF79A115A15 /* WidgetLanguageSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860D5B85547D499B8752C888 /* WidgetLanguageSync.swift */; };
 		BCB1EF477A4E11E3D7063B37 /* Pods_widget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB38CDAEABE7DE833CE20876 /* Pods_widget.framework */; };
 		C3622AEA0758472483BA9592 /* OneSignalNotificationServiceExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 83513EAE802B494187D39525 /* OneSignalNotificationServiceExtension.appex */; };
+		C810946932264B929D6E90F9 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E063711C40664DDE975D9A34 /* PomodoroActivityAttributes.swift */; };
 		C8708AC21B1D48338ADE4010 /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 047A176AB7D24305B1EC8542 /* TaskCompletionIntent.swift */; };
 		CA8A85467BFC4E69A6547FE8 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E063711C40664DDE975D9A34 /* PomodoroActivityAttributes.swift */; };
 		E036840FA5614D74980B1A32 /* TaskIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0F002FD0044A259163AF63 /* TaskIntents.swift */; };
@@ -215,6 +218,13 @@
 			name = GoalsAI;
 			sourceTree = "<group>";
 		};
+		19F9358324F645B9A8A8C9B8 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = widget;
+			sourceTree = "<group>";
+		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -246,6 +256,7 @@
 				B491F3AE34E646B39AFCBA19 /* OneSignalNotificationServiceExtension */,
 				BF93137AC6F64270B03D2DC0 /* widget */,
 				A43294692EB79D730039B251 /* Recovered References */,
+				19F9358324F645B9A8A8C9B8 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -746,6 +757,9 @@
 				A7F81F5DDE4A4FF4B6E668D8 /* PomodoroLiveActivity.swift in Sources */,
 				CA8A85467BFC4E69A6547FE8 /* PomodoroActivityAttributes.swift in Sources */,
 				1E03227DF2B64E8891F270F9 /* LiveActivityModule.swift in Sources */,
+				441E7549525E4FD2B8EC03C9 /* PomodoroLiveActivity.swift in Sources */,
+				C810946932264B929D6E90F9 /* PomodoroActivityAttributes.swift in Sources */,
+				24DC137DB76A4693B103D394 /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1082,10 +1096,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -1153,10 +1164,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

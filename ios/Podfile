@@ -74,6 +74,16 @@ target 'GoalsAI' do
         end
       end
     end
+
+    # Fix OneSignal framework search paths for notification service extension
+    installer.pods_project.targets.each do |target|
+      if target.name == 'Pods-OneSignalNotificationServiceExtension'
+        target.build_configurations.each do |config|
+          config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= ['$(inherited)']
+          config.build_settings['FRAMEWORK_SEARCH_PATHS'] << '$(PODS_ROOT)/OneSignalXCFramework/iOS_SDK/OneSignalSDK/OneSignal_XCFramework'
+        end
+      end
+    end
   end
 
   post_integrate do |installer|
@@ -95,5 +105,4 @@ end
 
 target 'OneSignalNotificationServiceExtension' do
   use_frameworks! :linkage => :static
-  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end
