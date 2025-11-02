@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
 import { onboardingService, OnboardingPreferences, OnboardingSessionData, CompleteOnboardingData } from '../services/onboardingService';
 
 export const useOnboarding = () => {
@@ -7,9 +8,14 @@ export const useOnboarding = () => {
   const [shouldShowSparkTutorial, setShouldShowSparkTutorial] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSession, setCurrentSession] = useState<OnboardingSessionData | null>(null);
+  const hasLoadedInitially = useRef(false);
 
   useEffect(() => {
-    loadOnboardingState();
+    // Only load on initial mount, not on every re-mount from background
+    if (!hasLoadedInitially.current) {
+      loadOnboardingState();
+      hasLoadedInitially.current = true;
+    }
   }, []);
 
   const loadOnboardingState = async () => {

@@ -2,7 +2,7 @@ import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useState, useEffect, useRef } from 'react';
-import { Animated, View, Text } from 'react-native';
+import { Animated, View, Text, AppState } from 'react-native';
 import { ErrorBoundary } from 'react-error-boundary';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SplashScreen } from '../src/components/SplashScreen';
@@ -32,10 +32,38 @@ function MainLayout() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAppReady, setIsAppReady] = useState(false);
   const [isStorageReady, setIsStorageReady] = useState(false);
+  const [appState, setAppState] = useState(AppState.currentState);
+  const [wasBackground, setWasBackground] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const { isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboarding();
+  const { isOnboardingCompleted, isLoading: isOnboardingLoading, refreshOnboardingState } = useOnboarding();
   const { isSubscribed, isLoading: isSubscriptionLoading } = useSubscription();
   
+  // Handle AppState changes to prevent onboarding restart on minimize/restore
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      console.log('📱 [_layout] AppState change:', appState, '->', nextAppState);
+      
+      if (appState === 'active' && nextAppState.match(/inactive|background/)) {
+        // App going to background
+        setWasBackground(true);
+        console.log('📱 [_layout] App going to background, preserving state');
+      } else if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        // App coming back from background
+        if (wasBackground) {
+          console.log('📱 [_layout] App restored from background, NOT refreshing onboarding state');
+          // Don't refresh onboarding state when returning from background
+        } else {
+          console.log('📱 [_layout] App fresh start, allowing onboarding state refresh');
+        }
+      }
+      
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription?.remove();
+  }, [appState, wasBackground]);
+
   // Initialize storage first to prevent setObjectForKey errors
   useEffect(() => {
     const initializeStorage = async () => {
@@ -132,11 +160,13 @@ function MainLayout() {
 
   // Handle routing based on onboarding and subscription status
   useEffect(() => {
-    if (isAppReady && isOnboardingCompleted !== null && !isSubscriptionLoading) {
+    // Only route on fresh app start, not when returning from background
+    if (isAppReady && isOnboardingCompleted !== null && !isSubscriptionLoading && !wasBackground) {
       console.log('🚀 [_layout] App ready, determining route based on status:', {
         isOnboardingCompleted,
         isSubscribed,
-        isSubscriptionLoading
+        isSubscriptionLoading,
+        wasBackground
       });
       
       if (isOnboardingCompleted === false) {
@@ -152,8 +182,10 @@ function MainLayout() {
         console.log('🎯 [_layout] Routing to paywall (completed onboarding but not subscribed)');
         router.replace('/onboarding/paywall');
       }
+    } else if (wasBackground) {
+      console.log('🚀 [_layout] Skipping routing - app returned from background, preserving current route');
     }
-  }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading]);
+  }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading, wasBackground]);
 
   // Show splash while loading or checking onboarding
   if (isLoading || !isAppReady) {
