@@ -24,10 +24,21 @@ const getDevServerUrl = (): string | null => {
   }
 };
 
+// Get Supabase URL from environment
+const getProductionBaseUrl = (): string => {
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) {
+    console.error('❌ EXPO_PUBLIC_SUPABASE_URL not configured');
+    return '';
+  }
+  // Supabase Edge Functions URL format: https://[project-ref].supabase.co/functions/v1
+  return `${supabaseUrl}/functions/v1`;
+};
+
 // API Configuration
 export const API_CONFIG = {
   // Base URL for API endpoints
-  baseUrl: isDevelopment ? getDevServerUrl() : '',
+  baseUrl: isDevelopment ? getDevServerUrl() : getProductionBaseUrl(),
   
   // API endpoints
   endpoints: {
@@ -40,7 +51,9 @@ export const API_CONFIG = {
   // Helper to get full API URL
   getApiUrl: (endpoint: string): string => {
     const baseUrl = API_CONFIG.baseUrl || '';
-    return `${baseUrl}${endpoint}`;
+    // In production, convert /api/xxx to /api-xxx for Supabase Edge Functions
+    const productionEndpoint = isDevelopment ? endpoint : endpoint.replace('/api/', '/api-');
+    return `${baseUrl}${productionEndpoint}`;
   },
 };
 
