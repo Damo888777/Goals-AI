@@ -8,6 +8,7 @@ import type { Milestone } from '../types';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { useGoals } from '../hooks/useDatabase';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 interface CompletedMilestoneCardProps {
   milestone?: Milestone;
@@ -37,11 +38,7 @@ export function CompletedMilestoneCard({ milestone, onPress, emptyState }: Compl
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
+    return formatDateUtil(date, t);
   };
 
   // Empty state rendering

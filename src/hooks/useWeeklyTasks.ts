@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Q } from '@nozbe/watermelondb';
+import { useTranslation } from 'react-i18next';
 import database from '../db';
 import { getCurrentUserId } from '../services/syncService';
 import Task from '../db/models/Task';
 import type { Task as TaskType } from '../types';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 interface WeekDay {
   name: string;
@@ -13,6 +15,7 @@ interface WeekDay {
 }
 
 export function useWeeklyTasks(weekOffset: number = 0) {
+  const { t } = useTranslation();
   const [weekDays, setWeekDays] = useState<WeekDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,12 +27,19 @@ export function useWeeklyTasks(weekOffset: number = 0) {
     monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
     
     const formatDate = (date: Date) => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]}.${String(date.getDate()).padStart(2, '0')}.${date.getFullYear()}`;
+      return formatDateUtil(date, t);
     };
     
     const weekDays: WeekDay[] = [];
-    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dayNames = [
+      t('calendar.days.monday'),
+      t('calendar.days.tuesday'), 
+      t('calendar.days.wednesday'),
+      t('calendar.days.thursday'),
+      t('calendar.days.friday'),
+      t('calendar.days.saturday'),
+      t('calendar.days.sunday')
+    ];
     
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);

@@ -49,7 +49,7 @@ export default function VisionPicker({
         >
           {/* Header */}
           <View style={styles.visionModalHeader}>
-            <Text style={styles.visionModalTitle}>{t('visionPicker.title')}</Text>
+            <Text style={styles.visionModalTitle}>{t('components.visionPicker.title')}</Text>
             <TouchableOpacity
               onPress={onClose}
               style={styles.visionModalCloseButton}
@@ -122,9 +122,9 @@ export default function VisionPicker({
               </ScrollView>
             ) : (
               <View style={styles.visionEmptyState}>
-                <Text style={styles.visionEmptyTitle}>{t('visionPicker.emptyState.title')}</Text>
+                <Text style={styles.visionEmptyTitle}>{t('components.visionPicker.emptyState.title')}</Text>
                 <Text style={styles.visionEmptyDescription}>
-                  {t('visionPicker.emptyState.description')}
+                  {t('components.visionPicker.emptyState.description')}
                 </Text>
               </View>
             )}

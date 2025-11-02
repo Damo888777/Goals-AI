@@ -1,4 +1,5 @@
 {
+  "localeCode": "en",
   "goals": {
     "hub": {
       "title": "Goals Hub",
@@ -711,6 +712,7 @@
       "generationErrorMessage": "An unexpected error occurred. Please check your internet connection and try again.",
       "error": "Error",
       "onboardingFailed": "Failed to complete onboarding. Please try again.",
+      "syncIssue": "There was a sync issue. Your data has been saved locally and will sync when connection improves.",
       "ok": "OK"
     }
   },

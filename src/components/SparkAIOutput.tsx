@@ -26,6 +26,7 @@ import { SelectionCard } from './SelectionCard';
 import { typography } from '../constants/typography';
 import { emptyStateSpacing } from '../constants/spacing';
 import { Button } from './Button';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 // Types for the component
 export type SparkOutputType = 'task' | 'goal' | 'milestone';
@@ -85,12 +86,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
   };
 
   const formatDate = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}.${day}.${year}`;
+    return formatDateUtil(date, t);
   };
 
   return (
@@ -132,6 +128,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 display="spinner"
                 onChange={handleDateChange}
                 textColor="#364958"
+                locale={t('localeCode')}
                 style={styles.nativeDatePicker}
               />
             </View>

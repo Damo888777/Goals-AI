@@ -25,6 +25,7 @@ import { BackChevronButton } from '../src/components/ChevronButton';
 import { spacing } from '../src/constants/spacing';
 import { FocusHistorySection } from './focus-history-section';
 import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
+import { formatDate as formatDateUtil } from '../src/utils/dateFormatter';
 
 // Date Picker Component
 interface DatePickerProps {
@@ -61,14 +62,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
     setIsDateModalVisible(false);
   };
 
-  const formatDate = (date: Date) => {
-    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
-                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}.${day}.${year}`;
-  };
 
   return (
     <View style={styles.sectionContainer}>
@@ -84,7 +77,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : t('taskDetails.datePicker.selectDate')}
+            {selectedDate ? formatDateUtil(selectedDate, t) : t('taskDetails.datePicker.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -109,6 +102,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 display="spinner"
                 onChange={handleDateChange}
                 textColor="#364958"
+                locale={t('localeCode')}
               />
             </View>
             

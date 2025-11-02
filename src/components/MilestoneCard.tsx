@@ -10,6 +10,7 @@ import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from 
 import { IconButton } from './IconButton';
 import { soundService } from '../services/soundService';
 import type { Milestone } from '../types';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 type MilestoneCardVariant = 
   | 'empty'
@@ -35,8 +36,8 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
   if (variant === 'empty' || variant === 'empty-completed') {
     const isCompletedEmpty = variant === 'empty-completed';
     const content = isCompletedEmpty 
-      ? { title: t('milestoneCard.emptyStates.noCompletedMilestones'), description: t('milestoneCard.emptyStates.noCompletedMilestonesDescription') }
-      : { title: t('milestoneCard.emptyStates.noMilestonesYet'), description: t('milestoneCard.emptyStates.noMilestonesDescription') };
+      ? { title: t('components.milestoneCard.emptyStates.noCompletedMilestones'), description: t('components.milestoneCard.emptyStates.noCompletedMilestonesDescription') }
+      : { title: t('components.milestoneCard.emptyStates.noMilestonesYet'), description: t('components.milestoneCard.emptyStates.noMilestonesDescription') };
 
     return (
       <Pressable
@@ -88,11 +89,11 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
         {/* Title with creation source badge */}
         <View style={styles.titleRow}>
           <Text style={[styles.title, { flex: 1 }, isCompleted ? styles.completedText : null]} numberOfLines={2}>
-            {milestone?.title || t('milestoneCard.placeholderMilestone')}
+            {milestone?.title || t('components.milestoneCard.placeholderMilestone')}
           </Text>
           {showSparkBadge && (
             <View style={styles.sparkBadge}>
-              <Text style={styles.sparkBadgeText}>{t('milestoneCard.sparkBadge')}</Text>
+              <Text style={styles.sparkBadgeText}>{t('components.milestoneCard.sparkBadge')}</Text>
             </View>
           )}
         </View>
@@ -108,7 +109,7 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
                 isOverdue ? styles.overdueText : null,
                 isCompleted ? styles.completedText : null
               ]}>
-                {milestone?.targetDate ? new Date(milestone.targetDate).toLocaleDateString() : t('milestoneCard.noTargetDate')}
+                {milestone?.targetDate ? formatDateUtil(new Date(milestone.targetDate), t) : t('components.milestoneCard.noTargetDate')}
               </Text>
             </View>
           </View>
@@ -124,18 +125,18 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   
                   Alert.alert(
-                    t('milestoneCard.alerts.completeMilestone'),
-                    t('milestoneCard.alerts.completeMilestoneMessage', { title: milestone.title }),
+                    t('components.milestoneCard.alerts.completeMilestone'),
+                    t('components.milestoneCard.alerts.completeMilestoneMessage', { title: milestone.title }),
                     [
                       {
-                        text: t('milestoneCard.alerts.no'),
+                        text: t('components.milestoneCard.alerts.no'),
                         style: 'cancel',
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }
                       },
                       {
-                        text: t('milestoneCard.alerts.yes'),
+                        text: t('components.milestoneCard.alerts.yes'),
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                           soundService.playCompleteSound(); // Play completion sound
@@ -144,9 +145,9 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
                           // Show completion confirmation
                           setTimeout(() => {
                             Alert.alert(
-                              t('milestoneCard.alerts.milestoneCompleted'),
-                              t('milestoneCard.alerts.milestoneCompletedMessage'),
-                              [{ text: t('milestoneCard.alerts.ok'), onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
+                              t('components.milestoneCard.alerts.milestoneCompleted'),
+                              t('components.milestoneCard.alerts.milestoneCompletedMessage'),
+                              [{ text: t('components.milestoneCard.alerts.ok'), onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }]
                             );
                           }, 300);
                         }

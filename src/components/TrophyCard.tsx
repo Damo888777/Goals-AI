@@ -6,6 +6,7 @@ import { typography } from '../constants/typography';
 import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
 import type { Goal } from '../types/index';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 interface TrophyCardProps {
   goal?: Goal;
@@ -21,11 +22,7 @@ export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProp
   const [isPressed, setIsPressed] = useState(false);
   
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
+    return formatDateUtil(date, t);
   };
 
   // Empty state rendering
@@ -68,13 +65,13 @@ export default function TrophyCard({ goal, onPress, emptyState }: TrophyCardProp
                 <Ionicons name="trophy" size={12} color="#B69121" />
               </View>
               <Text style={styles.achievedText}>
-                {t('trophyCard.goalAchieved')}
+                {t('components.trophyCard.goalAchieved')}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <Ionicons name="calendar-outline" size={12} color="#364958" />
               <Text style={styles.completionDate}>
-                {t('trophyCard.completed')} {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
+                {t('components.trophyCard.completed')} {formatDate(goal.updatedAt instanceof Date ? goal.updatedAt : new Date(goal.updatedAt))}
               </Text>
             </View>
           </View>

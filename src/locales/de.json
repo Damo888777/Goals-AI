@@ -1,4 +1,5 @@
 {
+  "localeCode": "de",
   "goals": {
     "hub": {
       "title": "Ziele Hub",
@@ -711,6 +712,7 @@
       "generationErrorMessage": "Ein unerwarteter Fehler ist aufgetreten. Bitte prüfe deine Internetverbindung und versuche es erneut.",
       "error": "Fehler",
       "onboardingFailed": "Onboarding abschließen fehlgeschlagen. Bitte versuche es erneut.",
+      "syncIssue": "Es gab ein Synchronisationsproblem. Deine Daten wurden lokal gespeichert und werden synchronisiert sobald die Verbindung besser wird.",
       "ok": "OK"
     }
   },

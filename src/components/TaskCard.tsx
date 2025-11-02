@@ -14,15 +14,11 @@ import { useRef, useState, useEffect } from 'react';
 import { useGoals, useMilestones } from '../hooks/useDatabase';
 import { IconButton } from './IconButton';
 import { soundService } from '../services/soundService';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
-// Format date as Dec.05.2025
-const formatDate = (date: Date): string => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const month = months[date.getMonth()];
-  const day = date.getDate().toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month}.${day}.${year}`;
+// Note: formatDate is now imported from utils/dateFormatter.ts
+const formatDate = (date: Date, t: any): string => {
+  return formatDateUtil(date, t);
 };
 
 type TaskCardVariant = 
@@ -263,9 +259,9 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
                 isCompleted && styles.completedText
               ]}>
                 {hasDate && task?.scheduledDate 
-                  ? formatDate(new Date(task.scheduledDate)) 
+                  ? formatDate(new Date(task.scheduledDate), t) 
                   : variant === 'completed' 
-                    ? `${t('components.taskCard.dateInfo.completed')} ${task?.updatedAt ? formatDate(new Date(task.updatedAt)) : t('components.taskCard.dateInfo.recently')}` 
+                    ? `${t('components.taskCard.dateInfo.completed')} ${task?.updatedAt ? formatDate(new Date(task.updatedAt), t) : t('components.taskCard.dateInfo.recently')}` 
                     : t('components.taskCard.dateInfo.someday')
                 }
               </Text>

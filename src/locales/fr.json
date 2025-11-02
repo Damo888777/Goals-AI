@@ -1,4 +1,5 @@
 {
+  "localeCode": "fr",
   "goals": {
     "hub": {
       "title": "Hub Objectifs",
@@ -711,6 +712,7 @@
       "generationErrorMessage": "Une erreur inattendue s'est produite. Veuillez vérifier votre connexion internet et réessayer.",
       "error": "Erreur",
       "onboardingFailed": "échec de l'intégration. Veuillez réessayer.",
+      "syncIssue": "Il y a eu un problème de synchronisation. Vos données ont été sauvegardées localement et se synchroniseront quand la connexion s'améliorera.",
       "ok": "OK"
     }
   },

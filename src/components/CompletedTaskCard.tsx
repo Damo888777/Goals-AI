@@ -8,6 +8,7 @@ import type { Task } from '../types';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { useGoals, useMilestones } from '../hooks/useDatabase';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 interface CompletedTaskCardProps {
   task?: Task;
@@ -46,11 +47,7 @@ export function CompletedTaskCard({ task, onPress, emptyState }: CompletedTaskCa
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
+    return formatDateUtil(date, t);
   };
 
   const getProjectText = () => {

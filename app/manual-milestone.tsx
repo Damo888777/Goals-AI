@@ -23,6 +23,7 @@ import { ChevronButton } from '../src/components/ChevronButton';
 import { GoalCard } from '../src/components/GoalCard';
 import { SelectionCard } from '../src/components/SelectionCard';
 import { spacing } from '../src/constants/spacing';
+import { formatDate as formatDateUtil } from '../src/utils/dateFormatter';
 
 // Date Picker Component
 interface DatePickerProps {
@@ -59,14 +60,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
     setIsDateModalVisible(false);
   };
 
-  const formatDate = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}.${day}.${year}`;
-  };
 
   return (
     <View style={styles.sectionContainer}>
@@ -82,7 +75,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
       >
         <View style={styles.datePickerContent}>
           <Text style={styles.datePickerText}>
-            {selectedDate ? formatDate(selectedDate) : t('manualMilestone.datePicker.selectDate')}
+            {selectedDate ? formatDateUtil(selectedDate, t) : t('manualMilestone.datePicker.selectDate')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -107,6 +100,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) =
                 display="spinner"
                 onChange={handleDateChange}
                 textColor="#364958"
+                locale={t('localeCode')}
               />
             </View>
             

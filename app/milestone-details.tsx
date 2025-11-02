@@ -21,6 +21,7 @@ import { GoalCard } from '../src/components/GoalCard';
 import { Button } from '../src/components/Button';
 import { BackChevronButton } from '../src/components/ChevronButton';
 import { spacing } from '../src/constants/spacing';
+import { formatDate as formatDateUtil } from '../src/utils/dateFormatter';
 
 const styles = StyleSheet.create({
   container: {
@@ -445,14 +446,6 @@ export default function MilestoneDetailsScreen() {
     router.back();
   };
 
-  const formatDate = (date: Date) => {
-    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
-                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-    const month = t(`calendar.months.${monthKeys[date.getMonth()]}`);
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}.${day}.${year}`;
-  };
 
 
   return (
@@ -570,7 +563,7 @@ export default function MilestoneDetailsScreen() {
           >
             <View style={styles.datePickerContent}>
               <Text style={styles.datePickerText}>
-                {targetDate ? formatDate(targetDate) : t('milestoneDetails.datePicker.selectDate')}
+                {targetDate ? formatDateUtil(targetDate, t) : t('milestoneDetails.datePicker.selectDate')}
               </Text>
             </View>
           </TouchableOpacity>
@@ -595,6 +588,7 @@ export default function MilestoneDetailsScreen() {
                     display="spinner"
                     onChange={handleDateChange}
                     textColor="#364958"
+                    locale={t('localeCode')}
                   />
                 </View>
                 

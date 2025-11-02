@@ -488,7 +488,7 @@ export default function OnboardingScreen() {
         if (errorMessage.includes('foreign key constraint') || errorMessage.includes('Key is not present')) {
           Alert.alert(
             t('onboarding.alerts.error'), 
-            'There was a sync issue. Your data has been saved locally and will sync when connection improves.'
+            t('onboarding.alerts.syncIssue')
           );
           // Don't navigate here - let the Root Layout handle routing after onboarding completion
           return;

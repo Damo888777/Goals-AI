@@ -15,6 +15,7 @@ import { soundService } from '../services/soundService';
 import { GoalCompletionModal } from './GoalCompletionModal';
 import { goalCompletionService } from '../services/goalCompletionService';
 import type { Goal, Milestone } from '../types';
+import { formatDate as formatDateUtil } from '../utils/dateFormatter';
 
 // Separate component for milestone cards to fix hooks order
 interface MilestoneCardProps {
@@ -65,11 +66,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No date set';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
+    return formatDateUtil(date, t);
   };
 
   return (
@@ -417,15 +414,6 @@ export function GoalCard({
   const remainingCount = emotions.length - 2;
   const goalMilestones = milestones || goal?.milestones || [];
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return t('components.goalCard.milestones.noDateSet');
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).replace(/\s/g, '.');
-  };
 
   // Emotion color mapping based on manual-goal.tsx
   const getEmotionStyle = (emotion: string, index: number) => {
@@ -822,13 +810,11 @@ export function GoalCard({
           }),
         }
       ]}>
-        <View style={styles.goalDeleteButton}>
-          <IconButton
-            variant="delete"
-            iconName="delete"
-            onPress={handleDelete}
-          />
-        </View>
+        <IconButton
+          variant="delete"
+          iconName="delete"
+          onPress={handleDelete}
+        />
       </Animated.View>
       
       {/* Goal Completion Modal */}

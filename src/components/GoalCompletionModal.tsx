@@ -75,9 +75,9 @@ export function GoalCompletionModal({
 
   const renderNotificationStep = () => (
     <View style={styles.content}>
-      <Text style={styles.title}>{t('components.components.goalCompletionModal.notification.title')}</Text>
+      <Text style={styles.title}>{t('components.goalCompletionModal.notification.title')}</Text>
       <Text style={styles.description}>
-        {t('components.components.goalCompletionModal.notification.description', { goalTitle: goal?.title })}
+        {t('components.goalCompletionModal.notification.description', { goalTitle: goal?.title })}
       </Text>
       <View style={styles.buttonContainer}>
         <Pressable style={styles.secondaryButton} onPress={onClose}>
