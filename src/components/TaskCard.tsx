@@ -350,7 +350,7 @@ export function TaskCard({ task, variant, onPress, onToggleComplete, onDelete, c
       ]}>
         <IconButton
           variant="delete"
-          iconName="delete"
+          iconName="delete-forever"
           onPress={handleDelete}
         />
       </Animated.View>

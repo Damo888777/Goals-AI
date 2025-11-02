@@ -83,6 +83,32 @@
       "sunday": "Sonntag"
     }
   },
+  "infoContent": {
+    "eatTheFrog": {
+      "title": "Eat the Frog",
+      "content": "Beginne deinen Tag mit der wichtigsten oder herausforderndsten Aufgabe. Diese Technik hilft dir, Schwung aufzubauen und stellt sicher, dass deine größte Priorität erledigt wird, wenn deine Energie am höchsten ist."
+    },
+    "todaysTasks": {
+      "title": "Heutige Aufgaben",
+      "content": "Konzentriere dich darauf, spezifische Aufgaben zu erledigen, die für heute geplant sind. Halte deine tägliche Aufgabenliste überschaubar und umsetzbar, um produktiv zu bleiben und Überforderung zu vermeiden."
+    },
+    "pomodoroTechnique": {
+      "title": "Pomodoro-Technik",
+      "content": "Arbeite in fokussierten 25-Minuten-Intervallen, gefolgt von 5-Minuten-Pausen. Nach 4 Pomodoros mache eine längere 15-30 Minuten Pause. Diese Technik hilft dabei, den Fokus zu halten und Burnout zu vermeiden."
+    },
+    "goalSetting": {
+      "title": "Zielsetzung",
+      "content": "Teile große Ziele in kleinere, umsetzbare Meilensteine auf. Setze spezifische Fristen und überprüfe regelmäßig deinen Fortschritt, um auf Kurs und motiviert zu bleiben."
+    },
+    "sparkAI": {
+      "title": "Spark AI",
+      "content": "**Nimm jeweils einen Punkt auf für beste Ergebnisse.**\n\n**Aufgaben:** \"Einkaufen morgen\"\n**Ziele:** \"10.000 Euro sparen\"\n**Meilensteine:** \"Ersten Kunden bis März gewinnen\"\n\n**Mit bestehenden Zielen verknüpfen:**\nSage den Zielnamen deutlich:\n\"Dieser Meilenstein ist für mein 10.000 Euro sparen Ziel\"\n\"Aufgabe zu meinem Fitness-Ziel hinzufügen\"\n\n**Tipps:**\n• Sprich 5-15 Sekunden\n• Verwende exakte Zielnamen\n• Sei spezifisch mit Daten\n• Ein Punkt pro Aufnahme"
+    },
+    "visionBoard": {
+      "title": "Vision Board",
+      "content": "Erstelle dein visuelles Inspirations-Board auf zwei Arten:\n\n**Bilder hochladen:** Füge persönliche Fotos aus deiner Galerie hinzu, die deine Träume und Ziele repräsentieren.\n\n**Mit Spark generieren:** Nutze Spark AI, um benutzerdefinierte Vision-Bilder basierend auf deinen Beschreibungen zu erstellen.\n\nDein Vision Board hilft dir dabei, deine Ziele zu visualisieren und motiviert zu bleiben."
+    }
+  },
   "profile": {
     "sections": {
       "yourProfile": "Dein Profil",
@@ -98,10 +124,10 @@
       "cancel": "Abbrechen",
       "save": "Speichern",
       "signInWithApple": "Sign In with Apple",
-      "signInDescription": "Anmelden für Datensicherung und Sync",
+      "signInDescription": "Anmelden für Sync",
       "dataSynced": "Daten synchronisiert",
       "emailHidden": "E-Mail verborgen",
-      "deleteAccount": "Konto löschen",
+      "deleteAccount": "Löschen",
       "signOut": "Abmelden"
     },
     "subscription": {
@@ -112,10 +138,10 @@
       "freeTrialUntil": "Kostenlose Testversion bis",
       "sparkAIInputs": "Spark AI Eingaben",
       "sparkAIVisions": "Spark AI Visionen",
-      "switchToAnnual": "Zu Jahresabo wechseln",
-      "upgradePlan": "Plan erweitern",
-      "highestTier": "Du hast bereits den höchsten Plan",
-      "manageSubscription": "Abonnement verwalten"
+      "switchToAnnual": "Jahresabo",
+      "upgradePlan": "Upgrade",
+      "highestTier": "Höchster Plan erreicht",
+      "manageSubscription": "Verwalten"
     },
     "stats": {
       "eatTheFrogStreak": "Eat the Frog Serie",
@@ -123,7 +149,7 @@
       "totalFocusTime": "Gesamte Fokuszeit"
     },
     "widget": {
-      "addGoalsAIWidget": "Goals AI Widget hinzufügen",
+      "addGoalsAIWidget": "Widget hinzufügen",
       "widgetDescription": "Füge das Widget hinzu um deine Frog-Aufgabe und täglichen Fortschritt auf einen Blick zu sehen.",
       "step1": "Halte den Homescreen gedrückt",
       "step2": "Tippe die \"+\" Taste oben links",
@@ -168,7 +194,17 @@
       "emailTemplateMessage": "Die Support E-Mail Vorlage wurde in die Zwischenablage kopiert. Bitte füge sie in deine E-Mail App ein und sende an: support@goals-ai.app\n\nVergiss nicht deine Benutzer-ID für schnelleren Support.",
       "clipboardFailed": "Kopieren in Zwischenablage fehlgeschlagen.",
       "usernameUpdated": "Benutzername erfolgreich aktualisiert",
-      "usernameUpdateFailed": "Benutzername-Update fehlgeschlagen. Bitte versuche es erneut."
+      "usernameUpdateFailed": "Benutzername-Update fehlgeschlagen. Bitte versuche es erneut.",
+      "userIdCopied": "Benutzer-ID in Zwischenablage kopiert!",
+      "emailCopied": "Support-E-Mail in Zwischenablage kopiert!"
+    },
+    "supportModal": {
+      "title": "Support & Feedback",
+      "description": "Kopiere deine Benutzer-ID und unsere Support-E-Mail separat. Füge deine Benutzer-ID beim Kontakt mit dem Support bei für schnellere Hilfe.",
+      "userId": "Deine Benutzer-ID",
+      "email": "Support-E-Mail",
+      "copy": "Kopieren",
+      "note": "💡 Wenn dein Feedback umgesetzt wird, erhältst du 1 Monat kostenloses Abo!"
     },
     "common": {
       "cancel": "Abbrechen"
@@ -236,7 +272,7 @@
       "originallyScheduled": "Urspränglich geplant:"
     },
     "buttons": {
-      "restoreTask": "Aufgabe wiederherstellen",
+      "restoreTask": "Wiederherstellen",
       "delete": "Löschen"
     },
     "alerts": {
@@ -515,7 +551,7 @@
     },
     "buttons": {
       "delete": "Löschen",
-      "saveChanges": "Änderungen speichern"
+      "saveChanges": "Speichern"
     },
     "alerts": {
       "error": "Fehler",
@@ -539,7 +575,7 @@
     },
     "sections": {
       "dailyReminders": "Tägliche Erinnerungen",
-      "enableNotifications": "Benachrichtigungen aktivieren",
+      "enableNotifications": "Aktivieren",
       "enableNotificationsDescription": "Tägliche Motivation und Fortschritt-Updates"
     },
     "notificationTypes": {
@@ -555,7 +591,7 @@
       "permissionMessage": "Aktiviere Benachrichtigungen in den Geräte-Einstellungen."
     },
     "buttons": {
-      "testNotification": "Test-Benachrichtigung"
+      "testNotification": "Test"
     },
     "alerts": {
       "permissionRequiredTitle": "Berechtigung erforderlich",
@@ -585,7 +621,7 @@
       "noPlansAvailable": "Keine Abonnement-Pläne verfügbar. Bitte prüfe deine RevenueCat Konfiguration."
     },
     "buttons": {
-      "startFreeTrial": "7-tägige kostenlose Testversion starten",
+      "startFreeTrial": "7 Tage gratis",
       "subscribe": "7 Tage gratis testen",
       "processing": "Verarbeitung...",
       "restorePurchases": "Käufe wiederherstellen"
@@ -736,7 +772,7 @@
       "noPlansAvailable": "Keine Abonnement-Pläne verfügbar. Bitte prüfe deine RevenueCat Konfiguration."
     },
     "buttons": {
-      "upgradePlan": "Plan erweitern",
+      "upgradePlan": "Upgrade",
       "processing": "Verarbeitung...",
       "restorePurchases": "Käufe wiederherstellen"
     },
@@ -881,8 +917,8 @@
       "notesDetails": "Gib hier deine Notizen und Details ein..."
     },
     "buttons": {
-      "deleteTask": "Aufgabe löschen",
-      "saveChanges": "Änderungen speichern"
+      "deleteTask": "Löschen",
+      "saveChanges": "Speichern"
     },
     "alerts": {
       "error": "Fehler",
@@ -1018,6 +1054,31 @@
         "description": "Schließe einige Meilensteine ab um deine Siege hier zu sehen."
       }
     }
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "done": "Fertig",
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "back": "Zurück",
+    "next": "Weiter",
+    "ok": "OK",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "loading": "Laden...",
+    "tryAgain": "Erneut versuchen",
+    "close": "Schließen",
+    "noDateSet": "Kein Datum gesetzt",
+    "goalTitle": "Ziel Titel",
+    "deleteGoal": "Ziel löschen",
+    "completeMilestone": "Meilenstein abschließen",
+    "viewFullGoal": "Vollständiges Ziel anzeigen",
+    "noMilestonesYet": "Noch keine Meilensteine",
+    "breakGoalIntoMilestones": "Teile dein Ziel in Meilensteine auf."
   },
   "components": {
     "completedMilestoneCard": {
@@ -1244,7 +1305,7 @@
       },
       "buttons": {
         "cancel": "Abbrechen",
-        "saveChanges": "Änderungen speichern"
+        "saveChanges": "Speichern"
       },
       "alerts": {
         "error": "Fehler",
@@ -1341,7 +1402,7 @@
         "someday": "Irgendwann"
       },
       "alerts": {
-        "deleteTask": "Aufgabe löschen",
+        "deleteTask": "Löschen",
         "deleteTaskMessage": "Bist du sicher, dass du \"{{title}}\" löschen möchtest?",
         "completeTask": "Aufgabe abschließen",
         "completeTaskMessage": "Hast du \"{{title}}\" abgeschlossen?",

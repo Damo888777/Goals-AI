@@ -23,7 +23,7 @@ export default function GoalsScreen() {
   
   // Database hooks
   const { user, isLoading: authLoading, signInAnonymously } = useAuth();
-  const { goals, isLoading: goalsLoading, createGoal, completeGoal } = useGoals();
+  const { goals, isLoading: goalsLoading, createGoal, completeGoal, deleteGoal } = useGoals();
   const { milestones: allMilestones, completeMilestone } = useMilestones();
 
   // Auto sign-in anonymously if not authenticated
@@ -86,6 +86,15 @@ export default function GoalsScreen() {
       console.log('Goal completed:', goalId);
     } catch (error) {
       console.error('Error completing goal:', error);
+    }
+  };
+
+  const handleGoalDelete = async (goalId: string) => {
+    try {
+      await deleteGoal(goalId);
+      console.log('Goal deleted:', goalId);
+    } catch (error) {
+      console.error('Error deleting goal:', error);
     }
   };
 
@@ -238,6 +247,7 @@ export default function GoalsScreen() {
                 onToggleExpand={() => handleToggleExpand(goal.id)}
                 onMilestoneComplete={handleMilestoneComplete}
                 onGoalComplete={handleGoalComplete}
+                onDelete={handleGoalDelete}
               />
             ))}
             {transformedGoals.length === 0 && !goalsLoading && (

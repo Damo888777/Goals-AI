@@ -270,6 +270,37 @@ export const useGoals = () => {
     
     await database.write(async () => {
       const goal = await database!.get<Goal>('goals').find(goalId)
+      
+      // 1. Delete all associated milestones (they're goal-specific)
+      const milestones = await goal.milestones.fetch()
+      console.log(`🗑️ Deleting ${milestones.length} milestones for goal ${goalId}`)
+      for (const milestone of milestones) {
+        // First, unlink any tasks associated with this milestone
+        const milestoneTasks = await milestone.tasks.fetch()
+        console.log(`🔗 Unlinking ${milestoneTasks.length} tasks from milestone ${milestone.id}`)
+        for (const task of milestoneTasks) {
+          await task.update(() => {
+            // @ts-ignore - WatermelonDB update context
+            task.milestoneId = null  // Unlink from milestone
+          })
+        }
+        // Then delete the milestone
+        await milestone.markAsDeleted()
+      }
+      
+      // 2. Unlink remaining tasks directly linked to goal (convert to standalone tasks)
+      const tasks = await goal.tasks.fetch()
+      console.log(`🔗 Unlinking ${tasks.length} remaining tasks from goal ${goalId}`)
+      for (const task of tasks) {
+        await task.update(() => {
+          // @ts-ignore - WatermelonDB update context
+          task.goalId = null        // Unlink from goal
+          task.milestoneId = null   // Also clear milestone link to ensure completely standalone
+        })
+      }
+      
+      // 3. Delete the goal itself
+      console.log(`🗑️ Deleting goal ${goalId}`)
       await goal.markAsDeleted()
       
       // Update active goals count in usage tracking

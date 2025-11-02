@@ -64,7 +64,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No date set';
+    if (!dateString) return t('common.noDateSet');
     const date = new Date(dateString);
     return formatDateUtil(date, t);
   };
@@ -115,7 +115,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                   color: '#364958',
                   fontFamily: 'Helvetica',
                 }}>
-                  {goal?.title || 'Goal Title'}
+                  {goal?.title || t('common.goalTitle')}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -141,18 +141,18 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   
                   Alert.alert(
-                    'Complete Milestone',
-                    `Did you complete "${milestone.title}"?`,
+                    t('common.completeMilestone'),
+                    `${t('components.goalCard.completeMilestoneMessage', { title: milestone.title })}`,
                     [
                       {
-                        text: 'No',
+                        text: t('common.no'),
                         style: 'cancel',
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }
                       },
                       {
-                        text: 'Yes',
+                        text: t('common.yes'),
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                           soundService.playCompleteSound(); // Play completion sound
@@ -190,9 +190,11 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
           }),
         }
       ]}>
-        <Pressable onPress={handleDelete} style={styles.milestoneDeleteButton}>
-          <Text style={{ fontSize: 24, color: '#B23A48' }}>🗑️</Text>
-        </Pressable>
+        <IconButton
+          variant="delete"
+          iconName="delete-forever"
+          onPress={handleDelete}
+        />
       </Animated.View>
     </View>
   );
@@ -305,18 +307,18 @@ export function GoalCard({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       
       Alert.alert(
-        'Delete Goal',
-        `Are you sure you want to delete "${goal.title}"?`,
+        t('common.deleteGoal'),
+        `${t('components.goalCard.deleteGoalMessage', { title: goal.title })}`,
         [
           {
-            text: 'Cancel',
+            text: t('common.cancel'),
             style: 'cancel',
             onPress: () => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
           },
           {
-            text: 'Delete',
+            text: t('common.delete'),
             style: 'destructive',
             onPress: async () => {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -743,7 +745,7 @@ export function GoalCard({
                 fontWeight: 'bold',
                 opacity: 0.5,
               }}>
-                View Full Goal
+                {t('common.viewFullGoal')}
               </Text>
             </Pressable>
 
@@ -782,14 +784,14 @@ export function GoalCard({
                   textAlign: 'center',
                   marginBottom: 8,
                 }}>
-                  No milestones yet
+                  {t('common.noMilestonesYet')}
                 </Text>
                 <Text style={{
                   fontSize: 12,
                   color: '#364958',
                   textAlign: 'center',
                 }}>
-                  Break your goal down into milestones.
+                  {t('common.breakGoalIntoMilestones')}
                 </Text>
               </View>
             )}
@@ -812,7 +814,7 @@ export function GoalCard({
       ]}>
         <IconButton
           variant="delete"
-          iconName="delete"
+          iconName="delete-forever"
           onPress={handleDelete}
         />
       </Animated.View>

@@ -168,7 +168,17 @@
       "emailTemplateMessage": "The support email template has been copied to your clipboard. Please paste it into your email app and send to: support@goals-ai.app\n\nDon't forget to include your User ID for faster support!",
       "clipboardFailed": "Failed to copy email template to clipboard.",
       "usernameUpdated": "Username updated successfully!",
-      "usernameUpdateFailed": "Failed to update username. Please try again."
+      "usernameUpdateFailed": "Failed to update username. Please try again.",
+      "userIdCopied": "User ID copied to clipboard!",
+      "emailCopied": "Support email copied to clipboard!"
+    },
+    "supportModal": {
+      "title": "Support & Feedback",
+      "description": "Copy your User ID and our support email separately. Include your User ID when contacting support for faster assistance.",
+      "userId": "Your User ID",
+      "email": "Support Email",
+      "copy": "Copy",
+      "note": "💡 If your feedback gets implemented, you'll receive 1 month free subscription!"
     },
     "common": {
       "cancel": "Cancel"

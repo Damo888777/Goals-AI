@@ -361,15 +361,17 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 40,
+    gap: 16,
     marginBottom: 24,
   },
   restoreButton: {
     backgroundColor: '#a3b18a',
     flex: 1,
+    minWidth: 0, // Allow flex to shrink if needed
   },
   deleteButton: {
     backgroundColor: '#bc4b51',
-    width: 134,
+    flex: 1,
+    minWidth: 0, // Allow flex to shrink if needed
   },
 });

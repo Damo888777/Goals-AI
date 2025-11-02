@@ -340,8 +340,8 @@ export default function VisionBoardScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header Section */}
-        <View style={{ gap: 11 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
+        <View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <BackChevronButton
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -359,9 +359,9 @@ export default function VisionBoardScreen() {
               color: '#F5EBE0',
               fontSize: 20,
               fontFamily: 'Helvetica-Bold',
-              lineHeight: 0,
+              lineHeight: 24,
             }}>
-              {t('visionBoard.header.title')}
+              {t('screens.visionBoard.title')}
             </Text>
             
             {/* Info Button */}
@@ -402,10 +402,10 @@ export default function VisionBoardScreen() {
             color: '#F5EBE0',
             fontSize: 15,
             fontFamily: 'Helvetica-Light',
-            lineHeight: 0,
+            lineHeight: 20,
             width: '100%',
           }}>
-            {t('visionBoard.header.description')}
+            {t('screens.visionBoard.subtitle')}
           </Text>
         </View>
 
@@ -468,7 +468,7 @@ export default function VisionBoardScreen() {
                 color: '#F5EBE0',
               }}
             >
-              {t('visionBoard.buttons.createVision')}
+              {t('screens.visionBoard.buttons.createVision')}
             </Text>
             </Pressable>
           </View>
@@ -524,7 +524,7 @@ export default function VisionBoardScreen() {
               adjustsFontSizeToFit={true}
               minimumFontScale={0.8}
             >
-              {t('visionBoard.buttons.uploadVision')}
+              {t('screens.visionBoard.buttons.uploadVision')}
             </Text>
             </Pressable>
           </View>

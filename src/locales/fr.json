@@ -83,6 +83,32 @@
       "sunday": "Dimanche"
     }
   },
+  "infoContent": {
+    "eatTheFrog": {
+      "title": "Eat the Frog",
+      "content": "Commencez votre journée en vous attaquant à votre tâche la plus difficile ou la plus importante. Cette technique vous aide à créer de l'élan et garantit que votre plus grande priorité soit accomplie quand votre énergie est à son maximum."
+    },
+    "todaysTasks": {
+      "title": "Tâches d'Aujourd'hui",
+      "content": "Concentrez-vous sur l'accomplissement de tâches spécifiques programmées pour aujourd'hui. Gardez votre liste de tâches quotidiennes gérable et actionnable pour maintenir la productivité et éviter la surcharge."
+    },
+    "pomodoroTechnique": {
+      "title": "Technique Pomodoro",
+      "content": "Travaillez par intervalles focalisés de 25 minutes suivis de pauses de 5 minutes. Après 4 pomodoros, prenez une pause plus longue de 15-30 minutes. Cette technique aide à maintenir la concentration et prévient l'épuisement."
+    },
+    "goalSetting": {
+      "title": "Définition d'Objectifs",
+      "content": "Divisez les grands objectifs en étapes plus petites et réalisables. Fixez des échéances spécifiques et révisez régulièrement vos progrès pour rester sur la bonne voie et motivé."
+    },
+    "sparkAI": {
+      "title": "Spark AI",
+      "content": "**Enregistrez un élément à la fois pour de meilleurs résultats.**\n\n**Tâches :** \"Faire les courses demain\"\n**Objectifs :** \"Économiser 10 000 euros\"\n**Étapes :** \"Obtenir le premier client en mars\"\n\n**Lier aux objectifs existants :**\nDites le nom de l'objectif clairement :\n\"Cette étape est pour mon objectif d'économiser 10 000 euros\"\n\"Ajouter une tâche à mon objectif fitness\"\n\n**Conseils :**\n• Parlez 5-15 secondes\n• Utilisez les noms exacts des objectifs\n• Soyez spécifique avec les dates\n• Un élément par enregistrement"
+    },
+    "visionBoard": {
+      "title": "Tableau de Vision",
+      "content": "Créez votre tableau d'inspiration visuel de deux façons :\n\n**Télécharger des Images :** Ajoutez des photos personnelles de votre galerie qui représentent vos rêves et objectifs.\n\n**Générer avec Spark :** Utilisez Spark AI pour créer des images de vision personnalisées basées sur vos descriptions.\n\nVotre tableau de vision vous aide à visualiser et rester motivé vers l'accomplissement de vos objectifs."
+    }
+  },
   "profile": {
     "sections": {
       "yourProfile": "Votre Profil",
@@ -98,10 +124,10 @@
       "cancel": "Annuler",
       "save": "Enregistrer",
       "signInWithApple": "Sign In with Apple",
-      "signInDescription": "Connexion pour sauvegarde et sync",
+      "signInDescription": "Connexion pour sync",
       "dataSynced": "Données Synchronisées",
       "emailHidden": "E-mail masqué",
-      "deleteAccount": "Supprimer le Compte",
+      "deleteAccount": "Supprimer",
       "signOut": "Se Déconnecter"
     },
     "subscription": {
@@ -112,10 +138,10 @@
       "freeTrialUntil": "Essai gratuit jusqu'au",
       "sparkAIInputs": "Spark AI Entrées",
       "sparkAIVisions": "Spark AI Visions",
-      "switchToAnnual": "Passer à l'Annuel",
-      "upgradePlan": "Améliorer le Plan",
-      "highestTier": "Vous êtes au niveau le plus élevé",
-      "manageSubscription": "Gérer l'Abonnement"
+      "switchToAnnual": "Annuel",
+      "upgradePlan": "Upgrade",
+      "highestTier": "Niveau max atteint",
+      "manageSubscription": "Gérer"
     },
     "stats": {
       "eatTheFrogStreak": "Eat the Frog Série",
@@ -123,7 +149,7 @@
       "totalFocusTime": "Temps de Focus Total"
     },
     "widget": {
-      "addGoalsAIWidget": "Ajouter Widget Goals AI",
+      "addGoalsAIWidget": "Ajouter Widget",
       "widgetDescription": "Ajoutez votre widget de tâches à l'écran d'accueil pour voir votre tâche Eat the Frog et vos progrès quotidiens en un coup d'œil.",
       "step1": "Maintenez appuyé sur votre écran d'accueil",
       "step2": "Appuyez sur le bouton \"+\" en haut à gauche",
@@ -168,7 +194,17 @@
       "emailTemplateMessage": "Le modèle d'e-mail de support a été copié dans votre presse-papiers. Veuillez le coller dans votre app e-mail et envoyer à : support@goals-ai.app\n\nN'oubliez pas d'inclure votre ID utilisateur pour un support plus rapide.",
       "clipboardFailed": "échec de la copie dans le presse-papiers.",
       "usernameUpdated": "Nom d'utilisateur mis à jour avec succès",
-      "usernameUpdateFailed": "échec de la mise à jour du nom d'utilisateur. Veuillez réessayer."
+      "usernameUpdateFailed": "échec de la mise à jour du nom d'utilisateur. Veuillez réessayer.",
+      "userIdCopied": "ID utilisateur copié dans le presse-papiers !",
+      "emailCopied": "E-mail de support copié dans le presse-papiers !"
+    },
+    "supportModal": {
+      "title": "Support & Commentaires",
+      "description": "Copiez votre ID utilisateur et notre e-mail de support séparément. Incluez votre ID utilisateur lors du contact avec le support pour une assistance plus rapide.",
+      "userId": "Votre ID Utilisateur",
+      "email": "E-mail de Support",
+      "copy": "Copier",
+      "note": "💡 Si vos commentaires sont implémentés, vous recevrez 1 mois d'abonnement gratuit !"
     },
     "common": {
       "cancel": "Annuler"
@@ -236,7 +272,7 @@
       "originallyScheduled": "Programmé initialement :"
     },
     "buttons": {
-      "restoreTask": "Restaurer la Tâche",
+      "restoreTask": "Restaurer",
       "delete": "Supprimer"
     },
     "alerts": {
@@ -515,7 +551,7 @@
     },
     "buttons": {
       "delete": "Supprimer",
-      "saveChanges": "Enregistrer les Modifications"
+      "saveChanges": "Enregistrer"
     },
     "alerts": {
       "error": "Erreur",
@@ -539,7 +575,7 @@
     },
     "sections": {
       "dailyReminders": "Rappels Quotidiens",
-      "enableNotifications": "Activer les Notifications",
+      "enableNotifications": "Activer",
       "enableNotificationsDescription": "Motivation quotidienne et rappels de progrès"
     },
     "notificationTypes": {
@@ -555,7 +591,7 @@
       "permissionMessage": "Pour recevoir des notifications, veuillez les activer quand demandé ou dans les paramètres de votre appareil."
     },
     "buttons": {
-      "testNotification": "Test de Notification"
+      "testNotification": "Test"
     },
     "alerts": {
       "permissionRequiredTitle": "Permission Requise",
@@ -585,7 +621,7 @@
       "noPlansAvailable": "Aucun plan d'abonnement disponible. Veuillez vérifier votre configuration RevenueCat."
     },
     "buttons": {
-      "startFreeTrial": "Commencer l'essai gratuit de 7 jours",
+      "startFreeTrial": "7 jours gratuits",
       "subscribe": "7 jours gratuits",
       "processing": "Traitement...",
       "restorePurchases": "Restaurer les Achats"
@@ -736,7 +772,7 @@
       "noPlansAvailable": "Aucun plan d'abonnement disponible. Veuillez vérifier votre configuration RevenueCat."
     },
     "buttons": {
-      "upgradePlan": "Améliorer le Plan",
+      "upgradePlan": "Upgrade",
       "processing": "Traitement...",
       "restorePurchases": "Restaurer les Achats"
     },
@@ -881,8 +917,8 @@
       "notesDetails": "Tapez ici vos notes et détails..."
     },
     "buttons": {
-      "deleteTask": "Supprimer la Tâche",
-      "saveChanges": "Enregistrer les Modifications"
+      "deleteTask": "Supprimer",
+      "saveChanges": "Enregistrer"
     },
     "alerts": {
       "error": "Erreur",
@@ -1018,6 +1054,31 @@
         "description": "Terminez quelques étapes pour voir vos victoires ici."
       }
     }
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "done": "Terminé",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "back": "Retour",
+    "next": "Suivant",
+    "ok": "OK",
+    "error": "Erreur",
+    "success": "Succès",
+    "loading": "Chargement...",
+    "tryAgain": "Réessayer",
+    "close": "Fermer",
+    "noDateSet": "Aucune date définie",
+    "goalTitle": "Titre d'Objectif",
+    "deleteGoal": "Supprimer l'Objectif",
+    "completeMilestone": "Terminer l'étape",
+    "viewFullGoal": "Voir l'Objectif Complet",
+    "noMilestonesYet": "Aucune étape encore",
+    "breakGoalIntoMilestones": "Divisez votre objectif en étapes."
   },
   "components": {
     "completedMilestoneCard": {
@@ -1341,7 +1402,7 @@
         "someday": "Un jour"
       },
       "alerts": {
-        "deleteTask": "Supprimer la Tâche",
+        "deleteTask": "Supprimer",
         "deleteTaskMessage": "Êtes-vous sûr de vouloir supprimer \"{{title}}\" ?",
         "completeTask": "Terminer la Tâche",
         "completeTaskMessage": "Avez-vous terminé \"{{title}}\" ?",

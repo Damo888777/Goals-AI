@@ -129,6 +129,7 @@ export const Button: React.FC<ButtonProps> = ({
       fontWeight: '700',
       textAlign: 'center',
       color: '#f5ebe0',
+      flexShrink: 1,
     };
 
     switch (variant) {
@@ -164,7 +165,12 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       activeOpacity={0.8}
     >
-      <Text style={[getTextStyle(), disabled && styles.disabledText, textStyle]}>
+      <Text 
+        style={[getTextStyle(), disabled && styles.disabledText, textStyle]}
+        numberOfLines={1}
+        adjustsFontSizeToFit={true}
+        minimumFontScale={0.6}
+      >
         {title}
       </Text>
     </TouchableOpacity>

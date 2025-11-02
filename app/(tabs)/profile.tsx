@@ -11,6 +11,8 @@ import {
   Linking,
   Platform,
   Animated,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Clipboard } from 'react-native';
@@ -184,6 +186,7 @@ export default function ProfileTab() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [showUpgradePaywall, setShowUpgradePaywall] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const [stats, setStats] = useState<Stats>({
     eatTheFrogStreak: 0,
     goalsAchieved: 0,
@@ -387,21 +390,28 @@ export default function ProfileTab() {
   };
 
   const handleSupportFeedback = async () => {
-    const emailContent = `Hello Goals AI Support,
+    setShowSupportModal(true);
+  };
 
-User ID: ${userId}
-
-[Please describe your feedback, bug report, or feature suggestion here]
-
-Note: If your feedback/idea gets implemented, you'll receive 1 month free subscription!
-
-Best regards`;
-
+  const handleCopyUserId = async () => {
     try {
-      Clipboard.setString(emailContent);
+      Clipboard.setString(userId);
       Alert.alert(
-        t('profile.alerts.emailTemplateCopied'), 
-        t('profile.alerts.emailTemplateMessage')
+        t('profile.alerts.success'),
+        t('profile.alerts.userIdCopied')
+      );
+    } catch (error) {
+      Alert.alert(t('profile.alerts.error'), t('profile.alerts.clipboardFailed'));
+    }
+  };
+
+  const handleCopyEmail = async () => {
+    const supportEmail = 'contact@goals-ai.app';
+    try {
+      Clipboard.setString(supportEmail);
+      Alert.alert(
+        t('profile.alerts.success'),
+        t('profile.alerts.emailCopied')
       );
     } catch (error) {
       Alert.alert(t('profile.alerts.error'), t('profile.alerts.clipboardFailed'));
@@ -1000,6 +1010,64 @@ Best regards`;
         onShowPaywall={() => setShowPaywall(true)}
         onShowUpgradePaywall={() => setShowUpgradePaywall(true)}
       />
+
+      {/* Support & Feedback Modal */}
+      <Modal
+        visible={showSupportModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSupportModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.supportModal}>
+            <View style={styles.supportModalHeader}>
+              <Text style={styles.supportModalTitle}>{t('profile.supportModal.title')}</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowSupportModal(false)}
+              >
+                <Ionicons name="close" size={24} color={colors.text.primary} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.supportModalDescription}>
+              {t('profile.supportModal.description')}
+            </Text>
+            
+            <View style={styles.supportActions}>
+              <View style={styles.supportItem}>
+                <View style={styles.supportItemLeft}>
+                  <Ionicons name="person-outline" size={20} color={colors.secondary} />
+                  <Text style={styles.supportItemLabel}>{t('profile.supportModal.userId')}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.copyIconButton}
+                  onPress={handleCopyUserId}
+                >
+                  <Ionicons name="copy-outline" size={20} color={colors.secondary} />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.supportItem}>
+                <View style={styles.supportItemLeft}>
+                  <Ionicons name="mail-outline" size={20} color={colors.secondary} />
+                  <Text style={styles.supportItemLabel}>{t('profile.supportModal.email')}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.copyIconButton}
+                  onPress={handleCopyEmail}
+                >
+                  <Ionicons name="copy-outline" size={20} color={colors.secondary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <Text style={styles.supportModalNote}>
+              {t('profile.supportModal.note')}
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1613,5 +1681,89 @@ const styles = StyleSheet.create({
   },
   languageCardCheckmark: {
     // No additional margin needed
+  },
+
+  // Support Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  supportModal: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: colors.text.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 8,
+  },
+  supportModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  supportModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text.primary,
+  },
+  closeButton: {
+    padding: spacing.sm,
+  },
+  supportModalDescription: {
+    color: colors.text.primary,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: spacing.xl,
+    opacity: 0.8,
+  },
+  supportActions: {
+    gap: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  supportItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.text.primary,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    shadowColor: '#7C7C7C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  supportItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    flex: 1,
+  },
+  supportItemLabel: {
+    color: colors.secondary,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  copyIconButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  supportModalNote: {
+    color: colors.text.primary,
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
+    opacity: 0.7,
+    fontStyle: 'italic',
   },
 });
