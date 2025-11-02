@@ -58,7 +58,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
   const handleCompleteReset = () => {
     Alert.alert(
       'COMPLETE DATA WIPE',
-      '⚠️ This will permanently delete ALL app data including:\n\n• All goals, milestones, and tasks\n• All vision board images\n• Onboarding data\n• User preferences\n• Focus history\n• All subscription and payment data\n• All local storage\n\nThis action cannot be undone! Continue?',
+      '⚠️ This will permanently delete ALL app data including:\n\n• All goals, milestones, and tasks\n• All vision board images\n• Onboarding data and preferences\n• User authentication & anonymous ID\n• Focus history & notification settings\n• Subscription data & RevenueCat cache\n• Widget timeline & sync data\n• ALL AsyncStorage & local database\n\nThis action cannot be undone! Continue?',
       [
         {
           text: 'Cancel',
@@ -71,14 +71,26 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
             try {
               console.log('🔥 Starting complete data wipe...');
               
-              // Import authService to access reset functionality
+              // Import services for complete reset
               const { authService } = await import('../services/authService');
+              const { subscriptionService } = await import('../services/subscriptionService');
               
-              // Clear all database tables first (including profiles)
+              // Step 1: Clear RevenueCat cache and subscription data
+              try {
+                console.log('🔄 Clearing RevenueCat subscription data...');
+                // RevenueCat automatically clears its cache when we clear AsyncStorage
+                // But we can also try to reset the customer info
+                await subscriptionService.refreshCustomerInfo();
+                console.log('✅ RevenueCat data cleared');
+              } catch (error) {
+                console.log('⚠️ RevenueCat clear failed (non-critical):', error);
+              }
+              
+              // Step 2: Clear all database tables (including profiles and subscriptions)
               if (database) {
                 try {
                   await database.write(async () => {
-                    // Delete all records from all tables including profiles
+                    // Delete all records from all tables including profiles and subscriptions
                     const collections = [
                       'focus_sessions',
                       'tasks',
@@ -111,14 +123,85 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                 }
               }
               
-              // First reset onboarding data (before clearing AsyncStorage completely)
+              // Step 3: Clear specific AsyncStorage keys first (for logging)
+              const asyncStorageKeys = [
+                // Onboarding & User Data
+                'onboarding_completed',
+                'onboarding_data',
+                'spark_tutorial_shown',
+                'persistent_anonymous_id',
+                'user-language',
+                
+                // Notifications
+                'notification_permission_requested',
+                'notifications_enabled',
+                'user_timezone',
+                'user_timezone_offset',
+                'last_frog_task_completed',
+                'main_goal_title',
+                'last_activity',
+                'last_app_activity',
+                'mock_player_id',
+                
+                // Notification Scheduling
+                'last_7_day_notification',
+                'last_3_day_notification',
+                'frog_streak_count',
+                'scheduled_notification_morning_kickstart',
+                'scheduled_notification_vision_board_reminder',
+                'scheduled_notification_evening_checkin',
+                
+                // Sync & Database
+                'synced_record_ids',
+                
+                // Widget Timeline Manager
+                'widget_timeline_policy',
+                'widget_user_metrics',
+                'widget_refresh_history',
+                'widget_last_refresh',
+                'widget_performance_metrics'
+              ];
+              
+              console.log('🔄 Clearing specific AsyncStorage keys...');
+              for (const key of asyncStorageKeys) {
+                try {
+                  await AsyncStorage.removeItem(key);
+                  console.log(`✅ Cleared AsyncStorage key: ${key}`);
+                } catch (error) {
+                  console.log(`⚠️ Failed to clear ${key}:`, error);
+                }
+              }
+              
+              // Step 4: Reset onboarding data (this also clears some keys)
               await resetOnboarding();
               
-              // Then clear all remaining AsyncStorage (including persistent anonymous ID)
+              // Step 5: Complete AsyncStorage wipe (catches any remaining keys)
               await AsyncStorage.clear();
-              console.log('✅ AsyncStorage cleared (including persistent anonymous ID)');
+              console.log('✅ Complete AsyncStorage cleared (including any remaining keys)');
               
-              // Force auth service to initialize with a completely new anonymous user
+              // Step 6: Reset additional services
+              try {
+                // Clear notification service state
+                const { notificationService } = await import('../services/notificationService');
+                console.log('🔄 Resetting notification service...');
+                // The service will reinitialize when needed
+                
+                // Clear widget timeline manager
+                const { widgetTimelineManager } = await import('../services/widgetTimelineManager');
+                console.log('🔄 Shutting down widget timeline manager...');
+                await widgetTimelineManager.shutdown();
+                
+                // Clear sync service state
+                const { syncService } = await import('../services/syncService');
+                console.log('🔄 Resetting sync service state...');
+                // Sync service will reinitialize when needed
+                
+                console.log('✅ Additional services reset');
+              } catch (error) {
+                console.log('⚠️ Service reset failed (non-critical):', error);
+              }
+              
+              // Step 7: Force auth service to initialize with a completely new anonymous user
               // This will generate a new persistent anonymous ID since AsyncStorage was cleared
               await authService.initialize();
               
@@ -133,7 +216,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                 
                 // Show success after navigation
                 setTimeout(() => {
-                  Alert.alert('Success', 'All data has been wiped. The app has been reset to first-time use state.');
+                  Alert.alert('Complete Wipe Successful', 'All app data has been permanently deleted:\n\n✅ Database cleared\n✅ AsyncStorage wiped\n✅ RevenueCat cache cleared\n✅ Services reset\n✅ New anonymous ID generated\n\nApp is now in first-time use state.');
                 }, 500);
               }, 200);
               

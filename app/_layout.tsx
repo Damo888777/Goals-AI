@@ -130,8 +130,30 @@ function MainLayout() {
     }
   }, [isAppReady, fadeAnim]);
 
-  // Note: Paywall navigation is now handled directly in onboarding flow
-  // This ensures smooth transition from onboarding -> paywall -> main app
+  // Handle routing based on onboarding and subscription status
+  useEffect(() => {
+    if (isAppReady && isOnboardingCompleted !== null && !isSubscriptionLoading) {
+      console.log('🚀 [_layout] App ready, determining route based on status:', {
+        isOnboardingCompleted,
+        isSubscribed,
+        isSubscriptionLoading
+      });
+      
+      if (isOnboardingCompleted === false) {
+        // User hasn't completed onboarding -> Onboarding flow (highest priority)
+        console.log('🎯 [_layout] Routing to onboarding (not completed)');
+        router.replace('/onboarding');
+      } else if (isOnboardingCompleted === true && isSubscribed === false) {
+        // User completed onboarding but no subscription -> Paywall
+        console.log('🎯 [_layout] Routing to paywall (completed onboarding but not subscribed)');
+        router.replace('/onboarding/paywall');
+      } else if (isOnboardingCompleted === true && isSubscribed === true) {
+        // User completed onboarding and has subscription -> Main app
+        console.log('🎯 [_layout] Routing to main app (onboarding completed + subscribed)');
+        router.replace('/(tabs)');
+      }
+    }
+  }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading]);
 
   // Show splash while loading or checking onboarding
   if (isLoading || !isAppReady) {
@@ -150,52 +172,37 @@ function MainLayout() {
     <>
       <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        {isOnboardingCompleted === false ? (
-          // FORCE RENDER ONBOARDING COMPONENT DIRECTLY
-          <View style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
-            {/* Import and render onboarding screen directly */}
-            {(() => {
-              try {
-                const OnboardingScreen = require('./onboarding/index').default;
-                return <OnboardingScreen />;
-              } catch (error) {
-                console.error('Error loading onboarding screen:', error);
-                return (
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E9EDC9' }}>
-                    <Text style={{ color: '#364958', fontSize: 16 }}>Loading onboarding...</Text>
-                  </View>
-                );
-              }
-            })()}
-          </View>
-        ) : (
-          // NORMAL EXPO ROUTER STACK FOR MAIN APP
-          <Stack 
-            screenOptions={{ 
-              headerShown: false, 
-              contentStyle: { backgroundColor: '#E9EDC9' } 
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="vision-board" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
-            <Stack.Screen name="manual-task" options={{ headerShown: false }} />
-            <Stack.Screen name="goal-details" options={{ headerShown: false }} />
-            <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
-            <Stack.Screen name="task-details" options={{ headerShown: false }} />
-            <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
-            <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
-            <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
-            <Stack.Screen name="trophy" options={{ headerShown: false }} />
-            <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
-            <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
-            <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
-            <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
-          </Stack>
-        )}
+        {/* ALWAYS RENDER STACK NAVIGATOR TO ENSURE ROUTING WORKS */}
+        <Stack 
+          screenOptions={{ 
+            headerShown: false, 
+            contentStyle: { backgroundColor: '#E9EDC9' } 
+          }}
+          initialRouteName="onboarding"
+        >
+          {/* Onboarding routes - always available */}
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          
+          {/* Main app routes - only accessible after onboarding */}
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="vision-board" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-goal" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-milestone" options={{ headerShown: false }} />
+          <Stack.Screen name="manual-task" options={{ headerShown: false }} />
+          <Stack.Screen name="goal-details" options={{ headerShown: false }} />
+          <Stack.Screen name="milestone-details" options={{ headerShown: false }} />
+          <Stack.Screen name="task-details" options={{ headerShown: false }} />
+          <Stack.Screen name="completed-goal-details" options={{ headerShown: false }} />
+          <Stack.Screen name="completed-task-details" options={{ headerShown: false }} />
+          <Stack.Screen name="view-full-progress" options={{ headerShown: false }} />
+          <Stack.Screen name="trophy" options={{ headerShown: false }} />
+          <Stack.Screen name="pomodoro" options={{ headerShown: false }} />
+          <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
+          <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-ai" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-ai-output" options={{ headerShown: false }} />
+          <Stack.Screen name="spark-generate-img" options={{ headerShown: false }} />
+        </Stack>
       </Animated.View>
     </>
   );

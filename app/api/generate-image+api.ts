@@ -56,6 +56,35 @@ const PROMPT_LIBRARY = {
     }
   },
   "photorealistic": {
+    "professional_constraints": {
+      "realism_requirements": [
+        "physically plausible scenarios only",
+        "realistic human proportions and anatomy",
+        "believable lighting conditions and physics",
+        "authentic environments and settings",
+        "natural poses and expressions",
+        "realistic clothing and materials",
+        "proper scale and perspective relationships"
+      ],
+      "avoid_elements": [
+        "fantasy or supernatural elements",
+        "impossible physics or gravity defying scenes",
+        "unrealistic body proportions or poses",
+        "artificial or overly stylized lighting",
+        "impossible architectural structures",
+        "unrealistic weather combinations",
+        "exaggerated or cartoon-like features"
+      ],
+      "authenticity_focus": [
+        "documentary-style authenticity",
+        "natural human behavior and interaction",
+        "realistic environmental conditions",
+        "believable textures and materials",
+        "accurate shadows and reflections",
+        "proper depth of field for the scene",
+        "realistic color temperature for time and location"
+      ]
+    },
     "camera": {
       "body": "Hasselblad H6D-400c",
       "lens": "HC 80mm f/2.8",
@@ -192,6 +221,10 @@ High quality anime/Studio Ghibli style artwork.`;
       const config = styleConfig as typeof PROMPT_LIBRARY.photorealistic;
       return `Create a photorealistic image of: ${subjectText}
 
+REALISM REQUIREMENTS: ${config.professional_constraints.realism_requirements.join(', ')}
+AVOID: ${config.professional_constraints.avoid_elements.join(', ')}
+AUTHENTICITY FOCUS: ${config.professional_constraints.authenticity_focus.join(', ')}
+
 Camera: ${config.camera.body} with ${config.camera.lens}
 Camera settings: ${config.camera.settings.aperture}, ${config.camera.settings.shutter_speed}, ISO ${config.camera.settings.iso}, ${config.camera.settings.focal_length}
 Lighting: ${config.lighting.setup}, ${config.lighting.direction}, ${config.lighting.quality}
@@ -199,7 +232,7 @@ Color grading: ${config.color_grading.style}, ${config.color_grading.color_tempe
 Image quality: ${config.image_quality.resolution}, ${config.image_quality.bit_depth}, ${config.image_quality.dynamic_range}, ${config.image_quality.sharpness}
 Post-processing: ${config.post_processing.contrast}, clarity ${config.post_processing.clarity}, vibrance ${config.post_processing.vibrance}
 
-Professional photography, ultra-high quality, photorealistic rendering.`;
+Professional photography, ultra-high quality, photorealistic rendering with documentary-style authenticity.`;
     }
 
     default:

@@ -128,6 +128,7 @@ export default function OnboardingScreen() {
     startOnboardingSession,
     updateOnboardingStep,
     completeOnboarding,
+    isOnboardingCompleted,
     isLoading: onboardingLoading 
   } = useOnboarding();
   
@@ -150,10 +151,32 @@ export default function OnboardingScreen() {
   const restoredSessionId = useRef<string>('');
 
 
+  // Check if user should be redirected to main app or paywall
+  useEffect(() => {
+    const checkRedirection = async () => {
+      if (isOnboardingCompleted) {
+        // User has completed onboarding, let root layout handle routing
+        console.log('🔄 [OnboardingScreen] Onboarding completed, letting root layout handle routing');
+        return;
+      }
+      
+      // Check if user has an incomplete onboarding session that ended at paywall
+      if (currentSession && currentSession.currentStep >= 8) {
+        // User completed task step (step 7) but didn't finish subscription, redirect back to paywall
+        console.log('🔄 [OnboardingScreen] User completed tasks but no subscription, redirecting to paywall');
+        const { router } = await import('expo-router');
+        router.replace('/onboarding/paywall');
+        return;
+      }
+    };
+    
+    checkRedirection();
+  }, [isOnboardingCompleted, currentSession]);
+
   // Initialize onboarding session on component mount
   useEffect(() => {
     const initializeSession = async () => {
-      if (!currentSession) {
+      if (!currentSession && !isOnboardingCompleted) {
         await startOnboardingSession();
       }
     };
