@@ -69,7 +69,7 @@
       [
         "onesignal-expo-plugin",
         {
-          "mode": "production",
+          "mode": "development",
           "devTeam": "5PT3BWY2A5",
           "iPhoneDeploymentTarget": "17.0"
         }

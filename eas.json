@@ -8,6 +8,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "config": "app.dev.json",
       "ios": {
         "simulator": false,
         "autoIncrement": true,
@@ -21,10 +22,17 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "config": "app.dev.json"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "config": "app.json",
+      "ios": {
+        "buildConfiguration": "Release",
+        "resourceClass": "m-medium",
+        "credentialsSource": "remote"
+      }
     }
   },
   "submit": {
