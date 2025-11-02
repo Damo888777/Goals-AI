@@ -51,6 +51,7 @@ class LocalizationHelper {
         }
         
         let currentLanguage = language ?? SharedDataManager.shared.getCurrentLanguage()
+        print("🌍 LocalizationHelper: Using language '\(currentLanguage)' for key '\(key)'")
         
         // Validate language is supported
         guard ["en", "de", "fr"].contains(currentLanguage) else {

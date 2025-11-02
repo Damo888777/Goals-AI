@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0082EB7A2EFE43E1A57EB716 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB514D5F6041619CE0ACED /* LiveActivityModule.swift */; };
 		0B70D8B01808411FBC7DC713 /* LiveActivityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94EF7CC5B0D94BA1850614A3 /* LiveActivityBridge.swift */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -27,12 +28,14 @@
 		53EEA52002FE4280B313EA39 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFD2384856F247F0A1F22301 /* WidgetKit.framework */; };
 		55378EBB946A42E1A32829B4 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
 		6C63B4175A71481793F4F697 /* WidgetBuildValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A14F31FB514048B85CBB87 /* WidgetBuildValidator.swift */; };
+		814E8B76AAA942FAAE08B785 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21BC945D76D467E827C451A /* PomodoroActivityAttributes.swift */; };
 		8577B623DE774EB88C4110CF /* TaskCompletionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F533C41A76C46FDA9455843 /* TaskCompletionIntent.swift */; };
 		8ACAB985C93F408E81DD3A3C /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358F4547938F4EB7A55BEFEA /* UserDefaultsManager.swift */; };
 		8F93E60937554A81A87A538D /* PomodoroLiveActivity.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = A9FC0BB3DBDC4DE78639BDDF /* PomodoroLiveActivity.appex */; };
 		9722BE0902284F5D99060130 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E764311BA4E82B0ED73E3 /* noop-file.swift */; };
 		A2933ECAC44E4B4280CA9AA1 /* WidgetKitReloader.m in Sources */ = {isa = PBXBuildFile; fileRef = A2635963C99640F5B5C131B8 /* WidgetKitReloader.m */; };
 		A583B8BB5F4E42849782EC53 /* LiveActivityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB514D5F6041619CE0ACED /* LiveActivityModule.swift */; };
+		AB4BB3A7366D4E169F53E43D /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = E134917A0B6F4950A427FAE3 /* PomodoroLiveActivity.swift */; };
 		AFCE285DA60674FE33379983 /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB41C4430CE176EBAE1F32E5 /* Pods_OneSignalNotificationServiceExtension.framework */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		B75A3C4EEE254C019D19EB4B /* WidgetLanguageSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DDD95C0D1DA41B78808DF9C /* WidgetLanguageSync.m */; };
@@ -257,6 +260,7 @@
 				2C491AA5B0A54F3A8C641D2A /* OneSignalNotificationServiceExtension */,
 				CD48E70715B243F49CFEC22C /* widget */,
 				A462D8792EB15932001CE5C6 /* Recovered References */,
+				B461902291A64B368566BF02 /* widget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -300,6 +304,13 @@
 				E134917A0B6F4950A427FAE3 /* PomodoroLiveActivity.swift */,
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B461902291A64B368566BF02 /* widget */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = widget;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -788,6 +799,9 @@
 				CB0830E34105414AA8186C6A /* PomodoroLiveActivity.swift in Sources */,
 				55378EBB946A42E1A32829B4 /* PomodoroActivityAttributes.swift in Sources */,
 				A583B8BB5F4E42849782EC53 /* LiveActivityModule.swift in Sources */,
+				AB4BB3A7366D4E169F53E43D /* PomodoroLiveActivity.swift in Sources */,
+				814E8B76AAA942FAAE08B785 /* PomodoroActivityAttributes.swift in Sources */,
+				0082EB7A2EFE43E1A57EB716 /* LiveActivityModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
