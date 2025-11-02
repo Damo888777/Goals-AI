@@ -45,6 +45,7 @@ export class WhisperService {
         method: 'POST',
         headers: {
           'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''}`,
         },
         body: formData,
       });
@@ -117,6 +118,7 @@ export class GeminiService {
         headers: {
           'Content-Type': 'application/json',
           'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''}`,
         },
         body: JSON.stringify({ 
           transcription, 
