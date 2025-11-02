@@ -43,6 +43,9 @@ export class WhisperService {
       
       const response = await fetch(apiUrl, {
         method: 'POST',
+        headers: {
+          'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+        },
         body: formData,
       });
       
@@ -113,6 +116,7 @@ export class GeminiService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
         },
         body: JSON.stringify({ 
           transcription, 

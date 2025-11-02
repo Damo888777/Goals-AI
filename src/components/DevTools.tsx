@@ -470,6 +470,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
                           },
                           body: JSON.stringify({
                             app_id: notification.app_id,
@@ -543,6 +544,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
                           },
                           body: JSON.stringify({
                             app_id: notification.app_id,
@@ -617,6 +619,7 @@ export function DevTools({ visible, onClose, onShowPaywall, onShowUpgradePaywall
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
                           },
                           body: JSON.stringify({
                             app_id: notification.app_id,

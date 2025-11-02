@@ -33,7 +33,6 @@ import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
 import { spacing, borderRadius } from '../../src/constants/spacing';
 import { images } from '../../src/constants/images';
-import { DevTools } from '../../src/components/DevTools';
 // import { SUBSCRIPTION_TIERS } from '../../src/types/subscription';
 
 interface Stats {
@@ -182,7 +181,6 @@ export default function ProfileTab() {
   const [isPressed, setIsPressed] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [showDevTools, setShowDevTools] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showUpgradePaywall, setShowUpgradePaywall] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
@@ -973,26 +971,6 @@ export default function ProfileTab() {
                 <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.devTools')}</Text>
               </View>
             </View>
-            
-            <View style={styles.menuCard}>
-              <Pressable 
-                style={[styles.menuItem, isPressed === 'devtools' && styles.menuItemPressed]} 
-                onPress={() => setShowDevTools(true)}
-                onPressIn={() => handlePressIn('devtools')}
-                onPressOut={handlePressOut}
-              >
-                <View style={styles.menuLeft}>
-                  <View style={styles.iconOnly}>
-                    <Ionicons name="construct" size={20} color={colors.text.primary} />
-                  </View>
-                  <View style={styles.menuTextContainer}>
-                    <Text style={[typography.cardTitle, styles.menuLabel]}>{t('profile.menu.developerTools')}</Text>
-                    <Text style={[typography.caption, styles.menuSubtitle]}>{t('profile.menu.devToolsSubtitle')}</Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={16} color={colors.text.primary} />
-              </Pressable>
-            </View>
           </View>
         )}
 
@@ -1002,14 +980,6 @@ export default function ProfileTab() {
           <Text style={[typography.caption, styles.userIdText]}>{userId}</Text>
         </View>
       </ScrollView>
-
-
-      <DevTools 
-        visible={showDevTools} 
-        onClose={() => setShowDevTools(false)}
-        onShowPaywall={() => setShowPaywall(true)}
-        onShowUpgradePaywall={() => setShowUpgradePaywall(true)}
-      />
 
       {/* Support & Feedback Modal */}
       <Modal

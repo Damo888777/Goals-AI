@@ -18,8 +18,6 @@
 	<string>6.0</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app does not directly access your location. This permission is required by third-party services for analytics and notifications.</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>
