@@ -143,14 +143,14 @@ function MainLayout() {
         // User hasn't completed onboarding -> Onboarding flow (highest priority)
         console.log('🎯 [_layout] Routing to onboarding (not completed)');
         router.replace('/onboarding');
-      } else if (isOnboardingCompleted === true && isSubscribed === false) {
-        // User completed onboarding but no subscription -> Paywall
-        console.log('🎯 [_layout] Routing to paywall (completed onboarding but not subscribed)');
-        router.replace('/onboarding/paywall');
       } else if (isOnboardingCompleted === true && isSubscribed === true) {
-        // User completed onboarding and has subscription -> Main app
+        // User completed onboarding and has subscription -> Main app (prioritize this)
         console.log('🎯 [_layout] Routing to main app (onboarding completed + subscribed)');
         router.replace('/(tabs)');
+      } else if (isOnboardingCompleted === true && isSubscribed === false && !isSubscriptionLoading) {
+        // Only route to paywall if we're sure subscription is loaded and false
+        console.log('🎯 [_layout] Routing to paywall (completed onboarding but not subscribed)');
+        router.replace('/onboarding/paywall');
       }
     }
   }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading]);

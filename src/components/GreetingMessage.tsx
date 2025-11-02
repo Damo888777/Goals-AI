@@ -17,6 +17,32 @@ export function GreetingMessage({ username }: GreetingMessageProps) {
     return t('today.greeting.night');
   };
 
+  const getFullGreeting = () => {
+    const hour = new Date().getHours();
+    const greeting = getGreeting();
+    const goodWord = t('today.greeting.good');
+    
+    // Special handling for German night greeting
+    if ((hour < 5 || hour >= 22) && goodWord === 'Guten') {
+      return `Gute ${greeting}`;
+    }
+    
+    // Special handling for French greetings
+    if (goodWord === 'Bon') {
+      // French afternoon and night need "Bonne" (feminine)
+      if (hour >= 12 && hour < 17) { // afternoon
+        return `Bonne ${greeting}`;
+      }
+      if (hour < 5 || hour >= 22) { // night
+        return `Bonne ${greeting}`;
+      }
+      // Morning and evening use "Bon" + combined word
+      return `${goodWord}${greeting}`;
+    }
+    
+    return `${goodWord} ${greeting}`;
+  };
+
   const getFormattedDate = () => {
     const date = new Date();
     
@@ -62,7 +88,7 @@ export function GreetingMessage({ username }: GreetingMessageProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>
-        {t('today.greeting.good')} {getGreeting()}, {username || t('today.defaultUsername')}
+        {getFullGreeting()}, {username || t('today.defaultUsername')}
       </Text>
       <Text style={styles.date}>
         {getFormattedDate()}

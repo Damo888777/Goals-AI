@@ -17,9 +17,9 @@
   "today": {
     "greeting": {
       "good": "Bon",
-      "morning": "Matin",
+      "morning": "jour",
       "afternoon": "Après-midi", 
-      "evening": "Soir",
+      "evening": "soir",
       "night": "Nuit"
     },
     "defaultTaskTitle": "Nouvelle Tâche",
@@ -585,6 +585,7 @@
     },
     "buttons": {
       "startFreeTrial": "Commencer l'essai gratuit de 7 jours",
+      "subscribe": "7 jours gratuits",
       "processing": "Traitement...",
       "restorePurchases": "Restaurer les Achats"
     },

@@ -50,11 +50,8 @@ export default function OnboardingPaywallScreen() {
         // Finalize onboarding after successful subscription
         await finalizeOnboardingAfterSubscription();
         
-        Alert.alert(
-          t('onboardingPaywall.alerts.welcomeTitle'),
-          t('onboardingPaywall.alerts.welcomeMessage'),
-          [{ text: t('onboardingPaywall.alerts.continue'), onPress: () => router.replace('/(tabs)') }]
-        );
+        // Navigate immediately without alert to prevent routing conflicts
+        router.replace('/(tabs)');
       } else {
         // Handle different types of purchase errors
         if (result.error) {
