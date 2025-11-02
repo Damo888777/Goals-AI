@@ -71,34 +71,14 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
   // ✅ Übergib Parameter an dein iOS Widget Setup
   config = withWidgetIos(config, { ...options, appGroupId })
 
-  // ✅ Configure OneSignal Podfile targets and NSE Info.plist
+  // ✅ Configure Info.plist files for extensions
   config = withDangerousMod(config, [
     'ios',
     async (config) => {
       const fs = require('fs-extra');
       const path = require('path');
       
-      // 1. Update NSE Info.plist with custom app group
-      const nseInfoPlistPath = path.join(
-        config.modRequest.platformProjectRoot,
-        'OneSignalNotificationServiceExtension',
-        'Info.plist'
-      );
-      
-      if (fs.existsSync(nseInfoPlistPath)) {
-        let plistContent = fs.readFileSync(nseInfoPlistPath, 'utf8');
-        
-        if (!plistContent.includes('OneSignal_app_groups_key')) {
-          plistContent = plistContent.replace(
-            '</dict>\n</plist>',
-            `\t<key>OneSignal_app_groups_key</key>\n\t<string>${appGroupId}</string>\n</dict>\n</plist>`
-          );
-          fs.writeFileSync(nseInfoPlistPath, plistContent);
-          console.log('✅ Added OneSignal_app_groups_key to NSE Info.plist');
-        }
-      }
-
-      // 2. Update PomodoroLiveActivity Info.plist with NSSupportsLiveActivities
+      // 1. Update PomodoroLiveActivity Info.plist with NSSupportsLiveActivities
       const liveActivityInfoPlistPath = path.join(
         config.modRequest.platformProjectRoot,
         'PomodoroLiveActivity',
@@ -118,10 +98,9 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
         }
       }
 
-      // 3. Force correct app group in ALL entitlement files
+      // 2. Force correct app group in ALL entitlement files
       const entitlementFiles = [
         'GoalsAI/GoalsAI.entitlements',
-        'OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements',
         'widget/widget.entitlements',
         'PomodoroLiveActivity/PomodoroLiveActivity.entitlements'
       ];
@@ -161,35 +140,6 @@ const withWidget: ConfigPlugin<WithWidgetProps> = (config, options) => {
         }
       }
       
-      // Add OneSignal targets to Podfile
-      const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
-      
-      if (fs.existsSync(podfilePath)) {
-        let podfileContent = fs.readFileSync(podfilePath, 'utf8');
-        
-        // Add OneSignal targets if not already present
-        const oneSignalTargets = `
-target 'widget' do
-  use_frameworks! :linkage => :static
-  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
-end
-
-target 'PomodoroLiveActivity' do
-  use_frameworks! :linkage => :static
-  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
-end
-
-target 'OneSignalNotificationServiceExtension' do
-  use_frameworks! :linkage => :static
-  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
-end`;
-        
-        if (!podfileContent.includes("target 'widget'")) {
-          podfileContent += oneSignalTargets;
-          fs.writeFileSync(podfilePath, podfileContent);
-          console.log('Added OneSignal extension targets to Podfile');
-        }
-      }
       
       return config;
     }

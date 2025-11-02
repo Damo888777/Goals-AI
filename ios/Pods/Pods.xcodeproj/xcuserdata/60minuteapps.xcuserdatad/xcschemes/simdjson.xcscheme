@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "45B79B0C60C74716DCD2AD7BE782A719"
-               BuildableName = "simdjson.framework"
+               BuildableName = "libsimdjson.a"
                BlueprintName = "simdjson"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

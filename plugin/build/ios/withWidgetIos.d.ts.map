@@ -1,1 +1,1 @@
-{"version":3,"file":"withWidgetIos.d.ts","sourceRoot":"","sources":["../../src/ios/withWidgetIos.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,sBAAsB,CAAA;AAGnD,OAAO,EAAE,eAAe,EAAE,MAAM,UAAU,CAAA;AAE1C,eAAO,MAAM,aAAa,EAAE,YAAY,CAAC,eAAe,CA2BvD,CAAA"}
+{"version":3,"file":"withWidgetIos.d.ts","sourceRoot":"","sources":["../../src/ios/withWidgetIos.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAoB,MAAM,sBAAsB,CAAA;AAGrE,OAAO,EAAE,eAAe,EAAE,MAAM,UAAU,CAAA;AAI1C,eAAO,MAAM,aAAa,EAAE,YAAY,CAAC,eAAe,CAuDvD,CAAA"}

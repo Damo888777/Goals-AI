@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1CA390D7590E1C5A39010000CCF653AA"
-               BuildableName = "libvmaf.framework"
+               BuildableName = "liblibvmaf.a"
                BlueprintName = "libvmaf"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

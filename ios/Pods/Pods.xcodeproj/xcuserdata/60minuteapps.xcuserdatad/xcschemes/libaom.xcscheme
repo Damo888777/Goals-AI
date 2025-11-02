@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "21B2D1956457A80188343EBEC3958E9A"
-               BuildableName = "libaom.framework"
+               BuildableName = "liblibaom.a"
                BlueprintName = "libaom"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

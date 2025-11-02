@@ -1,7 +1,9 @@
-import { ConfigPlugin } from "@expo/config-plugins"
+import { ConfigPlugin, withDangerousMod } from "@expo/config-plugins"
 import { withWidgetXCode } from "./withWidgetXCode"
 import { withWidgetEAS } from "./withWidgetEAS"
 import { WithWidgetProps } from "../index"
+import * as fs from "fs"
+import * as path from "path"
 
 export const withWidgetIos: ConfigPlugin<WithWidgetProps> = (
   config,
@@ -14,6 +16,34 @@ export const withWidgetIos: ConfigPlugin<WithWidgetProps> = (
   // Dann die Xcode-Projektmodifikation, die das Target, die Dateien,
   // die Build-Settings UND die Entitlements korrekt einrichtet.
   config = withWidgetXCode(config, options)
+  
+  // Fix TaskIntents.swift to use applicationName placeholder
+  config = withDangerousMod(config, [
+    "ios",
+    async (config) => {
+      const taskIntentsPath = path.join(
+        config.modRequest.platformProjectRoot,
+        "widget",
+        "TaskIntents.swift"
+      )
+      
+      if (fs.existsSync(taskIntentsPath)) {
+        let content = fs.readFileSync(taskIntentsPath, "utf8")
+        
+        // Fix the phrases to use applicationName placeholder
+        const oldPhrase = 'phrases: ["Complete task in Goals AI"]'
+        const newPhrase = 'phrases: ["Complete task in \\(.applicationName)"]'
+        
+        if (content.includes(oldPhrase)) {
+          content = content.replace(oldPhrase, newPhrase)
+          fs.writeFileSync(taskIntentsPath, content, "utf8")
+          console.log("✅ Fixed TaskIntents.swift to use applicationName placeholder")
+        }
+      }
+      
+      return config
+    }
+  ])
 
 
   // Stelle sicher, dass die Haupt-App auch die App Group hat.

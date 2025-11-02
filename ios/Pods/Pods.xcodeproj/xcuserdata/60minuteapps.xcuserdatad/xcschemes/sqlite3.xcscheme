@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7578477CA77D98D8282C395822C4A93C"
-               BuildableName = "sqlite3.framework"
+               BuildableName = "libsqlite3.a"
                BlueprintName = "sqlite3"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

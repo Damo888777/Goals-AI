@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0979FB4AE2E5E4A2FA7879EDE5D42085"
-               BuildableName = "ExpoHaptics.framework"
+               BuildableName = "libExpoHaptics.a"
                BlueprintName = "ExpoHaptics"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

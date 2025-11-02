@@ -11,7 +11,7 @@ struct TaskAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: CompleteTaskIntent(),
-            phrases: ["Complete task in Goals AI"],
+            phrases: ["Complete task in \(.applicationName)"],
             shortTitle: "Complete Task",
             systemImageName: "checkmark.circle"
         )

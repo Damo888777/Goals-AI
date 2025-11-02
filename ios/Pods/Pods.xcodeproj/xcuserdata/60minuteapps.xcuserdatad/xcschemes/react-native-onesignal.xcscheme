@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ED3E7F50BBDE8B9088929C3E3DC5FA19"
-               BuildableName = "react_native_onesignal.framework"
+               BuildableName = "libreact-native-onesignal.a"
                BlueprintName = "react-native-onesignal"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

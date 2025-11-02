@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF554722D0D580AC702A6DAB8FDBB2B5"
-               BuildableName = "WatermelonDB.framework"
+               BuildableName = "libWatermelonDB.a"
                BlueprintName = "WatermelonDB"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

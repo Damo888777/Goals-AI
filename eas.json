@@ -27,11 +27,11 @@
     },
     "production": {
       "autoIncrement": true,
-      "config": "app.json",
       "ios": {
         "buildConfiguration": "Release",
         "resourceClass": "m-medium",
-        "credentialsSource": "remote"
+        "credentialsSource": "remote",
+        "image": "latest"
       }
     }
   },

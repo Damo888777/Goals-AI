@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1F15B5716688968A3B6AEF42C7848838"
-               BuildableName = "ExpoSecureStore.framework"
+               BuildableName = "libExpoSecureStore.a"
                BlueprintName = "ExpoSecureStore"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

@@ -11,7 +11,7 @@
     "plugin:build": "tsc -p ./plugin/tsconfig.json",
     "plugin:watch": "expo-module build plugin",
     "plugin:test": "expo-module test plugin",
-    "postinstall": "npm run plugin:build"
+    "postinstall": "npm run plugin:build && python3 scripts/patch-expo-apple-auth.py && node scripts/patch-expo-dev-menu.js"
   },
   "dependencies": {
     "@expo/plist": "^0.4.7",

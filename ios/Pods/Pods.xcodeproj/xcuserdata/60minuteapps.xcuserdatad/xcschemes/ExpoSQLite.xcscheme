@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "000FBFFA0155B1B61369B3CBDEAF32A4"
-               BuildableName = "ExpoSQLite.framework"
+               BuildableName = "libExpoSQLite.a"
                BlueprintName = "ExpoSQLite"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

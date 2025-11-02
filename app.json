@@ -2,7 +2,7 @@
   "expo": {
     "name": "Goals AI",
     "slug": "goals-ai",
-    "version": "1.0.0",
+    "version": "4.0",
     "orientation": "portrait",
     "icon": "./assets/Goals AI Logo.png",
     "userInterfaceStyle": "light",
@@ -21,7 +21,8 @@
         "NSCameraUsageDescription": "This app uses the camera to capture images for your goals.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for voice input features.",
         "NSPhotoLibraryUsageDescription": "This app accesses your photo library to save and retrieve goal images.",
-        "UIBackgroundModes": ["remote-notification", "background-processing"]
+        "NSLocationWhenInUseUsageDescription": "This app does not directly access your location. This permission is required by third-party services for analytics and notifications.",
+        "UIBackgroundModes": ["remote-notification"]
       },
       "entitlements": {
         "aps-environment": "development",
@@ -51,7 +52,6 @@
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static",
             "deploymentTarget": "17.0"
           },
           "android": {
@@ -66,15 +66,6 @@
       ],
       "@morrowdigital/watermelondb-expo-plugin",
       "expo-font",
-      [
-        "onesignal-expo-plugin",
-        {
-          "mode": "production",
-          "devTeam": "5PT3BWY2A5",
-          "iPhoneDeploymentTarget": "17.0",
-          "iosNSE": false
-        }
-      ],
       [
         "./app.plugin", 
         { 
