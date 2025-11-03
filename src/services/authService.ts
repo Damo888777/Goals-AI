@@ -205,20 +205,29 @@ class AuthService {
   // Sign out from authenticated session but maintain anonymous user
   async signOut(): Promise<void> {
     try {
+      const previousAuthenticatedId = this.currentUser?.id
+      const wasAuthenticated = this.currentUser && !this.currentUser.isAnonymous
+      
       // Sign out from Supabase (only if configured)
       if (isSupabaseConfigured && supabase) {
         const { error } = await supabase.auth.signOut()
         if (error) throw error
       }
 
-      // Don't clear local data - keep it for anonymous user
-      // Instead, revert to anonymous user
+      // Revert to anonymous user
       await this.ensureAnonymousUser()
+      
+      // CRITICAL: Migrate data back from authenticated ID to anonymous ID
+      if (wasAuthenticated && previousAuthenticatedId && this.persistentAnonymousId) {
+        console.log('🔄 Migrating data back from authenticated to anonymous user...')
+        await this.migrateUserData(previousAuthenticatedId, this.persistentAnonymousId)
+        console.log('✅ Data migrated back to anonymous user')
+      }
       
       this.retryCount = 0
       this.isRetrying = false
       
-      console.log('✅ Signed out, reverted to anonymous user')
+      console.log('✅ Signed out, reverted to anonymous user with data preserved')
     } catch (error) {
       console.error('Error signing out:', error)
       throw error
@@ -417,9 +426,9 @@ class AuthService {
     // Ensure profile exists in local database
     await this.ensureLocalProfile(this.currentUser)
     
-    // Trigger immediate sync to upload migrated data to cloud
+    // Trigger immediate bidirectional sync: push migrated data + pull any cloud data
     setTimeout(() => {
-      syncService.sync().catch(error => {
+      syncService.sync(true).catch(error => {
         console.log('Post-upgrade sync failed (non-critical):', error.message)
       })
     }, 1000)

@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 8,
+  version: 9,
   tables: [
     tableSchema({
       name: 'profiles',
@@ -61,9 +61,12 @@ export default appSchema({
       name: 'vision_images',
       columns: [
         { name: 'user_id', type: 'string', isIndexed: true },
-        { name: 'image_uri', type: 'string' },
-        { name: 'aspect_ratio', type: 'number' },
-        { name: 'source', type: 'string' }, // 'generated' or 'uploaded'
+        { name: 'goal_id', type: 'string', isOptional: true, isIndexed: true },
+        { name: 'image_url', type: 'string' },
+        { name: 'image_type', type: 'string', isOptional: true }, // 'vision', 'generated', 'uploaded'
+        { name: 'prompt', type: 'string', isOptional: true },
+        { name: 'file_size', type: 'number', isOptional: true },
+        { name: 'mime_type', type: 'string', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]

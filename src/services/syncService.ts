@@ -555,23 +555,75 @@ class SyncService {
 
   // Transform Supabase row to local format
   private transformSupabaseToLocal(row: any): any {
-    return {
+    const base = {
       ...row,
       // Convert snake_case to camelCase for local models
       userId: row.user_id,
       goalId: row.goal_id,
       milestoneId: row.milestone_id,
+      taskId: row.task_id,
       visionImageUrl: row.vision_image_url,
       isCompleted: row.is_completed,
-      completedAt: row.completed_at ? new Date(row.completed_at) : null,
+      completedAt: row.completed_at ? (typeof row.completed_at === 'number' ? row.completed_at : new Date(row.completed_at).getTime()) : null,
       targetDate: row.target_date,
       isComplete: row.is_complete,
       scheduledDate: row.scheduled_date,
       isFrog: row.is_frog,
       creationSource: row.creation_source,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at)
+      createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+      updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now(),
+      
+      // Vision images fields
+      imageUrl: row.image_url,
+      imageType: row.image_type,
+      prompt: row.prompt,
+      fileSize: row.file_size,
+      mimeType: row.mime_type,
+      
+      // Pomodoro sessions fields
+      sessionType: row.session_type,
+      durationMinutes: row.duration_minutes,
+      
+      // Task time tracking fields
+      totalPomodoroSessions: row.total_pomodoro_sessions,
+      totalMinutesFocused: row.total_minutes_focused,
+      lastSessionAt: row.last_session_at ? new Date(row.last_session_at).getTime() : null,
+      
+      // Subscription fields
+      subscriptionTier: row.subscription_tier,
+      productId: row.product_id,
+      transactionId: row.transaction_id,
+      originalTransactionId: row.original_transaction_id,
+      purchasedAt: row.purchased_at ? new Date(row.purchased_at).getTime() : null,
+      expiresAt: row.expires_at ? new Date(row.expires_at).getTime() : null,
+      isActive: row.is_active,
+      isTrial: row.is_trial,
+      isCancelled: row.is_cancelled,
+      cancelledAt: row.cancelled_at ? new Date(row.cancelled_at).getTime() : null,
+      cancelReason: row.cancel_reason,
+      expiredAt: row.expired_at ? new Date(row.expired_at).getTime() : null,
+      hasBillingIssue: row.has_billing_issue,
+      billingIssueDetectedAt: row.billing_issue_detected_at ? new Date(row.billing_issue_detected_at).getTime() : null,
+      environment: row.environment,
+      store: row.store,
+      countryCode: row.country_code,
+      currency: row.currency,
+      price: row.price,
+      entitlementIds: row.entitlement_ids ? (Array.isArray(row.entitlement_ids) ? JSON.stringify(row.entitlement_ids) : row.entitlement_ids) : null,
+      revenuecatCustomerId: row.revenuecat_customer_id,
+      activeEntitlements: row.active_entitlements,
+      currentTier: row.current_tier,
+      lastUpdated: row.last_updated ? new Date(row.last_updated).getTime() : null,
+      
+      // Subscription usage fields
+      sparkAiVoiceInputsUsed: row.spark_ai_voice_inputs_used,
+      sparkAiVisionImagesUsed: row.spark_ai_vision_images_used,
+      activeGoalsCount: row.active_goals_count,
+      periodStart: row.period_start ? new Date(row.period_start).getTime() : null,
+      periodEnd: row.period_end ? new Date(row.period_end).getTime() : null,
     }
+    
+    return base
   }
 
   // Generate a UUID v4 compatible string
@@ -740,17 +792,29 @@ class SyncService {
         ...base,
         user_id: this.convertToUUID(record.userId),
         subscription_tier: subscriptionTier, // Must be 'starter', 'achiever', or 'visionary'
-        product_id: record.revenuecatCustomerId || 'unknown',
-        transaction_id: record.revenuecatCustomerId || 'unknown',
-        original_transaction_id: record.revenuecatCustomerId || 'unknown',
-        purchased_at: new Date().toISOString(),
-        environment: 'sandbox',
-        store: 'app_store',
-        revenuecat_customer_id: record.revenuecatCustomerId,
-        active_entitlements: record.activeEntitlements,
-        current_tier: record.currentTier,
-        is_active: record.isActive,
-        last_updated: record.lastUpdated,
+        product_id: record.productId || record.revenuecatCustomerId || 'unknown',
+        transaction_id: record.transactionId || record.revenuecatCustomerId || 'unknown',
+        original_transaction_id: record.originalTransactionId || record.revenuecatCustomerId || 'unknown',
+        purchased_at: record.purchasedAt ? (typeof record.purchasedAt === 'number' ? new Date(record.purchasedAt).toISOString() : record.purchasedAt) : new Date().toISOString(),
+        expires_at: record.expiresAt ? (typeof record.expiresAt === 'number' ? new Date(record.expiresAt).toISOString() : record.expiresAt) : null,
+        is_active: record.isActive !== undefined ? record.isActive : true,
+        is_trial: record.isTrial || false,
+        is_cancelled: record.isCancelled || false,
+        cancelled_at: record.cancelledAt ? (typeof record.cancelledAt === 'number' ? new Date(record.cancelledAt).toISOString() : record.cancelledAt) : null,
+        cancel_reason: record.cancelReason || null,
+        expired_at: record.expiredAt ? (typeof record.expiredAt === 'number' ? new Date(record.expiredAt).toISOString() : record.expiredAt) : null,
+        has_billing_issue: record.hasBillingIssue || false,
+        billing_issue_detected_at: record.billingIssueDetectedAt ? (typeof record.billingIssueDetectedAt === 'number' ? new Date(record.billingIssueDetectedAt).toISOString() : record.billingIssueDetectedAt) : null,
+        environment: record.environment || 'sandbox',
+        store: record.store || 'app_store',
+        country_code: record.countryCode || null,
+        currency: record.currency || null,
+        price: record.price || null,
+        entitlement_ids: record.entitlementIds ? (typeof record.entitlementIds === 'string' ? JSON.parse(record.entitlementIds) : record.entitlementIds) : null,
+        revenuecat_customer_id: record.revenuecatCustomerId || null,
+        active_entitlements: record.activeEntitlements || null,
+        current_tier: record.currentTier || null,
+        last_updated: record.lastUpdated ? (typeof record.lastUpdated === 'number' ? new Date(record.lastUpdated).toISOString() : record.lastUpdated) : null,
         creation_source: record.creationSource || 'revenuecat'
       }
     }
@@ -764,8 +828,49 @@ class SyncService {
         spark_ai_voice_inputs_used: record.sparkAiVoiceInputsUsed || 0,
         spark_ai_vision_images_used: record.sparkAiVisionImagesUsed || 0,
         active_goals_count: record.activeGoalsCount || 0,
-        period_start: record.periodStart ? record.periodStart.toISOString() : new Date().toISOString(),
-        period_end: record.periodEnd ? record.periodEnd.toISOString() : null
+        period_start: record.periodStart ? (typeof record.periodStart === 'number' ? new Date(record.periodStart).toISOString() : record.periodStart) : new Date().toISOString(),
+        period_end: record.periodEnd ? (typeof record.periodEnd === 'number' ? new Date(record.periodEnd).toISOString() : record.periodEnd) : null
+      }
+    }
+
+    // Handle vision_images records
+    if (record.table === 'vision_images' || record.imageUrl !== undefined || record.imageType !== undefined) {
+      return {
+        ...base,
+        user_id: this.convertToUUID(record.userId),
+        goal_id: record.goalId ? this.convertToUUID(record.goalId) : null,
+        image_url: record.imageUrl || null,
+        image_type: record.imageType || 'vision',
+        prompt: record.prompt || null,
+        file_size: record.fileSize || null,
+        mime_type: record.mimeType || null
+      }
+    }
+
+    // Handle pomodoro_sessions records
+    if (record.table === 'pomodoro_sessions' || record.sessionType !== undefined || record.durationMinutes !== undefined) {
+      return {
+        ...base,
+        user_id: this.convertToUUID(record.userId),
+        task_id: record.taskId ? this.convertToUUID(record.taskId) : null,
+        goal_id: record.goalId ? this.convertToUUID(record.goalId) : null,
+        session_type: record.sessionType || 'work',
+        duration_minutes: record.durationMinutes || 25,
+        is_completed: record.isCompleted || false,
+        completed_at: record.completedAt ? (typeof record.completedAt === 'number' ? new Date(record.completedAt).toISOString() : record.completedAt) : null,
+        notes: record.notes || null
+      }
+    }
+
+    // Handle task_time_tracking records
+    if (record.table === 'task_time_tracking' || record.totalPomodoroSessions !== undefined || record.totalMinutesFocused !== undefined) {
+      return {
+        ...base,
+        user_id: this.convertToUUID(record.userId),
+        task_id: record.taskId ? this.convertToUUID(record.taskId) : null,
+        total_pomodoro_sessions: record.totalPomodoroSessions || 0,
+        total_minutes_focused: record.totalMinutesFocused || 0,
+        last_session_at: record.lastSessionAt ? (typeof record.lastSessionAt === 'number' ? new Date(record.lastSessionAt).toISOString() : record.lastSessionAt) : null
       }
     }
 
@@ -914,23 +1019,42 @@ class SyncService {
       return
     }
 
+    // For authenticated users: bidirectional sync (pull + push)
     this.syncInProgress = true
-    console.log('🔄 Starting sync...')
+    console.log('🔄 Starting bidirectional sync for authenticated user...')
 
     const maxRetries = 3
     let retryCount = 0
 
     while (retryCount < maxRetries) {
       try {
-        // Use push-only sync for anonymous users
-        const changes = await this.getLocalChanges()
-        if (this.hasChangesToPush(changes)) {
-          await this.pushChanges(changes)
+        // STEP 1: Pull remote changes from Supabase
+        const lastPulledAt = await this.getLastPullTimestamp()
+        console.log('📥 Pulling remote changes from Supabase...')
+        const remoteChanges = await this.pullChanges(lastPulledAt)
+        
+        // STEP 2: Apply remote changes to local database
+        if (this.hasRemoteChanges(remoteChanges)) {
+          console.log('📥 Applying remote changes to local database...')
+          await this.applyRemoteChanges(remoteChanges)
+          await this.setLastPullTimestamp(remoteChanges.timestamp)
+        } else {
+          console.log('📥 No remote changes to apply')
+        }
+        
+        // STEP 3: Push local changes to Supabase
+        const localChanges = await this.getLocalChanges()
+        if (this.hasChangesToPush(localChanges)) {
+          console.log('📤 Pushing local changes to Supabase...')
+          await this.pushChanges(localChanges)
+        } else {
+          console.log('📤 No local changes to push')
         }
         
         // Mark sync as successful
         this.syncInProgress = false
-        console.log('✅ Sync completed successfully')
+        this.lastSyncTime = new Date()
+        console.log('✅ Bidirectional sync completed successfully')
         return
         
       } catch (error) {
@@ -1044,6 +1168,259 @@ class SyncService {
       // Don't throw error to prevent app crashes for anonymous users
     } finally {
       this.syncInProgress = false
+    }
+  }
+
+  // Get last pull timestamp from local storage
+  private async getLastPullTimestamp(): Promise<number | undefined> {
+    try {
+      const timestamp = await this.database.adapter.getLocal('last_pull_timestamp')
+      return timestamp ? Number(timestamp) : undefined
+    } catch (error) {
+      console.error('Error getting last pull timestamp:', error)
+      return undefined
+    }
+  }
+
+  // Set last pull timestamp in local storage
+  private async setLastPullTimestamp(timestamp: number): Promise<void> {
+    try {
+      await this.database.adapter.setLocal('last_pull_timestamp', String(timestamp))
+    } catch (error) {
+      console.error('Error setting last pull timestamp:', error)
+    }
+  }
+
+  // Check if remote changes exist
+  private hasRemoteChanges(remoteChanges: SyncPullResult): boolean {
+    const tables = Object.values(remoteChanges.changes)
+    for (const table of tables) {
+      if (Array.isArray(table) && table.length > 0) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // Apply remote changes to local database
+  private async applyRemoteChanges(remoteChanges: SyncPullResult): Promise<void> {
+    try {
+      await this.database.write(async () => {
+        // Apply goals
+        for (const remoteGoal of remoteChanges.changes.goals) {
+          const goalsCollection = this.database.get('goals')
+          try {
+            const existingGoal = await goalsCollection.find(remoteGoal.id)
+            // Update existing goal
+            await existingGoal.update((goal: any) => {
+              goal.title = remoteGoal.title
+              goal.feelings = remoteGoal.feelings
+              goal.visionImageUrl = remoteGoal.visionImageUrl
+              goal.notes = remoteGoal.notes
+              goal.isCompleted = remoteGoal.isCompleted
+              goal.completedAt = remoteGoal.completedAt
+            })
+          } catch {
+            // Create new goal
+            await goalsCollection.create((goal: any) => {
+              goal._raw.id = remoteGoal.id
+              goal.userId = remoteGoal.userId
+              goal.title = remoteGoal.title
+              goal.feelings = remoteGoal.feelings
+              goal.visionImageUrl = remoteGoal.visionImageUrl
+              goal.notes = remoteGoal.notes
+              goal.isCompleted = remoteGoal.isCompleted
+              goal.completedAt = remoteGoal.completedAt
+            })
+          }
+        }
+
+        // Apply milestones
+        for (const remoteMilestone of remoteChanges.changes.milestones) {
+          const milestonesCollection = this.database.get('milestones')
+          try {
+            const existingMilestone = await milestonesCollection.find(remoteMilestone.id)
+            await existingMilestone.update((milestone: any) => {
+              milestone.title = remoteMilestone.title
+              milestone.targetDate = remoteMilestone.targetDate
+              milestone.isComplete = remoteMilestone.isComplete
+            })
+          } catch {
+            await milestonesCollection.create((milestone: any) => {
+              milestone._raw.id = remoteMilestone.id
+              milestone.userId = remoteMilestone.userId
+              milestone.goalId = remoteMilestone.goalId
+              milestone.title = remoteMilestone.title
+              milestone.targetDate = remoteMilestone.targetDate
+              milestone.isComplete = remoteMilestone.isComplete
+            })
+          }
+        }
+
+        // Apply tasks
+        for (const remoteTask of remoteChanges.changes.tasks) {
+          const tasksCollection = this.database.get('tasks')
+          try {
+            const existingTask = await tasksCollection.find(remoteTask.id)
+            await existingTask.update((task: any) => {
+              task.title = remoteTask.title
+              task.notes = remoteTask.notes
+              task.scheduledDate = remoteTask.scheduledDate
+              task.isFrog = remoteTask.isFrog
+              task.isComplete = remoteTask.isComplete
+              task.completedAt = remoteTask.completedAt
+            })
+          } catch {
+            await tasksCollection.create((task: any) => {
+              task._raw.id = remoteTask.id
+              task.userId = remoteTask.userId
+              task.goalId = remoteTask.goalId
+              task.milestoneId = remoteTask.milestoneId
+              task.title = remoteTask.title
+              task.notes = remoteTask.notes
+              task.scheduledDate = remoteTask.scheduledDate
+              task.isFrog = remoteTask.isFrog
+              task.isComplete = remoteTask.isComplete
+              task.completedAt = remoteTask.completedAt
+            })
+          }
+        }
+
+        // Apply subscriptions
+        for (const remoteSub of remoteChanges.changes.subscriptions) {
+          const subsCollection = this.database.get('subscriptions')
+          try {
+            const existingSub = await subsCollection.find(remoteSub.id)
+            await existingSub.update((sub: any) => {
+              sub.subscriptionTier = remoteSub.subscriptionTier
+              sub.isActive = remoteSub.isActive
+              sub.currentTier = remoteSub.currentTier
+              sub.activeEntitlements = remoteSub.activeEntitlements
+              sub.revenuecatCustomerId = remoteSub.revenuecatCustomerId
+            })
+          } catch {
+            await subsCollection.create((sub: any) => {
+              sub._raw.id = remoteSub.id
+              sub.userId = remoteSub.userId
+              sub.subscriptionTier = remoteSub.subscriptionTier
+              sub.isActive = remoteSub.isActive
+              sub.currentTier = remoteSub.currentTier
+              sub.activeEntitlements = remoteSub.activeEntitlements
+              sub.revenuecatCustomerId = remoteSub.revenuecatCustomerId
+            })
+          }
+        }
+
+        // Apply subscription usage
+        for (const remoteUsage of remoteChanges.changes.subscription_usage) {
+          const usageCollection = this.database.get('subscription_usage')
+          try {
+            const existingUsage = await usageCollection.find(remoteUsage.id)
+            await existingUsage.update((usage: any) => {
+              usage.sparkAiVoiceInputsUsed = remoteUsage.sparkAiVoiceInputsUsed
+              usage.sparkAiVisionImagesUsed = remoteUsage.sparkAiVisionImagesUsed
+              usage.activeGoalsCount = remoteUsage.activeGoalsCount
+              usage.periodStart = remoteUsage.periodStart
+              usage.periodEnd = remoteUsage.periodEnd
+            })
+          } catch {
+            await usageCollection.create((usage: any) => {
+              usage._raw.id = remoteUsage.id
+              usage.userId = remoteUsage.userId
+              usage.subscriptionTier = remoteUsage.subscriptionTier
+              usage.sparkAiVoiceInputsUsed = remoteUsage.sparkAiVoiceInputsUsed
+              usage.sparkAiVisionImagesUsed = remoteUsage.sparkAiVisionImagesUsed
+              usage.activeGoalsCount = remoteUsage.activeGoalsCount
+              usage.periodStart = remoteUsage.periodStart
+              usage.periodEnd = remoteUsage.periodEnd
+            })
+          }
+        }
+
+        // Apply vision images
+        for (const remoteImage of remoteChanges.changes.vision_images) {
+          const imagesCollection = this.database.get('vision_images')
+          try {
+            const existingImage = await imagesCollection.find(remoteImage.id)
+            await existingImage.update((image: any) => {
+              image.goalId = remoteImage.goalId
+              image.imageUrl = remoteImage.imageUrl
+              image.imageType = remoteImage.imageType
+              image.prompt = remoteImage.prompt
+              image.fileSize = remoteImage.fileSize
+              image.mimeType = remoteImage.mimeType
+            })
+          } catch {
+            await imagesCollection.create((image: any) => {
+              image._raw.id = remoteImage.id
+              image.userId = remoteImage.userId
+              image.goalId = remoteImage.goalId
+              image.imageUrl = remoteImage.imageUrl
+              image.imageType = remoteImage.imageType
+              image.prompt = remoteImage.prompt
+              image.fileSize = remoteImage.fileSize
+              image.mimeType = remoteImage.mimeType
+            })
+          }
+        }
+
+        // Apply pomodoro sessions
+        for (const remoteSession of remoteChanges.changes.pomodoro_sessions) {
+          const sessionsCollection = this.database.get('pomodoro_sessions')
+          try {
+            const existingSession = await sessionsCollection.find(remoteSession.id)
+            await existingSession.update((session: any) => {
+              session.taskId = remoteSession.taskId
+              session.goalId = remoteSession.goalId
+              session.sessionType = remoteSession.sessionType
+              session.durationMinutes = remoteSession.durationMinutes
+              session.isCompleted = remoteSession.isCompleted
+              session.completedAt = remoteSession.completedAt
+              session.notes = remoteSession.notes
+            })
+          } catch {
+            await sessionsCollection.create((session: any) => {
+              session._raw.id = remoteSession.id
+              session.userId = remoteSession.userId
+              session.taskId = remoteSession.taskId
+              session.goalId = remoteSession.goalId
+              session.sessionType = remoteSession.sessionType
+              session.durationMinutes = remoteSession.durationMinutes
+              session.isCompleted = remoteSession.isCompleted
+              session.completedAt = remoteSession.completedAt
+              session.notes = remoteSession.notes
+            })
+          }
+        }
+
+        // Apply task time tracking
+        for (const remoteTracking of remoteChanges.changes.task_time_tracking) {
+          const trackingCollection = this.database.get('task_time_tracking')
+          try {
+            const existingTracking = await trackingCollection.find(remoteTracking.id)
+            await existingTracking.update((tracking: any) => {
+              tracking.taskId = remoteTracking.taskId
+              tracking.totalPomodoroSessions = remoteTracking.totalPomodoroSessions
+              tracking.totalMinutesFocused = remoteTracking.totalMinutesFocused
+              tracking.lastSessionAt = remoteTracking.lastSessionAt
+            })
+          } catch {
+            await trackingCollection.create((tracking: any) => {
+              tracking._raw.id = remoteTracking.id
+              tracking.userId = remoteTracking.userId
+              tracking.taskId = remoteTracking.taskId
+              tracking.totalPomodoroSessions = remoteTracking.totalPomodoroSessions
+              tracking.totalMinutesFocused = remoteTracking.totalMinutesFocused
+              tracking.lastSessionAt = remoteTracking.lastSessionAt
+            })
+          }
+        }
+      })
+
+      console.log('✅ Applied remote changes to local database')
+    } catch (error) {
+      console.error('❌ Error applying remote changes:', error)
+      throw error
     }
   }
 

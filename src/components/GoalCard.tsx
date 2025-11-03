@@ -791,7 +791,7 @@ export function GoalCard({
                   color: '#364958',
                   textAlign: 'center',
                 }}>
-                  {t('components.goalCard.breakGoalIntoMilestones')}
+                  {t('components.goalCard.noMilestonesDescription')}
                 </Text>
               </View>
             )}
