@@ -24,6 +24,9 @@ import { router } from 'expo-router';
 import { useAuth, useGoals, useTasks } from '../../src/hooks/useDatabase';
 import { useOnboarding } from '../../src/hooks/useOnboarding';
 import { useSubscription } from '../../src/hooks/useSubscription';
+import database from '../../src/db';
+import { Q } from '@nozbe/watermelondb';
+import { authService } from '../../src/services/authService';
 import { useNotifications } from '../../src/hooks/useNotifications';
 import { useLanguage } from '../../src/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
@@ -203,7 +206,7 @@ export default function ProfileTab() {
     loadStats();
     loadUsageStats();
     checkAuthStatus();
-  }, [goals, tasks]);
+  }, [goals, tasks, user]);
 
   useEffect(() => {
     if (userPreferences?.name) {
@@ -237,15 +240,37 @@ export default function ProfileTab() {
       // Calculate frog streak - proper consecutive days calculation
       const frogStreak = calculateEatTheFrogStreak(tasks);
       
-      // Calculate total focus time from all tasks
+      // Calculate total focus time from pomodoro sessions database
       let totalFocusMinutes = 0;
-      tasks.forEach((task: any) => {
-        if (task.focusSessions && task.focusSessions.length > 0) {
-          task.focusSessions.forEach((session: any) => {
-            totalFocusMinutes += Math.floor(session.duration / 60); // Convert seconds to minutes
-          });
+      
+      if (database) {
+        try {
+          const currentUser = await authService.getCurrentUser();
+          const currentUserId = currentUser?.id;
+          
+          if (currentUserId) {
+            // Fetch all completed pomodoro sessions for the current user
+            const sessionsCollection = database.get('pomodoro_sessions');
+            const allSessions = await sessionsCollection
+              .query(
+                Q.where('user_id', currentUserId),
+                Q.where('is_completed', true)
+              )
+              .fetch();
+
+            // Sum up all session durations
+            totalFocusMinutes = allSessions.reduce((total: number, session: any) => {
+              return total + (session.durationMinutes || 0);
+            }, 0);
+            
+            console.log('✅ Loaded focus time from pomodoro sessions:', totalFocusMinutes, 'minutes');
+          }
+        } catch (sessionError) {
+          console.error('Error loading pomodoro sessions for stats:', sessionError);
+          // Fallback to 0 if database query fails
+          totalFocusMinutes = 0;
         }
-      });
+      }
 
       setStats({
         eatTheFrogStreak: frogStreak,

@@ -115,11 +115,28 @@ export function useWeeklyTasks(weekOffset: number = 0) {
         milestoneId: t.milestoneId
       })));
       
+      // Try getting ALL tasks in the week range (including completed ones) for debugging
+      const allWeekTasks = await tasksCollection
+        .query(
+          Q.where('user_id', userId),
+          Q.where('scheduled_date', Q.notEq(null)),
+          Q.where('scheduled_date', Q.gte(startDate.toISOString())),
+          Q.where('scheduled_date', Q.lte(endDate.toISOString()))
+        )
+        .fetch();
+      
+      console.log('📊 ALL tasks in week range (including completed):', allWeekTasks.length, allWeekTasks.map(t => ({ 
+        title: t.title, 
+        scheduledDate: t.scheduledDate,
+        isComplete: t.isComplete
+      })));
+      
       // Query tasks for the entire week
       const weekTasks = await tasksCollection
         .query(
           Q.where('user_id', userId),
           Q.where('is_complete', false),
+          Q.where('scheduled_date', Q.notEq(null)),
           Q.where('scheduled_date', Q.gte(startDate.toISOString())),
           Q.where('scheduled_date', Q.lte(endDate.toISOString()))
         )
@@ -140,19 +157,20 @@ export function useWeeklyTasks(weekOffset: number = 0) {
           const taskDate = new Date(task.scheduledDate);
           
           // Compare dates in local time to avoid timezone shifts
-          const taskDateLocal = taskDate.toDateString();
-          const dayDateLocal = day.dateObj.toDateString();
+          const taskDateStr = taskDate.getFullYear() + '-' + 
+                              String(taskDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(taskDate.getDate()).padStart(2, '0');
+          const dayDateStr = day.dateObj.getFullYear() + '-' + 
+                            String(day.dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(day.dateObj.getDate()).padStart(2, '0');
           
-          const isInRange = taskDateLocal === dayDateLocal;
-          if (!isInRange && __DEV__) {
-            console.log(`❌ Task "${task.title}" filtered out:`, {
-              taskDate: taskDate.toISOString(),
-              taskDateLocal,
-              dayDateLocal,
-              dayStart: dayStart.toISOString(),
-              dayEnd: dayEnd.toISOString()
-            });
-          }
+          const isInRange = taskDateStr === dayDateStr;
+          console.log(`🔍 Task "${task.title}":`, {
+            taskDate: taskDate.toISOString(),
+            taskDateStr,
+            dayDateStr,
+            isInRange
+          });
           return isInRange;
         });
         
