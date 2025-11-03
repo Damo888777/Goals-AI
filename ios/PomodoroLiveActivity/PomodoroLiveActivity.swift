@@ -51,7 +51,7 @@ struct PomodoroLiveActivity: Widget {
                 Text(context.state.sessionType == "work" ? "🍅" : "☕")
                     .font(.system(size: 16))
             } compactTrailing: {
-                // Compact trailing - timer with real-time countdown
+                // Compact trailing - timer with fixed layout
                 if context.state.isRunning {
                     Text(calculateTargetDate(context), style: .timer)
                         .font(.custom("Helvetica", size: 14))
@@ -60,6 +60,8 @@ struct PomodoroLiveActivity: Widget {
                             Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
                             Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
                         .multilineTextAlignment(.center)
+                        .frame(width: 30, alignment: .center)
+                        .fixedSize()
                 } else {
                     Text(formatTimeCompact(context.state.timeRemaining))
                         .font(.custom("Helvetica", size: 14))
@@ -67,6 +69,8 @@ struct PomodoroLiveActivity: Widget {
                         .foregroundColor(context.state.sessionType == "work" ? 
                             Color(red: 0.74, green: 0.29, blue: 0.32) : // #bc4b51
                             Color(red: 0.27, green: 0.47, blue: 0.62)) // #457b9d
+                        .frame(width: 30, alignment: .center)
+                        .fixedSize()
                 }
             } minimal: {
                 // Minimal - just the emoji

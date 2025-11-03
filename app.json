@@ -6,6 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/Goals AI Logo.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#E9EDC9"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "pro.GoalAchieverAI",
