@@ -932,20 +932,22 @@ export const useVisionImages = () => {
     }
   }, [])
 
-  const addVisionImage = async (imageUri: string, aspectRatio: number, source: 'generated' | 'uploaded') => {
+  const addVisionImage = async (imageUrl: string, imageType: 'vision' | 'generated' | 'uploaded', goalId?: string, prompt?: string) => {
     if (!database) return
 
     const currentUserId = await getCurrentUserId()
     if (!currentUserId) return
 
     const visionImagesCollection = database.get<VisionImage>('vision_images')
-
     await database.write(async () => {
-      await visionImagesCollection.create((visionImage) => {
+      await visionImagesCollection.create((visionImage: any) => {
         visionImage.userId = currentUserId
-        visionImage.imageUri = imageUri
-        visionImage.aspectRatio = aspectRatio
-        visionImage.source = source
+        visionImage.goalId = goalId || null
+        visionImage.imageUrl = imageUrl
+        visionImage.imageType = imageType
+        visionImage.prompt = prompt || null
+        visionImage.fileSize = null
+        visionImage.mimeType = null
       })
     })
   }

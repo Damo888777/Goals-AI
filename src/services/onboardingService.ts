@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { authService } from './authService';
 import { useGoals, useMilestones, useTasks, useVisionImages } from '../hooks/useDatabase';
-import i18n from '../i18n';
+import i18n from './i18next';
 
 const ONBOARDING_COMPLETED_KEY = 'onboarding_completed';
 const ONBOARDING_DATA_KEY = 'onboarding_data';
@@ -338,9 +338,12 @@ class OnboardingService {
           const visionImagesCollection = database!.get('vision_images');
           const visionImage = await visionImagesCollection.create((image: any) => {
             image.userId = currentUser.id;
-            image.imageUri = data.visionImageUrl;
-            image.aspectRatio = 1.0;
-            image.source = 'generated';
+            image.goalId = null; // Will be set after goal is created
+            image.imageUrl = data.visionImageUrl; // Changed from imageUri
+            image.imageType = 'generated'; // Changed from source
+            image.prompt = data.visionPrompt || null;
+            image.fileSize = null;
+            image.mimeType = null;
           });
           visionImageId = visionImage.id;
         }

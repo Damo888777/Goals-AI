@@ -515,7 +515,7 @@ export default function GoalDetailsScreen() {
   };
 
   const handleVisionSelect = (visionImage: any) => {
-    setVisionImageUrl(visionImage.imageUri);
+    setVisionImageUrl(visionImage.imageUrl);
   };
 
   const handleRemoveVision = () => {

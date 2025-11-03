@@ -18,10 +18,10 @@ import VisionImage from '../src/db/models/VisionImage';
 interface VisionImageProps {
   width: number;
   height: number;
-  imageUri?: string;
+  imageUrl?: string;
 }
 
-function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
+function VisionImageCard({ width, height, imageUrl }: VisionImageProps) {
   const { t } = useTranslation();
   return (
     <View
@@ -33,9 +33,9 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
         overflow: 'hidden',
       }}
     >
-      {imageUri ? (
+      {imageUrl ? (
         <Image
-          source={{ uri: imageUri }}
+          source={{ uri: imageUrl }}
           style={{ width: '100%', height: '100%' }}
           contentFit="cover"
         />
@@ -57,11 +57,10 @@ function VisionImageCard({ width, height, imageUri }: VisionImageProps) {
 
 interface VisionItem {
   id: string;
-  aspectRatio: number;
   height?: number;
-  imageUri?: string;
+  imageUrl?: string;
   createdAt?: Date;
-  source?: string;
+  imageType?: string | null;
   visionImage?: VisionImage;
 }
 
@@ -132,9 +131,9 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
       prev.height < current.height ? prev : current
     );
     
-    // Calculate item height based on aspect ratio with Pinterest-like variation
+    // Calculate item height with Pinterest-like variation
     const baseWidth = 150;
-    let itemHeight = baseWidth / item.aspectRatio;
+    let itemHeight = baseWidth * 1.2; // Default aspect ratio
     
     // Create more dramatic height variations like Pinterest
     const heightVariations = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5, 1.8]; // Different height multipliers
@@ -161,19 +160,20 @@ function MasonryLayout({ items, gap, numColumns, isEmpty, onImagePress }: {
           {column.items.map((item) => (
             <Pressable
               key={item.id}
-              onPress={() => !isEmpty && item.imageUri && onImagePress(item)}
+              onPress={() => !isEmpty && item.imageUrl && onImagePress(item)}
               style={{
                 width: '100%',
                 height: item.height || 100,
                 backgroundColor: isEmpty ? '#E3E3E3' : '#F0F0F0',
-                borderRadius: 5,
+                borderRadius: 12,
                 overflow: 'hidden',
+                marginBottom: 12,
                 opacity: isEmpty ? 0.3 : 1,
               }}
             >
-              {item.imageUri && !isEmpty ? (
+              {item.imageUrl && !isEmpty ? (
                 <Image
-                  source={{ uri: item.imageUri }}
+                  source={{ uri: item.imageUrl }}
                   style={{ width: '100%', height: '100%' }}
                   contentFit="cover"
                 />
@@ -224,10 +224,9 @@ export default function VisionBoardScreen() {
   // Convert database vision images to VisionItem format
   const visionImages: VisionItem[] = dbVisionImages.map((img) => ({
     id: img.id,
-    aspectRatio: img.aspectRatio,
-    imageUri: img.imageUri,
+    imageUrl: img.imageUrl,
     createdAt: img.createdAt,
-    source: img.source,
+    imageType: img.imageType,
     visionImage: img,
   }));
 
@@ -263,10 +262,9 @@ export default function VisionBoardScreen() {
 
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      const aspectRatio = asset.width / asset.height;
       
       // Add to database
-      await addVisionImage(asset.uri, aspectRatio, 'uploaded');
+      await addVisionImage(asset.uri, 'uploaded');
     }
   };
 
@@ -686,10 +684,10 @@ export default function VisionBoardScreen() {
                 maxHeight: '70%',
               }}>
                 <Image
-                  source={{ uri: selectedImage.imageUri }}
+                  source={{ uri: selectedImage.imageUrl }}
                   style={{
                     width: '100%',
-                    aspectRatio: selectedImage.aspectRatio,
+                    aspectRatio: 1,
                     borderRadius: 15,
                     backgroundColor: '#2A2D3A',
                   }}
@@ -730,7 +728,7 @@ export default function VisionBoardScreen() {
                   textAlign: 'center',
                   textTransform: 'capitalize',
                 }}>
-                  {selectedImage.source || t('visionBoard.imagePreview.unknownSource')}
+                  {selectedImage.imageType || t('visionBoard.imagePreview.unknownSource')}
                 </Text>
               </View>
             </>

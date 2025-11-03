@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { spacing, borderRadius, shadows, touchTargets, emptyStateSpacing } from '../constants/spacing';
@@ -57,9 +58,37 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
   };
 
   const handleDelete = () => {
+    console.log('🗑️ Milestone delete button pressed', { 
+      milestoneId: milestone.id, 
+      milestoneTitle: milestone.title,
+      hasCallback: !!onMilestoneDelete 
+    });
+    
     if (onMilestoneDelete) {
-      isDeleting.current = true;
-      onMilestoneDelete(milestone.id);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      Alert.alert(
+        t('goalDetails.alerts.deleteMilestoneTitle'),
+        t('goalDetails.alerts.deleteMilestoneMessage', { title: milestone.title }),
+        [
+          {
+            text: t('goalDetails.alerts.cancel'),
+            style: 'cancel',
+            onPress: () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+          },
+          {
+            text: t('goalDetails.alerts.delete'),
+            style: 'destructive',
+            onPress: async () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              isDeleting.current = true;
+              onMilestoneDelete(milestone.id);
+            }
+          }
+        ]
+      );
     }
   };
 
@@ -190,11 +219,15 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
           }),
         }
       ]}>
-        <IconButton
-          variant="delete"
-          iconName="delete-forever"
-          onPress={handleDelete}
-        />
+        <TouchableOpacity 
+          onPress={() => {
+            console.log('🔴 Delete area pressed!');
+            handleDelete();
+          }}
+          style={{ width: '100%', height: '100%', alignItems: 'flex-end', justifyContent: 'center', paddingRight: 25 }}
+        >
+          <Icon name="delete-forever" size={30} color="#B23A48" />
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );

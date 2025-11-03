@@ -111,7 +111,7 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
         <View style={[styles.visionButton, selectedVisionImage ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={selectedVisionImage?.imageUri ? { uri: selectedVisionImage.imageUri } : images.icons.createVision}
+              source={selectedVisionImage?.imageUrl ? { uri: selectedVisionImage.imageUrl } : images.icons.createVision}
               style={styles.visionImage}
               contentFit="cover"
             />
@@ -128,7 +128,7 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
       {selectedVisionImage && (
         <View style={styles.visionButtonsContainer}>
           <TouchableOpacity
-            onPress={() => setSelectedVisionImage(null)}
+            onPress={() => onVisionImageSelect(null)}
             style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
             <Text style={styles.actionButtonText}>
@@ -210,7 +210,7 @@ export default function ManualGoalScreen() {
         title: title.trim(),
         notes: notes.trim() || undefined,
         feelings: selectedEmotions,
-        visionImageUrl: selectedVisionImage?.imageUri || undefined,
+        visionImageUrl: selectedVisionImage?.imageUrl || undefined,
         creationSource: 'manual'
       });
 

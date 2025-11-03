@@ -23,14 +23,16 @@ interface MilestoneCardProps {
   variant: MilestoneCardVariant;
   onPress?: () => void;
   onToggleComplete?: (milestoneId: string) => Promise<void>;
+  onDelete?: (milestoneId: string) => Promise<void>;
   creationSource?: 'spark' | 'manual';
 }
 
-export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, creationSource }: MilestoneCardProps) {
+export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, onDelete, creationSource }: MilestoneCardProps) {
   const { t } = useTranslation();
   const [isPressed, setIsPressed] = useState(false);
   const [isEmptyPressed, setIsEmptyPressed] = useState(false);
   const [isCompletePressed, setIsCompletePressed] = useState(false);
+  const [isDeletePressed, setIsDeletePressed] = useState(false);
   
   // Empty state variants
   if (variant === 'empty' || variant === 'empty-completed') {
@@ -159,6 +161,42 @@ export function MilestoneCard({ milestone, variant, onPress, onToggleComplete, c
               onPressIn={() => setIsCompletePressed(true)}
               onPressOut={() => setIsCompletePressed(false)}
             />
+            {onDelete && (
+              <IconButton
+                variant="delete"
+                iconText="✕"
+                pressed={isDeletePressed}
+                onPress={() => {
+                  if (milestone?.id && onDelete) {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    
+                    Alert.alert(
+                      t('components.milestoneCard.alerts.deleteMilestone'),
+                      t('components.milestoneCard.alerts.deleteMilestoneMessage', { title: milestone.title }),
+                      [
+                        {
+                          text: t('components.milestoneCard.alerts.no'),
+                          style: 'cancel',
+                          onPress: () => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          }
+                        },
+                        {
+                          text: t('components.milestoneCard.alerts.yes'),
+                          style: 'destructive',
+                          onPress: async () => {
+                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                            await onDelete(milestone.id);
+                          }
+                        }
+                      ]
+                    );
+                  }
+                }}
+                onPressIn={() => setIsDeletePressed(true)}
+                onPressOut={() => setIsDeletePressed(false)}
+              />
+            )}
           </View>
         </View>
       </View>

@@ -8,7 +8,6 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "config": "app.dev.json",
       "ios": {
         "simulator": false,
         "autoIncrement": true,
@@ -22,8 +21,7 @@
       }
     },
     "preview": {
-      "distribution": "internal",
-      "config": "app.dev.json"
+      "distribution": "internal"
     },
     "production": {
       "autoIncrement": true,

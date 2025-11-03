@@ -7,25 +7,27 @@ import { borderRadius, shadows } from '../constants/spacing';
 interface VisionImageCardProps {
   width: number;
   height: number;
-  imageUri?: string;
+  imageUrl?: string;
   style?: ViewStyle;
 }
 
-export function VisionImageCard({ width, height, imageUri, style }: VisionImageCardProps) {
+export function VisionImageCard({ width, height, imageUrl, style }: VisionImageCardProps) {
   return (
     <View
       style={[
-        styles.container,
         {
           width,
           height,
+          backgroundColor: '#E3E3E3',
+          borderRadius: 12,
+          overflow: 'hidden',
         },
         style
       ]}
     >
-      {imageUri ? (
+      {imageUrl ? (
         <Image
-          source={{ uri: imageUri }}
+          source={{ uri: imageUrl }}
           style={styles.image}
           contentFit="cover"
         />

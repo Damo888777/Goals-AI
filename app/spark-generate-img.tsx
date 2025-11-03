@@ -488,10 +488,8 @@ export default function SparkGenerateIMGScreen() {
                 if (generatedImageUri) {
                   try {
                     // Calculate aspect ratio (assume square for generated images)
-                    const aspectRatio = 1.0;
-                    
                     // Save to vision board database
-                    await addVisionImage(generatedImageUri, aspectRatio, 'generated');
+                    await addVisionImage(generatedImageUri, 'generated');
                     
                     // Show success and redirect to vision board
                     Alert.alert(t('sparkGenerateImg.alerts.saved'), t('sparkGenerateImg.alerts.savedMessage'), [

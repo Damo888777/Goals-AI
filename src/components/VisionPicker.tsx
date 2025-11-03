@@ -80,7 +80,7 @@ export default function VisionPicker({
                         onPress={() => handleVisionSelect(image)}
                       >
                         <Image
-                          source={{ uri: image.imageUri }}
+                          source={{ uri: image.imageUrl }}
                           style={styles.visionGridImage}
                           contentFit="cover"
                         />
@@ -106,7 +106,7 @@ export default function VisionPicker({
                         onPress={() => handleVisionSelect(image)}
                       >
                         <Image
-                          source={{ uri: image.imageUri }}
+                          source={{ uri: image.imageUrl }}
                           style={styles.visionGridImage}
                           contentFit="cover"
                         />

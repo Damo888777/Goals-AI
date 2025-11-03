@@ -307,8 +307,8 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
         <View style={[styles.visionButton, selectedVisionImage ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
-              source={selectedVisionImage?.imageUri ? 
-                { uri: selectedVisionImage.imageUri } : 
+              source={selectedVisionImage?.imageUrl ? 
+                { uri: selectedVisionImage.imageUrl } : 
                 images.icons.createVision
               }
               style={styles.visionImage}
@@ -328,17 +328,17 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
         <View style={styles.visionButtonsContainer}>
           <TouchableOpacity
             onPress={handleRemoveVision}
-            style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
+            style={[styles.visionActionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
-            <Text style={styles.actionButtonText}>
+            <Text style={styles.visionActionButtonText}>
               {t('components.sparkAIOutput.vision.remove')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleVisionPress}
-            style={[styles.actionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
+            style={[styles.visionActionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
           >
-            <Text style={styles.actionButtonText}>
+            <Text style={styles.visionActionButtonText}>
               {t('components.sparkAIOutput.vision.changeVision')}
             </Text>
           </TouchableOpacity>
@@ -788,7 +788,7 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
             title: title.trim(),
             notes: notes.trim(),
             feelings: selectedEmotions,
-            visionImageUrl: selectedVisionImage?.imageUri || undefined,
+            visionImageUrl: selectedVisionImage?.imageUrl || undefined,
             creationSource: 'spark'
           });
           break;
@@ -1284,7 +1284,7 @@ const styles = StyleSheet.create({
     gap: 15,
     marginTop: 15,
   },
-  actionButton: {
+  visionActionButton: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
@@ -1299,7 +1299,7 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 4,
   },
-  actionButtonText: {
+  visionActionButtonText: {
     color: '#f5ebe0',
     fontSize: 15,
     fontWeight: '700',
