@@ -2,7 +2,7 @@ import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useState, useEffect, useRef } from 'react';
-import { Animated, View, Text, AppState } from 'react-native';
+import { Animated, View, Text, AppState, AppStateStatus } from 'react-native';
 import { ErrorBoundary } from 'react-error-boundary';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SplashScreen } from '../src/components/SplashScreen';
@@ -40,7 +40,7 @@ function MainLayout() {
   
   // Handle AppState changes to prevent onboarding restart on minimize/restore
   useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
       console.log('📱 [_layout] AppState change:', appState, '->', nextAppState);
       
       if (appState === 'active' && nextAppState.match(/inactive|background/)) {
@@ -112,6 +112,11 @@ function MainLayout() {
         
         // Check and reschedule notifications if needed (ensures daily notifications are always scheduled)
         await notificationScheduler.checkAndRescheduleNotifications();
+        
+        // Sync tasks to widget on app startup
+        const { widgetSyncService } = await import('../src/services/widgetSyncService');
+        await widgetSyncService.forceSyncToWidget();
+        console.log('🔄 [_layout] Initial widget sync completed');
         
         // Initialize intelligent widget timeline management
         await widgetTimelineManager.initialize();

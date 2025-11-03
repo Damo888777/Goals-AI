@@ -25,6 +25,7 @@ import { images } from '../src/constants/images';
 import VisionPicker from '../src/components/VisionPicker';
 import { Button } from '../src/components/Button';
 import { BackChevronButton, ChevronButton } from '../src/components/ChevronButton';
+import { IconButton } from '../src/components/IconButton';
 import { spacing } from '../src/constants/spacing';
 
 // Emotions will be translated dynamically using t() function
@@ -140,7 +141,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
             style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
             <Text style={styles.actionButtonText}>
-              {t('goalDetails.vision.remove')}
+              {t('manualGoal.vision.remove')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -251,21 +252,23 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
             </View>
 
             {/* Complete Button */}
-            <Pressable
+            <IconButton
+              variant="complete"
+              iconText="✓"
               onPress={() => {
                 if (onMilestoneComplete) {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   Alert.alert(
-                    t('goalDetails.alerts.completeMilestone'),
-                    t('goalDetails.alerts.completeMilestoneMessage', { title: milestone.title }),
+                    t('components.milestoneCard.alerts.completeMilestone'),
+                    t('components.milestoneCard.alerts.completeMilestoneMessage', { title: milestone.title }),
                     [
                       {
-                        text: t('goalDetails.alerts.no'),
+                        text: t('components.milestoneCard.alerts.no'),
                         style: 'cancel',
                         onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                       },
                       {
-                        text: t('goalDetails.alerts.yes'),
+                        text: t('components.milestoneCard.alerts.yes'),
                         onPress: () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                           onMilestoneComplete(milestone.id);
@@ -275,12 +278,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                   );
                 }
               }}
-              style={styles.milestoneCompleteButton}
-            >
-              <Text style={styles.milestoneCompleteText}>
-                ✓
-              </Text>
-            </Pressable>
+            />
           </Pressable>
         </Animated.View>
       </PanGestureHandler>
@@ -1070,26 +1068,6 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#364958',
     fontFamily: 'Helvetica',
-  },
-  milestoneCompleteButton: {
-    backgroundColor: '#d9d9d9',
-    borderWidth: 1,
-    borderColor: '#9b9b9b',
-    borderRadius: 6,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#7c7c7c',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 0,
-    elevation: 2,
-  },
-  milestoneCompleteText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#364958',
   },
 
   // Action button styles

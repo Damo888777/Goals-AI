@@ -237,8 +237,9 @@ class WidgetTimelineManager {
         console.log(`🔧 Resolved ${conflicts.resolved} data conflicts before refresh`)
       }
       
-      // Step 2: Update widget data
-      await widgetDataService.updateWidgetData(null, []) // This will fetch current tasks
+      // Step 2: Fetch and update widget data with actual tasks
+      const { widgetSyncService } = await import('./widgetSyncService')
+      await widgetSyncService.forceSyncToWidget()
       
       // Step 3: Reload widget timelines
       if (Platform.OS === 'ios') {

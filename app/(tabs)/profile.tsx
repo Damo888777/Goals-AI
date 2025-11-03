@@ -274,6 +274,16 @@ export default function ProfileTab() {
 
   const handleAppleSignIn = async () => {
     try {
+      // Check if Apple Sign In is available
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert(
+          t('profile.alerts.error'),
+          'Apple Sign In is not available on this device'
+        );
+        return;
+      }
+
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
@@ -310,8 +320,14 @@ export default function ProfileTab() {
         // User canceled the sign-in flow
         console.log('User canceled Apple Sign In')
       } else {
-        Alert.alert(t('profile.alerts.error'), t('profile.alerts.signInFailed'))
-        console.error('Apple Sign In error:', e)
+        console.error('Apple Sign In error:', e);
+        console.error('Error code:', e.code);
+        console.error('Error message:', e.message);
+        
+        Alert.alert(
+          t('profile.alerts.error'),
+          `${t('profile.alerts.signInFailed')}\n\nError: ${e.message || e.code || 'Unknown error'}`
+        );
       }
     }
   };

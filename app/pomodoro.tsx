@@ -11,6 +11,7 @@ import { notificationService } from '../src/services/notificationService';
 import * as Notifications from 'expo-notifications';
 import LiveActivityModule from '../src/modules/LiveActivityModule';
 import { useTranslation } from 'react-i18next';
+import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -53,9 +54,13 @@ export default function PomodoroScreen() {
   const [backgroundTime, setBackgroundTime] = useState<number | null>(null);
   const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
   const [hasShownBackgroundAlert, setHasShownBackgroundAlert] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef(AppState.currentState);
   const backgroundTimeRef = useRef<number | null>(null);
+  
+  // Pomodoro session tracking hook
+  const { createSession, completeSession } = usePomodoroSessions(taskId);
 
   // Cleanup Live Activity and notifications on component unmount (navigation away)
   useEffect(() => {
@@ -73,8 +78,15 @@ export default function PomodoroScreen() {
           console.error('Failed to cleanup Live Activity on unmount:', error);
         });
       }
+      
+      // Complete any incomplete pomodoro session when leaving
+      if (currentSessionId) {
+        completeSession(currentSessionId).catch((error: any) => {
+          console.error('Failed to complete session on unmount:', error);
+        });
+      }
     };
-  }, [liveActivityId]);
+  }, [liveActivityId, currentSessionId, currentSession]);
 
   // Handle app state changes for background timer
   useEffect(() => {
@@ -187,6 +199,17 @@ export default function PomodoroScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsRunning(false);
     
+    // Complete the current pomodoro session in database
+    if (currentSessionId) {
+      try {
+        await completeSession(currentSessionId);
+        console.log('✅ Completed pomodoro session:', currentSession, currentSessionId);
+        setCurrentSessionId(null);
+      } catch (error) {
+        console.error('Failed to complete pomodoro session:', error);
+      }
+    }
+    
     // Always cancel notifications on completion to prevent duplicates
     console.log('🚫 Session complete - cancelling all notifications');
     await Notifications.cancelAllScheduledNotificationsAsync();
@@ -246,6 +269,21 @@ export default function PomodoroScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const willStart = !isRunning;
     setIsRunning(willStart);
+    
+    // Create a new pomodoro session when starting (for work sessions and breaks)
+    if (willStart && taskId && !currentSessionId) {
+      try {
+        const sessionType = currentSession === 'work' ? 'work' : 
+                           currentSession === 'shortBreak' ? 'short_break' : 'long_break';
+        const newSessionId = await createSession(taskId, sessionType);
+        if (newSessionId) {
+          setCurrentSessionId(newSessionId);
+          console.log('✅ Created new pomodoro session:', sessionType, newSessionId);
+        }
+      } catch (error) {
+        console.error('Failed to create pomodoro session:', error);
+      }
+    }
     
     // Start or update Live Activity using OneSignal trigger-in-app
     if (willStart) {
@@ -372,6 +410,16 @@ export default function PomodoroScreen() {
     setIsRunning(false);
     setTimeLeft(POMODORO_SESSIONS[currentSession].duration);
     
+    // Complete any current session when resetting (incomplete session)
+    if (currentSessionId) {
+      try {
+        await completeSession(currentSessionId);
+        console.log('✅ Completed session on reset:', currentSession, currentSessionId);
+        setCurrentSessionId(null);
+      } catch (error) {
+        console.error('Failed to complete session on reset:', error);
+      }
+    }
     
     // Cancel any scheduled notifications on reset
     console.log('🚫 Reset - cancelling all notifications and Live Activity');
