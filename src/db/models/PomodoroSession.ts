@@ -8,7 +8,8 @@ export default class PomodoroSession extends Model {
   @field('task_id') taskId!: string;
   @field('goal_id') goalId?: string;
   @field('session_type') sessionType!: string; // 'work', 'short_break', 'long_break'
-  @field('duration_minutes') durationMinutes!: number;
+  @field('duration_minutes') durationMinutes!: number; // Planned duration
+  @field('actual_duration_seconds') actualDurationSeconds?: number; // Actual time spent in seconds
   @field('is_completed') isCompleted!: boolean;
   @date('completed_at') completedAt?: Date;
   @field('notes') notes?: string;

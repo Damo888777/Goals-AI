@@ -62,6 +62,16 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
     }
   };
 
+  const formatSessionDuration = (session: PomodoroSessionData) => {
+    // Use actual duration if available, otherwise fall back to planned duration
+    if (session.actualDurationSeconds) {
+      const minutes = Math.floor(session.actualDurationSeconds / 60);
+      const seconds = session.actualDurationSeconds % 60;
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${session.durationMinutes} ${t('focusHistory.timeFormat.minutesShort')}`;
+  };
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>
@@ -139,7 +149,7 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
                     <View key={session.id} style={styles.sessionHistoryItem}>
                       <View style={styles.sessionBullet} />
                       <Text style={styles.sessionHistoryText}>
-                        {formatSessionTime(sessionDate)} - {session.durationMinutes} {t('focusHistory.timeFormat.minutesShort')}
+                        {formatSessionTime(sessionDate)} - {formatSessionDuration(session)}
                       </Text>
                     </View>
                   );

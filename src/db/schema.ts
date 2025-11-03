@@ -1,12 +1,13 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 9,
+  version: 11,
   tables: [
     tableSchema({
       name: 'profiles',
       columns: [
         { name: 'email', type: 'string', isOptional: true },
+        { name: 'name', type: 'string', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ]
@@ -78,7 +79,8 @@ export default appSchema({
         { name: 'task_id', type: 'string', isIndexed: true },
         { name: 'goal_id', type: 'string', isOptional: true, isIndexed: true },
         { name: 'session_type', type: 'string' }, // 'work', 'short_break', 'long_break'
-        { name: 'duration_minutes', type: 'number' },
+        { name: 'duration_minutes', type: 'number' }, // Planned duration
+        { name: 'actual_duration_seconds', type: 'number', isOptional: true }, // Actual time spent in seconds
         { name: 'is_completed', type: 'boolean' },
         { name: 'completed_at', type: 'number', isOptional: true }, // Unix timestamp
         { name: 'notes', type: 'string', isOptional: true },

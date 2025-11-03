@@ -174,12 +174,12 @@ class AuthService {
       console.log('🔄 Migrating user data from', oldUserId, 'to', newUserId);
 
       await database.write(async () => {
-        // Update all tables that have userId field
+        // Update all tables that have user_id field
         for (const collectionName of MIGRATION_COLLECTIONS) {
           try {
             const collection = database!.get(collectionName);
-            // Fix: Query using the correct WatermelonDB field name 'userId' not 'user_id'
-            const records = await collection.query(Q.where('userId', oldUserId)).fetch();
+            // CRITICAL: Use database column name 'user_id' (snake_case), not model property 'userId'
+            const records = await collection.query(Q.where('user_id', oldUserId)).fetch();
             
             if (records.length > 0) {
               await Promise.all(records.map((record: any) => 
@@ -386,9 +386,9 @@ class AuthService {
       await database.write(async () => {
         for (const collectionName of USER_DATA_COLLECTIONS) {
           const collection = database!.get(collectionName)
-          // Fix: Query using correct WatermelonDB field name 'userId' not 'user_id'
+          // CRITICAL: Use database column name 'user_id' (snake_case), not model property 'userId'
           const anonymousRecords = await collection
-            .query(Q.where('userId', previousAnonymousId || ''))
+            .query(Q.where('user_id', previousAnonymousId || ''))
             .fetch()
           
           // Update each record to use the new authenticated user ID
@@ -427,11 +427,18 @@ class AuthService {
     await this.ensureLocalProfile(this.currentUser)
     
     // Trigger immediate bidirectional sync: push migrated data + pull any cloud data
+    // Use longer delay to allow UI to update first (instant sign-in UX)
     setTimeout(() => {
       syncService.sync(true).catch(error => {
         console.log('Post-upgrade sync failed (non-critical):', error.message)
+        // Retry once after 5 seconds if it fails
+        setTimeout(() => {
+          syncService.sync(true).catch(retryError => {
+            console.log('Post-upgrade sync retry failed:', retryError.message)
+          })
+        }, 5000)
       })
-    }, 1000)
+    }, 2000)
     
     console.log('✅ Upgraded to Apple Sign-in with data migration, user ID:', appleUser.id)
     return this.currentUser
@@ -440,6 +447,150 @@ class AuthService {
   // Get the effective user ID for data operations
   getEffectiveUserId(): string | null {
     return this.currentUser?.id || this.persistentAnonymousId
+  }
+
+  // Delete user account and all associated data
+  async deleteAccount(): Promise<{ success: boolean; error?: string }> {
+    try {
+      const currentUser = this.getCurrentUser()
+      
+      if (!currentUser) {
+        return { success: false, error: 'No user logged in' }
+      }
+
+      // Step 1: Delete all local data from WatermelonDB
+      console.log('🗑️ Starting local data deletion...')
+      
+      if (database) {
+        try {
+          await database.write(async () => {
+            // Delete all user data from local database
+            // Collections with user_id field
+            const userIdCollections = [
+              'pomodoro_sessions',
+              'task_time_tracking',
+              'tasks',
+              'milestones',
+              'goals',
+              'vision_images',
+              'subscriptions',
+              'subscription_usage'
+            ]
+            
+            for (const collectionName of userIdCollections) {
+              try {
+                const collection = database!.get(collectionName)
+                const records = await collection
+                  .query(Q.where('user_id', currentUser.id))
+                  .fetch()
+                
+                for (const record of records) {
+                  await record.destroyPermanently()
+                }
+                
+                console.log(`✅ Deleted ${records.length} records from local ${collectionName}`)
+              } catch (error) {
+                console.warn(`Failed to delete from ${collectionName}:`, error)
+              }
+            }
+            
+            // Handle profiles table separately (uses id as user_id)
+            try {
+              const profilesCollection = database!.get('profiles')
+              const profiles = await profilesCollection
+                .query(Q.where('id', currentUser.id))
+                .fetch()
+              
+              for (const profile of profiles) {
+                await profile.destroyPermanently()
+              }
+              
+              console.log(`✅ Deleted ${profiles.length} records from local profiles`)
+            } catch (error) {
+              console.warn('Failed to delete from profiles:', error)
+            }
+          })
+        } catch (error) {
+          console.error('Error deleting local data:', error)
+        }
+      }
+
+      // Step 2: Clear AsyncStorage data
+      try {
+        const keysToRemove = [
+          'persistent_anonymous_id',
+          'notifications_enabled',
+          'user_preferences',
+          'last_sync_timestamp',
+          'notification_permission_requested',
+          'scheduled_notification_morning_kickstart',
+          'scheduled_notification_vision_board_reminder',
+          'scheduled_notification_evening_checkin',
+          'last_activity_timestamp',
+          'frog_streak_data'
+        ]
+        
+        await AsyncStorage.multiRemove(keysToRemove)
+        console.log('✅ Cleared AsyncStorage data')
+      } catch (error) {
+        console.warn('Failed to clear AsyncStorage:', error)
+      }
+
+      // Step 3: Call Supabase Edge Function to delete server data
+      if (isSupabaseConfigured && supabase && !currentUser.isAnonymous) {
+        console.log('🌐 Deleting server data...')
+        
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          
+          if (session) {
+            const response = await fetch(
+              `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session.access_token}`,
+                  'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''
+                }
+              }
+            )
+            
+            const result = await response.json()
+            
+            if (!response.ok) {
+              console.error('Server deletion failed:', result)
+              return { 
+                success: false, 
+                error: result.error || 'Failed to delete server data' 
+              }
+            }
+            
+            console.log('✅ Server data deleted successfully')
+          }
+        } catch (error) {
+          console.error('Error calling delete account function:', error)
+          return { 
+            success: false, 
+            error: 'Failed to delete server data' 
+          }
+        }
+      }
+
+      // Step 4: Clear current user state
+      this.currentUser = null
+      this.persistentAnonymousId = null
+      
+      console.log('✅ Account deletion completed successfully')
+      return { success: true }
+      
+    } catch (error) {
+      console.error('Account deletion error:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      }
+    }
   }
 }
 

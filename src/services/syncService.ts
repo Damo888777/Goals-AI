@@ -98,6 +98,16 @@ class SyncService {
     }
   }
 
+  // Helper function to deduplicate records by ID before upserting
+  private deduplicateById<T extends { id: string }>(records: T[]): T[] {
+    const seen = new Map<string, T>()
+    records.forEach(record => {
+      // Keep the last occurrence of each ID (most recent)
+      seen.set(record.id, record)
+    })
+    return Array.from(seen.values())
+  }
+
   // Pull changes from Supabase
   private async pullChanges(lastPulledAt?: number): Promise<SyncPullResult> {
     if (!isSupabaseConfigured || !supabase) {
@@ -292,9 +302,11 @@ class SyncService {
       // Push profiles (ONLY for authenticated users to avoid RLS policy issues)
       if (isAuthenticated) {
         if (safeChanges.profiles.created.length > 0) {
+          const transformedProfiles = safeChanges.profiles.created.map(this.transformLocalToSupabase.bind(this))
+          const dedupedProfiles = this.deduplicateById(transformedProfiles)
           const { error } = await supabase
             .from('profiles')
-            .upsert(safeChanges.profiles.created.map(this.transformLocalToSupabase.bind(this)))
+            .upsert(dedupedProfiles)
           if (error) throw error
         }
 
@@ -324,11 +336,12 @@ class SyncService {
         
         if (unsyncedGoals.length > 0) {
           const transformedGoals = unsyncedGoals.map(this.transformLocalToSupabase.bind(this))
-          console.log('Pushing goals:', transformedGoals.length)
+          const dedupedGoals = this.deduplicateById(transformedGoals)
+          console.log('Pushing goals:', dedupedGoals.length)
           
           const { error } = await supabase
             .from('goals')
-            .upsert(transformedGoals, { onConflict: 'id' })
+            .upsert(dedupedGoals, { onConflict: 'id' })
           
           if (error) {
             console.error('Error pushing goals:', error)
@@ -372,11 +385,12 @@ class SyncService {
         
         if (unsyncedMilestones.length > 0) {
           const transformedMilestones = unsyncedMilestones.map(this.transformLocalToSupabase.bind(this))
-          console.log('Pushing milestones:', transformedMilestones.length)
+          const dedupedMilestones = this.deduplicateById(transformedMilestones)
+          console.log('Pushing milestones:', dedupedMilestones.length)
           
           const { error } = await supabase
             .from('milestones')
-            .upsert(transformedMilestones, { onConflict: 'id' })
+            .upsert(dedupedMilestones, { onConflict: 'id' })
           if (error) {
             console.error('Error pushing milestones:', error)
             // If it's a foreign key constraint error, it might be a timing issue
@@ -386,7 +400,7 @@ class SyncService {
               await new Promise(resolve => setTimeout(resolve, 500))
               const { error: retryError } = await supabase
                 .from('milestones')
-                .upsert(transformedMilestones, { onConflict: 'id' })
+                .upsert(dedupedMilestones, { onConflict: 'id' })
               if (retryError) {
                 console.error('Error pushing milestones after retry:', retryError)
                 throw retryError
@@ -432,11 +446,12 @@ class SyncService {
         
         if (unsyncedTasks.length > 0) {
           const transformedTasks = unsyncedTasks.map(this.transformLocalToSupabase.bind(this))
-          console.log('Pushing tasks:', transformedTasks.length)
+          const dedupedTasks = this.deduplicateById(transformedTasks)
+          console.log('Pushing tasks:', dedupedTasks.length)
           
           const { error } = await supabase
             .from('tasks')
-            .upsert(transformedTasks, { onConflict: 'id' })
+            .upsert(dedupedTasks, { onConflict: 'id' })
           if (error) {
             console.error('Error pushing tasks:', error)
             // If it's a foreign key constraint error, it might be a timing issue
@@ -446,7 +461,7 @@ class SyncService {
               await new Promise(resolve => setTimeout(resolve, 500))
               const { error: retryError } = await supabase
                 .from('tasks')
-                .upsert(transformedTasks, { onConflict: 'id' })
+                .upsert(dedupedTasks, { onConflict: 'id' })
               if (retryError) {
                 console.error('Error pushing tasks after retry:', retryError)
                 throw retryError
@@ -493,11 +508,14 @@ class SyncService {
         if (unsyncedSubscriptions.length > 0) {
           console.log(`🔄 Syncing ${unsyncedSubscriptions.length} new subscription records`)
           
+          const transformedSubscriptions = unsyncedSubscriptions.map(this.transformLocalToSupabase.bind(this))
+          const dedupedSubscriptions = this.deduplicateById(transformedSubscriptions)
+          
           // Use upsert with proper conflict resolution for user_id constraint
           const { error } = await supabase
             .from('subscriptions')
             .upsert(
-              unsyncedSubscriptions.map(this.transformLocalToSupabase.bind(this)),
+              dedupedSubscriptions,
               { 
                 onConflict: 'user_id',
                 ignoreDuplicates: false 
@@ -525,10 +543,13 @@ class SyncService {
 
       // Push subscription usage
       if (safeChanges.subscription_usage.created.length > 0) {
+        const transformedUsage = safeChanges.subscription_usage.created.map(this.transformLocalToSupabase.bind(this))
+        const dedupedUsage = this.deduplicateById(transformedUsage)
+        
         const { error } = await supabase
           .from('subscription_usage')
           .upsert(
-            safeChanges.subscription_usage.created.map(this.transformLocalToSupabase.bind(this)),
+            dedupedUsage,
             { 
               onConflict: 'user_id',
               ignoreDuplicates: false 
@@ -583,6 +604,7 @@ class SyncService {
       // Pomodoro sessions fields
       sessionType: row.session_type,
       durationMinutes: row.duration_minutes,
+      actualDurationSeconds: row.actual_duration_seconds,
       
       // Task time tracking fields
       totalPomodoroSessions: row.total_pomodoro_sessions,
@@ -725,11 +747,12 @@ class SyncService {
     }
 
     // Handle profile records - NOTE: Profiles should not be synced for anonymous users
+    // The 'id' field in base already serves as the user_id (linked to auth.users.id)
     if (record.email !== undefined) {
       return {
         ...base,
-        user_id: recordId, // For profiles, user_id matches the profile id
-        email: record.email
+        email: record.email,
+        name: record.name || null
       }
     }
 
@@ -856,6 +879,7 @@ class SyncService {
         goal_id: record.goalId ? this.convertToUUID(record.goalId) : null,
         session_type: record.sessionType || 'work',
         duration_minutes: record.durationMinutes || 25,
+        actual_duration_seconds: record.actualDurationSeconds || null,
         is_completed: record.isCompleted || false,
         completed_at: record.completedAt ? (typeof record.completedAt === 'number' ? new Date(record.completedAt).toISOString() : record.completedAt) : null,
         notes: record.notes || null
@@ -928,13 +952,23 @@ class SyncService {
       // Get synced record IDs from AsyncStorage to prevent duplicates
       const syncedRecordIds = await this.getSyncedRecordIds()
       
-      // Only include records that haven't been synced yet
-      const unsyncedProfiles = userProfiles.filter(p => !syncedRecordIds.has(`profiles:${p.id}`))
-      const unsyncedGoals = userGoals.filter(g => !syncedRecordIds.has(`goals:${g.id}`))
-      const unsyncedMilestones = userMilestones.filter(m => !syncedRecordIds.has(`milestones:${m.id}`))
-      const unsyncedTasks = userTasks.filter(t => !syncedRecordIds.has(`tasks:${t.id}`))
-      const unsyncedSubscriptions = userSubscriptions.filter(s => !syncedRecordIds.has(`subscriptions:${s.id}`))
-      const unsyncedSubscriptionUsage = userSubscriptionUsage.filter(u => !syncedRecordIds.has(`subscription_usage:${u.id}`))
+      // Deduplicate records by ID (in case migration created duplicates)
+      const dedupeById = <T extends { id: string }>(records: T[]): T[] => {
+        const seen = new Set<string>()
+        return records.filter(r => {
+          if (seen.has(r.id)) return false
+          seen.add(r.id)
+          return true
+        })
+      }
+      
+      // Only include records that haven't been synced yet, and deduplicate
+      const unsyncedProfiles = dedupeById(userProfiles.filter(p => !syncedRecordIds.has(`profiles:${p.id}`)))
+      const unsyncedGoals = dedupeById(userGoals.filter(g => !syncedRecordIds.has(`goals:${g.id}`)))
+      const unsyncedMilestones = dedupeById(userMilestones.filter(m => !syncedRecordIds.has(`milestones:${m.id}`)))
+      const unsyncedTasks = dedupeById(userTasks.filter(t => !syncedRecordIds.has(`tasks:${t.id}`)))
+      const unsyncedSubscriptions = dedupeById(userSubscriptions.filter(s => !syncedRecordIds.has(`subscriptions:${s.id}`)))
+      const unsyncedSubscriptionUsage = dedupeById(userSubscriptionUsage.filter(u => !syncedRecordIds.has(`subscription_usage:${u.id}`)))
 
       return {
         profiles: {
@@ -1374,6 +1408,7 @@ class SyncService {
               session.goalId = remoteSession.goalId
               session.sessionType = remoteSession.sessionType
               session.durationMinutes = remoteSession.durationMinutes
+              session.actualDurationSeconds = remoteSession.actualDurationSeconds
               session.isCompleted = remoteSession.isCompleted
               session.completedAt = remoteSession.completedAt
               session.notes = remoteSession.notes
@@ -1386,6 +1421,7 @@ class SyncService {
               session.goalId = remoteSession.goalId
               session.sessionType = remoteSession.sessionType
               session.durationMinutes = remoteSession.durationMinutes
+              session.actualDurationSeconds = remoteSession.actualDurationSeconds
               session.isCompleted = remoteSession.isCompleted
               session.completedAt = remoteSession.completedAt
               session.notes = remoteSession.notes

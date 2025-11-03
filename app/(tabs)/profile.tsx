@@ -258,8 +258,13 @@ export default function ProfileTab() {
               )
               .fetch();
 
-            // Sum up all session durations
+            // Sum up all session durations using actual duration (rounded up) if available
             totalFocusMinutes = allSessions.reduce((total: number, session: any) => {
+              // Use actual duration if available, otherwise fall back to planned duration
+              if (session.actualDurationSeconds) {
+                // Round up: 16:34 becomes 17 minutes
+                return total + Math.ceil(session.actualDurationSeconds / 60);
+              }
               return total + (session.durationMinutes || 0);
             }, 0);
             
@@ -388,11 +393,7 @@ export default function ProfileTab() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!supabase) {
-      Alert.alert(t('profile.alerts.error'), t('profile.alerts.supabaseNotConfigured'));
-      return;
-    }
-
+    // Show initial confirmation dialog
     Alert.alert(
       t('profile.alerts.deleteAccountTitle'),
       t('profile.alerts.deleteAccountMessage'),
@@ -404,24 +405,68 @@ export default function ProfileTab() {
         {
           text: t('profile.profile.deleteAccount'),
           style: 'destructive',
-          onPress: async () => {
-            try {
-              // Note: Account deletion should be handled by a server function
-              // For now, we'll just sign out the user
-              const { error } = await supabase!.auth.signOut();
-              if (error) {
-                Alert.alert(t('profile.alerts.error'), t('profile.alerts.deleteAccountFailed'));
-              } else {
-                setIsSignedIn(false);
-                setUserEmail(null);
-                Alert.alert(
-                  t('profile.alerts.deleteAccountTitle'), 
-                  t('profile.alerts.deleteAccountSuccess')
-                );
-              }
-            } catch (error) {
-              Alert.alert(t('profile.alerts.error'), t('profile.alerts.deleteAccountFailed'));
-            }
+          onPress: () => {
+            // Show second confirmation for safety
+            Alert.alert(
+              t('profile.alerts.deleteAccountFinalTitle'),
+              t('profile.alerts.deleteAccountFinalMessage'),
+              [
+                {
+                  text: t('profile.common.cancel'),
+                  style: 'cancel',
+                },
+                {
+                  text: t('profile.alerts.deleteAccountConfirmButton'),
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      // Show loading indicator
+                      Alert.alert(
+                        t('profile.alerts.deleteAccountInProgress'),
+                        t('profile.alerts.deleteAccountInProgressMessage'),
+                        [],
+                        { cancelable: false }
+                      );
+                      
+                      // Call the comprehensive delete account method
+                      const result = await authService.deleteAccount();
+                      
+                      if (result.success) {
+                        // Clear UI state
+                        setIsSignedIn(false);
+                        setUserEmail(null);
+                        
+                        // Show success message
+                        Alert.alert(
+                          t('profile.alerts.deleteAccountSuccessTitle'),
+                          t('profile.alerts.deleteAccountSuccessMessage'),
+                          [
+                            {
+                              text: 'OK',
+                              onPress: () => {
+                                // Navigate to onboarding or home screen
+                                router.replace('/onboarding');
+                              }
+                            }
+                          ]
+                        );
+                      } else {
+                        Alert.alert(
+                          t('profile.alerts.error'),
+                          result.error || t('profile.alerts.deleteAccountFailed')
+                        );
+                      }
+                    } catch (error) {
+                      console.error('Account deletion error:', error);
+                      Alert.alert(
+                        t('profile.alerts.error'),
+                        t('profile.alerts.deleteAccountFailed')
+                      );
+                    }
+                  }
+                }
+              ]
+            );
           }
         }
       ]
@@ -1003,18 +1048,6 @@ export default function ProfileTab() {
           </View>
         </View>
 
-        {/* Dev Tools - Only show in development */}
-        {__DEV__ && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionHeaderLeft}>
-                <Ionicons name="code" size={20} color={colors.secondary} />
-                <Text style={[typography.title, styles.sectionTitle]}>{t('profile.sections.devTools')}</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
         {/* User ID */}
         <View style={styles.userIdSection}>
           <Text style={[typography.caption, styles.userIdLabel]}>{t('profile.userSection.userId')}</Text>
@@ -1244,7 +1277,7 @@ const styles = StyleSheet.create({
   },
   signOutButtonText: {
     color: colors.secondary,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
   deleteButtonText: {

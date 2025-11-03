@@ -8,7 +8,8 @@ export interface PomodoroSessionData {
   taskId: string;
   goalId?: string;
   sessionType: 'work' | 'short_break' | 'long_break';
-  durationMinutes: number;
+  durationMinutes: number; // Planned duration
+  actualDurationSeconds?: number; // Actual time spent in seconds
   isCompleted: boolean;
   completedAt?: Date;
   notes?: string;
@@ -73,6 +74,7 @@ export const usePomodoroSessions = (taskId?: string) => {
         goalId: session.goalId,
         sessionType: session.sessionType,
         durationMinutes: session.durationMinutes,
+        actualDurationSeconds: session.actualDurationSeconds,
         isCompleted: session.isCompleted,
         completedAt: session.completedAt,
         notes: session.notes,
@@ -150,7 +152,7 @@ export const usePomodoroSessions = (taskId?: string) => {
   };
 
   // Complete a pomodoro session
-  const completeSession = async (sessionId: string, notes?: string): Promise<void> => {
+  const completeSession = async (sessionId: string, actualDurationSeconds?: number, notes?: string): Promise<void> => {
     if (!database) {
       console.log('Database not available');
       return;
@@ -162,6 +164,7 @@ export const usePomodoroSessions = (taskId?: string) => {
         await session.update((s: any) => {
           s.isCompleted = true;
           s.completedAt = new Date();
+          s.actualDurationSeconds = actualDurationSeconds;
           s.notes = notes;
         });
       });

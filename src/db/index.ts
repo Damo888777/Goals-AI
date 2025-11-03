@@ -2,6 +2,7 @@ import { DB_CONFIG } from './config';
 import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import schema from './schema';
+import migrations from './migrations';
 
 // UUID v4 generator for Supabase compatibility
 function generateUUID(): string {
@@ -31,6 +32,7 @@ if (DB_CONFIG.USE_WATERMELON) {
     const adapter = new SQLiteAdapter({
       dbName: 'GoalzAI.db',
       schema,
+      migrations,
       // Configure to generate UUID-compatible IDs for Supabase compatibility
       jsi: true,
       onSetUpError: (error) => {

@@ -11,6 +11,7 @@ export default class Profile extends Model {
   }
 
   @field('email') email?: string
+  @field('name') name?: string
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 

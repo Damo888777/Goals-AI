@@ -55,6 +55,7 @@ export default function PomodoroScreen() {
   const [liveActivityId, setLiveActivityId] = useState<string | null>(null);
   const [hasShownBackgroundAlert, setHasShownBackgroundAlert] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef(AppState.currentState);
   const backgroundTimeRef = useRef<number | null>(null);
@@ -200,11 +201,14 @@ export default function PomodoroScreen() {
     setIsRunning(false);
     
     // Complete the current pomodoro session in database
-    if (currentSessionId) {
+    if (currentSessionId && sessionStartTime) {
       try {
-        await completeSession(currentSessionId);
-        console.log('✅ Completed pomodoro session:', currentSession, currentSessionId);
+        // Calculate actual duration in seconds
+        const actualDurationSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
+        await completeSession(currentSessionId, actualDurationSeconds);
+        console.log('✅ Completed pomodoro session:', currentSession, currentSessionId, 'Duration:', actualDurationSeconds, 'seconds');
         setCurrentSessionId(null);
+        setSessionStartTime(null);
       } catch (error) {
         console.error('Failed to complete pomodoro session:', error);
       }
@@ -278,6 +282,7 @@ export default function PomodoroScreen() {
         const newSessionId = await createSession(taskId, sessionType);
         if (newSessionId) {
           setCurrentSessionId(newSessionId);
+          setSessionStartTime(Date.now()); // Track when the session started
           console.log('✅ Created new pomodoro session:', sessionType, newSessionId);
         }
       } catch (error) {

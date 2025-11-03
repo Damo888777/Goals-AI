@@ -22,6 +22,9 @@ export interface WidgetData {
 }
 
 class WidgetDataService {
+  private updateTimer: NodeJS.Timeout | null = null
+  private pendingUpdate: { frogTask: Task | null; regularTasks: Task[] } | null = null
+
   constructor() {
     // Verify native module is available at startup
     if (Platform.OS === 'ios') {
@@ -54,6 +57,27 @@ class WidgetDataService {
   }
 
   async updateWidgetData(frogTask: Task | null, regularTasks: Task[]): Promise<void> {
+    // Debounce rapid updates to prevent overwriting
+    if (this.updateTimer) {
+      clearTimeout(this.updateTimer)
+      console.log('⏱️ [Widget Data] Debouncing widget update...')
+    }
+    
+    // Store pending update
+    this.pendingUpdate = { frogTask, regularTasks }
+    
+    // Wait 100ms before actually updating to batch rapid changes
+    this.updateTimer = setTimeout(() => {
+      this.performUpdate()
+    }, 100)
+  }
+  
+  private async performUpdate(): Promise<void> {
+    if (!this.pendingUpdate) return
+    
+    const { frogTask, regularTasks } = this.pendingUpdate
+    this.pendingUpdate = null
+    
     try {
       console.log('🔄 [Widget Data] Starting widget data update...')
       console.log('🔄 [Widget Data] Platform:', Platform.OS)

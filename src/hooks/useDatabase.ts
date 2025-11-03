@@ -830,9 +830,19 @@ export const useTodaysTasks = () => {
             setTasks(todaysTasks)
             
             // Update widget data whenever tasks change
+            // IMPORTANT: Fetch current frog task to avoid overwriting with stale data
             try {
+              const currentFrogTask = await tasksCollection
+                .query(
+                  Q.where('user_id', userId),
+                  Q.where('is_complete', false),
+                  Q.where('is_frog', true)
+                )
+                .fetch()
+                .then(tasks => tasks[0] || null)
+              
               const { widgetDataService } = await import('../services/widgetDataService')
-              await widgetDataService.updateWidgetData(frogTask, todaysTasks)
+              await widgetDataService.updateWidgetData(currentFrogTask, todaysTasks)
             } catch (error) {
               console.error('Failed to update widget data:', error)
             }

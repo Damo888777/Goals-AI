@@ -55,7 +55,7 @@ i18next
       escapeValue: false,
       skipOnVariables: false,
     },
-    debug: true,
+    debug: __DEV__, // Only enable debug in development
     react: {
       useSuspense: false,
     },

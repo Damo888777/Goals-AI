@@ -36,6 +36,8 @@ class NotificationScheduler {
    */
   async scheduleDailyNotifications(): Promise<void> {
     try {
+      console.log('📅 Starting to schedule daily notifications...');
+      
       // Schedule morning kickstart notification
       await this.scheduleMorningKickstart();
       
@@ -45,9 +47,9 @@ class NotificationScheduler {
       // Schedule evening check-in notification
       await this.scheduleEveningCheckin();
       
-      console.log('Daily notifications scheduled successfully');
+      console.log('✅ Daily notifications scheduled successfully');
     } catch (error) {
-      console.error('Failed to schedule daily notifications:', error);
+      console.error('❌ Failed to schedule daily notifications:', error);
     }
   }
 
@@ -393,11 +395,21 @@ class NotificationScheduler {
     notification: NotificationData
   ): Promise<void> {
     try {
-      const subscriptionId = await notificationService.getSubscriptionId();
       const appId = await notificationService.getAppId();
       
-      if (!subscriptionId || !appId) {
-        console.warn('Cannot schedule notification: missing subscription ID or app ID');
+      if (!appId) {
+        console.error(`❌ Failed to schedule ${type} notification: OneSignal App ID not configured`);
+        return;
+      }
+      
+      // Get subscription ID with retry logic
+      let subscriptionId = await notificationService.getSubscriptionId();
+      
+      // If no subscription ID, user might not be subscribed yet
+      if (!subscriptionId) {
+        console.warn(`⚠️ No subscription ID available for ${type} notification. User may not have accepted push permissions yet.`);
+        // For now, we'll skip scheduling but not treat it as an error
+        // The notifications will be scheduled once the user accepts permissions
         return;
       }
 
@@ -540,14 +552,28 @@ class NotificationScheduler {
    */
   async enableNotifications(): Promise<boolean> {
     try {
+      // Initialize OneSignal first (if not already initialized)
+      await notificationService.initialize();
+      
+      // Request permission
       const hasPermission = await notificationService.requestPermission();
       
       if (hasPermission) {
+        // Ensure user is opted in to receive notifications
+        await notificationService.ensureUserOptedIn();
+        
+        // Wait a bit for OneSignal to register the subscription
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Now schedule the daily notifications
         await this.scheduleDailyNotifications();
         await AsyncStorage.setItem('notifications_enabled', 'true');
+        
+        console.log('✅ Notifications enabled successfully');
         return true;
       }
       
+      console.log('❌ User denied notification permission');
       return false;
     } catch (error) {
       console.error('Failed to enable notifications:', error);

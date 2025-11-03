@@ -59,8 +59,12 @@ class NotificationService {
     try {
       console.log('Initializing OneSignal with App ID:', this.appId);
       
-      // Enable verbose logging for debugging
-      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+      // Only enable verbose logging in development
+      if (__DEV__) {
+        OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+      } else {
+        OneSignal.Debug.setLogLevel(LogLevel.None);
+      }
       
       // Initialize OneSignal
       OneSignal.initialize(this.appId);
@@ -80,12 +84,17 @@ class NotificationService {
       this.isInitialized = true;
       console.log('OneSignal initialized successfully');
       
-      // Auto-run debug check after initialization
-      setTimeout(async () => {
-        await this.debugNotificationStatus();
-        // Auto opt-in user if they have permission but aren't subscribed
+      // Only run debug and auto opt-in in development
+      if (__DEV__) {
+        setTimeout(async () => {
+          await this.debugNotificationStatus();
+          // Auto opt-in user if they have permission but aren't subscribed
+          await this.ensureUserOptedIn();
+        }, 2000);
+      } else {
+        // In production, just ensure user is opted in without debug
         await this.ensureUserOptedIn();
-      }, 2000);
+      }
       
     } catch (error) {
       console.error('Failed to initialize OneSignal:', error);

@@ -218,24 +218,24 @@ class WidgetSyncService {
 
       // Get today's tasks
       const today = new Date()
-      const startOfDay = new Date(today)
-      startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(today)
-      endOfDay.setHours(23, 59, 59, 999)
-
-      // Get all incomplete tasks and filter for today in JavaScript
-      // (WatermelonDB stores scheduledDate as ISO string, not timestamp)
-      const allIncompleteTasks = await database.collections
-        .get<Task>('tasks')
+      
+      // Get ALL incomplete tasks (including those without scheduled dates)
+      const allIncompleteTasks = await database
+        .get('tasks')
         .query(
-          Q.where('is_complete', false),
-          Q.where('scheduled_date', Q.notEq(null))
+          Q.where('is_complete', false)
         )
         .fetch()
 
-      // Filter for today's tasks
-      const todaysTasks = allIncompleteTasks.filter((task: Task) => {
-        if (!task.scheduledDate) return false
+      // Cast to Task array for proper typing
+      const allTasks = allIncompleteTasks as Task[]
+      
+      // Filter for today's tasks OR tasks without a scheduled date
+      const todaysTasks = allTasks.filter((task: Task) => {
+        // Include tasks without scheduled date
+        if (!task.scheduledDate) return true
+        
+        // Include tasks scheduled for today
         const taskDate = new Date(task.scheduledDate)
         return (
           taskDate.getFullYear() === today.getFullYear() &&
@@ -244,11 +244,16 @@ class WidgetSyncService {
         )
       })
 
+      // Separate frog task from regular tasks (frog task should NOT be in regular tasks)
       const frogTask = todaysTasks.find((task: Task) => task.isFrog)
-      const regularTasks = todaysTasks.filter((task: Task) => !task.isFrog)
+      const regularTasks = todaysTasks.filter((task: Task) => !task.isFrog) // Exclude frog from regular tasks
 
+      console.log('🐸 [Widget Sync] Frog task:', frogTask ? `"${frogTask.title}" (id: ${frogTask.id})` : 'None')
+      console.log('📋 [Widget Sync] Regular tasks count:', regularTasks.length)
+      console.log('📋 [Widget Sync] Regular task titles:', regularTasks.map(t => t.title).join(', '))
+      
       await widgetDataService.updateWidgetData(frogTask || null, regularTasks)
-      console.log('🔄 Force synced tasks to widget')
+      console.log('✅ Force synced tasks to widget with frog task:', !!frogTask)
     } catch (error) {
       console.error('Failed to force sync to widget:', error)
     }

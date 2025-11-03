@@ -30,6 +30,9 @@
         "resourceClass": "m-medium",
         "credentialsSource": "remote",
         "image": "latest"
+      },
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
       }
     }
   },
