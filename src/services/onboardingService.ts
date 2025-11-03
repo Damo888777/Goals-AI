@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { authService } from './authService';
 import { useGoals, useMilestones, useTasks, useVisionImages } from '../hooks/useDatabase';
+import i18n from '../i18n';
 
 const ONBOARDING_COMPLETED_KEY = 'onboarding_completed';
 const ONBOARDING_DATA_KEY = 'onboarding_data';
@@ -351,7 +352,7 @@ class OnboardingService {
           goal.title = data.goalTitle;
           goal.setFeelings(data.goalEmotions);
           goal.visionImageUrl = data.visionImageUrl;
-          goal.notes = `Created during onboarding with vision: "${data.visionPrompt}"`;
+          goal.notes = i18n.t('onboarding.goalNotes', { visionPrompt: data.visionPrompt });
           goal.isCompleted = false;
           goal.creationSource = 'manual';
         });

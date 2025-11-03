@@ -146,21 +146,22 @@ function MainLayout() {
     }
   }, [isLoading, isOnboardingLoading, isSubscriptionLoading, isStorageReady, isOnboardingCompleted, isSubscribed]);
 
-  // Fade in the main app when ready
+  // Start fade-in as soon as splash finishes to create crossfade
   useEffect(() => {
-    if (isAppReady) {
-      // Start fade-in immediately when app is ready to eliminate white screen
+    if (!isLoading) {
+      // Start fade-in immediately when splash signals completion
+      console.log('🚀 [_layout] Starting main app fade-in for crossfade');
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800, // Match splash fade-out duration for perfect crossfade
+        duration: 800, // Longer duration for smooth crossfade
         useNativeDriver: true,
       }).start();
     }
-  }, [isAppReady, fadeAnim]);
+  }, [isLoading, fadeAnim]);
 
   // Handle routing based on onboarding and subscription status
   useEffect(() => {
-    // Only route on fresh app start, not when returning from background
+    // Only route when data is ready and not returning from background
     if (isAppReady && isOnboardingCompleted !== null && !isSubscriptionLoading && !wasBackground) {
       console.log('🚀 [_layout] App ready, determining route based on status:', {
         isOnboardingCompleted,
@@ -187,8 +188,8 @@ function MainLayout() {
     }
   }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading, wasBackground]);
 
-  // Show splash while loading or checking onboarding
-  if (isLoading || !isAppReady) {
+  // Show splash while loading
+  if (isLoading) {
     return (
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
         <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />

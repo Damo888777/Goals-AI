@@ -739,6 +739,7 @@
       "makePriority": "Zur heutigen Priorität machen",
       "creating": "Erstelle..."
     },
+    "goalNotes": "Während des Onboardings mit Vision erstellt: \"{{visionPrompt}}\"",
     "alerts": {
       "missingVision": "Vision fehlt",
       "missingVisionMessage": "Bitte beschreibe deine Vision bevor du ein Bild erstellst.",

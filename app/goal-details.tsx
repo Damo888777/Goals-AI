@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Image } from 'expo-image';
@@ -242,7 +243,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                 {goal?.title}
               </Text>
               <View style={styles.milestoneDateContainer}>
-                <Text style={styles.milestoneDateIcon}>📅</Text>
+                <Ionicons name="calendar-outline" size={12} color="#364958" />
                 <Text style={styles.milestoneDateText}>
                   {formatDate(milestone.targetDate)}
                 </Text>
@@ -251,7 +252,29 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
 
             {/* Complete Button */}
             <Pressable
-              onPress={() => onMilestoneComplete?.(milestone.id)}
+              onPress={() => {
+                if (onMilestoneComplete) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  Alert.alert(
+                    t('goalDetails.alerts.completeMilestone'),
+                    t('goalDetails.alerts.completeMilestoneMessage', { title: milestone.title }),
+                    [
+                      {
+                        text: t('goalDetails.alerts.no'),
+                        style: 'cancel',
+                        onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                      },
+                      {
+                        text: t('goalDetails.alerts.yes'),
+                        onPress: () => {
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                          onMilestoneComplete(milestone.id);
+                        }
+                      }
+                    ]
+                  );
+                }
+              }}
               style={styles.milestoneCompleteButton}
             >
               <Text style={styles.milestoneCompleteText}>
@@ -1041,9 +1064,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  milestoneDateIcon: {
-    fontSize: 12,
   },
   milestoneDateText: {
     fontSize: 12,

@@ -739,6 +739,7 @@
       "makePriority": "En Faire la Priorité d'Aujourd'hui",
       "creating": "Création..."
     },
+    "goalNotes": "Créé pendant l'intégration avec la vision : \"{{visionPrompt}}\"",
     "alerts": {
       "missingVision": "Vision Manquante",
       "missingVisionMessage": "Veuillez décrire votre vision avant de générer une image.",

@@ -607,6 +607,16 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
       try {
         const { widgetDataService } = await import('../services/widgetDataService')
         
+        // Get today's date range as proper ISO strings (matching useRealtimeWidgetSync pattern)
+        const today = new Date()
+        const startOfDay = new Date(today)
+        startOfDay.setHours(0, 0, 0, 0)
+        const endOfDay = new Date(today)
+        endOfDay.setHours(23, 59, 59, 999)
+        
+        const startOfDayISO = startOfDay.toISOString()
+        const endOfDayISO = endOfDay.toISOString()
+        
         // Get the updated frog task and today's tasks
         const tasksCollection = database!.get<Task>('tasks')
         const [newFrogTask, todaysTasks] = await Promise.all([
@@ -622,8 +632,8 @@ export const useTasks = (goalId?: string, milestoneId?: string) => {
             .query(
               Q.where('user_id', userId),
               Q.where('is_complete', false),
-              Q.where('scheduled_date', Q.gte(new Date().toISOString().split('T')[0])),
-              Q.where('scheduled_date', Q.lte(new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0]))
+              Q.where('scheduled_date', Q.gte(startOfDayISO)),
+              Q.where('scheduled_date', Q.lte(endOfDayISO))
             )
             .fetch()
         ])

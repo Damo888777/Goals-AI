@@ -713,6 +713,7 @@
       "makePriority": "Make it Today's Priority",
       "creating": "Creating..."
     },
+    "goalNotes": "Created during onboarding with vision: \"{{visionPrompt}}\"",
     "alerts": {
       "missingVision": "Missing Vision",
       "missingVisionMessage": "Please describe your vision before generating an image.",

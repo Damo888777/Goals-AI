@@ -143,20 +143,24 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationFinish })
   useEffect(() => {
     console.log('🔍 [Splash] Transition check:', { animationComplete, preloadComplete });
     if (animationComplete && preloadComplete) {
-      console.log('🚀 [Splash] Both animation and preload complete, starting fade out');
-      // Start fade out immediately to prevent white screen flash
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 800, // Match main app fade-in duration
-        useNativeDriver: true,
-      }).start(() => {
-        console.log('✅ [Splash] Fade out complete, calling onAnimationFinish');
-        // Cleanup sound when transitioning
-        if (sound) {
-          sound.unloadAsync();
-        }
-        onAnimationFinish();
-      });
+      console.log('🚀 [Splash] Both animation and preload complete, starting crossfade');
+      // Signal main app to start fade-in immediately
+      onAnimationFinish();
+      
+      // Start fade out with slight delay to create smooth crossfade
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 600, // Slightly shorter to ensure overlap
+          useNativeDriver: true,
+        }).start(() => {
+          console.log('✅ [Splash] Fade out complete');
+          // Cleanup sound when transitioning
+          if (sound) {
+            sound.unloadAsync();
+          }
+        });
+      }, 200); // 200ms delay allows main app to start fading in first
     }
   }, [animationComplete, preloadComplete, fadeAnim, sound, onAnimationFinish]);
 

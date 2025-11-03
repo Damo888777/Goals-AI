@@ -353,12 +353,12 @@ export default function MilestoneDetailsScreen() {
 
   const handleSave = async () => {
     if (!milestone || !title.trim()) {
-      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.enterMilestoneTitle'));
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.pleaseEnterMilestoneTitle'));
       return;
     }
 
     if (!selectedGoalId) {
-      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.selectGoalForMilestone'));
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.pleaseSelectGoal'));
       return;
     }
 
@@ -371,19 +371,19 @@ export default function MilestoneDetailsScreen() {
       
       Alert.alert(
         t('milestoneDetails.alerts.success'),
-        t('milestoneDetails.alerts.milestoneUpdatedSuccess'),
+        t('milestoneDetails.alerts.milestoneUpdatedSuccessfully'),
         [{ text: t('milestoneDetails.alerts.ok'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Error updating milestone:', error);
-      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.updateMilestoneFailed'));
+      Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.failedToUpdateMilestone'));
     }
   };
 
   const handleDelete = () => {
     Alert.alert(
-      t('milestoneDetails.alerts.deleteMilestone'),
-      t('milestoneDetails.alerts.deleteConfirmation'),
+      t('milestoneDetails.alerts.deleteMilestoneTitle'),
+      t('milestoneDetails.alerts.deleteMilestoneMessage'),
       [
         { text: t('milestoneDetails.alerts.cancel'), style: 'cancel' },
         {
@@ -394,12 +394,12 @@ export default function MilestoneDetailsScreen() {
               await deleteMilestone(milestone.id);
               Alert.alert(
                 t('milestoneDetails.alerts.success'),
-                t('milestoneDetails.alerts.milestoneDeletedSuccess'),
+                t('milestoneDetails.alerts.milestoneDeletedSuccessfully'),
                 [{ text: t('milestoneDetails.alerts.ok'), onPress: () => router.back() }]
               );
             } catch (error) {
               console.error('Error deleting milestone:', error);
-              Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.deleteMilestoneFailed'));
+              Alert.alert(t('milestoneDetails.alerts.error'), t('milestoneDetails.alerts.failedToDeleteMilestone'));
             }
           },
         },
@@ -483,7 +483,7 @@ export default function MilestoneDetailsScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder={t('milestoneDetails.placeholders.milestoneTitlePlaceholder')}
+            placeholder={t('milestoneDetails.placeholders.milestoneTitle')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={styles.textInput}
           />
@@ -615,7 +615,7 @@ export default function MilestoneDetailsScreen() {
         {/* Notes Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
-            {t('milestoneDetails.sections.notesAndDetails')}
+            {t('milestoneDetails.sections.notesDetails')}
           </Text>
           <Text style={styles.sectionSubtitle}>
             {t('milestoneDetails.sections.notesSubtitle')}
@@ -623,7 +623,7 @@ export default function MilestoneDetailsScreen() {
           <TextInput
             value={notes}
             onChangeText={setNotes}
-            placeholder={t('milestoneDetails.placeholders.notesPlaceholder')}
+            placeholder={t('milestoneDetails.placeholders.notesDetails')}
             placeholderTextColor="rgba(54,73,88,0.5)"
             style={[styles.textInput, styles.textInputMultiline]}
             multiline
