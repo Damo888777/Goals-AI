@@ -75,7 +75,12 @@ export const useNotifications = () => {
   const enableNotifications = async (): Promise<boolean> => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      const success = await notificationService.requestPermission();
+      
+      // Initialize timezone detection and tagging first
+      await notificationService.initializeTimezone();
+      
+      // Enable notifications (this handles permission request and AsyncStorage)
+      const success = await notificationScheduler.enableNotifications();
       
       if (success) {
         setState({
@@ -83,12 +88,8 @@ export const useNotifications = () => {
           hasPermission: true,
           isLoading: false
         });
-        
-        // Initialize timezone detection and tagging
-        await notificationService.initializeTimezone();
-        
-        // Schedule notifications with timezone awareness
-        await notificationScheduler.scheduleDailyNotifications();
+      } else {
+        setState(prev => ({ ...prev, isLoading: false }));
       }
       
       return success;
@@ -96,8 +97,6 @@ export const useNotifications = () => {
       console.error('Failed to enable notifications:', error);
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
-    } finally {
-      setState(prev => ({ ...prev, isLoading: false }));
     }
   };
 

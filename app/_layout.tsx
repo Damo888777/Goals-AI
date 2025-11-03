@@ -110,6 +110,9 @@ function MainLayout() {
         // Update last activity on app start
         await notificationScheduler.updateLastActivity();
         
+        // Check and reschedule notifications if needed (ensures daily notifications are always scheduled)
+        await notificationScheduler.checkAndRescheduleNotifications();
+        
         // Initialize intelligent widget timeline management
         await widgetTimelineManager.initialize();
       };

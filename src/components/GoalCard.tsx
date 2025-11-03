@@ -64,7 +64,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return t('common.noDateSet');
+    if (!dateString) return t('components.goalCard.noDateSet');
     const date = new Date(dateString);
     return formatDateUtil(date, t);
   };
@@ -115,7 +115,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                   color: '#364958',
                   fontFamily: 'Helvetica',
                 }}>
-                  {goal?.title || t('common.goalTitle')}
+                  {goal?.title || t('components.goalCard.goalTitle')}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -141,18 +141,18 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({ milestone, goal, onMilest
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   
                   Alert.alert(
-                    t('common.completeMilestone'),
+                    t('components.goalCard.completeMilestone'),
                     `${t('components.goalCard.completeMilestoneMessage', { title: milestone.title })}`,
                     [
                       {
-                        text: t('common.no'),
+                        text: t('components.goalCard.no'),
                         style: 'cancel',
                         onPress: () => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }
                       },
                       {
-                        text: t('common.yes'),
+                        text: t('components.goalCard.yes'),
                         onPress: async () => {
                           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                           soundService.playCompleteSound(); // Play completion sound
@@ -307,18 +307,18 @@ export function GoalCard({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       
       Alert.alert(
-        t('common.deleteGoal'),
+        t('components.goalCard.deleteGoal'),
         `${t('components.goalCard.deleteGoalMessage', { title: goal.title })}`,
         [
           {
-            text: t('common.cancel'),
+            text: t('components.goalCard.cancel'),
             style: 'cancel',
             onPress: () => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
           },
           {
-            text: t('common.delete'),
+            text: t('components.goalCard.delete'),
             style: 'destructive',
             onPress: async () => {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -745,7 +745,7 @@ export function GoalCard({
                 fontWeight: 'bold',
                 opacity: 0.5,
               }}>
-                {t('common.viewFullGoal')}
+                {t('components.goalCard.viewFullGoal')}
               </Text>
             </Pressable>
 
@@ -784,14 +784,14 @@ export function GoalCard({
                   textAlign: 'center',
                   marginBottom: 8,
                 }}>
-                  {t('common.noMilestonesYet')}
+                  {t('components.goalCard.noMilestonesYet')}
                 </Text>
                 <Text style={{
                   fontSize: 12,
                   color: '#364958',
                   textAlign: 'center',
                 }}>
-                  {t('common.breakGoalIntoMilestones')}
+                  {t('components.goalCard.breakGoalIntoMilestones')}
                 </Text>
               </View>
             )}

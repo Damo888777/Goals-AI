@@ -7,6 +7,8 @@
     "icon": "./assets/Goals AI Logo.png",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#E9EDC9"
     },
     "ios": {

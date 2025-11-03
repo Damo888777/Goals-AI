@@ -223,13 +223,26 @@ class WidgetSyncService {
       const endOfDay = new Date(today)
       endOfDay.setHours(23, 59, 59, 999)
 
-      const todaysTasks = await database.collections
+      // Get all incomplete tasks and filter for today in JavaScript
+      // (WatermelonDB stores scheduledDate as ISO string, not timestamp)
+      const allIncompleteTasks = await database.collections
         .get<Task>('tasks')
         .query(
-          Q.where('scheduled_date', Q.between(startOfDay.getTime(), endOfDay.getTime())),
-          Q.where('is_complete', false)
+          Q.where('is_complete', false),
+          Q.where('scheduled_date', Q.notEq(null))
         )
         .fetch()
+
+      // Filter for today's tasks
+      const todaysTasks = allIncompleteTasks.filter((task: Task) => {
+        if (!task.scheduledDate) return false
+        const taskDate = new Date(task.scheduledDate)
+        return (
+          taskDate.getFullYear() === today.getFullYear() &&
+          taskDate.getMonth() === today.getMonth() &&
+          taskDate.getDate() === today.getDate()
+        )
+      })
 
       const frogTask = todaysTasks.find((task: Task) => task.isFrog)
       const regularTasks = todaysTasks.filter((task: Task) => !task.isFrog)

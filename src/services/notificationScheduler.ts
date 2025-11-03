@@ -57,8 +57,10 @@ class NotificationScheduler {
   private async scheduleMorningKickstart(): Promise<void> {
     const notification = await this.generateMorningNotification();
     
-    // In a real implementation, you would use OneSignal's API to schedule recurring notifications
-    // For now, we'll track this and send via server-side scheduling
+    // Schedule with OneSignal using delivery time
+    await this.scheduleNotificationWithOneSignal('morning_kickstart', this.MORNING_HOUR, notification);
+    
+    // Also save locally for tracking
     await this.saveScheduledNotification('morning_kickstart', this.MORNING_HOUR, notification);
   }
 
@@ -68,8 +70,10 @@ class NotificationScheduler {
   private async scheduleVisionBoardReminder(): Promise<void> {
     const notification = await this.generateVisionBoardNotification();
     
-    // In a real implementation, you would use OneSignal's API to schedule recurring notifications
-    // For now, we'll track this and send via server-side scheduling
+    // Schedule with OneSignal using delivery time
+    await this.scheduleNotificationWithOneSignal('vision_board_reminder', this.VISION_BOARD_HOUR, notification);
+    
+    // Also save locally for tracking
     await this.saveScheduledNotification('vision_board_reminder', this.VISION_BOARD_HOUR, notification);
   }
 
@@ -79,8 +83,10 @@ class NotificationScheduler {
   private async scheduleEveningCheckin(): Promise<void> {
     const notification = await this.generateEveningNotification();
     
-    // In a real implementation, you would use OneSignal's API to schedule recurring notifications
-    // For now, we'll track this and send via server-side scheduling
+    // Schedule with OneSignal using delivery time
+    await this.scheduleNotificationWithOneSignal('evening_checkin', this.EVENING_HOUR, notification);
+    
+    // Also save locally for tracking
     await this.saveScheduledNotification('evening_checkin', this.EVENING_HOUR, notification);
   }
 
@@ -379,6 +385,78 @@ class NotificationScheduler {
   }
 
   /**
+   * Schedule notification with OneSignal using send_after for daily delivery
+   */
+  private async scheduleNotificationWithOneSignal(
+    type: string,
+    hour: number,
+    notification: NotificationData
+  ): Promise<void> {
+    try {
+      const subscriptionId = await notificationService.getSubscriptionId();
+      const appId = await notificationService.getAppId();
+      
+      if (!subscriptionId || !appId) {
+        console.warn('Cannot schedule notification: missing subscription ID or app ID');
+        return;
+      }
+
+      // Calculate next delivery time (today or tomorrow at specified hour)
+      const now = new Date();
+      const deliveryTime = new Date();
+      deliveryTime.setHours(hour, 0, 0, 0);
+      
+      // If time has passed today, schedule for tomorrow
+      if (deliveryTime <= now) {
+        deliveryTime.setDate(deliveryTime.getDate() + 1);
+      }
+
+      console.log(`🔔 Scheduling ${type} notification for ${deliveryTime.toISOString()}`);
+
+      // Call Supabase Edge Function to schedule notification
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ptkrjzqjpjcsphisipti.supabase.co';
+      const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/api-send-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({
+          app_id: appId,
+          include_subscription_ids: [subscriptionId],
+          headings: { en: notification.title },
+          contents: { en: notification.body },
+          data: {
+            ...notification.data,
+            scheduled_type: type,
+            scheduled_hour: hour
+          },
+          send_after: deliveryTime.toISOString(), // OneSignal will deliver at this time
+          // For recurring daily notifications, we'll need to reschedule after each delivery
+          // This is handled by checking and rescheduling when app opens
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ ${type} notification scheduled successfully for ${deliveryTime.toISOString()}`);
+        
+        // Save the scheduled notification ID for potential cancellation
+        await AsyncStorage.setItem(`scheduled_notification_id_${type}`, result.id);
+      } else {
+        console.error(`❌ Failed to schedule ${type} notification:`, result.error);
+      }
+      
+    } catch (error) {
+      console.error(`Failed to schedule ${type} notification with OneSignal:`, error);
+    }
+  }
+
+  /**
    * Save scheduled notification configuration
    */
   private async saveScheduledNotification(
@@ -422,16 +500,18 @@ class NotificationScheduler {
         return;
       }
 
-      console.log('🔔 Sending notification via API endpoint:', notification);
+      console.log('🔔 Sending notification via Supabase Edge Function:', notification);
 
-      // Call our API endpoint to send the notification
-      const { getApiUrl } = await import('../constants/config');
-      const response = await fetch(getApiUrl('/api/send-notification'), {
+      // Call Supabase Edge Function to send the notification
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ptkrjzqjpjcsphisipti.supabase.co';
+      const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/api-send-notification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: JSON.stringify({
           app_id: appId,
@@ -499,6 +579,51 @@ class NotificationScheduler {
       return enabled === 'true';
     } catch (error) {
       return false;
+    }
+  }
+
+  /**
+   * Check and reschedule notifications if needed (call this on app startup)
+   * This ensures notifications are always scheduled for the next delivery time
+   */
+  async checkAndRescheduleNotifications(): Promise<void> {
+    try {
+      const enabled = await this.areNotificationsEnabled();
+      if (!enabled) {
+        console.log('Notifications disabled, skipping reschedule check');
+        return;
+      }
+
+      console.log('🔔 Checking if notifications need rescheduling...');
+
+      // Check each notification type
+      const types = ['morning_kickstart', 'vision_board_reminder', 'evening_checkin'];
+      
+      for (const type of types) {
+        const lastScheduledStr = await AsyncStorage.getItem(`scheduled_notification_${type}`);
+        
+        if (!lastScheduledStr) {
+          console.log(`No schedule found for ${type}, scheduling now...`);
+          await this.scheduleDailyNotifications();
+          return;
+        }
+
+        const config = JSON.parse(lastScheduledStr);
+        const lastScheduled = config.lastScheduled;
+        const hoursSinceScheduled = (Date.now() - lastScheduled) / (1000 * 60 * 60);
+
+        // If it's been more than 12 hours since last schedule, reschedule
+        // This ensures we always have upcoming notifications scheduled
+        if (hoursSinceScheduled > 12) {
+          console.log(`${type} needs rescheduling (${hoursSinceScheduled.toFixed(1)} hours since last schedule)`);
+          await this.scheduleDailyNotifications();
+          return;
+        }
+      }
+
+      console.log('✅ All notifications are properly scheduled');
+    } catch (error) {
+      console.error('Failed to check and reschedule notifications:', error);
     }
   }
 

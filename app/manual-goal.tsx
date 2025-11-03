@@ -31,15 +31,15 @@ interface EmotionSelectionProps {
 const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
   const { t } = useTranslation();
   const emotions = [
-    { label: t('manualGoal.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
-    { label: t('manualGoal.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
-    { label: t('manualGoal.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
-    { label: t('manualGoal.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
-    { label: t('manualGoal.emotions.energized'), color: '#eec170', textColor: '#780116' },
-    { label: t('manualGoal.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
-    { label: t('manualGoal.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
-    { label: t('manualGoal.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
-    { label: t('manualGoal.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
+    { label: t('goalDetails.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+    { label: t('goalDetails.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
+    { label: t('goalDetails.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
+    { label: t('goalDetails.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
+    { label: t('goalDetails.emotions.energized'), color: '#eec170', textColor: '#780116' },
+    { label: t('goalDetails.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
+    { label: t('goalDetails.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+    { label: t('goalDetails.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
+    { label: t('goalDetails.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
   ];
 
   const handleEmotionPress = (emotion: string) => {
@@ -108,7 +108,7 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
         {t('manualGoal.sections.visualizeSubtitle')}
       </Text>
       <TouchableOpacity style={styles.visionButtonTouchable} onPress={onVisionPress}>
-        <View style={styles.visionButton}>
+        <View style={[styles.visionButton, selectedVisionImage ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
               source={selectedVisionImage?.imageUri ? { uri: selectedVisionImage.imageUri } : images.icons.createVision}
@@ -116,11 +116,35 @@ const VisionSection: React.FC<VisionSectionProps> = ({ selectedVisionImage, onVi
               contentFit="cover"
             />
           </View>
-          <Text style={styles.visionButtonText}>
-            {selectedVisionImage ? t('manualGoal.vision.changeVision') : t('manualGoal.vision.chooseVision')}
-          </Text>
+          {!selectedVisionImage && (
+            <Text style={styles.visionButtonText}>
+              {t('manualGoal.vision.chooseVision')}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
+      
+      {/* Vision Management Buttons - only show when there's an image */}
+      {selectedVisionImage && (
+        <View style={styles.visionButtonsContainer}>
+          <TouchableOpacity
+            onPress={() => setSelectedVisionImage(null)}
+            style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              {t('manualGoal.vision.remove')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onVisionPress}
+            style={[styles.actionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              {t('manualGoal.vision.changeVision')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -500,6 +524,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
+  visionButtonWithImage: {
+    height: 200, // Make it taller to show more of the image
+  },
   visionButtonInner: {
     position: 'absolute',
     top: 0,
@@ -530,6 +557,13 @@ const styles = StyleSheet.create({
     lineHeight: 80,
   },
 
+  // Vision button management styles
+  visionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+    marginTop: 15,
+  },
   // Action button styles
   actionButtonsContainer: {
     flexDirection: 'row',

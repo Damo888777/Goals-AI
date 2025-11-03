@@ -201,15 +201,15 @@ interface EmotionSelectionProps {
 const EmotionSelection: React.FC<EmotionSelectionProps> = ({ selectedEmotions, onEmotionToggle }) => {
   const { t } = useTranslation();
   const emotions = [
-    { label: t('components.sparkAIOutput.emotions.labels.confident'), color: '#f7e1d7', textColor: '#a4133c' },
-    { label: t('components.sparkAIOutput.emotions.labels.grateful'), color: '#a1c181', textColor: '#081c15' },
-    { label: t('components.sparkAIOutput.emotions.labels.proud'), color: '#cdb4db', textColor: '#3d405b' },
-    { label: t('components.sparkAIOutput.emotions.labels.calm'), color: '#dedbd2', textColor: '#335c67' },
-    { label: t('components.sparkAIOutput.emotions.labels.energized'), color: '#eec170', textColor: '#780116' },
-    { label: t('components.sparkAIOutput.emotions.labels.happy'), color: '#bde0fe', textColor: '#023047' },
-    { label: t('components.sparkAIOutput.emotions.labels.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
-    { label: t('components.sparkAIOutput.emotions.labels.excited'), color: '#f4a261', textColor: '#b23a48' },
-    { label: t('components.sparkAIOutput.emotions.labels.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
+    { label: t('goalDetails.emotions.confident'), color: '#f7e1d7', textColor: '#a4133c' },
+    { label: t('goalDetails.emotions.grateful'), color: '#a1c181', textColor: '#081c15' },
+    { label: t('goalDetails.emotions.proud'), color: '#cdb4db', textColor: '#3d405b' },
+    { label: t('goalDetails.emotions.calm'), color: '#dedbd2', textColor: '#335c67' },
+    { label: t('goalDetails.emotions.energized'), color: '#eec170', textColor: '#780116' },
+    { label: t('goalDetails.emotions.happy'), color: '#bde0fe', textColor: '#023047' },
+    { label: t('goalDetails.emotions.empowered'), color: '#eae2b7', textColor: '#bb3e03' },
+    { label: t('goalDetails.emotions.excited'), color: '#f4a261', textColor: '#b23a48' },
+    { label: t('goalDetails.emotions.fulfilled'), color: '#f8ad9d', textColor: '#e07a5f' },
   ];
 
   const handleEmotionPress = (emotion: string) => {
@@ -304,7 +304,7 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
         style={styles.visionButtonTouchable}
         onPress={handleVisionPress}
       >
-        <View style={styles.visionButton}>
+        <View style={[styles.visionButton, selectedVisionImage ? styles.visionButtonWithImage : null]}>
           <View style={styles.visionButtonInner}>
             <Image 
               source={selectedVisionImage?.imageUri ? 
@@ -315,19 +315,35 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
               contentFit="cover"
             />
           </View>
-          {selectedVisionImage && (
-            <TouchableOpacity 
-              style={styles.removeVisionButton}
-              onPress={handleRemoveVision}
-            >
-              <Text style={styles.removeVisionText}>×</Text>
-            </TouchableOpacity>
+          {!selectedVisionImage && (
+            <Text style={styles.visionButtonText}>
+              {t('components.sparkAIOutput.vision.chooseVision')}
+            </Text>
           )}
-          <Text style={styles.visionButtonText}>
-            {selectedVisionImage ? t('components.sparkAIOutput.vision.changeVision') : t('components.sparkAIOutput.vision.chooseVision')}
-          </Text>
         </View>
       </TouchableOpacity>
+      
+      {/* Vision Management Buttons - only show when there's an image */}
+      {selectedVisionImage && (
+        <View style={styles.visionButtonsContainer}>
+          <TouchableOpacity
+            onPress={handleRemoveVision}
+            style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              {t('components.sparkAIOutput.vision.remove')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleVisionPress}
+            style={[styles.actionButton, { backgroundColor: '#a3b18a', flex: 1 }]}
+          >
+            <Text style={styles.actionButtonText}>
+              {t('components.sparkAIOutput.vision.changeVision')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Vision Picker Modal */}
       <VisionPicker
@@ -1225,8 +1241,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 0.5,
     borderColor: '#a3b18a',
+    backgroundColor: '#f5ebe0',
     position: 'relative',
     overflow: 'hidden',
+  },
+  visionButtonWithImage: {
+    height: 200, // Make it taller to show more of the image
   },
   visionButtonInner: {
     position: 'absolute',
@@ -1257,22 +1277,33 @@ const styles = StyleSheet.create({
     display: 'flex',
     lineHeight: 80,
   },
-  removeVisionButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(188, 75, 81, 0.9)',
+  // Vision button management styles
+  visionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+    marginTop: 15,
+  },
+  actionButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: '#9b9b9b',
+    shadowColor: '#7c7c7c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.75,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  removeVisionText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+  actionButtonText: {
+    color: '#f5ebe0',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   
   // Vision Modal Styles
