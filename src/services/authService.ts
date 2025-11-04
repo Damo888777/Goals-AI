@@ -252,26 +252,37 @@ class AuthService {
       return
     }
 
+    const profilesCollection = database.get('profiles')
+    
     try {
-      const profilesCollection = database.get('profiles')
+      // Try to find existing profile
+      const existingProfile = await profilesCollection.find(user.id)
       
-      // Check if profile already exists
-      try {
-        await profilesCollection.find(user.id)
-        return // Profile already exists
-      } catch {
-        // Profile doesn't exist, create it
-      }
-
-      await database.write(async () => {
-        await profilesCollection.create((profile: any) => {
-          profile._raw.id = user.id
-          profile.email = user.email || null
+      // Profile exists - update it if needed
+      if (user.email && (existingProfile as any).email !== user.email) {
+        await database.write(async () => {
+          await existingProfile.update((profile: any) => {
+            profile.email = user.email
+          })
         })
-      })
+        console.log('✅ Updated existing profile with new email')
+      } else {
+        console.log('✅ Profile already exists and is up to date')
+      }
     } catch (error) {
-      console.error('Error ensuring local profile:', error)
-      throw error
+      // Profile doesn't exist - create it
+      try {
+        await database.write(async () => {
+          await profilesCollection.create((profile: any) => {
+            profile._raw.id = user.id
+            profile.email = user.email || null
+          })
+        })
+        console.log('✅ Created new profile for user')
+      } catch (createError) {
+        console.error('Failed to create profile:', createError)
+        throw createError
+      }
     }
   }
 
@@ -375,10 +386,27 @@ class AuthService {
 
   // Upgrade anonymous account to Apple Sign-in (merge data)
   async upgradeToAppleSignIn(appleUser: any): Promise<AuthUser> {
-    const previousAnonymousId = this.persistentAnonymousId
+    // Get the current user ID (could be persistentAnonymousId or currentUser.id)
+    const previousUserId = this.currentUser?.id || this.persistentAnonymousId
+    
+    console.log('🔄 Starting Apple Sign-In upgrade...')
+    console.log('📋 Previous user ID:', previousUserId)
+    console.log('📋 New Apple user ID:', appleUser.id)
     
     if (!database) {
       throw new Error('Database not available for data migration')
+    }
+
+    if (!previousUserId) {
+      console.warn('⚠️ No previous user ID found - skipping migration')
+      this.currentUser = {
+        id: appleUser.id,
+        email: appleUser.email || undefined,
+        isAnonymous: false,
+        persistentAnonymousId: this.persistentAnonymousId || undefined
+      }
+      await this.ensureLocalProfile(this.currentUser)
+      return this.currentUser
     }
 
     try {
@@ -388,8 +416,10 @@ class AuthService {
           const collection = database!.get(collectionName)
           // CRITICAL: Use database column name 'user_id' (snake_case), not model property 'userId'
           const anonymousRecords = await collection
-            .query(Q.where('user_id', previousAnonymousId || ''))
+            .query(Q.where('user_id', previousUserId))
             .fetch()
+          
+          console.log(`🔍 Found ${anonymousRecords.length} ${collectionName} records to migrate`)
           
           // Update each record to use the new authenticated user ID
           for (const record of anonymousRecords) {
@@ -407,7 +437,7 @@ class AuthService {
         id: appleUser.id,
         email: appleUser.email || undefined,
         isAnonymous: false,
-        persistentAnonymousId: previousAnonymousId || undefined
+        persistentAnonymousId: this.persistentAnonymousId || undefined
       }
       
       console.log('✅ Data migration completed successfully')
@@ -418,7 +448,7 @@ class AuthService {
         id: appleUser.id,
         email: appleUser.email || undefined,
         isAnonymous: false,
-        persistentAnonymousId: previousAnonymousId || undefined
+        persistentAnonymousId: this.persistentAnonymousId || undefined
       }
       console.warn('⚠️ User authenticated but data migration failed - data may be inconsistent')
     }

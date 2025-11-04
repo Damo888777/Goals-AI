@@ -12,6 +12,7 @@ import * as Notifications from 'expo-notifications';
 import LiveActivityModule from '../src/modules/LiveActivityModule';
 import { useTranslation } from 'react-i18next';
 import { usePomodoroSessions } from '../src/hooks/usePomodoroSessions';
+import { focusTimeService } from '../src/services/focusTimeService';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -207,6 +208,23 @@ export default function PomodoroScreen() {
         const actualDurationSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
         await completeSession(currentSessionId, actualDurationSeconds);
         console.log('✅ Completed pomodoro session:', currentSession, currentSessionId, 'Duration:', actualDurationSeconds, 'seconds');
+        
+        // Save to focus time service for tracking
+        const endTime = new Date();
+        const startTime = new Date(sessionStartTime);
+        // Convert session type to match the expected format
+        const sessionType = currentSession === 'work' ? 'work' : 
+                           currentSession === 'shortBreak' ? 'short_break' : 'long_break';
+        await focusTimeService.saveCompletedSession(
+          currentSessionId,
+          taskId,
+          undefined, // goalId not available in params
+          sessionType,
+          startTime,
+          endTime,
+          actualDurationSeconds
+        );
+        
         setCurrentSessionId(null);
         setSessionStartTime(null);
       } catch (error) {

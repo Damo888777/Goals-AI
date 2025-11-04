@@ -33,15 +33,27 @@ export default function PaywallScreen() {
   // Define tier hierarchy (lower index = lower tier)
   const tierHierarchy = ['tier_starter', 'tier_achiever', 'tier_visionary'];
   
-  // Filter plans to show higher tiers OR same tier with different billing period
+  // Get current subscription billing period
+  const { isCurrentSubscriptionAnnual } = useSubscription();
+  
+  // Filter plans to show only upgrade options
   const availablePlans = subscriptionPlans.filter(plan => {
     if (!currentTier) return true; // Show all if no current tier
     
     const currentTierIndex = tierHierarchy.indexOf(currentTier.id);
     const planTierIndex = tierHierarchy.indexOf(plan.tier.id);
     
-    // Show plans that are higher tier OR same tier (for billing period switching)
-    return planTierIndex >= currentTierIndex;
+    // Show plans that are:
+    // 1. Higher tier than current
+    // 2. Same tier but annual (if currently on monthly)
+    if (planTierIndex > currentTierIndex) {
+      return true; // Higher tier - show both monthly and annual
+    } else if (planTierIndex === currentTierIndex) {
+      // Same tier - only show if it's an upgrade to annual
+      return !isCurrentSubscriptionAnnual; // Only show if not already on annual
+    }
+    
+    return false; // Don't show lower tiers
   });
 
   // Get paywall content - show onboarding content if coming from onboarding
@@ -245,12 +257,12 @@ export default function PaywallScreen() {
               {t('paywall.currentPlan.currentPlan')}
             </Text>
             <Text style={{
-              fontSize: 18,
+              fontSize: 20,
               color: '#F5EBE0',
               fontWeight: 'bold',
               textAlign: 'center',
             }}>
-              {currentTier.name}
+              {currentTier.name} {isCurrentSubscriptionAnnual ? t('paywall.billing.annual') : t('paywall.billing.monthly')}
             </Text>
           </View>
         )}
@@ -289,20 +301,47 @@ export default function PaywallScreen() {
           </Text>
         </View>
 
-        {/* Billing Period Toggle - matching plan.tsx */}
+        {/* Current Subscription State */}
+        {isSubscribed && currentTier && (
+          <View style={{
+            backgroundColor: 'rgba(245, 235, 224, 0.1)',
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 32,
+            borderWidth: 0.5,
+            borderColor: 'rgba(245, 235, 224, 0.3)',
+          }}>
+            <Text style={{
+              fontSize: 14,
+              color: '#F5EBE0',
+              opacity: 0.8,
+              fontWeight: '300',
+              textAlign: 'center',
+              marginBottom: 4,
+            }}>
+              {t('paywall.currentSubscription.label')}
+            </Text>
+            <Text style={{
+              fontSize: 20,
+              color: '#F5EBE0',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+              {currentTier.name} - {isCurrentSubscriptionAnnual ? t('paywall.billingPeriod.annual') : t('paywall.billingPeriod.monthly')}
+            </Text>
+          </View>
+        )}
+
+      {/* Billing Period Toggle - only show if we have both monthly and annual options */}
+      {availablePlans.some(p => !p.isAnnual) && availablePlans.some(p => p.isAnnual || p.annualPackage) && (
         <View style={{
           flexDirection: 'row',
           backgroundColor: '#F5EBE0',
-          borderRadius: 12,
+          borderRadius: 10,
           padding: 4,
-          marginBottom: 40,
+          marginBottom: 24,
           borderWidth: 0.5,
           borderColor: '#A3B18A',
-          shadowColor: '#F5EBE0',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.75,
-          shadowRadius: 0,
-          elevation: 4,
         }}>
           <Pressable
             onPress={() => setBillingPeriod('monthly')}
@@ -347,8 +386,9 @@ export default function PaywallScreen() {
             </Text>
           </Pressable>
         </View>
+      )}
 
-        {/* Promotional Code Input */}
+      {/* Promotional Code Input */}
         <PromoCodeInput
           onPromoCodeApplied={validateCustomPromoCode}
           isLoading={isLoading}

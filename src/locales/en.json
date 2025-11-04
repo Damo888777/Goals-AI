@@ -98,6 +98,7 @@
       "cancel": "Cancel",
       "save": "Save",
       "signInWithApple": "Sign In with Apple",
+      "signingIn": "Signing In...",
       "signInDescription": "Sign in to permanently save your data and sync across devices",
       "dataSynced": "Data Synced",
       "emailHidden": "Email hidden",

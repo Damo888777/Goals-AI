@@ -22,7 +22,7 @@ const PROMPT_LIBRARY = {
       "high contrast",
       "photorealistic rendering"
     ],
-    "composition": "profile perspective, rule of thirds, leading lines from light trails, depth of field",
+    "composition": "front-facing centered subject, direct eye contact, rule of thirds, leading lines from light trails, depth of field",
     "atmosphere": "futuristic urban environment, speed and movement, cyberpunk aesthetic, neon-lit corridor"
   },
   "watercolour": {

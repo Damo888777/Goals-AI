@@ -376,7 +376,7 @@ export default function SparkAIScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D4E5B7', // Light green background from the design
+    backgroundColor: '#E9EDC9', // Main app background (light green)
   },
   header: {
     flexDirection: 'row',

@@ -327,6 +327,9 @@ export default function MilestoneDetailsScreen() {
   const { goals } = useGoals();
   const { milestones, updateMilestone, deleteMilestone } = useMilestones();
   
+  // Filter out completed goals
+  const availableGoals = goals.filter(g => !g.isCompleted);
+  
   const [milestone, setMilestone] = useState<any>(null);
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
@@ -517,8 +520,8 @@ export default function MilestoneDetailsScreen() {
             {/* Dropdown Content */}
             {isDropdownOpen && (
               <View style={styles.dropdownContent}>
-                {goals.length > 0 ? (
-                  goals.map((goal) => (
+                {availableGoals.length > 0 ? (
+                  availableGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
                       goal={{

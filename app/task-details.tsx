@@ -29,8 +29,8 @@ import { formatDate as formatDateUtil } from '../src/utils/dateFormatter';
 
 // Date Picker Component
 interface DatePickerProps {
-  selectedDate?: Date;
-  onDateSelect: (date: Date) => void;
+  selectedDate?: Date | null;
+  onDateSelect: (date: Date | null) => void;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onDateSelect }) => {
@@ -152,7 +152,7 @@ export default function TaskDetailsScreen() {
   const [task, setTask] = useState<any>(null);
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
-  const [scheduledDate, setScheduledDate] = useState(new Date());
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFrog, setIsFrog] = useState(false);
   const [selectedGoalId, setSelectedGoalId] = useState('');
@@ -165,7 +165,7 @@ export default function TaskDetailsScreen() {
   const { sessions: focusSessions, timeStats } = usePomodoroSessions(task?.id || '');
 
   useEffect(() => {
-    if (id && tasks.length > 0) {
+    if (id) {
       const foundTask = tasks.find(t => t.id === id);
       if (foundTask) {
         setTask(foundTask);
@@ -174,15 +174,27 @@ export default function TaskDetailsScreen() {
         setIsFrog(foundTask.isFrog || false);
         setSelectedGoalId(foundTask.goalId || '');
         setSelectedMilestoneId(foundTask.milestoneId || '');
-        setScheduledDate(foundTask.scheduledDate ? new Date(foundTask.scheduledDate) : new Date());
+        // Don't set a date for someday tasks (tasks without scheduled date)
+        if (foundTask.scheduledDate) {
+          setScheduledDate(new Date(foundTask.scheduledDate));
+        } else {
+          setScheduledDate(null); // Keep it null for someday tasks
+        }
         setAttachmentType(foundTask.milestoneId ? 'milestone' : 'goal');
+      } else {
+        console.log('Task not found with id:', id);
       }
     }
   }, [id, tasks]);
 
   const selectedGoal = goals.find(g => g.id === selectedGoalId);
   const selectedMilestone = milestones.find(m => m.id === selectedMilestoneId);
-  const availableMilestones = selectedGoalId ? milestones.filter(m => m.goalId === selectedGoalId) : milestones;
+  
+  // Filter out completed goals and milestones for dropdowns
+  const availableGoals = goals.filter(g => !g.isCompleted);
+  const availableMilestones = selectedGoalId 
+    ? milestones.filter(m => m.goalId === selectedGoalId && !m.isComplete) 
+    : milestones.filter(m => !m.isComplete);
 
   const handleGoalSelect = (goalId: string | undefined) => {
     setSelectedGoalId(goalId || '');
@@ -204,14 +216,17 @@ export default function TaskDetailsScreen() {
     }
 
     try {
-      await updateTask(task.id, {
+      // Enforce mutual exclusivity: task can only be attached to EITHER goal OR milestone
+      const taskUpdate = {
         title: title.trim(),
         notes: notes.trim(),
         isFrog: isFrog,
-        goalId: selectedGoalId || undefined,
+        goalId: selectedMilestoneId ? undefined : (selectedGoalId || undefined),
         milestoneId: selectedMilestoneId || undefined,
-        scheduledDate: scheduledDate.toISOString(),
-      });
+        scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
+      };
+
+      await updateTask(task.id, taskUpdate);
       
       // Force widget sync after task update
       const { widgetSyncService } = await import('../src/services/widgetSyncService');
@@ -1049,6 +1064,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
   const { milestones } = useMilestones();
+  
+  // Filter out completed goals and milestones
+  const availableGoals = goals.filter(g => !g.isCompleted);
+  const availableMilestones = milestones.filter(m => !m.isComplete);
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -1058,14 +1077,20 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const handleGoalSelect = (goalId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onGoalSelect(goalId);
-    onMilestoneSelect(undefined); // Clear milestone when goal changes
+    // Only clear milestone when ADDING a goal (not when removing)
+    if (goalId) {
+      onMilestoneSelect(undefined);
+    }
     setIsDropdownOpen(false);
   };
 
   const handleMilestoneSelect = (milestoneId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onMilestoneSelect(milestoneId);
-    onGoalSelect(undefined); // Clear goal when milestone is selected
+    // Only clear goal when ADDING a milestone (not when removing)
+    if (milestoneId) {
+      onGoalSelect(undefined);
+    }
     setIsDropdownOpen(false);
   };
 
@@ -1108,8 +1133,8 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
             <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestoneSelection.goalSection')}</Text>
-            {goals.length > 0 ? (
-              goals.map((goal) => (
+            {availableGoals.length > 0 ? (
+              availableGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   goal={{
@@ -1136,12 +1161,12 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             
             {/* Milestones Section */}
             <Text style={styles.dropdownSectionTitle}>{t('taskDetails.goalMilestoneSelection.milestonesSection')}</Text>
-            {milestones.length > 0 ? (
-              milestones.map((milestone) => (
+            {availableMilestones.length > 0 ? (
+              availableMilestones.map((milestone) => (
                 <TouchableOpacity
                   key={milestone.id}
                   style={styles.milestoneCard}
-                  onPress={() => handleMilestoneSelect(milestone.id)}
+                  onPress={() => handleMilestoneSelect(selectedMilestoneId === milestone.id ? undefined : milestone.id)}
                 >
                   <View style={styles.milestoneCardContent}>
                     <Text style={styles.milestoneCardTitle}>{milestone.title}</Text>
@@ -1152,7 +1177,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                           backgroundColor: selectedMilestoneId === milestone.id ? '#BC4B51' : '#A3B18A',
                         }
                       ]}
-                      onPress={() => handleMilestoneSelect(milestone.id)}
+                      onPress={() => handleMilestoneSelect(selectedMilestoneId === milestone.id ? undefined : milestone.id)}
                     >
                       {selectedMilestoneId === milestone.id ? (
                         <View style={styles.xIcon}>

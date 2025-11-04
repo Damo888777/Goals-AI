@@ -13,6 +13,7 @@ import {
   Animated,
   Modal,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Clipboard } from 'react-native';
@@ -32,6 +33,7 @@ import { useLanguage } from '../../src/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { usageTrackingService } from '../../src/services/usageTrackingService';
 import { supabase } from '../../src/lib/supabase';
+import { focusTimeService } from '../../src/services/focusTimeService';
 import { colors } from '../../src/constants/colors';
 import { typography } from '../../src/constants/typography';
 import { spacing, borderRadius } from '../../src/constants/spacing';
@@ -188,6 +190,7 @@ export default function ProfileTab() {
   const [showUpgradePaywall, setShowUpgradePaywall] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const [stats, setStats] = useState<Stats>({
     eatTheFrogStreak: 0,
     goalsAchieved: 0,
@@ -240,41 +243,16 @@ export default function ProfileTab() {
       // Calculate frog streak - proper consecutive days calculation
       const frogStreak = calculateEatTheFrogStreak(tasks);
       
-      // Calculate total focus time from pomodoro sessions database
+      // Get total focus time from focus time service
       let totalFocusMinutes = 0;
       
-      if (database) {
-        try {
-          const currentUser = await authService.getCurrentUser();
-          const currentUserId = currentUser?.id;
-          
-          if (currentUserId) {
-            // Fetch all completed pomodoro sessions for the current user
-            const sessionsCollection = database.get('pomodoro_sessions');
-            const allSessions = await sessionsCollection
-              .query(
-                Q.where('user_id', currentUserId),
-                Q.where('is_completed', true)
-              )
-              .fetch();
-
-            // Sum up all session durations using actual duration (rounded up) if available
-            totalFocusMinutes = allSessions.reduce((total: number, session: any) => {
-              // Use actual duration if available, otherwise fall back to planned duration
-              if (session.actualDurationSeconds) {
-                // Round up: 16:34 becomes 17 minutes
-                return total + Math.ceil(session.actualDurationSeconds / 60);
-              }
-              return total + (session.durationMinutes || 0);
-            }, 0);
-            
-            console.log('✅ Loaded focus time from pomodoro sessions:', totalFocusMinutes, 'minutes');
-          }
-        } catch (sessionError) {
-          console.error('Error loading pomodoro sessions for stats:', sessionError);
-          // Fallback to 0 if database query fails
-          totalFocusMinutes = 0;
-        }
+      try {
+        const focusData = await focusTimeService.getAllFocusTime();
+        totalFocusMinutes = focusData.totalMinutes;
+        console.log('✅ Loaded focus time from service:', totalFocusMinutes, 'minutes', 'sessions:', focusData.totalSessions);
+      } catch (error) {
+        console.error('Error loading focus time:', error);
+        totalFocusMinutes = 0;
       }
 
       setStats({
@@ -303,7 +281,11 @@ export default function ProfileTab() {
   };
 
   const handleAppleSignIn = async () => {
+    if (isSigningIn) return; // Prevent double-tap
+    
     try {
+      setIsSigningIn(true);
+      
       // Check if Apple Sign In is available
       const isAvailable = await AppleAuthentication.isAvailableAsync();
       if (!isAvailable) {
@@ -311,6 +293,7 @@ export default function ProfileTab() {
           t('profile.alerts.error'),
           'Apple Sign In is not available on this device'
         );
+        setIsSigningIn(false);
         return;
       }
 
@@ -329,6 +312,7 @@ export default function ProfileTab() {
 
         if (error) {
           Alert.alert(t('profile.alerts.signInError'), error.message)
+          setIsSigningIn(false);
         } else {
           // Use authService to handle the upgrade from anonymous to authenticated
           const { authService } = await import('../../src/services/authService')
@@ -342,10 +326,15 @@ export default function ProfileTab() {
             setUserName(credential.fullName.givenName)
           }
           
+          setIsSigningIn(false);
           Alert.alert(t('profile.alerts.success'), t('profile.alerts.signInSuccess'))
         }
+      } else {
+        setIsSigningIn(false);
       }
     } catch (e: any) {
+      setIsSigningIn(false);
+      
       if (e.code === 'ERR_REQUEST_CANCELED') {
         // User canceled the sign-in flow
         console.log('User canceled Apple Sign In')
@@ -621,13 +610,29 @@ export default function ProfileTab() {
                   // Not signed in - show sign in button
                   <>
                     <Pressable 
-                      style={[styles.appleSignInButton, isPressed === 'apple' && styles.buttonPressed]} 
+                      style={[
+                        styles.appleSignInButton, 
+                        isPressed === 'apple' && styles.buttonPressed,
+                        isSigningIn && styles.buttonDisabled
+                      ]} 
                       onPress={handleAppleSignIn}
-                      onPressIn={() => handlePressIn('apple')}
+                      onPressIn={() => !isSigningIn && handlePressIn('apple')}
                       onPressOut={handlePressOut}
+                      disabled={isSigningIn}
                     >
-                      <Ionicons name="logo-apple" size={20} color={colors.secondary} />
-                      <Text style={[typography.button, styles.buttonText]}>{t('profile.profile.signInWithApple')}</Text>
+                      {isSigningIn ? (
+                        <>
+                          <ActivityIndicator size="small" color={colors.secondary} />
+                          <Text style={[typography.button, styles.buttonText, { marginLeft: 8 }]}>
+                            {t('profile.profile.signingIn')}
+                          </Text>
+                        </>
+                      ) : (
+                        <>
+                          <Ionicons name="logo-apple" size={20} color={colors.secondary} />
+                          <Text style={[typography.button, styles.buttonText]}>{t('profile.profile.signInWithApple')}</Text>
+                        </>
+                      )}
                     </Pressable>
                     <Text style={[typography.caption, styles.appleSignInDescription]}>
                       {t('profile.profile.signInDescription')}
@@ -1357,6 +1362,9 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: colors.secondary,

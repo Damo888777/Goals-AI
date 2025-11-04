@@ -137,6 +137,9 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
+  
+  // Filter out completed goals
+  const availableGoals = goals.filter(g => !g.isCompleted);
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -182,8 +185,8 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {goals.length > 0 ? (
-              goals.map((goal) => (
+            {availableGoals.length > 0 ? (
+              availableGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   goal={{

@@ -309,7 +309,7 @@ export function GoalCard({
     if (onGoalComplete) {
       await onGoalComplete(goalId);
     }
-    setShowGoalCompletionModal(false);
+    // Modal will close itself via onClose callback
   };
 
   const handleGestureEvent = Animated.event(

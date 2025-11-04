@@ -141,7 +141,7 @@ const VisionBoardSelection: React.FC<VisionBoardSelectionProps> = ({ visionImage
             style={[styles.actionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
             <Text style={styles.actionButtonText}>
-              {t('manualGoal.vision.remove')}
+              {t('goalDetails.vision.remove')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

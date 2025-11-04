@@ -181,6 +181,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
   const { milestones } = useMilestones();
+  
+  // Filter out completed goals and milestones
+  const availableGoals = goals.filter(g => !g.isCompleted);
+  const availableMilestones = milestones.filter(m => !m.isComplete);
 
   const handleDropdownPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -190,14 +194,20 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const handleGoalSelect = (goalId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onGoalSelect(goalId);
-    onMilestoneSelect(undefined); // Clear milestone when goal changes
+    // Only clear milestone when ADDING a goal (not when removing)
+    if (goalId) {
+      onMilestoneSelect(undefined);
+    }
     setIsDropdownOpen(false);
   };
 
   const handleMilestoneSelect = (milestoneId: string | undefined) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onMilestoneSelect(milestoneId);
-    onGoalSelect(undefined); // Clear goal when milestone is selected
+    // Only clear goal when ADDING a milestone (not when removing)
+    if (milestoneId) {
+      onGoalSelect(undefined);
+    }
     setIsDropdownOpen(false);
   };
 
@@ -240,8 +250,8 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
             <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.goalSection')}</Text>
-            {goals.length > 0 ? (
-              goals.map((goal) => (
+            {availableGoals.length > 0 ? (
+              availableGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   goal={{
@@ -268,12 +278,12 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             
             {/* Milestones Section */}
             <Text style={styles.dropdownSectionTitle}>{t('manualTask.goalMilestoneSelection.milestonesSection')}</Text>
-            {milestones.length > 0 ? (
-              milestones.map((milestone) => (
+            {availableMilestones.length > 0 ? (
+              availableMilestones.map((milestone) => (
                 <TouchableOpacity
                   key={milestone.id}
                   style={styles.milestoneCard}
-                  onPress={() => handleMilestoneSelect(milestone.id)}
+                  onPress={() => handleMilestoneSelect(selectedMilestoneId === milestone.id ? undefined : milestone.id)}
                 >
                   <View style={styles.milestoneCardContent}>
                     <Text style={styles.milestoneCardTitle}>{milestone.title}</Text>
@@ -284,7 +294,7 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
                           backgroundColor: selectedMilestoneId === milestone.id ? '#BC4B51' : '#A3B18A',
                         }
                       ]}
-                      onPress={() => handleMilestoneSelect(milestone.id)}
+                      onPress={() => handleMilestoneSelect(selectedMilestoneId === milestone.id ? undefined : milestone.id)}
                     >
                       {selectedMilestoneId === milestone.id ? (
                         <View style={styles.xIcon}>
@@ -373,12 +383,13 @@ export default function ManualTaskScreen() {
 
     try {
       if (selectedType === 'task') {
+        // Enforce mutual exclusivity: task can only be attached to EITHER goal OR milestone
         await createTask({
           title: title.trim(),
           notes: notes.trim(),
           scheduledDate: selectedDate,
           isFrog: isEatTheFrog,
-          goalId: selectedGoalId,
+          goalId: selectedMilestoneId ? undefined : selectedGoalId,
           milestoneId: selectedMilestoneId,
           creationSource: 'manual'
         });

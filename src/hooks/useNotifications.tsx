@@ -74,7 +74,8 @@ export const useNotifications = () => {
    */
   const enableNotifications = async (): Promise<boolean> => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      // Optimistic update - immediately show as enabled
+      setState(prev => ({ ...prev, isEnabled: true, isLoading: true }));
       
       // Initialize timezone detection and tagging first
       await notificationService.initializeTimezone();
@@ -89,13 +90,15 @@ export const useNotifications = () => {
           isLoading: false
         });
       } else {
-        setState(prev => ({ ...prev, isLoading: false }));
+        // Revert if failed
+        setState(prev => ({ ...prev, isEnabled: false, isLoading: false }));
       }
       
       return success;
     } catch (error) {
       console.error('Failed to enable notifications:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
+      // Revert on error
+      setState(prev => ({ ...prev, isEnabled: false, isLoading: false }));
       return false;
     }
   };
@@ -105,7 +108,8 @@ export const useNotifications = () => {
    */
   const disableNotifications = useCallback(async (): Promise<void> => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      // Optimistic update - immediately show as disabled
+      setState(prev => ({ ...prev, isEnabled: false, isLoading: true }));
       
       await notificationScheduler.disableNotifications();
       
@@ -122,7 +126,8 @@ export const useNotifications = () => {
       });
     } catch (error) {
       console.error('Failed to disable notifications:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
+      // Revert on error (re-enable)
+      setState(prev => ({ ...prev, isEnabled: true, isLoading: false }));
     }
   }, []);
 

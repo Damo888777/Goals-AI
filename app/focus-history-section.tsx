@@ -22,9 +22,15 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
   isCompletedTask = false
 }) => {
   const { t } = useTranslation();
-  // Use timeStats if available, otherwise calculate from sessions
+  // Use timeStats if available, otherwise calculate from sessions using actual duration
   const totalSessions = timeStats?.totalSessions || focusSessions.length;
-  const totalMinutes = timeStats?.totalMinutes || focusSessions.reduce((sum, session) => sum + session.durationMinutes, 0);
+  const totalMinutes = timeStats?.totalMinutes || focusSessions.reduce((sum, session) => {
+    // Use actual duration if available, otherwise planned duration
+    if (session.actualDurationSeconds) {
+      return sum + Math.ceil(session.actualDurationSeconds / 60);
+    }
+    return sum + session.durationMinutes;
+  }, 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const remainingMinutes = totalMinutes % 60;
   
@@ -67,9 +73,17 @@ export const FocusHistorySection: React.FC<FocusHistorySectionProps> = ({
     if (session.actualDurationSeconds) {
       const minutes = Math.floor(session.actualDurationSeconds / 60);
       const seconds = session.actualDurationSeconds % 60;
-      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Format based on the duration
+      if (seconds === 0) {
+        // Exact minutes: "25 Minutes"
+        return `${minutes} ${minutes === 1 ? 'Minute' : 'Minutes'}`;
+      } else {
+        // With seconds: "12:40 Minutes"
+        return `${minutes}:${seconds.toString().padStart(2, '0')} Minutes`;
+      }
     }
-    return `${session.durationMinutes} ${t('focusHistory.timeFormat.minutesShort')}`;
+    return `${session.durationMinutes} ${session.durationMinutes === 1 ? 'Minute' : 'Minutes'}`;
   };
 
   return (

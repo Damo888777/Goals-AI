@@ -154,18 +154,18 @@ function MainLayout() {
     }
   }, [isLoading, isOnboardingLoading, isSubscriptionLoading, isStorageReady, isOnboardingCompleted, isSubscribed]);
 
-  // Start fade-in as soon as splash finishes to create crossfade
+  // Start fade-in only when we're ready to show the actual content
   useEffect(() => {
-    if (!isLoading) {
-      // Start fade-in immediately when splash signals completion
-      console.log('🚀 [_layout] Starting main app fade-in for crossfade');
+    if (!isLoading && isAppReady && isOnboardingCompleted !== null) {
+      // Start fade-in only when we have made the routing decision
+      console.log('🚀 [_layout] Starting main app fade-in after routing decision');
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 800, // Longer duration for smooth crossfade
         useNativeDriver: true,
       }).start();
     }
-  }, [isLoading, fadeAnim]);
+  }, [isLoading, isAppReady, isOnboardingCompleted, fadeAnim]);
 
   // Handle routing based on onboarding and subscription status
   useEffect(() => {
@@ -196,8 +196,14 @@ function MainLayout() {
     }
   }, [isAppReady, isOnboardingCompleted, isSubscribed, isSubscriptionLoading, wasBackground]);
 
-  // Show splash while loading
-  if (isLoading) {
+  // Show splash while loading OR while routing decision is pending
+  // This prevents the flash of wrong screen on first launch
+  if (isLoading || !isAppReady || isOnboardingCompleted === null) {
+    console.log('🔄 [_layout] Still loading or waiting for routing decision, showing splash screen', {
+      isLoading,
+      isAppReady,
+      isOnboardingCompleted
+    });
     return (
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#E9EDC9' }}>
         <StatusBar style="dark" backgroundColor="#E9EDC9" translucent={false} />
@@ -219,7 +225,7 @@ function MainLayout() {
             headerShown: false, 
             contentStyle: { backgroundColor: '#E9EDC9' } 
           }}
-          initialRouteName="onboarding"
+          initialRouteName={isOnboardingCompleted === false ? "onboarding" : "(tabs)"}
         >
           {/* Onboarding routes - always available */}
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />

@@ -52,14 +52,20 @@ export function GoalCompletionModal({
   const handleSkipReflection = async () => {
     if (goal) {
       await onCompleteGoal(goal.id);
-      resetAndClose();
+      // Small delay to ensure database update completes
+      setTimeout(() => {
+        resetAndClose();
+      }, 100);
     }
   };
 
   const handleCompleteWithReflection = async () => {
     if (goal) {
       await onCompleteGoal(goal.id, reflectionData);
-      resetAndClose();
+      // Small delay to ensure database update completes
+      setTimeout(() => {
+        resetAndClose();
+      }, 100);
     }
   };
 

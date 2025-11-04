@@ -86,6 +86,10 @@ export function useWeeklyTasks(weekOffset: number = 0) {
       startDate.setHours(0, 0, 0, 0); // Start of Monday at midnight
       const endDate = new Date(initialWeekDays[6].dateObj);   // Sunday
       endDate.setHours(23, 59, 59, 999); // End of Sunday
+      
+      // Create date strings in local timezone for comparison
+      const startDateLocal = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const endDateLocal = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
 
       // First, let's see ALL tasks for this user
       const allUserTasks = await tasksCollection
@@ -137,8 +141,8 @@ export function useWeeklyTasks(weekOffset: number = 0) {
           Q.where('user_id', userId),
           Q.where('is_complete', false),
           Q.where('scheduled_date', Q.notEq(null)),
-          Q.where('scheduled_date', Q.gte(startDate.toISOString())),
-          Q.where('scheduled_date', Q.lte(endDate.toISOString()))
+          Q.where('scheduled_date', Q.gte(startDateLocal.toISOString())),
+          Q.where('scheduled_date', Q.lte(endDateLocal.toISOString()))
         )
         .fetch();
       

@@ -124,6 +124,7 @@
       "cancel": "Abbrechen",
       "save": "Speichern",
       "signInWithApple": "Sign In with Apple",
+      "signingIn": "Anmeldung läuft...",
       "signInDescription": "Anmelden für Sync",
       "dataSynced": "Daten synchronisiert",
       "emailHidden": "E-Mail verborgen",

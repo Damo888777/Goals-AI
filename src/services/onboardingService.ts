@@ -316,6 +316,9 @@ class OnboardingService {
       }
     }
 
+    // TypeScript guard - currentUser is guaranteed to be non-null here
+    const userId = currentUser.id;
+
     try {
       // Get today's date for scheduling
       const today = new Date();
@@ -337,7 +340,7 @@ class OnboardingService {
         if (data.visionImageUrl) {
           const visionImagesCollection = database!.get('vision_images');
           const visionImage = await visionImagesCollection.create((image: any) => {
-            image.userId = currentUser.id;
+            image.userId = userId;
             image.goalId = null; // Will be set after goal is created
             image.imageUrl = data.visionImageUrl; // Changed from imageUri
             image.imageType = 'generated'; // Changed from source
@@ -351,7 +354,7 @@ class OnboardingService {
         // Create goal
         const goalsCollection = database!.get('goals');
         const goal = await goalsCollection.create((goal: any) => {
-          goal.userId = currentUser.id;
+          goal.userId = userId;
           goal.title = data.goalTitle;
           goal.setFeelings(data.goalEmotions);
           goal.visionImageUrl = data.visionImageUrl;
@@ -364,7 +367,7 @@ class OnboardingService {
         // Create milestone
         const milestonesCollection = database!.get('milestones');
         const milestone = await milestonesCollection.create((milestone: any) => {
-          milestone.userId = currentUser.id;
+          milestone.userId = userId;
           milestone.goalId = goalId;
           milestone.title = data.milestoneTitle;
           milestone.setTargetDate(null);
@@ -376,7 +379,7 @@ class OnboardingService {
         // Create task scheduled for today as "Eat the Frog"
         const tasksCollection = database!.get('tasks');
         const task = await tasksCollection.create((task: any) => {
-          task.userId = currentUser.id;
+          task.userId = userId;
           task.title = data.firstTaskTitle;
           task.goalId = goalId;
           task.milestoneId = milestoneId;

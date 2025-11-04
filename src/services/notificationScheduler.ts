@@ -610,7 +610,7 @@ class NotificationScheduler {
 
   /**
    * Check and reschedule notifications if needed (call this on app startup)
-   * This ensures notifications are always scheduled for the next delivery time
+   * This ensures notifications are scheduled once per day
    */
   async checkAndRescheduleNotifications(): Promise<void> {
     try {
@@ -622,32 +622,44 @@ class NotificationScheduler {
 
       console.log('🔔 Checking if notifications need rescheduling...');
 
-      // Check each notification type
-      const types = ['morning_kickstart', 'vision_board_reminder', 'evening_checkin'];
+      // Check each notification type individually
+      const types = [
+        { key: 'morning_kickstart', hour: this.MORNING_HOUR, method: () => this.scheduleMorningKickstart() },
+        { key: 'vision_board_reminder', hour: this.VISION_BOARD_HOUR, method: () => this.scheduleVisionBoardReminder() },
+        { key: 'evening_checkin', hour: this.EVENING_HOUR, method: () => this.scheduleEveningCheckin() }
+      ];
       
-      for (const type of types) {
-        const lastScheduledStr = await AsyncStorage.getItem(`scheduled_notification_${type}`);
+      let rescheduledCount = 0;
+      const today = new Date().toDateString(); // Get today's date string
+      
+      for (const { key, hour, method } of types) {
+        const lastScheduledStr = await AsyncStorage.getItem(`scheduled_notification_${key}`);
         
         if (!lastScheduledStr) {
-          console.log(`No schedule found for ${type}, scheduling now...`);
-          await this.scheduleDailyNotifications();
-          return;
+          console.log(`No schedule found for ${key}, scheduling now...`);
+          await method(); // Schedule only this specific notification
+          rescheduledCount++;
+          continue;
         }
 
         const config = JSON.parse(lastScheduledStr);
-        const lastScheduled = config.lastScheduled;
-        const hoursSinceScheduled = (Date.now() - lastScheduled) / (1000 * 60 * 60);
+        const lastScheduledDate = new Date(config.lastScheduled).toDateString();
 
-        // If it's been more than 12 hours since last schedule, reschedule
-        // This ensures we always have upcoming notifications scheduled
-        if (hoursSinceScheduled > 12) {
-          console.log(`${type} needs rescheduling (${hoursSinceScheduled.toFixed(1)} hours since last schedule)`);
-          await this.scheduleDailyNotifications();
-          return;
+        // Only reschedule if we haven't scheduled it today yet
+        if (lastScheduledDate !== today) {
+          console.log(`${key} needs rescheduling (last scheduled: ${lastScheduledDate}, today: ${today})`);
+          await method(); // Schedule only this specific notification
+          rescheduledCount++;
+        } else {
+          console.log(`${key} already scheduled for today, skipping`);
         }
       }
 
-      console.log('✅ All notifications are properly scheduled');
+      if (rescheduledCount > 0) {
+        console.log(`✅ Rescheduled ${rescheduledCount} notification(s)`);
+      } else {
+        console.log('✅ All notifications already scheduled for today');
+      }
     } catch (error) {
       console.error('Failed to check and reschedule notifications:', error);
     }

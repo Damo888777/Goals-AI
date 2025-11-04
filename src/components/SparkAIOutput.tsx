@@ -331,7 +331,7 @@ const VisionBoardSection: React.FC<VisionBoardSectionProps> = ({
             style={[styles.visionActionButton, { backgroundColor: '#bc4b51', width: 134 }]}
           >
             <Text style={styles.visionActionButtonText}>
-              {t('components.sparkAIOutput.vision.remove')}
+              {t('goalDetails.vision.remove')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -367,9 +367,12 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { goals } = useGoals();
+  
+  // Filter out completed goals
+  const availableGoals = goals.filter(g => !g.isCompleted);
 
   console.log('🎯 [GoalSelection] Component props:', { selectedGoalId });
-  console.log('🎯 [GoalSelection] Available goals:', goals.map(g => ({ id: g.id, title: g.title })));
+  console.log('🎯 [GoalSelection] Available goals:', availableGoals.map(g => ({ id: g.id, title: g.title })));
 
   // Auto-open dropdown if there's a preselected goal
   useEffect(() => {
@@ -428,8 +431,8 @@ const GoalSelection: React.FC<GoalSelectionProps> = ({ selectedGoalId, onGoalSel
         {/* Dropdown Content */}
         {isDropdownOpen && (
           <View style={styles.dropdownContent}>
-            {goals.length > 0 ? (
-              goals.map((goal) => (
+            {availableGoals.length > 0 ? (
+              availableGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   goal={{
@@ -478,6 +481,10 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(Boolean(selectedGoalId || selectedMilestoneId));
   const { goals } = useGoals();
   const { milestones } = useMilestones();
+  
+  // Filter out completed goals and milestones
+  const availableGoals = goals.filter(g => !g.isCompleted);
+  const availableMilestones = milestones.filter(m => !m.isComplete);
 
   // Auto-open dropdown if there's a preselected goal or milestone
   useEffect(() => {
@@ -556,8 +563,8 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
           <View style={styles.dropdownContent}>
             {/* Goal Section */}
             <Text style={styles.dropdownSectionTitle}>{t('components.sparkAIOutput.goalMilestoneSelection.goalSection')}</Text>
-            {goals.length > 0 ? (
-              goals.map((goal) => (
+            {availableGoals.length > 0 ? (
+              availableGoals.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   goal={{
@@ -584,8 +591,8 @@ const GoalMilestoneSelection: React.FC<GoalMilestoneSelectionProps> = ({
             
             {/* Milestones Section */}
             <Text style={styles.dropdownSectionTitle}>{t('components.sparkAIOutput.goalMilestoneSelection.milestonesSection')}</Text>
-            {milestones.length > 0 ? (
-              milestones.map((milestone) => (
+            {availableMilestones.length > 0 ? (
+              availableMilestones.map((milestone) => (
                 <TouchableOpacity
                   key={milestone.id}
                   style={styles.milestoneCard}
@@ -772,12 +779,13 @@ const SparkAIOutput: React.FC<SparkAIOutputProps> = ({
 
       switch (selectedType) {
         case 'task':
+          // Enforce mutual exclusivity: task can only be attached to EITHER goal OR milestone
           await createTask({
             title: title.trim(),
             notes: notes.trim(),
             scheduledDate: selectedDate,
             isFrog: isEatTheFrog,
-            goalId: selectedGoalId || undefined,
+            goalId: selectedMilestoneId ? undefined : (selectedGoalId || undefined),
             milestoneId: selectedMilestoneId || undefined,
             creationSource: 'spark'
           });

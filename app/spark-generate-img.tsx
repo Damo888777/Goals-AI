@@ -557,7 +557,7 @@ export default function SparkGenerateIMGScreen() {
                     [
                       { text: t('sparkGenerateImg.alerts.cancel'), style: 'cancel' },
                       {
-                        text: t('sparkGenerateImg.alerts.delete'),
+                        text: t('sparkGenerateImg.buttons.delete'),
                         style: 'destructive',
                         onPress: () => {
                           setGenerationState('idle');
